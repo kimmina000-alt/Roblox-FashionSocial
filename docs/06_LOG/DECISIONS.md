@@ -6197,3 +6197,9 @@ Studio only (no script yet).
 
 ## D-1804 (2026-11-18) 카페 알바 손님 다시 천천히
 - Players via the user: "카페 알바 너무 빨리 온대" → picked "11/13 전으로". CafeJobConfig NpcGapMin / Max 8 / 40 (D-1354, about 24 s) → 12 / 60 (about 36 s, as at D-1025); the first customer after a shift starts comes after NpcFirstSeconds = 15 (was 4, CafeJobService). Opening-hour rates (CafeJobConfig.NpcHours) unchanged.
+
+## D-1821 (2026-11-19) 놀이공원 계단 옆 순위표를 벽에 꽉 차게
+- 사용자: "순위표 벽에 꽉 차게 키울 것".
+- 레벨 순위표(서쪽)와 기부 순위표(동쪽)가 계단 옆 벽 각 칸을 채움: 계단 옆벽에서 공원 모서리까지(양 끝 0.6 안쪽: 서쪽 x -151.9..-115.7 = 36.2, 동쪽 -78.3..-47.1 = 31.2), 높이는 데크(1.5)보다 0.5 위 2.0부터 난간 꼭대기(19.5)보다 0.5 아래 19.0까지 (예전 24 × 11, y 3.4..14.4).
+- 화면 내용도 같이 커짐: RankingBoards.client가 판 높이에 맞춰 픽셀 밀도를 줄임(424픽셀 높이 배치 그대로, 40 → 약 25.5 / 스터드), 글씨·사진·줄이 판 크기에 비례.
+- build_hongdae_layout.lua(D-877 자리)를 고치고, 플레이스에서는 RankingBoards 판만 같은 크기로 다시 만듦(체인 재실행 없음).

@@ -113,7 +113,9 @@ local function headshot(userId: number, image: ImageLabel)
 end
 
 local function buildList(part: BasePart, board: string)
-	local gui = surface(part, 40)
+	-- (D-1821) the layout is drawn for a 424-pixel-high board (10.6 studs at 40 a stud): a bigger
+	-- board (the wall-filling ones, 16.6 high) gets fewer pixels a stud, so everything grows with it
+	local gui = surface(part, math.min(40, 424 / math.max(part.Size.Y, 1)))
 	gui.Brightness = 1.4
 	local donate = board == "support"
 	local bg = Instance.new("Frame")
