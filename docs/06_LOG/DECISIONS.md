@@ -6233,3 +6233,6 @@ Studio only (no script yet).
 - YOUNGCREATORCREW-CORTIS 110347638399953: EQ -6.5/-3/-12.5, boost3 4.
 - RUDE-Hearts2Hearts 70718180522748: EQ -10/-2/-21.5, boost3 4.
 - Play로 들어 보지는 않음.
+
+## D-1861 체포하겠어-ILLIT boost2 10 → 5 (2026-11-19)
+- 사용자: "체포하겠어 부스트 값 몇이야" → boost 10 / boost2 10, "부스트2 5로 변경". 나머지 그대로. Play로 들어 보지는 않음.

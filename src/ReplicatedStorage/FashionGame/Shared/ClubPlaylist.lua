@@ -307,7 +307,8 @@ M.Playlist = {
 		{ id = 114419952125075, at = 210.11 } }, autoChoreo = true }, -- (D-795 / D-796 old single piece removed)
 	{ channel = "K-POP", title = "퇴사할게여-SOYEON", soundId = 96358497474432, length = 71, lab = { speed = 1, tempo = 0.334, volume = 10, boost = 10, boost2 = 10, octave = 0.5, low = -40, mid = -25, high = -40, engine = "sound" } },
 	-- (D-935, user 2026-11-06 final values: tempo 0.335 → 0.333)
-	{ channel = "K-POP", title = "체포하겠어-ILLIT", soundId = 139044453511745, length = 61, lab = { speed = 1, tempo = 0.333, volume = 10, boost = 10, boost2 = 10, octave = 0.5, low = -40, mid = -25, high = -40, engine = "sound" },
+	-- (D-1861, user 2026-11-19: "부스트2 5로 변경", was 10)
+	{ channel = "K-POP", title = "체포하겠어-ILLIT", soundId = 139044453511745, length = 61, lab = { speed = 1, tempo = 0.333, volume = 10, boost = 10, boost2 = 5, octave = 0.5, low = -40, mid = -25, high = -40, engine = "sound" },
 		-- D-914: Arrest1..21 (practice video 3nBkzv0TNDk, video = song + 2.38 s; piece 21 is the re-upload 113936517496560, the first Arrest21 upload was a copy of Arrest20)
 		choreo = { { id = 110040253056586, from = 2.38 }, { id = 116782676046427, at = 11.12 }, { id = 91788521477193, at = 20.12, blend = 0.39 },
 		{ id = 130744405360835, at = 26.09, blend = 0.46 }, { id = 75102459386899, at = 32.95, blend = 0.7 }, { id = 128174978668663, at = 38.69, blend = 0.5, slowIn = { 0.4, 0.4 } },
