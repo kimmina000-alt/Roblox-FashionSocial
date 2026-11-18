@@ -318,7 +318,8 @@ function ChoreoSmooth.load(animationId: string)
 			-- ankles keep their own small moves: none of the automatic clean-ups below
 			-- touch the parts in ClubConfig.ChoreoKeepDetail (a `steady` the user asked
 			-- for still does)
-			local keep = ClubConfig.ChoreoKeepDetail ~= nil and table.find(ClubConfig.ChoreoKeepDetail, part) ~= nil
+			-- (D-1853) a piece with ChoreoFixes `smoothDetail` has its wrists and ankles cleaned too (a capture shaking all over)
+			local keep = ClubConfig.ChoreoKeepDetail ~= nil and table.find(ClubConfig.ChoreoKeepDetail, part) ~= nil and not (fixes and fixes.smoothDetail)
 			local cleaned = if settings and not keep then clean(s.raw, settings.maxStep, settings.passes) else nil
 			-- (D-851) pieces the user saw tremble: the slower wobble too
 			if fixes and fixes.calm and ClubConfig.ChoreoCalm and part ~= "LowerTorso" and not keep then
@@ -358,9 +359,11 @@ function ChoreoSmooth.load(animationId: string)
 			-- turn too (not their travel), is averaged with its neighbours in time
 			-- (Gaussian, ClubConfig.ChoreoDejitter.sigma s, centred so nothing lags);
 			-- the beat-sized moves keep their size, the 6-10 per-second wobble goes
+			-- (D-1853) a piece's ChoreoFixes `dejitter = sigma` averages harder (a capture that trembles all over)
 			local dj = ClubConfig.ChoreoDejitter
-			if dj and dj.sigma > 0 and not (fixes and fixes.sharp) and not keep then
-				cleaned = dejitter(cleaned or s.raw, s.times, dj.sigma, part == "LowerTorso")
+			local sigma = (fixes and fixes.dejitter) or (dj and dj.sigma) or 0
+			if sigma > 0 and not (fixes and fixes.sharp) and not keep then
+				cleaned = dejitter(cleaned or s.raw, s.times, sigma, part == "LowerTorso")
 			end
 			if cleaned then
 				final[part] = cleaned
