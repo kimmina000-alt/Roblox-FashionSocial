@@ -6097,3 +6097,12 @@ Studio only (no script yet).
 - Play 걷기: 대문 → 마당 → 퍼걸러 → 커피 바 · 북카페 · 라운지 유리문으로 들어감 확인. 퍼걸러 의자 위를 걸으면 앉게 됨.
 - 아직: 주문(알바) 시스템 연결 안 함(장식만), 사진 1 같은 나무 판벽 실내는 아님(흰 회벽).
 - 사진: docs/06_LOG/images/2026-11-18/hanok_cafe_*.jpg.
+
+## D-1800 (2026-11-18) 추천 탭: 코디 코드 착장 "네온 스테이지"
+- Player feedback 11-18 (Shalya057): they like the game because the thumbnail looks like A2O LITE "NEON" and the avatars / hair / outfits match. User: club hours stay as they are; "네온 무대 만들고 있어 추천탭에 룩 넣자" → (Marketplace candidates shown) → "ST9W5C 게임 내 카탈로그 코드야 이걸로 캐릭터 추가 가능? 내가 지금 만든 건데".
+- The 코디 코드 ST9W5C (DataStore OutfitCodes_v1, read only) is the first recommended look, "네온 스테이지" (R$ 460, 7 items: body bundle 132242481913896 175, hair 127351822617530 65, arm warmers 112519388565786 70, layered top 11893361899 65, layered bottom 113442333356861 75, classic shirt / pants 5 + 5). Its OutfitSnapshot is copied into Shared/RecommendedLooks (`snapshot`, outfitId 0), so it works without the store and in Studio.
+- WearLook wears `look.snapshot` when there is one. Looks without a Marketplace outfit get their card picture from a rig: ServerMain builds it once at start (CreateHumanoidModelFromDescription, a moment in Workspace far below the map so the joints and layered clothing are solved, then anchored) into ReplicatedStorage.FashionGame.LookRigs; RecommendedLooksView shows a clone in a ViewportFrame.
+- "네온 스테이지" added to the 16 I18n tables. Play check: the card shows first with the rig picture; 입기 puts the look on (hair, arm warmers, top, bottom); no script errors. Not checked: the real purchase window.
+
+## D-1801 (2026-11-18) 추천 탭: 코디 코드 9H5TYW "네온 스테이지 2"
+- User: "9H5TYW 이것도 추가". The second look from a 코디 코드 (read only from OutfitCodes_v1), right after 네온 스테이지: "네온 스테이지 2", R$ 290, 6 items (anime dreaming girl body bundle 104077541197932 75, straight black hair 12866539725 65, white crop tee 112307027330610 65, white layered bottom 124373716702512 75, classic shirt / pants 5 + 5). Same path as D-1800 (snapshot, server rig picture); the name added to the 16 I18n tables. Synced in Edit only (Play was held for the main session's merge test).

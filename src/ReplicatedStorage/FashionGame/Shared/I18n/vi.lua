@@ -997,6 +997,8 @@ return {
 	["온 더 아웃사이드"] = "On the outside",
 	["온수기 가까이 가서 눌러 주세요."] = "Đến gần máy nước nóng rồi chạm.",
 	["올드 머니 룩"] = "Phong cách old money",
+	["네온 스테이지"] = "Sân khấu neon",
+	["네온 스테이지 2"] = "Sân khấu neon 2",
 	["옮길 수 없어요."] = "Không đổi được.",
 	["옷은 어떻게 갈아입어요?"] = "Thay đồ thế nào?",
 	["옷장"] = "Tủ đồ",

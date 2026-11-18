@@ -309,6 +309,39 @@ local function typedItem(payload: any): (number?, string?)
 end
 
 local lookSnapshots: {[string]: any} = {} -- (D-1373) recommended looks, read once
+-- (D-1800) the 추천 card's picture of a look from a 코디 코드 (no Marketplace outfit thumbnail):
+-- a rig of it, built once, for the client's ViewportFrame (ReplicatedStorage.FashionGame.LookRigs)
+task.spawn(function()
+	local folder = Instance.new("Folder")
+	folder.Name = "LookRigs"
+	folder.Parent = FashionGame
+	for _, look in ipairs(require(FashionGame.Shared.RecommendedLooks).list) do
+		if look.snapshot then
+			local ok, err = pcall(function()
+				local description = require(FashionGame.Shared.OutfitSnapshot).decode(look.snapshot)
+				if not description then return end
+				local rig = Players:CreateHumanoidModelFromDescription(description, Enum.HumanoidRigType.R15)
+				for _, d in ipairs(rig:GetDescendants()) do
+					if d:IsA("Script") or d:IsA("LocalScript") then d:Destroy() end
+				end
+				-- the joints (and layered clothing) are only solved in Workspace: there for a moment,
+				-- far under the map, then frozen as they are
+				rig.Name = look.key
+				rig:PivotTo(CFrame.new(0, -5000, 0))
+				local root = rig:FindFirstChild("HumanoidRootPart") :: BasePart?
+				if root then root.Anchored = true end
+				rig.Parent = workspace
+				for _ = 1, 10 do game:GetService("RunService").Heartbeat:Wait() end
+				for _, d in ipairs(rig:GetDescendants()) do
+					if d:IsA("BasePart") then d.Anchored = true end
+				end
+				rig:PivotTo(CFrame.new())
+				rig.Parent = folder
+			end)
+			if not ok then warn("[FashionGame] look rig failed:", look.key, err) end
+		end
+	end
+end)
 TryOnItem.OnServerInvoke = function(
 	player: Player,
 	action: string,
@@ -383,7 +416,7 @@ TryOnItem.OnServerInvoke = function(
 		local look = require(FashionGame.Shared.RecommendedLooks).get(payload)
 		if not look then return false, "Invalid look." end
 		-- the look's own Roblox outfit (exactly the Marketplace look), read once per server
-		local snapshot = lookSnapshots[look.key]
+		local snapshot = look.snapshot or lookSnapshots[look.key] -- (D-1800: a look from a 코디 코드)
 		if not snapshot then
 			local ok, description = pcall(function() return Players:GetHumanoidDescriptionFromOutfitId(look.outfitId) end)
 			if not ok or not description then

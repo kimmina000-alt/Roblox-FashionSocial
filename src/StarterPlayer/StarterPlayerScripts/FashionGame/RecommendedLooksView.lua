@@ -116,11 +116,38 @@ function View.render()
 	c.setMessage(if #Looks.list == 0 then "추천 조합이 아직 없어요." else nil)
 	for index, look in ipairs(Looks.list) do
 		local content = card(index)
-		local thumb = make("ImageLabel", {
-			Name = "Thumbnail", Position = UDim2.fromOffset(5, 5), Size = UDim2.new(1, -10, 1, -88),
-			BackgroundColor3 = COLORS.thumb, BorderSizePixel = 0, ScaleType = Enum.ScaleType.Fit,
-			Image = string.format("rbxthumb://type=Outfit&id=%d&w=420&h=420", look.outfitId),
-		}, content)
+		local thumb: GuiObject
+		if look.snapshot then
+			-- (D-1800) a look from a 코디 코드: its rig (built by the server) in a ViewportFrame
+			local vp = make("ViewportFrame", {
+				Name = "Thumbnail", Position = UDim2.fromOffset(5, 5), Size = UDim2.new(1, -10, 1, -88),
+				BackgroundColor3 = COLORS.thumb, BorderSizePixel = 0, Ambient = Color3.fromRGB(200, 200, 200),
+				LightColor = Color3.fromRGB(255, 255, 255), LightDirection = Vector3.new(-0.3, -1, -0.6),
+			}, content) :: ViewportFrame
+			thumb = vp
+			task.spawn(function()
+				local rigs = FashionGame:WaitForChild("LookRigs", 15)
+				local rig = rigs and rigs:WaitForChild(look.key, 15)
+				if not rig or not vp.Parent then return end
+				local copy = (rig :: Model):Clone()
+				copy.Parent = vp
+				local cf, size = copy:GetBoundingBox()
+				local root = copy:FindFirstChild("HumanoidRootPart") :: BasePart?
+				local front = if root then root.CFrame.LookVector else Vector3.new(0, 0, -1)
+				local camera = Instance.new("Camera")
+				camera.FieldOfView = 30
+				local dist = (size.Y * 0.55) / math.tan(math.rad(15))
+				camera.CFrame = CFrame.lookAt(cf.Position + front * dist + Vector3.new(0, size.Y * 0.05, 0), cf.Position)
+				camera.Parent = vp
+				vp.CurrentCamera = camera
+			end)
+		else
+			thumb = make("ImageLabel", {
+				Name = "Thumbnail", Position = UDim2.fromOffset(5, 5), Size = UDim2.new(1, -10, 1, -88),
+				BackgroundColor3 = COLORS.thumb, BorderSizePixel = 0, ScaleType = Enum.ScaleType.Fit,
+				Image = string.format("rbxthumb://type=Outfit&id=%d&w=420&h=420", look.outfitId),
+			}, content)
+		end
 		corner(thumb, 6)
 		make("TextLabel", {
 			Name = "Name", Position = UDim2.new(0, 6, 1, -80), Size = UDim2.new(1, -12, 0, 22), BackgroundTransparency = 1,

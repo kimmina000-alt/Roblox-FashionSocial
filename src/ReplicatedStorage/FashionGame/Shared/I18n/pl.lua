@@ -997,6 +997,8 @@ return {
 	["온 더 아웃사이드"] = "On the outside",
 	["온수기 가까이 가서 눌러 주세요."] = "Podejdź do podgrzewacza i dotknij.",
 	["올드 머니 룩"] = "Styl old money",
+	["네온 스테이지"] = "Neonowa scena",
+	["네온 스테이지 2"] = "Neonowa scena 2",
 	["옮길 수 없어요."] = "Nie możesz się przesiąść.",
 	["옷은 어떻게 갈아입어요?"] = "Jak się przebrać?",
 	["옷장"] = "Szafa",
