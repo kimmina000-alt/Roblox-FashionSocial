@@ -2744,6 +2744,67 @@ do
 	-- (D-1855, user: "2:37부터 왼손 작은 프레임 안에서는 그냥 고정") the left hand on the hip 157.0-159.9 (20 at 153.71) held still
 	addList(130987200839765, "freeze", { from = 3.3, to = 6.2, ease = 0.3, except = { "LowerTorso", "UpperTorso", "Head", "RightUpperArm", "RightLowerArm", "RightHand",
 		"LeftUpperLeg", "LeftLowerLeg", "LeftFoot", "RightUpperLeg", "RightLowerLeg", "RightFoot" } })
+	-- (D-1856, user 2026-11-19, Unbelievable 0:00-0:17 written out move by move) what the practice video cannot give: the
+	-- title covers the dancers to song 0.9 and the centre (white crop top) is hidden 7.0-8.3. Piece 1 time = song + 1.15,
+	-- piece 2 = song - 6.02; beats at song -0.96 + k x 0.4545 (132 bpm)
+	do
+		local U1, U2 = 107202755656926, 132406634119258
+		local function merge(a: any, b: any): any
+			local t = table.clone(a)
+			for k, v in pairs(b) do t[k] = v end
+			return t
+		end
+		-- 0:00-0:02 "고개 앞에 보고 몸은 측면, 오른쪽 발뒤꿈치 들고 무릎 살짝 굽힘, 오른손 옆구리 -> 고개 뒤로 꺾었다가 돌아옴 ->
+		-- 오른손으로 옆구리 쓸고 내려가면서 무릎 굽히고 앉음"
+		local stand = { LowerTorso = { 0, -70, 0 }, UpperTorso = { 0, 0, 0 }, Head = { 0, 65, 0 },
+			RightUpperLeg = { 25, 0, 0 }, RightLowerLeg = { -45, 0, 0 }, RightFoot = { -10, 0, 0 },
+			LeftUpperLeg = { 0, 0, 0 }, LeftLowerLeg = { 0, 0, 0 }, LeftFoot = { 0, 0, 0 },
+			RightUpperArm = { -90, 40, 60 }, RightLowerArm = { 90, 0, 0 }, RightHand = { 0, 0, 0 },
+			LeftUpperArm = { 0, 0, -8 }, LeftLowerArm = { 10, 0, 0 }, LeftHand = { 0, 0, 0 } }
+		local nod0, nod = { Head = { 0, 0, 0 } }, { Head = { 38, 0, 0 } } -- (the head back about its own axis, after its turn to the front)
+		local sit = merge(stand, { LowerTorso = { 0, -35, 0 }, Head = { 0, 30, 0 },
+			RightUpperLeg = { 85, 0, 15 }, RightLowerLeg = { -115, 0, 0 }, RightFoot = { 30, 0, 0 },
+			LeftUpperLeg = { 85, 0, -15 }, LeftLowerLeg = { -115, 0, 0 }, LeftFoot = { 30, 0, 0 },
+			RightUpperArm = { 10, 0, 8 }, RightLowerArm = { 10, 0, 0 } })
+		local up0, down = { LowerTorso = { 0, 0, 0 } }, { LowerTorso = { 0, -2.3, 0 } }
+		addList(U1, "pose", { from = 0.5, to = 3.05, ease = 0.3, keys = {
+			{ t = 1.15, set = stand, move = up0, add = nod0 }, { t = 1.4, set = stand, move = up0, add = nod0 }, { t = 1.62, set = stand, move = up0, add = nod },
+			{ t = 1.9, set = stand, move = up0, add = nod0 }, { t = 2.05, set = stand, move = up0 }, { t = 2.75, set = sit, move = down } } })
+		addList(U1, "guardOff", { from = 0.5, to = 3.05 })
+		addList(U1, "still", { from = 0.5, to = 3.05 })
+		-- 0:02 "오른쪽팔 위로 쭉 뻗음" (the capture has it up but bent)
+		addList(U1, "pose", { from = 3.05, to = 3.8, ease = 0.2, keys = { { t = 3.25, set = { RightUpperArm = { 175, 0, 0 }, RightLowerArm = { 0, 0, 0 } } },
+			{ t = 3.6, set = { RightUpperArm = { 175, 0, 0 }, RightLowerArm = { 0, 0, 0 } } } } })
+		-- 0:05 "온몸 웨이브 처음에는 느리게 하고 뒤에 빠르게 두 번 더" (hands behind the head 4.3-6.7): the chest rolls
+		-- forward and back, once slowly (4.7-5.6) and twice fast (5.7-6.0, 6.05-6.4)
+		local function addBend(id: number, part: string, keys: any)
+			local f = fx(id)
+			f.bend = if f.bend then table.clone(f.bend) else {}
+			table.insert(f.bend, { part = part, keys = keys })
+		end
+		addBend(U1, "UpperTorso", { { 5.85, 0, 0, 0 }, { 6.15, -16, 0, 0 }, { 6.45, 14, 0, 0 }, { 6.75, 0, 0, 0 }, { 6.85, -13, 0, 0 }, { 7.0, 11, 0, 0 }, { 7.15, 0, 0, 0 } })
+		addBend(U1, "LowerTorso", { { 5.85, 0, 0, 0 }, { 6.15, 8, 0, 0 }, { 6.45, -7, 0, 0 }, { 6.75, 0, 0, 0 }, { 6.85, 6, 0, 0 }, { 7.0, -5, 0, 0 }, { 7.15, 0, 0, 0 } })
+		addBend(U2, "UpperTorso", { { 0.03, 0, 0, 0 }, { 0.13, -13, 0, 0 }, { 0.28, 11, 0, 0 }, { 0.42, 0, 0, 0 } })
+		addBend(U2, "LowerTorso", { { 0.03, 0, 0, 0 }, { 0.13, 6, 0, 0 }, { 0.28, -5, 0, 0 }, { 0.42, 0, 0, 0 } })
+		-- 0:07 "허허: 고개 왼쪽으로 갔다가 오른쪽으로 까딱하면서 양팔 앞으로 쭉 뻗음" / 0:09 "양팔 아래로 내리면서 걸어나옴"
+		local fwd = { RightUpperArm = { 90, 0, 0 }, RightLowerArm = { 0, 0, 0 }, LeftUpperArm = { 90, 0, 0 }, LeftLowerArm = { 0, 0, 0 } }
+		local half = { RightUpperArm = { 45, 0, 5 }, RightLowerArm = { 5, 0, 0 }, LeftUpperArm = { 45, 0, -5 }, LeftLowerArm = { 5, 0, 0 } }
+		local hang = { RightUpperArm = { 0, 0, 8 }, RightLowerArm = { 10, 0, 0 }, LeftUpperArm = { 0, 0, -8 }, LeftLowerArm = { 10, 0, 0 } }
+		addList(U2, "pose", { from = 0.85, to = 3.35, ease = 0.25, keys = {
+			{ t = 1.1, set = fwd, add = { Head = { 0, 0, 22 } } }, { t = 1.4, set = fwd, add = { Head = { 0, 0, -22 } } }, { t = 1.7, set = fwd, add = { Head = { 0, 0, 0 } } },
+			{ t = 2.15, set = fwd }, { t = 2.6, set = half }, { t = 3.05, set = hang } } })
+		addList(U2, "guardOff", { from = 0.85, to = 3.35 })
+		-- 0:12 "왼발로 땅 쿵쿵 밟으면서 몸 회전": the left knee comes up before each beat and the foot lands on it (12.22-14.50)
+		local thigh, shin = {}, {}
+		for k = 29, 34 do
+			local t = -0.96 + k * 0.45455 - 6.02
+			-- (in Play the foot peaked on the beat with the landing at t: 0.1 s earlier)
+			table.insert(thigh, { t - 0.38, 0, 0, 0 }) table.insert(thigh, { t - 0.21, 38, 0, 0 }) table.insert(thigh, { t - 0.09, 0, 0, 0 })
+			table.insert(shin, { t - 0.38, 0, 0, 0 }) table.insert(shin, { t - 0.21, -55, 0, 0 }) table.insert(shin, { t - 0.09, 0, 0, 0 })
+		end
+		addBend(U2, "LeftUpperLeg", thigh)
+		addBend(U2, "LeftLowerLeg", shin)
+	end
 end
 
 -- (D-1853, user 2026-11-19: "언빌리버블 손만 떠는 게 아니고 전체를 다 떨어 사시나무처럼 … 안무 동작 정확하고 크게 보정해") Play:
