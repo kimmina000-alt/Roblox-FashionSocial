@@ -20,8 +20,8 @@ local NeonStageConfig = {}
 
 NeonStageConfig.SoundId = 140713297574648 -- NEON-A2O LITE (ClubPlaylist; D-932's upload, choreography and camera keyed on it)
 NeonStageConfig.Center = Vector3.new(-96, -1.98, -128) -- (the plaza floor at the stage's middle: the walked face, measured)
-NeonStageConfig.Radius = 10 -- (the stage's top)
-NeonStageConfig.StepRadius = 11.6 -- (the low step round it)
+NeonStageConfig.Radius = 16 -- (the stage's top; D-1793: was 10)
+NeonStageConfig.StepRadius = 18 -- (the low step round it; D-1793: was 11.6)
 NeonStageConfig.Height = 1.2 -- (the top over the plaza floor: two 0.6 steps, walked up from any side)
 NeonStageConfig.Top = NeonStageConfig.Center.Y + NeonStageConfig.Height
 NeonStageConfig.HearInner = 34 -- (full plaza level inside the tiers' front edge, r 34.6)
