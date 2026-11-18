@@ -5983,3 +5983,11 @@ Studio only (no script yet).
 - NCT DREAM-Boogie Woogie: 인기가요 11-15(_PPPSs8FOmo), 영상 = 노래 + 17.15초, 108샷, 노래 끝 196.0초.
 - H1-KEY-Unbelievable: 인기가요 11-15(Rhhx_sDc3hc), 영상 = 노래 + 0.10초, 78샷, 노래 끝 135.3초(fileSpeed 1.0499, D-1672).
 - 샷 목록은 shots_to_lua.py(D-944). ClubCamera.Songs[112509101263761 / 129638210426239 / 102947379971628 / 81736514719301].
+
+## D-1786 손 스파클러: 왼손에 들고, 두 개면 두 손에 (2026-11-18)
+- 사용자: "손스파클러 왼손에 들고 있게 수정 / 두 개 들면 두 손에 다 들 수 있게 수정".
+- 새 모듈 `Services/SparklerHands.lua` (SparkleService가 Start): 손 스파클러를 들면 Roblox가 만든 RightGrip 용접을 왼손 LeftGripAttachment로 옮김(손이 내려온 자세에서 위로 서게, 친구바 반쪽 D-1144와 같은 회전).
+- 가방에 손 스파클러가 하나 더 있으면(불 붙은 상태가 같은 것), 그 도구의 부품을 캐릭터 안 Model "SparklerRightHand"로 옮겨 오른손에 용접. 도구 자체는 가방에 남아서 가방·주기·재접속 개수는 그대로. 들고 있던 것을 넣거나 주거나 다 타면 부품이 원래 도구로 돌아감. 들고 있는 동안 두 번째를 사거나 받으면 바로 오른손에.
+- 불 붙이기(화면 두 번 탭)는 두 개 모두 붙임: SparkleService lightTool(tool)로 나눔, 부품이 있는 곳(SparklerHands.partsOf)에 Tip을 붙이고 타 들어감.
+- HandSparklerController: 손 스파클러를 드는 동안 Roblox 기본 "도구 든 팔" 자세(ToolNoneAnim)를 멈춤(빈 오른팔이 앞으로 나와 있지 않게).
+- 확인(Studio Play, PC): 한 개 = 왼손(손잡이-왼손 0.08), 두 개 = 왼손 + 오른손(각 0.08), 불 붙이기 → 둘 다 Tip, 넣었다 다시 들기 → 다시 두 손, 스크립트 오류 0. 새 한국어 문구 없음.

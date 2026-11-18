@@ -29,6 +29,7 @@ local MonetizationConfig = require(FashionGame:WaitForChild("Shared"):WaitForChi
 local MonetizationService = require(script.Parent.MonetizationService)
 local DrinkBucket = require(script.Parent.DrinkBucket)
 local DrinkService = require(script.Parent.DrinkService)
+local SparklerHands = require(script.Parent.SparklerHands) -- (D-1786: left hand, two hands)
 local ClubConfig = require(FashionGame:WaitForChild("Shared"):WaitForChild("ClubConfig"))
 
 local SparkleService = {}
@@ -690,16 +691,16 @@ end
 -- its tip, and when the time is up nothing is left in the hand.
 local STICK = 1.6 -- burning length at the start
 local GRIP = 0.4 -- the bare wire held in the hand (Handle)
-local function lightHandSparkler(player: Player): (boolean, string?)
-	local character = player.Character
-	local tool = character and character:FindFirstChildOfClass("Tool")
-	if not tool or not tool:GetAttribute("HandSparkler") then return false, "손 스파클러를 손에 들어 주세요." end
-	if tool:GetAttribute("Lit") then return false, nil end
+-- (D-1786) one sparkler lit: its parts are in the tool, or in the right hand's
+-- Model when it is the second one held (SparklerHands.partsOf)
+local function lightTool(tool: Tool): boolean
+	if tool:GetAttribute("Lit") then return false end
 	tool:SetAttribute("Lit", true)
-	local handle = tool:FindFirstChild("Handle") :: BasePart?
-	local stick = tool:FindFirstChild("Stick") :: BasePart?
+	local container = SparklerHands.partsOf(tool)
+	local handle = container:FindFirstChild("Handle") :: BasePart?
+	local stick = container:FindFirstChild("Stick") :: BasePart?
 	local stickWeld = stick and stick:FindFirstChild("Weld") :: Weld?
-	if not handle or not stick or not stickWeld then return false, nil end
+	if not handle or not stick or not stickWeld then return false end
 	local tip = Instance.new("Part")
 	tip.Name = "Tip"
 	tip.Shape = Enum.PartType.Ball
@@ -714,7 +715,7 @@ local function lightHandSparkler(player: Player): (boolean, string?)
 	tipWeld.Part1 = tip
 	tipWeld.C0 = CFrame.new(0, GRIP / 2 + STICK, 0)
 	tipWeld.Parent = tip
-	tip.Parent = tool
+	tip.Parent = container
 	local at = sparks(tip, Vector3.zero, false)
 	local emitter = at:FindFirstChild("Sparks")
 	if emitter and emitter:IsA("ParticleEmitter") then
@@ -744,6 +745,17 @@ local function lightHandSparkler(player: Player): (boolean, string?)
 		end
 		if tool.Parent then tool:Destroy() end
 	end)
+	return true
+end
+local function lightHandSparkler(player: Player): (boolean, string?)
+	local character = player.Character
+	local tool = character and character:FindFirstChildOfClass("Tool")
+	if not tool or not tool:GetAttribute("HandSparkler") then return false, "손 스파클러를 손에 들어 주세요." end
+	if tool:GetAttribute("Lit") then return false, nil end
+	if not lightTool(tool) then return false, nil end
+	-- (D-1786) the one in the other hand too
+	local partner = SparklerHands.partnerOf(tool)
+	if partner then lightTool(partner) end
 	return true, string.format("✨ 불이 붙었어요! %d초 동안 타요.", HAND_SPARKLER_SECONDS)
 end
 
@@ -1098,6 +1110,7 @@ function SparkleService.Start()
 	MonetizationService.RegisterProduct("Sparkler1", grantSparkler)
 	MonetizationService.RegisterProduct("Sparkler5", grantSparkler5)
 	MonetizationService.RegisterProduct("HandSparkler", grantHandSparkler)
+	SparklerHands.Start() -- (D-1786)
 	MonetizationService.RegisterProduct("SparklerBucket", grantBucketItem)
 	MonetizationService.RegisterProduct("SparklerBucket_VIP", grantBucketItem)
 	MonetizationService.RegisterProduct("ColdSpark", grantColdSpark)

@@ -72,9 +72,28 @@ UserInputService.InputBegan:Connect(function(input, processed)
 	if not processed and input.UserInputType == Enum.UserInputType.MouseButton1 then tapped() end
 end)
 
+-- (D-1786) the sparkler is in the left hand (SparklerHands on the server): Roblox's
+-- "tool held out" pose (Animate's ToolNoneAnim) would keep the empty right arm
+-- out in front, so it is stopped while a hand sparkler is held (the Animate
+-- script does not start it again for the same tool)
+local function dropToolPose(character: Model, tool: Tool)
+	for _ = 1, 10 do
+		if tool.Parent ~= character then return end
+		local humanoid = character:FindFirstChildOfClass("Humanoid")
+		local animator = humanoid and humanoid:FindFirstChildOfClass("Animator")
+		if animator then
+			for _, track in ipairs(animator:GetPlayingAnimationTracks()) do
+				if track.Animation and track.Animation.Name == "ToolNoneAnim" then track:Stop(0.2) end
+			end
+		end
+		task.wait(0.1)
+	end
+end
+
 local function watch(character: Model)
 	character.ChildAdded:Connect(function(c)
 		if c:IsA("Tool") then
+			if c:GetAttribute("HandSparkler") then task.spawn(dropToolPose, character, c) end
 			refresh()
 			c:GetAttributeChangedSignal("Lit"):Connect(refresh)
 		end
