@@ -2655,4 +2655,48 @@ do
 	addBend(P24, "RightHand", { { 0.0, 0, 0, 0 }, { 0.15, 0, 0, -45 }, { 0.3, 0, 0, 0 }, { 0.45, 0, 0, -45 }, { 0.6, 0, 0, 0 }, { 0.75, 0, 0, -45 }, { 0.9, 0, 0, 0 } })
 end
 
+-- (D-1852, user 2026-11-19: "언빌리버블 떨림 많음 … 소원을 말해봐 3:20 같은 동작 팔 반만 … 3:32 무릎 꿇고 벌벌 … 갑자기 0:10 엄청
+-- 떨어 … 1:16 무릎 꿇고 많이 떰 … 2:49 팔 버벅 … 2:57 오른팔 튀어나감 … with 0:10 떨림, 2:55 누워 버리네") what Play shows on
+-- this game's own dancer (joint turn-backs > 1.2° a frame, 5+ in 0.5 s; hips up / down 7 times in 0.5 s; single-frame
+-- jumps), steadied / held / made bigger where it shows; piece seconds from the playing track in Play
+do
+	local function fx(id: number): any
+		local f = (M.ChoreoFixes[id] or {}) :: any
+		M.ChoreoFixes[id] = f
+		return f
+	end
+	local function addList(id: number, key: string, item: any)
+		local f = fx(id)
+		local list = if f[key] == nil then {} elseif f[key].from then { f[key] } else table.clone(f[key])
+		table.insert(list, item)
+		f[key] = list
+	end
+	local ARM_R = { "RightUpperArm", "RightLowerArm", "RightHand" }
+	local ARM_L = { "LeftUpperArm", "LeftLowerArm", "LeftHand" }
+	local ARMS = { "LeftUpperArm", "LeftLowerArm", "LeftHand", "RightUpperArm", "RightLowerArm", "RightHand" }
+	-- Unbelievable: the hands that still shake (Play, 0:00-2:15: 1:40 right, 1:50 left, 1:56 left, 2:00-2:01 right, 2:12 left)
+	addList(106947840145982, "steady", { from = 9.6, to = 10.4, passes = 8, parts = ARM_R })
+	addList(121716323345976, "steady", { from = 4.8, to = 5.8, passes = 8, parts = ARM_L })
+	addList(82151831370082, "steady", { from = 0.2, to = 1.0, passes = 8, parts = ARM_L })
+	addList(82151831370082, "steady", { from = 4.9, to = 6.4, passes = 8, parts = ARM_R })
+	addList(85861969329409, "steady", { from = 10.1, to = 10.9, passes = 8, parts = ARM_L })
+	-- 소원을 말해봐 3:20: the move at 3:21 is done again at 3:22 with the arms half as far (right hand to 0.5 against 0.8):
+	-- that second one 1.8x (piece 115574620758490 at 201.47)
+	addList(115574620758490, "amp", { from = 0.25, to = 1.05, ease = 0.2, parts = { LeftUpperArm = 1.8, RightUpperArm = 1.8, LeftLowerArm = 1.4, RightLowerArm = 1.4 } })
+	-- 소원을 말해봐 3:32 무릎 꿇고 고정: the last piece (127828014236660 at 210.31) held from its kneel to the song's end, head free
+	fx(127828014236660).freeze = { from = 1.8, to = 99, ease = 0.4, except = { "Head" } }
+	-- 갑자기 1:16 무릎 꿇고 앉았을 때 고정 (piece 104001486192661 at 74.7: the hips drop to -1.6 at 76.8-78.4 and bob 7 times in 0.5 s
+	-- at 78.0): legs and hips held, the upper body calmed
+	fx(104001486192661).freeze = { from = 2.2, to = 3.75, ease = 0.3, except = { "UpperTorso", "Head", "LeftUpperArm", "LeftLowerArm", "LeftHand", "RightUpperArm", "RightLowerArm", "RightHand" } }
+	addList(104001486192661, "still", { from = 2.2, to = 3.75 })
+	addList(104001486192661, "steady", { from = 2.2, to = 3.75, passes = 8, parts = { "UpperTorso", "Head" } })
+	-- 갑자기 2:49 팔 버벅 → 한 동작 (piece 92331354114542 at 166.7: the arms flail 168.3-169.6)
+	addList(92331354114542, "steady", { from = 1.4, to = 3.1, passes = 8, parts = ARMS })
+	-- 갑자기 2:57 오른팔 튀어나감 (piece 82782712192367 at 172.7: hands 42 studs/s in one frame at 178.3, the right 32 at 179.05)
+	addList(82782712192367, "steady", { from = 5.3, to = 6.6, passes = 6, parts = ARMS })
+	-- With 0:10 떨림 (piece 77578453879056 at 8.2, 0.4-2.1) and the right hand dropping 0.63 in one frame at 13.67 (piece 102977375863633)
+	addList(77578453879056, "steady", { from = 0.4, to = 2.1, passes = 8 })
+	addList(102977375863633, "steady", { from = 2.85, to = 3.6, passes = 8, parts = ARM_R })
+end
+
 return M
