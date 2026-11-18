@@ -5,6 +5,9 @@
 -- or the prompt again, lets go; it also stops after 20 s. (D-1384: the prompt's label is
 -- hidden; E on a PC or a tap on the pole starts it.) The character
 -- moves on this client (its owner), so everyone sees it.
+-- (D-1416, user 2026-11-14: "댄스봉 단상 위에 올라가면 알아서 댄스봉 잡고 돌기") stepping up onto a
+-- pole's base starts it by itself; after letting go (jump / 20 s) it starts again only once the
+-- player has stepped off the base and back on.
 
 local Players = game:GetService("Players")
 local ProximityPromptService = game:GetService("ProximityPromptService")
@@ -132,4 +135,32 @@ UserInputService.InputEnded:Connect(function(input, processed)
 	if not base then return end
 	local flat = Vector2.new(root.Position.X - base.Position.X, root.Position.Z - base.Position.Z).Magnitude
 	if flat <= REACH then start(base) end
+end)
+
+-- (D-1416) stepping onto a base: start by itself, once per visit
+local armed: {[BasePart]: boolean} = {}
+RunService.Heartbeat:Connect(function()
+	local character = player.Character
+	local humanoid = character and character:FindFirstChildOfClass("Humanoid")
+	local root = character and character:FindFirstChild("HumanoidRootPart") :: BasePart?
+	if not humanoid or not root or humanoid.Health <= 0 then return end
+	local feet = root.Position.Y - humanoid.HipHeight - root.Size.Y / 2
+	for _, base in ipairs(CollectionService:GetTagged("DancePole")) do
+		if base:IsA("BasePart") and base:IsDescendantOf(workspace) then
+			local radius = math.max(base.Size.Y, base.Size.Z) / 2 -- (a cylinder lying on X, turned upright)
+			local top = base.Position.Y + base.Size.X / 2
+			local flat = Vector2.new(root.Position.X - base.Position.X, root.Position.Z - base.Position.Z).Magnitude
+			local on = flat < radius - 0.3 and math.abs(feet - top) < 1.2
+			if on then
+				if active then
+					armed[base] = false -- (spinning, or started by a tap: no new start until stepped off)
+				elseif armed[base] ~= false and not humanoid.Sit and humanoid.FloorMaterial ~= Enum.Material.Air then
+					armed[base] = false
+					start(base)
+				end
+			elseif flat > radius + 0.8 or feet < top - 1.5 then
+				armed[base] = true
+			end
+		end
+	end
 end)

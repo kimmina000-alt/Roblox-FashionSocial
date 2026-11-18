@@ -826,7 +826,7 @@ local function applyDance()
 			return
 		end
 		track.Priority = Enum.AnimationPriority.Action
-		track.Looped = dance.looped
+		track.Looped = dance.looped and not dance.loopTo -- (D-1416: a smooth loop turns over by itself, below)
 		current.key = key
 		current.track = track
 		track:Play(0.2)
@@ -855,7 +855,12 @@ local function applyDance()
 		end
 		if current.track ~= track or track.Length == 0 then return end
 		local elapsed = if typeof(paused) == "number" then paused else math.max(0, workspace:GetServerTimeNow() - start) * speed
-		if dance.looped then
+		if dance.looped and dance.loopTo then
+			-- (D-1416) one turn = loopFrom .. loopTo - loopBlend (the blend overlaps the next start)
+			local from = dance.loopFrom or 0
+			local cycle = math.max(0.5, math.min(dance.loopTo, track.Length) - (dance.loopBlend or 0) - from)
+			track.TimePosition = from + elapsed % cycle
+		elseif dance.looped then
 			track.TimePosition = elapsed % track.Length
 		elseif elapsed < track.Length then
 			track.TimePosition = elapsed
@@ -863,6 +868,31 @@ local function applyDance()
 	end)
 	refreshButtons()
 end
+
+-- (D-1416) smooth loops (ClubDances loopFrom / loopTo / loopBlend): near loopTo a fresh copy of
+-- the clip starts at loopFrom and blends in while the old one fades out, so the last move flows
+-- into the first one; everyone joined to the dance turns over at the same clock time
+RunService.Heartbeat:Connect(function()
+	local track, key = current.track, current.key
+	if not track or not key or not track.IsPlaying then return end
+	local dance = ClubConfig.findDance(key)
+	if not dance or not dance.loopTo or track.Length == 0 then return end
+	local blend = dance.loopBlend or 0.4
+	if track.TimePosition < math.min(dance.loopTo, track.Length) - blend then return end
+	local _, _, animator = myCharacter()
+	local animation = animationFor(key)
+	if not animator or not animation then return end
+	local ok, nextTrack = pcall(function() return animator:LoadAnimation(animation) end)
+	if not ok or not nextTrack then return end
+	nextTrack.Priority = track.Priority
+	nextTrack.Looped = false
+	nextTrack:Play(blend)
+	nextTrack.TimePosition = dance.loopFrom or 0
+	nextTrack:AdjustSpeed(track.Speed)
+	current.track = nextTrack
+	track:Stop(blend)
+	task.delay(blend + 0.1, function() track:Destroy() end)
+end)
 
 local characterConnections: {RBXScriptConnection} = {}
 local function watchCharacter(character: Model)
