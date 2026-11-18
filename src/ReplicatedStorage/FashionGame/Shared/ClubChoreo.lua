@@ -1446,7 +1446,7 @@ M.ChoreoSlideStill = {
 	[97422868495252] = { { 1.2, 1.8 } }, [77667909738269] = { { 0.7, 1.3 } }, [106947840145982] = { { 0.5, 1.2 }, { 1.4, 2.0 }, { 4.7, 5.3 }, { 7.6, 8.3 }, { 10.2, 11.1 } },
 	[121716323345976] = { { 8.7, 9.4 } }, [85861969329409] = { { 4.5, 5.5 } }, [98632778351786] = { { 3.7, 4.4 } }, [82151831370082] = { { 1.5, 3.2 }, { 5.7, 6.7 } }, -- (+ Play TELEPORT 0:11.7, 0:57.2, 1:25.8, 1:56.6, 1:57.7, 2:00.8, 2:01.3) [132406634119258] = { { 3.1, 6.0 } }, [82476096356644] = { { 6.8, 7.5 } },
 	-- Boogie Woogie-NCT DREAM (D-1670, choreo_slide_check + choreo_motion_scan DRIFT + Play TELEPORT 0:10.2, 0:15.3, 1:37.2, 2:14.6, 2:26.9, 3:02.9-3:05.1)
-	[72899900258037] = { { 3.8, 4.5 }, { 5.5, 7.0 } }, [98798684410312] = { { 3.7, 4.4 }, { 5.0, 5.9 } }, [97814419171643] = { { 0.0, 1.5 }, { 4.3, 4.9 }, { 7.1, 8.0 } },
+	[72899900258037] = { { 3.8, 4.5 }, { 5.5, 7.0 } }, [98798684410312] = {}, [97814419171643] = { { 0.0, 1.5 }, { 4.3, 4.9 }, { 7.1, 8.0 } },
 	[93564912800713] = { { 0.4, 1.0 }, { 5.4, 7.0 }, { 9.3, 10.4 } }, [118999861690635] = { { 4.2, 5.4 }, { 5.9, 7.6 } }, [72126724441612] = { { 0.2, 1.6 }, { 2.3, 3.1 } },
 	[103506023234554] = { { 5.7, 6.6 }, { 8.4, 9.03 } }, [77759369454741] = { { 6.7, 7.3 }, { 8.4, 9.1 } }, [92147677701072] = { { 1.6, 2.2 } }, [90031774217033] = { { 0.0, 1.8 } },
 	[82489608576953] = { { 0.9, 2.1 }, { 2.9, 3.7 }, { 6.3, 6.9 }, { 7.7, 9.4 } }, [140605792599503] = { { 1.8, 2.5 }, { 2.8, 3.7 } }, [130987200839765] = { { 0.2, 1.0 }, { 4.5, 5.3 } },
@@ -2365,6 +2365,93 @@ do
 	addList(P20, "still", { from = 9.3, to = 99 })
 	addPose(P20, { from = 9.2, to = 99, ease = 0.3, keys = { { t = 9.4, set = { Head = { -35, 10, 0 } } }, { t = 10.6, set = { Head = { -30, 10, 0 } } },
 		{ t = 11.95, set = { Head = { 35, 10, 0 } } } } })
+end
+
+-- (D-1851, user 2026-11-19 list for Boogie Woogie-NCT DREAM, play-bar = song seconds: the rate is 0.9999) first batch,
+-- 0:00-0:30, from the fancam (video = song + 3.85) and Play: piece seconds = song - `at` (piece 1: song + 3.85)
+do
+	local function fx(id: number): any
+		local f = (M.ChoreoFixes[id] or {}) :: any
+		M.ChoreoFixes[id] = f
+		return f
+	end
+	local function addPose(id: number, window: any)
+		local f = fx(id)
+		local list = if f.pose == nil then {} elseif f.pose.from then { f.pose } else table.clone(f.pose)
+		table.insert(list, window)
+		f.pose = list
+	end
+	local function addBend(id: number, part: string, keys: any)
+		local f = fx(id)
+		f.bend = f.bend or {}
+		table.insert(f.bend, { part = part, keys = keys })
+	end
+	local function arm(side: string, a: any): any
+		return { [side .. "UpperArm"] = a[1], [side .. "LowerArm"] = a[2], [side .. "Hand"] = a[3] }
+	end
+	local function both(l: any, r: any): any
+		local t = table.clone(l)
+		for k, v in pairs(r) do t[k] = v end
+		return t
+	end
+	-- a wrist flicking z between +amp and -amp every `half` s (in / out, 털기)
+	local function flick(t0: number, t1: number, half: number, amp: number): any
+		local keys, t, sign = { { t0, 0, 0, 0 } }, t0 + half * 0.5, 1
+		while t <= t1 - half * 0.5 do
+			table.insert(keys, { t, 0, 0, sign * amp })
+			t += half
+			sign = -sign
+		end
+		table.insert(keys, { t, 0, 0, 0 })
+		return keys
+	end
+	-- both shoulders up and down on each `half` s (어깨 들썩)
+	local function shrug(t0: number, t1: number, half: number, up: number): any
+		local keys, t, hi = {}, t0, true
+		while t <= t1 + 1e-6 do
+			local y = if hi then up else 0
+			table.insert(keys, { t = t, move = { LeftUpperArm = { 0, y, 0 }, RightUpperArm = { 0, y, 0 } } })
+			t += half
+			hi = not hi
+		end
+		return { from = t0 - 0.1, to = t + 0.05, ease = 0.1, keys = keys }
+	end
+	local BEAT = 0.5173 -- (115.98 bpm, the fancam's beats)
+	local P1, P2, P3, P4, P5 = 74991796424913, 72899900258037, 98798684410312, 136974262670764, 97814419171643
+	-- 시작할 때 허리 앞으로 제대로 숙이기 (video 0.2-1.6: bent deep, hands on the knees; the capture only ~50°)
+	addPose(P1, { from = 3.55, to = 5.85, ease = 0.3, keys = { { t = 3.95, add = { UpperTorso = { -25, 0, 0 } } }, { t = 5.35, add = { UpperTorso = { -25, 0, 0 } } } } })
+	-- 0:01 오른손 뻗으면 오른 손목 안팎으로 (the right arm out 2.0-3.0)
+	addBend(P1, "RightHand", flick(5.85, 6.85, BEAT / 2, 40))
+	-- 0:04 고개 우로 한 번 좌로 한 번 (P2 at 3.62)
+	addBend(P2, "Head", { { 0.4, 0, 0, 0 }, { 0.65, 0, 0, -25 }, { 0.9, 0, 0, 0 }, { 1.15, 0, 0, 25 }, { 1.4, 0, 0, 0 } })
+	-- 0:08 팔꿈치 더 접기 (video 7.6-9.0: fists at the hips, elbows bent)
+	addPose(P2, { from = 4.25, to = 5.45, ease = 0.2, keys = { { t = 4.5, add = { LeftLowerArm = { 45, 0, 0 }, RightLowerArm = { 45, 0, 0 } } },
+		{ t = 5.2, add = { LeftLowerArm = { 45, 0, 0 }, RightLowerArm = { 45, 0, 0 } } } } })
+	-- 0:10 걸어갈 때 어깨 위아래로 (song 10.0-11.4)
+	addPose(P2, shrug(6.4, 7.8, BEAT / 2, 0.22))
+	-- 0:14 왼손 안쪽 (P3 at 11.33: the left hand up 14.0-14.8)
+	addPose(P3, { from = 2.6, to = 3.6, ease = 0.15, keys = { { t = 2.75, set = { LeftHand = { 0, 0, 45 } } }, { t = 3.45, set = { LeftHand = { 0, 0, 45 } } } } })
+	-- 0:15-0:16 진짜 앞으로 걸어가기: the slide holds on P3 (3.7-4.4, 5.0-5.9) lifted above
+	-- 0:17-0:18 어깨 위아래로 (P3 to its end at 17.64, then P4)
+	addPose(P3, shrug(5.5, 6.25, BEAT / 2, 0.22))
+	addPose(P4, shrug(0.05, 0.65, BEAT / 2, 0.22))
+	-- 0:24 손바닥끼리 비비기 (video 24.4-24.8: palms together in front of the chest, rubbing up and down; P4 at 17.64)
+	local rubA = both(arm("Right", { { 31, 64, 16 }, { 88, 0, 0 }, { 20, 20, 60 } }), arm("Left", { { -60, -65, -120 }, { 85, 0, 0 }, { 30, -10, -90 } }))
+	local rubB = both(arm("Right", { { -60, 65, 120 }, { 85, 0, 0 }, { 30, 10, 90 } }), arm("Left", { { 31, -64, -16 }, { 88, 0, 0 }, { 20, -20, -60 } }))
+	local rub = {}
+	for k = 0, 5 do table.insert(rub, { t = 6.6 + k * 0.13, set = if k % 2 == 0 then rubA else rubB }) end
+	addPose(P4, { from = 6.3, to = 7.6, ease = 0.3, keys = rub })
+	fx(P4).guardOff = { { from = 6.3, to = 7.6 }, { from = 9.1, to = 9.95 } }
+	-- (Play: the capture swings 72° out and back at 24.1-24.7, 655°/s; the video faces the front) one even facing
+	fx(P4).spin = { from = 6.2, to = 7.1, ease = "both" }
+	-- 0:25 양손 좌우로 반바퀴씩 (video 25.0-25.8: both hands up at the sides)
+	addBend(P4, "LeftHand", wristTwinkle(7.4, 8.3, BEAT / 2, 80))
+	addBend(P4, "RightHand", wristTwinkle(7.4, 8.3, BEAT / 2, 80))
+	-- 0:27 손바닥끼리 부딪히기 (video 27.0-27.3: one clap low in front)
+	local clap = both(arm("Right", { { 15, 77, 15 }, { 58, 0, 0 }, { 50, -20, 90 } }), arm("Left", { { 15, -77, -15 }, { 58, 0, 0 }, { 50, 20, -90 } }))
+	addPose(P4, { from = 9.1, to = 9.95, ease = 0.2, keys = { { t = 9.4, set = clap }, { t = 9.6, set = clap } } })
+	-- 0:30 왼손 좌우로 털기 (P5 at 27.51: the left hand out 30.0-30.9)
+	addBend(P5, "LeftHand", flick(2.49, 3.39, 0.13, 35))
 end
 
 return M
