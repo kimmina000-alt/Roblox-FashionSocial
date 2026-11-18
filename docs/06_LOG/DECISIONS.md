@@ -6312,3 +6312,10 @@ Studio only (no script yet).
 
 ## D-1861 체포하겠어-ILLIT boost2 10 → 5 (2026-11-19)
 - 사용자: "체포하겠어 부스트 값 몇이야" → boost 10 / boost2 10, "부스트2 5로 변경". 나머지 그대로. Play로 들어 보지는 않음.
+
+## D-1862 Pretty Girl-RESCENE 새 업로드 140273876429390 (2026-11-19)
+- 사용자 요청(2026-11-18, 음원 테스트 세션 전달): 기존 Pretty Girl 줄의 음원을 새 x1 업로드로 바꿈(줄 추가 아님).
+- 옛 89634330677538 = 3배 파일 70.01 s(곡 210.03 s), 새 파일 196.285 s → fileSpeed = 210.03 ÷ 196.285 = 1.07(tempo 0.935 × 1.07 = 1.000). 안무 `at` 그대로. 같은 편집본인지는 소리로 맞춰 보지 않음: 안무가 어긋나면 시작점을 다시 잼.
+- lab(테스트 place DataStore): tempo 0.935, boost 10 / boost2 4 / boost3 1, octave 0.952, EQ 0/0/-7.5.
+- 무대 카메라: ClubCamera.Songs[140273876429390] = 옛 키의 alias(Pop Off D-1023처럼). 춤 메뉴 안무 구간(ClubDances phrase_89634330677538)은 key 그대로, soundId만 새 id(캐치 캐치처럼).
+- Play로 들어 보지는 않음.

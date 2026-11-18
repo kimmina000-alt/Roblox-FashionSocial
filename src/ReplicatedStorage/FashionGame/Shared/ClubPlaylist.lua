@@ -426,8 +426,10 @@ M.Playlist = {
 		lab = { speed = 1, tempo = 1, volume = 10, boost = 1, octave = 1, low = 0, mid = 0, high = 0 } },
 	-- (D-901, user 2026-11-05: new upload (uploaded as 새벽네시사십사분), tempo = 82.42 s file ÷ heard 4:07 = 0.334)
 	-- (D-917, user 2026-11-05: "음원 테스트에서 설정값 받아서" 3 songs; values saved in the lab place, length = the file's seconds)
-	{ channel = "K-POP", title = "Pretty Girl-RESCENE", soundId = 89634330677538, length = 70.01,
-		lab = { speed = 1, tempo = 0.333, volume = 10, boost = 3, boost2 = 1, octave = 0.5, low = -18.5, mid = -4, high = -12.5, engine = "sound" },
+	-- (D-1862, user 2026-11-18 via 음원 테스트: new x1 upload 140273876429390, 196.285 s; was 89634330677538, a 3× file of 70.01 s
+	-- = song 210.03 s, so fileSpeed = 210.03 ÷ 196.285 = 1.07 keeps the song clock (`at` and the stage camera kept; same edit not checked by ear)
+	{ channel = "K-POP", title = "Pretty Girl-RESCENE", soundId = 140273876429390, length = 196.285, fileSpeed = 1.07,
+		lab = { speed = 1, tempo = 0.935, volume = 10, boost = 10, boost2 = 4, boost3 = 1, octave = 0.952, low = 0, mid = 0, high = -7.5, engine = "sound" },
 		-- D-937: PrettyGirl1..26 (practice video IrqXrM4CaiE, video = song + 0.12 s, `at` = clip start - 0.12; piece 1 `from = 0.12`)
 		choreo = { { id = 100082879569115, from = 0.12 }, { id = 104009711978824, at = 5.5 }, { id = 108961429650022, at = 15.11, blend = 1 },
 		{ id = 97208831163609, at = 26.25 }, { id = 123817870898356, at = 36.33, blend = 1 }, { id = 112928130718608, at = 44.61, blend = 0.74 },
