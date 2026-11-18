@@ -90,56 +90,31 @@ local mainText, mainGlow = glowText(20, 26, 20, Enum.Font.GothamBlack)
 local subText, subGlow = glowText(50, 26, 20, Enum.Font.GothamBold)
 
 local queue: {any} = {}
-local showing = false
 
+-- (D-1811, user 2026-11-19: "무대 스파클러 터트렸을 때 뜨는 문구나 후원 문구 모두 쓰레기통에서 뭐 주웠을 때 뜨는
+-- 문구 위치와 텍스트 크기로 통일. 대신 빨간색.") the strip above is no longer shown: each banner is one red
+-- line in the trash notice's stack at the bottom (BottomNotice, 13 px, black outline), for the show's time
+local BottomNotice = require(script.Parent:WaitForChild("BottomNotice"))
 local function showNext()
-	if showing then return end
 	local data = table.remove(queue, 1)
 	if not data then return end
-	showing = true
 	local message = if typeof(data.message) == "string" then data.message else ""
-	local main, sub
+	local line
 	if data.kind == "support" then
-		main = string.format("%s님이 %s R$ 기부하셨습니다.", tostring(data.name), tostring(data.amount))
 		-- (D-797, user: nicknames, not @ids)
-		sub = if message ~= "" then ("“" .. message .. "”") else "💝 후원 감사합니다"
+		line = string.format("%s님이 %s R$ 기부하셨습니다.", tostring(data.name), tostring(data.amount))
+			.. (if message ~= "" then (" “" .. message .. "”") else " 💝 후원 감사합니다")
 	elseif message ~= "" then
-		main, sub = "“" .. message .. "”", tostring(data.name)
+		line = "“" .. message .. "” - " .. tostring(data.name)
 	elseif data.kind == "djspark" then
-		main, sub = string.format("DJ %s님의 불꽃 쇼!", tostring(data.name)), "🎆"
+		line = string.format("🎆 DJ %s님의 불꽃 쇼!", tostring(data.name))
 	else
-		main, sub = string.format("%s님의 콜드 스파크!", tostring(data.name)), "✨"
+		line = string.format("✨ %s님의 콜드 스파크!", tostring(data.name))
 	end
-	mainText.Text, mainGlow.Text = main, main
-	subText.Text, subGlow.Text = sub, sub
-	-- (D-1312, user 2026-11-11: "후원한 사람에 대한 문구 띄울 때도 폰트 크기 13px로") a supporter's lines at 13
-	-- (the name-tag badge size, like the trash notice); cold sparks keep 20
-	local size = if data.kind == "support" then 13 else 20
-	for _, l in ipairs({ mainText, mainGlow, subText, subGlow }) do l.TextSize = size end
-	local seconds = if data.kind == "support" then GIFT_SECONDS else SPARK_SECONDS
-	banner.Position = UDim2.fromOffset(0, TopBar.bottom() + 8)
-	banner.Visible = true
 	Sfx.play("success")
-	task.wait() -- (TextBounds are measured once the labels are on screen)
-	local textW = math.max(mainText.TextBounds.X, subText.TextBounds.X) + 40
-	block.Size = UDim2.new(0, textW, 1, 0)
-	-- from just inside the right edge to just inside the left edge, all the
-	-- time on screen (a text wider than the screen runs its own length)
-	local screenW = banner.AbsoluteSize.X
-	local x0 = math.max(screenW - textW, 0)
-	local x1 = math.min(0, screenW - textW)
-	if x0 == 0 and x1 == 0 then x0 = screenW - textW end
-	local t0 = os.clock()
-	while os.clock() - t0 < seconds do
-		local k = (os.clock() - t0) / seconds
-		block.Position = UDim2.fromOffset(math.floor(x0 + (x1 - x0) * k), 0)
-		task.wait()
-	end
-	banner.Visible = false
-	showing = false
+	BottomNotice.show(line, BottomNotice.RED, if data.kind == "support" then GIFT_SECONDS else SPARK_SECONDS)
 	showNext()
 end
-
 -- A cold spark bought while another show is on (user 2026-10-27): a big white
 -- countdown in the middle of the buyer's screen until theirs goes off
 local wait = Instance.new("TextLabel")
