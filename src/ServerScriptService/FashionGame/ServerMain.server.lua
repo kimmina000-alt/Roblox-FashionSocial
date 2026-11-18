@@ -42,6 +42,7 @@ ClubService.Start()
 ClubScreenService.Start()
 PhotoBoothService.Start(PlayerDataService)
 require(script.Parent.Services.ParkRideService).Start()
+require(script.Parent.Services.NeonStageService).Start() -- (D-1792: the neon stage's shared song clock)
 require(script.Parent.Services.BumperCarService).Start() -- (drivable bumper cars, D-1413)
 task.spawn(require(script.Parent.Services.ParkOpenService).Start) -- (the amusement park open to everyone, D-1547)
 -- XP name tags are locked with XP (EconomyConfig.XPEnabled, user 2026-10-22):

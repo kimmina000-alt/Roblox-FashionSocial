@@ -1628,6 +1628,11 @@ RunService.RenderStepped:Connect(function(dt)
 		if current.key ~= nil or listening or player:GetAttribute("ChoreoFollowing") then level = math.max(level, OUTSIDE_DANCE_LEVEL) end
 		-- poses in the photo booth are dances too, but silent there (user 2026-10-27)
 		if player.Character and player.Character:GetAttribute("PhotoBooth") ~= nil then level = 0 end
+		-- (D-1792) the neon stage's song (NeonStageController) ducks the club music where it is heard
+		-- (LocalPlayer attribute NeonHeard 0..1; on the stage the club music is gone, so HearsClub
+		-- clears and nothing of the club's follows the stage dancers)
+		local neon = player:GetAttribute("NeonHeard")
+		if typeof(neon) == "number" and neon > 0 then level *= math.max(0, 1 - neon * 2) end
 		-- (D-993) heard here, before the 음소거: the banner, its 🎵 🎥 and following
 		-- a choreography outside go by this (LocalPlayer attribute HearsClub)
 		-- (D-1537, user: "소리 끄기 하면 홈 화면에 음표도 삭제") with the sound off nothing is heard:

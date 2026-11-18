@@ -83,6 +83,13 @@ local function musicSound(): Sound?
 	return if sound and sound:IsA("Sound") then sound else nil
 end
 
+-- (D-1792) the neon stage's own song (NeonStageController's Sound)
+local function stageSound(): Sound?
+	local stage = script.Parent:FindFirstChild("NeonStageController")
+	local sound = stage and stage:FindFirstChild("NeonStageMusic")
+	return if sound and sound:IsA("Sound") then sound else nil
+end
+
 local function playingTrack(): ClubConfig.Track?
 	return ClubConfig.Playlist[FashionGame:GetAttribute("ClubTrack") or 0]
 end
@@ -114,7 +121,9 @@ end
 local following: { soundId: number, tracks: {AnimationTrack}, starts: {number?}, stops: {number?}, blends: {number?}, froms: {number}, playing: AnimationTrack?, speed: number?, home: Vector3?,
 	held: boolean?, heldPose: {[Instance]: CFrame}?, unheldAt: number?, homeCfg: any?, glided: boolean?,
 	-- (D-1343) a phrase from the dance window's 안무 tab: its own clock, no music
-	phrase: { key: string, from: number, to: number, t0: number, track: any }? }? = nil
+	phrase: { key: string, from: number, to: number, t0: number, track: any }?,
+	-- (D-1792) the neon stage: the song on the stage's shared clock (NeonStageStart), its own music
+	stage: { start: number, track: any }? }? = nil
 
 -- (D-802, user: "앵글 움직이는 부분 다 고쳐") the segments carry the dancer's
 -- travel in the hips (Get A Guitar 2 ends 11 studs forward, then 3 starts
@@ -1068,6 +1077,7 @@ local function stopFollowing()
 	button.Text = "💃 안무 따라하기"
 	player:SetAttribute("ChoreoFollowing", nil) -- (the banner's 🎵, ClubQuickBar)
 	player:SetAttribute("ChoreoPhrase", nil) -- (D-1343)
+	player:SetAttribute("ChoreoStage", nil) -- (D-1792)
 end
 
 -- (D-839, user) the menu dance the player was doing when the choreography
@@ -1097,7 +1107,7 @@ local function restoreDance()
 	end
 end
 
-local function startFollowing(track: ClubConfig.Track, phrase: any?)
+local function startFollowing(track: ClubConfig.Track, phrase: any?, stageStart: number?)
 	local anim = animator()
 	if not anim or not track.choreo then return end
 	-- (the dance menu's dance stops first: one dance at a time)
@@ -1144,6 +1154,10 @@ local function startFollowing(track: ClubConfig.Track, phrase: any?)
 	if phrase then
 		following.phrase = { key = phrase.key, from = phrase.from, to = phrase.to, t0 = os.clock(), track = track }
 		player:SetAttribute("ChoreoPhrase", phrase.key)
+	end
+	if stageStart then
+		following.stage = { start = stageStart, track = track }
+		player:SetAttribute("ChoreoStage", stageStart) -- (D-1792: NeonStageController reads it)
 	end
 	button.Text = "⏹ 그만 추기"
 	player:SetAttribute("ChoreoFollowing", true)
@@ -1194,6 +1208,25 @@ require(script.Parent:WaitForChild("UiBus")).ChoreoPhrase.Event:Connect(function
 	local humanoid = character and character:FindFirstChildOfClass("Humanoid")
 	if not phrase or not track or not humanoid or humanoid.Sit then return end
 	startFollowing(track, phrase)
+end)
+-- (D-1792, user 2026-11-18) the neon stage (NeonStageController): standing on it dances the song's
+-- choreography on the stage's shared clock, so everyone up there is on the same beat; nil stops it
+require(script.Parent:WaitForChild("UiBus")).ChoreoStage.Event:Connect(function(soundId: number?, start: number?)
+	if soundId == nil or start == nil then
+		if following and following.stage then stopFollowing() end
+		return
+	end
+	if following and following.stage and following.stage.start == start and following.soundId == soundId then return end
+	if following then stopFollowing() end
+	optOut, manual, previousDance = true, false, nil -- (the club song does not take over after it)
+	local track = nil
+	for _, t in ipairs(ClubConfig.Playlist) do
+		if t.soundId == soundId and t.choreo then track = t break end
+	end
+	local character = player.Character
+	local humanoid = character and character:FindFirstChildOfClass("Humanoid")
+	if not track or not humanoid or humanoid.Sit then return end
+	startFollowing(track, nil, start)
 end)
 player:GetAttributeChangedSignal("ChoreoAuto"):Connect(function()
 	-- switched off: a dance it started stops; switched on: this song may start again
@@ -1248,7 +1281,7 @@ RunService.Heartbeat:Connect(function(dt)
 		optOut, previousDance = true, nil
 		return
 	end
-	if (not following.phrase and (not track or track.soundId ~= following.soundId or not here)) or not humanoid
+	if (not following.phrase and not following.stage and (not track or track.soundId ~= following.soundId or not here)) or not humanoid
 		or humanoid.MoveDirection.Magnitude > 0.1
 		or player:GetAttribute("Carrying") or player:GetAttribute("CarriedBy") then
 		stopFollowing()
@@ -1261,15 +1294,16 @@ end)
 RunService.PreAnimation:Connect(function()
 	if not following then return end
 	local phrase = following.phrase
-	local track = if phrase then phrase.track else playingTrack()
+	local stage = following.stage -- (D-1792)
+	local track = if phrase then phrase.track elseif stage then stage.track else playingTrack()
 	if not track or track.soundId ~= following.soundId then return end
 	-- (D-876) where the song is, in the original song's seconds (the clock
 	-- the pieces were cut on): the audio's place times its file speed, so a
 	-- lab tempo set by ear or the DJ's speed moves the dance with the music,
 	-- and the dance plays at that same rate
-	local songRate = if phrase then 1 else ClubConfig.songRate(track, FashionGame:GetAttribute("ClubMusicSpeed"))
-	local paused = not phrase and FashionGame:GetAttribute("ClubMusicPaused") == true
-	local start = if phrase then phrase.t0 else attr("ClubTrackStart", workspace:GetServerTimeNow())
+	local songRate = if phrase then 1 elseif stage then ClubConfig.songRate(track, 1) else ClubConfig.songRate(track, FashionGame:GetAttribute("ClubMusicSpeed"))
+	local paused = not phrase and not stage and FashionGame:GetAttribute("ClubMusicPaused") == true
+	local start = if phrase then phrase.t0 elseif stage then stage.start else attr("ClubTrackStart", workspace:GetServerTimeNow())
 	local songTime = if phrase
 		then phrase.from + (os.clock() - phrase.t0) % math.max(0.5, phrase.to - phrase.from) -- (D-1343: its own loop)
 		elseif paused
@@ -1279,7 +1313,7 @@ RunService.PreAnimation:Connect(function()
 	-- late (about 0.1 s in Studio, more on a slow phone) and never re-seeks,
 	-- so the dance follows the heard music (smoothed: TimePosition moves in
 	-- steps), snapping only after a seek
-	local music = musicSound()
+	local music = if stage then stageSound() else musicSound()
 	-- where this player's audio really is: ClubMusic's place, or for a joined
 	-- song the place its clips report on ClubMusic (DanceController)
 	local heardAt: number? = nil

@@ -105,6 +105,7 @@
   - `park_fixes3_1116.lua` (D-1545) — 놀이공원 피드백: 소방차 좌석, 회전목마 조명·말 귀, 점핑스타 하차 위치, 관람차 의자 블록 삭제, 범퍼카 펜스 겹침·12대 두 줄·벽 그림 한 장. park_perf_1116 앞에 실행.
   - `park_fixes4_1117.lua` (D-1564/D-1565) — 바이킹 두 대 번갈아 운행(Board/Offset), 관람차 바퀴 0.75로 줄이고 칸까지 흰 받침대(CabinBrackets), 칸 바닥 축소. park_fixes3_1116 다음에 실행.
   - `park_ride_lights_1117.lua` (D-1656/D-1657) — 회전컵 접시 둘레(SaucerGlow, 컵과 같이 돎) · 소방차 트랙 바깥(TrackGlow) · 잔디 둘레(LawnGlow) 네온 조명 줄. park_fixes4_1117 다음에 실행.
+  - `park_neon_stage_1118.lua` (D-1792) — 놀이공원 앞 공터(포켓 파크 둥근 광장) 가운데 네온 무대 Workspace["네온무대"] (Hongdae_Layout 밖, 다시 돌려도 됨). 크기·높이는 Shared/NeonStageConfig와 같아야 함.
   - `club_passage_light_1117.lua` (D-1659) — 락커룸 통로 천장 보라 조명(Passage.PassageGlow, SurfaceLight 각도 120 · 범위 24): 통로 대리석도 클럽 바닥처럼 보라 결이 보이게. club_locker_1103 다음 어디든.
   - `hanok_open_1118.lua` (D-1733) — 한옥 마을 안쪽을 가로막던 맵 경계(x 277, z 387)를 마을 바깥 돌담 둘레로 옮김. 빌드 스크립트도 같은 선을 만들어서, 이건 지금 장소에만 필요(체인을 다시 돌리면 빌드가 새 선을 만듦).
   - `road_paint_1118.lua` (D-1725) — 도로 차선(흰 · 노랑 · 파랑 버스차로) 색을 어둡고 탁하게: 낮 블룸에 빛나던 것. 이름이 차선인 얇은 SmoothPlastic 중 옛 색만 바꿈(빌드 스크립트도 새 색). 체인 끝 쪽 어디든.
