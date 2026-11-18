@@ -5983,3 +5983,9 @@ Studio only (no script yet).
 - NCT DREAM-Boogie Woogie: 인기가요 11-15(_PPPSs8FOmo), 영상 = 노래 + 17.15초, 108샷, 노래 끝 196.0초.
 - H1-KEY-Unbelievable: 인기가요 11-15(Rhhx_sDc3hc), 영상 = 노래 + 0.10초, 78샷, 노래 끝 135.3초(fileSpeed 1.0499, D-1672).
 - 샷 목록은 shots_to_lua.py(D-944). ClubCamera.Songs[112509101263761 / 129638210426239 / 102947379971628 / 81736514719301].
+
+## D-1800 (2026-11-18) 추천 탭: 코디 코드 착장 "네온 스테이지"
+- Player feedback 11-18 (Shalya057): they like the game because the thumbnail looks like A2O LITE "NEON" and the avatars / hair / outfits match. User: club hours stay as they are; "네온 무대 만들고 있어 추천탭에 룩 넣자" → (Marketplace candidates shown) → "ST9W5C 게임 내 카탈로그 코드야 이걸로 캐릭터 추가 가능? 내가 지금 만든 건데".
+- The 코디 코드 ST9W5C (DataStore OutfitCodes_v1, read only) is the first recommended look, "네온 스테이지" (R$ 460, 7 items: body bundle 132242481913896 175, hair 127351822617530 65, arm warmers 112519388565786 70, layered top 11893361899 65, layered bottom 113442333356861 75, classic shirt / pants 5 + 5). Its OutfitSnapshot is copied into Shared/RecommendedLooks (`snapshot`, outfitId 0), so it works without the store and in Studio.
+- WearLook wears `look.snapshot` when there is one. Looks without a Marketplace outfit get their card picture from a rig: ServerMain builds it once at start (CreateHumanoidModelFromDescription, a moment in Workspace far below the map so the joints and layered clothing are solved, then anchored) into ReplicatedStorage.FashionGame.LookRigs; RecommendedLooksView shows a clone in a ViewportFrame.
+- "네온 스테이지" added to the 16 I18n tables. Play check: the card shows first with the rig picture; 입기 puts the look on (hair, arm warmers, top, bottom); no script errors. Not checked: the real purchase window.

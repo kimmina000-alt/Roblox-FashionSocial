@@ -21,7 +21,7 @@ export type Item = { kind: string, id: number, price: number }
 export type Look = { key: string, name: string, price: number, lookId: string, outfitId: number, items: {Item}, snapshot: any? }
 
 local RecommendedLooks: {Look} = {
-	-- (D-NEON, user 2026-11-18: NEON stage look made in the game, 코디 코드 ST9W5C; player
+	-- (D-1800, user 2026-11-18: NEON stage look made in the game, 코디 코드 ST9W5C; player
 	-- feedback 11-18: they came for the A2O LITE "NEON" feel of the thumbnail) long straight black
 	-- hair, white layered top and bottom, arm warmers, the long anime model body
 	{

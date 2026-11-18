@@ -308,7 +308,7 @@ local function typedItem(payload: any): (number?, string?)
 end
 
 local lookSnapshots: {[string]: any} = {} -- (D-1373) recommended looks, read once
--- (D-NEON) the 추천 card's picture of a look from a 코디 코드 (no Marketplace outfit thumbnail):
+-- (D-1800) the 추천 card's picture of a look from a 코디 코드 (no Marketplace outfit thumbnail):
 -- a rig of it, built once, for the client's ViewportFrame (ReplicatedStorage.FashionGame.LookRigs)
 task.spawn(function()
 	local folder = Instance.new("Folder")
@@ -415,7 +415,7 @@ TryOnItem.OnServerInvoke = function(
 		local look = require(FashionGame.Shared.RecommendedLooks).get(payload)
 		if not look then return false, "Invalid look." end
 		-- the look's own Roblox outfit (exactly the Marketplace look), read once per server
-		local snapshot = look.snapshot or lookSnapshots[look.key] -- (D-NEON: a look from a 코디 코드)
+		local snapshot = look.snapshot or lookSnapshots[look.key] -- (D-1800: a look from a 코디 코드)
 		if not snapshot then
 			local ok, description = pcall(function() return Players:GetHumanoidDescriptionFromOutfitId(look.outfitId) end)
 			if not ok or not description then

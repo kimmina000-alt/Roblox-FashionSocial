@@ -118,7 +118,7 @@ function View.render()
 		local content = card(index)
 		local thumb: GuiObject
 		if look.snapshot then
-			-- (D-NEON) a look from a 코디 코드: its rig (built by the server) in a ViewportFrame
+			-- (D-1800) a look from a 코디 코드: its rig (built by the server) in a ViewportFrame
 			local vp = make("ViewportFrame", {
 				Name = "Thumbnail", Position = UDim2.fromOffset(5, 5), Size = UDim2.new(1, -10, 1, -88),
 				BackgroundColor3 = COLORS.thumb, BorderSizePixel = 0, Ambient = Color3.fromRGB(200, 200, 200),
