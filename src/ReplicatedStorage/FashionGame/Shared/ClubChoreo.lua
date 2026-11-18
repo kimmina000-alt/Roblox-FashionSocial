@@ -2328,7 +2328,8 @@ do
 	-- (the drop is deeper than needed: the floor lift brings the lowest part, the hand, back onto the floor, so it
 	-- lands on any body; 1.1 left a default test avatar's hand 1.1 over the floor)
 	-- (D-1855: 0:48 is now a bend on planted legs, plantBend below)
-	floorTouch(P15, 3.85, 2.4)
+	-- (D-1864: no reach down at 1:45 any more: the practice video stands there and raises both arms over the head at
+	-- 105.2-105.6; its one floor touch is at 106.0-106.4, which the capture already has. pose_text compare + sheets)
 	-- 1:07 왼손 꽃받침처럼 대고 볼 터치, 1:08 손목 밖으로 (video 68.2-69.2: crouched, the left hand cupping the cheek;
 	-- P9 at 66.75)
 	local cheek = { { 3, -58, -74 }, { 129, 0, 0 }, { 90, -30, -90 } }
@@ -2724,18 +2725,21 @@ do
 	-- (feet and knees where they stand), the waist bends forward (UpperTorso set, R15: x - = forward) and the right arm
 	-- hangs straight down to the floor (shoulder forward by the bend, elbow straight)
 	local UPPER = { "UpperTorso", "Head", "LeftUpperArm", "LeftLowerArm", "LeftHand", "RightUpperArm", "RightLowerArm", "RightHand" }
-	local function plantBend(id: number, t0: number, down: number, up: number, t1: number, deg: number?, extra: any?)
+	-- (poseTo: the bend lets go then instead of at t1, while the legs stay held to t1)
+	local function plantBend(id: number, t0: number, down: number, up: number, t1: number, deg: number?, extra: any?, poseTo: number?)
 		addList(id, "freeze", { from = t0, to = t1, ease = 0.3, except = UPPER })
 		if deg then
 			local set = { UpperTorso = { -deg, 0, 0 }, RightUpperArm = { deg - 12, 0, -32 }, RightLowerArm = { 0, 0, 0 } }
 			for k, v in pairs(extra or {}) do set[k] = v end
-			addList(id, "pose", { from = t0, to = t1, ease = down - t0, keys = { { t = down, set = set }, { t = up, set = set } } })
+			addList(id, "pose", { from = t0, to = poseTo or t1, ease = down - t0, keys = { { t = down, set = set }, { t = up, set = set } } })
 		end
 		addList(id, "guardOff", { from = t0, to = t1 })
 		addList(id, "still", { from = t0, to = t1 })
 	end
 	-- 내 이름을 불러줘 0:48 (6 at 41.26: the video bends 48.1-49.3, the right hand down to the floor)
-	plantBend(107391937407645, 6.75, 7.05, 7.95, 8.3, 70)
+	-- (D-1864: the video is lowest at 48.6 and upright again by 48.8 with the arms up; the bend held to 49.2 and rose at
+	-- 49.4. Now down 48.31, up from 48.56, gone by 48.86; the legs stay held to 49.56 as before, over the capture's lap)
+	plantBend(107391937407645, 6.75, 7.05, 7.3, 8.3, 70, nil, 7.6)
 	-- 2:14 (18 at 124.74 to 135.05, then 19: the video bends 134.3-135.7 and is up by 135.9): 18 keeps its D-1850 window
 	-- (left arm behind the back, right arm hanging, waist set -65) on the held legs; 19 carries the same bend on
 	plantBend(100667532281425, 9.5, 9.8, 10.4, 10.6, nil)
