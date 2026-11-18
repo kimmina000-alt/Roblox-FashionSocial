@@ -149,11 +149,11 @@ M.ChoreoFixes = {
 	-- (D-1603) 내 이름을 불러줘-TWS: fast turns spread evenly (choreo_motion_scan + Play scan > 600°/s); 5 / 11 start against the piece
 	-- before (the capture turns back 150 / 84° at the seam, then on the same way) → fromPrev; 18 picks up 17's turn → fromPrev;
 	-- 9 starts with a lap after the default dance (fromPrev has no piece before) → blend 0.08 + its own spin
-	[88993457159273] = { spin = { from = 4.3, to = 5.55, ease = "both", add = -52 } }, -- TWS 2 (one lap with a -165° keyframe; D-1841: done by 0:17.3, ending to the front)
+	[88993457159273] = { spin = { from = 4.3, to = 5.55, ease = "both", add = -52 } }, -- TWS 2 (one lap with a -165° keyframe; D-1850: done by 0:17.3, ending to the front)
 	[83828094822862] = { spin = { { from = 0, to = 1.1, fromPrev = true, dir = -1, ease = "both" }, { from = 4.4, to = 5.9, ease = "both" } } }, -- TWS 5
 	[107391937407645] = { spin = { from = 7.0, to = 8.4, ease = "both" } }, -- TWS 6
 	[73429358232249] = { spin = { from = 0, to = 1.1, fromPrev = true, dir = 1, ease = "both" } }, -- TWS 9 (D-1658: after 8 again, which ends turned 130° away: one +159° turn back to the front, as in the video)
-	[133275108218481] = { spin = { from = 0, to = 2.7, fromPrev = true, dir = -1, turns = -1, ease = "both" } }, -- TWS 11 (D-1841: one whole turn to 1:16.5, the capture turned half way and back)
+	[133275108218481] = { spin = { from = 0, to = 2.7, fromPrev = true, dir = -1, turns = -1, ease = "both" } }, -- TWS 11 (D-1850: one whole turn to 1:16.5, the capture turned half way and back)
 	[107243018629607] = { spin = { from = 0, to = 1.0, fromPrev = true, dir = -1, ease = "both" } }, -- TWS 12 (627°/s at the seam, 2nd Play scan)
 	[137670042338904] = { spin = { from = 6.5, to = 8.0, ease = "both" } }, -- TWS 14
 	[107246799142521] = { spin = { from = 6.8, to = 7.97, ease = "linear" } }, -- TWS 17 (carried on by 18)
@@ -1451,7 +1451,7 @@ M.ChoreoSlideStill = {
 	[103506023234554] = { { 5.7, 6.6 }, { 8.4, 9.03 } }, [77759369454741] = { { 6.7, 7.3 }, { 8.4, 9.1 } }, [92147677701072] = { { 1.6, 2.2 } }, [90031774217033] = { { 0.0, 1.8 } },
 	[82489608576953] = { { 0.9, 2.1 }, { 2.9, 3.7 }, { 6.3, 6.9 }, { 7.7, 9.4 } }, [140605792599503] = { { 1.8, 2.5 }, { 2.8, 3.7 } }, [130987200839765] = { { 0.2, 1.0 }, { 4.5, 5.3 } },
 	[138159952468756] = { { 1.6, 2.2 }, { 7.9, 8.6 } }, [79114246750826] = { { 2.5, 3.1 } }, [81117884846850] = { { 1.1, 2.7 }, { 6.0, 6.6 }, { 7.8, 10.8 } }, [123702153844970] = { { 0.2, 0.8 } }, [136974262670764] = { { 1.6, 3.2 }, { 7.9, 9.3 } }, [70911274448112] = { { 2.9, 4.1 }, { 5.9, 6.7 } }, -- 4 / 9 (D-1671, + Play TELEPORT 0:19.5, 0:20.0)
-	-- (D-1841, user: "원본 안무가 동선 움직이는 거면 제자리에서 걸음하지 말고 진짜 걸어갈 것") stretches where the practice video's
+	-- (D-1850, user: "원본 안무가 동선 움직이는 거면 제자리에서 걸음하지 말고 진짜 걸어갈 것") stretches where the practice video's
 	-- centre walks 2-8 studs a second (its hips across the frame, tracks.json) and the capture travels too are no longer held:
 	-- 1 2.2-6.0 (0:01-0:04), 5 0.6-2.2 / 3.0-3.9 (0:34-0:37), 8 7.4-8.1 (1:05), 19 3.7-4.6 / 12.3-13.0 (2:19 / 2:27), 20 3.0-3.9 / 4.6-6.9 (2:31-2:35)
 	-- 내 이름을 불러줘-TWS (D-1603, choreo_slide_check + choreo_motion_scan DRIFT + Play TELEPORT 0:02.3, 0:03.0, 0:03.7, 0:04.2, 0:21.7, 0:28.1, 0:34.5, 0:35.4, 1:16.4, 1:31.4, 2:27.6)
@@ -2204,7 +2204,7 @@ for _, tbl in ipairs({ M.ChoreoHeadTilt, M.ChoreoWristBend }) do
 	end
 end
 
--- (D-1841, user 2026-11-19 list for 내 이름을 불러줘-TWS, play-bar times = song seconds: the track's rate is
+-- (D-1850, user 2026-11-19 list for 내 이름을 불러줘-TWS, play-bar times = song seconds: the track's rate is
 -- 1.0001) wrists, hops, the turns at 0:16 and 1:16, the front at 0:17-0:19 and the kneel at 2:00. Times are put
 -- where Play shows the arm in question up (song second ± the arm); wrist sets are absolute (in = palm toward
 -- the forearm: left z +45 / right z -45; out = left -55 / right +55; straight = 0), so the capture's own bend
@@ -2283,7 +2283,7 @@ do
 	-- faceOffset (+24) turns them after, so the set is -24
 	addPose(P2, { from = 5.55, to = 7.6, ease = 0.25, keys = { { t = 5.55, set = { LowerTorso = { 0, -24, 0 } } }, { t = 7.55, set = { LowerTorso = { 0, -24, 0 } } } } })
 
-	-- (D-1841) poses the capture missed, arm angles solved on the avatar's own joints in Play (hand centre to a point
+	-- (D-1850) poses the capture missed, arm angles solved on the avatar's own joints in Play (hand centre to a point
 	-- in UpperTorso space, then the hand turned to the finger / palm direction): the video frames at each time
 	local P1, P6 = 84847937406843, 107391937407645
 	local function arm(side: string, a: any): any

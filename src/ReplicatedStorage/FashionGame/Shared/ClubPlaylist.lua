@@ -733,7 +733,7 @@ M.Playlist = {
 			{ id = 133275108218481, at = 73.76, blend = 1 }, { id = 107243018629607, at = 77.76, blend = 1 }, { id = 76545761433830, at = 81.77, blend = 1 },
 			{ id = 137670042338904, at = 87.74, blend = 1 }, { id = 81624243507898, at = 100.52, slowIn = { 0.4, 0.4 } }, { id = 128327230683798, at = 114.77, blend = 0.48 },
 			{ id = 107246799142521, at = 116.73, blend = 0.77 }, { id = 100667532281425, at = 124.74, blend = 0.99 }, { id = 122207092339520, at = 135.05 },
-			{ id = 96319765244846, at = 148.50, blend = 0.4, slowOut = { 0.3, 4.8 } } }, autoChoreo = true }, -- (D-1841: the end kneel held to the song's end)
+			{ id = 96319765244846, at = 148.50, blend = 0.4, slowOut = { 0.3, 4.8 } } }, autoChoreo = true }, -- (D-1850: the end kneel held to the song's end)
 	-- (D-1602, user 2026-11-17: four more x1 uploads with the 음원 테스트 lab values, no choreography; octave 0.952 is the user's) song 2:20
 	{ channel = "K-POP", title = "Lucky Girl Syndrome-ILLIT", soundId = 99186584464449, length = 130.9, fileSpeed = 1.0695,
 		lab = { speed = 1, tempo = 0.935, volume = 10, boost = 10, boost2 = 5, boost3 = 2.05, octave = 0.952, low = -4, mid = 0, high = -11, engine = "sound" } },
