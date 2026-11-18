@@ -1,7 +1,8 @@
 --!strict
 -- (D-1413) Bumper cars on the client (BumperCarConfig; the server side: BumperCarService).
 --   * Driving: while this player sits in a bumper car's seat, the car is simulated here and
---     moved every frame (this client owns it): pedal = seat.ThrottleFloat (W / S, the stick),
+--     moved every frame (this client owns it): pedal = the on-screen pedal / W (D-1826; until then
+--     seat.ThrottleFloat, W / S, the stick),
 --     wheel = seat.SteerFloat (A / D). The drive wheel pushes the car along the wheel's
 --     direction from a point ahead of the centre, so a turned wheel curves the car and a wheel
 --     turned all the way spins it on the spot, like a real one.
@@ -16,6 +17,7 @@ local CollectionService = game:GetService("CollectionService")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
 
 local BumperCarConfig = require(ReplicatedStorage:WaitForChild("FashionGame"):WaitForChild("Shared"):WaitForChild("BumperCarConfig"))
 local C = BumperCarConfig
@@ -115,6 +117,8 @@ end
 type Drive = { root: BasePart, seat: VehicleSeat, pos: Vector3, vel: Vector3, yaw: number, spin: number, wheel: number }
 local drive: Drive? = nil
 local contacts: {[BasePart]: boolean} = {} -- (rings touching last frame: sound once per hit)
+local coneHit: {[Instance]: number} = {} -- (D-1827: when this car last knocked each cone)
+local ConeRemote = ReplicatedStorage:WaitForChild("FashionGame"):WaitForChild("Remotes"):WaitForChild("BumperCone") :: RemoteEvent
 
 -- the car's heading from its +X (Euler angles of a turn near 180° can come back as 0 with flips)
 local function yawOf(cf: CFrame): number
@@ -128,6 +132,120 @@ local function startDrive(seat: VehicleSeat)
 	if not root then return end
 	drive = { root = root, seat = seat, pos = root.Position, vel = Vector3.zero, yaw = yawOf(root.CFrame), spin = 0, wheel = 0 }
 	contacts = {}
+end
+
+---------------------------------------------------------------- the pedal
+-- (D-1826, user 2026-11-19: "범퍼카 가운데 하단에 페달 넣자. 이거 눌러야 앞으로 가는 걸로") like a real bumper car the
+-- car goes only while the pedal is down: a pedal at the bottom middle of the screen (held with a finger or
+-- the mouse; on a keyboard W / ↑ press it too). The stick (A / D, or the camera way) only turns the wheel;
+-- the pedal alone drives straight on. Only the driver sees it.
+local playerGui = player:WaitForChild("PlayerGui")
+local pedalGui = Instance.new("ScreenGui")
+pedalGui.Name = "BumperPedal"
+pedalGui.ResetOnSpawn = false
+pedalGui.DisplayOrder = 31
+pedalGui.Enabled = false
+pedalGui.Parent = playerGui
+local pedal = Instance.new("TextButton")
+pedal.Name = "Pedal"
+pedal.Text = ""
+pedal.AutoButtonColor = false
+pedal.AnchorPoint = Vector2.new(0.5, 1)
+pedal.Size = UDim2.fromOffset(74, 100)
+pedal.BackgroundColor3 = Color3.fromRGB(36, 38, 44)
+pedal.Parent = pedalGui
+Instance.new("UICorner", pedal).CornerRadius = UDim.new(0, 16)
+do
+	local edge = Instance.new("UIStroke")
+	edge.Color = Color3.fromRGB(150, 154, 166)
+	edge.Thickness = 2
+	edge.Parent = pedal
+end
+-- the metal plate with its grip ridges (pressed: down and darker)
+local plate = Instance.new("Frame")
+plate.Name = "Plate"
+plate.AnchorPoint = Vector2.new(0.5, 0.5)
+plate.Position = UDim2.fromScale(0.5, 0.46)
+plate.Size = UDim2.new(1, -18, 1, -26)
+plate.BackgroundColor3 = Color3.fromRGB(176, 180, 190)
+plate.BorderSizePixel = 0
+plate.Parent = pedal
+Instance.new("UICorner", plate).CornerRadius = UDim.new(0, 10)
+do
+	local shade = Instance.new("UIGradient")
+	shade.Color = ColorSequence.new(Color3.fromRGB(235, 238, 245), Color3.fromRGB(130, 134, 146))
+	shade.Rotation = 90
+	shade.Parent = plate
+	for k = 1, 6 do
+		local ridge = Instance.new("Frame")
+		ridge.AnchorPoint = Vector2.new(0.5, 0.5)
+		ridge.Position = UDim2.fromScale(0.5, k / 7)
+		ridge.Size = UDim2.new(1, -14, 0, 3)
+		ridge.BackgroundColor3 = Color3.fromRGB(60, 62, 70)
+		ridge.BorderSizePixel = 0
+		ridge.Parent = plate
+		Instance.new("UICorner", ridge).CornerRadius = UDim.new(1, 0)
+	end
+end
+-- the hinge at the foot
+local hinge = Instance.new("Frame")
+hinge.AnchorPoint = Vector2.new(0.5, 1)
+hinge.Position = UDim2.new(0.5, 0, 1, -5)
+hinge.Size = UDim2.new(1, -30, 0, 6)
+hinge.BackgroundColor3 = Color3.fromRGB(90, 94, 104)
+hinge.BorderSizePixel = 0
+hinge.Parent = pedal
+Instance.new("UICorner", hinge).CornerRadius = UDim.new(1, 0)
+
+local pedalPlacedAt = 0
+local pedalInput: InputObject? = nil -- (the touch / mouse holding it)
+local pedalDown = false
+local function showPedal()
+	local down = pedalDown or (pedalInput ~= nil)
+	plate.Position = UDim2.new(0.5, 0, 0.46, if down then 5 else 0)
+	plate.Size = if down then UDim2.new(1, -24, 1, -32) else UDim2.new(1, -18, 1, -26)
+	plate.BackgroundColor3 = if down then Color3.fromRGB(120, 210, 140) else Color3.fromRGB(176, 180, 190)
+end
+pedal.InputBegan:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.Touch or input.UserInputType == Enum.UserInputType.MouseButton1 then
+		pedalInput = input
+		showPedal()
+	end
+end)
+UserInputService.InputEnded:Connect(function(input)
+	if pedalInput and (input == pedalInput or (input.UserInputType == Enum.UserInputType.MouseButton1 and pedalInput.UserInputType == Enum.UserInputType.MouseButton1)) then
+		pedalInput = nil
+		showPedal()
+	end
+end)
+local function keyPedal(): boolean
+	if UserInputService:GetFocusedTextBox() then return false end
+	return UserInputService:IsKeyDown(Enum.KeyCode.W) or UserInputService:IsKeyDown(Enum.KeyCode.Up)
+end
+-- over the item bar (and the ride bar's buttons) at the bottom middle
+local function placePedal()
+	local low = if UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled then 24 else 110
+	for _, name in ipairs({ "FashionHotbar", "ParkRideGui" }) do
+		local g = playerGui:FindFirstChild(name)
+		if g and g:IsA("ScreenGui") and g.Enabled then
+			local screenH = g.AbsoluteSize.Y
+			for _, o in ipairs(g:GetDescendants()) do
+				if o:IsA("GuiObject") and o.Visible and o.AbsoluteSize.Y > 0 and o.AbsoluteSize.Y < screenH * 0.4
+					and o.AbsolutePosition.Y > screenH * 0.6 and o.AbsolutePosition.Y < screenH
+					and math.abs(o.AbsolutePosition.X + o.AbsoluteSize.X / 2 - g.AbsoluteSize.X / 2) < o.AbsoluteSize.X / 2 + 40 then
+					local top = o.AbsolutePosition.Y
+					local p = o.Parent
+					local shown = true
+					while p and p ~= g do
+						if p:IsA("GuiObject") and not p.Visible then shown = false break end
+						p = p.Parent
+					end
+					if shown then low = math.max(low, math.ceil(screenH - top) + 10) end
+				end
+			end
+		end
+	end
+	pedal.Position = UDim2.new(0.5, 0, 1, -low)
 end
 
 local function forwardOf(yaw: number): Vector3
@@ -174,8 +292,9 @@ local function simulate(d: Drive, dt: number)
 		local want = math.atan2(-wish.Z, wish.X)
 		local diff = (want - d.yaw + math.pi) % (2 * math.pi) - math.pi
 		steer = math.clamp(-diff / (C.WheelMax * 0.6), -1, 1)
-		pedal = wish.Magnitude
 	end
+	-- (D-1826) only the pedal drives
+	if pedalInput ~= nil or pedalDown then pedal = 1 end
 	local target = math.clamp(steer, -1, 1) * C.WheelMax
 	local step = C.WheelRate * dt
 	d.wheel += math.clamp(target - d.wheel, -step, step)
@@ -264,6 +383,22 @@ local function simulate(d: Drive, dt: number)
 					kick(d.root, p - n * me.r, n, -vn)
 				end
 				touching[n :: any] = true
+			end
+		end
+	end
+	-- (D-1826 / D-1827) the traffic cones (tag BumperCone, attribute Radius): a car that runs into one knocks
+	-- it over (BumperConeService throws it, with a "퉁"); the car only loses a little speed
+	for _, c in ipairs(CollectionService:GetTagged("BumperCone")) do
+		if c:IsA("Model") and c:IsDescendantOf(workspace) then
+			local cp = flat(c:GetPivot().Position)
+			if (cp - here).Magnitude < me.half + me.r + 4 then
+				local cr = (c:GetAttribute("Radius") :: number?) or 1.5
+				local pa = closest(a0, a1, cp, cp)
+				if (pa - cp).Magnitude < me.r + cr and os.clock() - (coneHit[c] or 0) > 0.4 and d.vel.Magnitude > 1.5 then
+					coneHit[c] = os.clock()
+					ConeRemote:FireServer(c, d.vel)
+					d.vel *= 0.88
+				end
 			end
 		end
 	end
@@ -410,6 +545,20 @@ RunService.Heartbeat:Connect(function(dt)
 		if not drive or drive.seat ~= seat then startDrive(seat) end
 	elseif drive then
 		drive = nil
+	end
+	-- (D-1826) the pedal: shown to the driver only
+	pedalGui.Enabled = drive ~= nil
+	if drive then
+		local wasDown = pedalDown
+		pedalDown = keyPedal()
+		if wasDown ~= pedalDown then showPedal() end
+		if os.clock() - pedalPlacedAt > 0.3 then
+			pedalPlacedAt = os.clock()
+			placePedal()
+		end
+	elseif pedalInput or pedalDown then
+		pedalInput, pedalDown = nil, false
+		showPedal()
 	end
 	driveStep(dt)
 	watchOthers()
