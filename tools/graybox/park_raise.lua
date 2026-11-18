@@ -302,9 +302,9 @@ end
 for _, x in ipairs({ X0, X1 - 1.2 }) do
 	blocker(x, RAISE + WALL_H, LANDING_Z, x + 1.2, RAISE + WALL_H + BLOCK_H, PLAZA_BACK)
 end
-for _, x in ipairs({ STAIR_X0, STAIR_X1 }) do
-	blocker(x - 0.6, STAIR_Y + WALL_H, STAIR_Z, x + 0.6, RAISE + WALL_H + BLOCK_H, LANDING_Z)
-end
+-- (D-1779, user 2026-11-18: "놀이공원 올라가는 계단 옆에 붙은 벽 계단 올라가다가 중간에 점프해서 옆으로
+-- 뛰어내릴 수 있게") no blockers over the stair's side walls any more: a jump from the steps clears
+-- the 3.5-high wall and lands on the deck (west, y 1.5) or the paving (east, y 0.6)
 -- the stair's side walls (D-699: taller, in place of the handrails): a stone
 -- wall from the plaza up to WALL_H over the steps all along, a box for its
 -- lower part and a wedge for the slope on top

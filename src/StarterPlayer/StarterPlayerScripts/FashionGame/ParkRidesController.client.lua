@@ -853,6 +853,37 @@ rideTimer.Text = ""
 rideTimer.Visible = false
 rideTimer.Parent = gui
 
+-- (D-1777, user 2026-11-18: "기구 앞에서 중앙 하단에 타기, 1인칭 버튼 인벤토리 칸에 가려져. 위치 옮겨 줘")
+-- the bar's place at the bottom middle stays (the thumb reaches it between the thumbstick and the
+-- jump button, user mobile test 2026-10-22), but it stands on top of the item hotbar (FashionHotbar: 58-60 high
+-- slots 6 over the bottom + its ▼ tab 3 over them, 20 high, so up to about 89) whenever that shows:
+-- its bottom goes GAP over the hotbar's top. Without the hotbar it drops back to BASE_LOW. The
+-- tap hint / ride timer ride along 44 over it. Measured from the hotbar's real top every frame
+-- (it slides away when folded), so nothing is hidden on any screen size.
+local BASE_LOW = if TOUCH then 24 else 110
+local DOCK_GAP = 10
+local lastDock = -1
+local function dockOverHotbar()
+	local low = BASE_LOW
+	local hot = playerGui:FindFirstChild("FashionHotbar")
+	if hot and hot:IsA("ScreenGui") and hot.Enabled then
+		local screenH = hot.AbsoluteSize.Y
+		local top = math.huge
+		for _, name in ipairs({ "Bar", "FoldTab" }) do
+			local o = hot:FindFirstChild(name)
+			if o and o:IsA("GuiObject") and o.Visible and o.AbsoluteSize.Y > 0 and o.AbsolutePosition.Y < screenH then
+				top = math.min(top, o.AbsolutePosition.Y)
+			end
+		end
+		if top < math.huge then low = math.max(low, math.ceil(screenH - top) + DOCK_GAP) end
+	end
+	if low == lastDock then return end
+	lastDock = low
+	bar.Position = UDim2.new(0.5, 0, 1, -low)
+	tapHint.Position = UDim2.new(0.5, 0, 1, -low - 44)
+	rideTimer.Position = tapHint.Position
+end
+
 local toastLabel = Instance.new("TextLabel")
 toastLabel.AnchorPoint = Vector2.new(0.5, 1)
 toastLabel.Position = UDim2.new(0.5, 0, 1, -168)
@@ -932,7 +963,23 @@ local function stopRiding(exit: CFrame?)
 end
 
 -- What the main button would do right now (not riding).
-type Offer = { text: string, ride: Model?, slot: Instance?, ready: boolean }
+type Offer = { text: string, ride: Model?, slot: Instance?, ready: boolean, pick: number? }
+
+-- (D-1778, user 2026-11-18: "회전컵 ... 현재 회전컵 하나에만 타지는 것 같음") the server gave the
+-- first free seat (Rider1..4 = cup 1) to everyone pressing 타기: on the tea cups the button now
+-- asks for the free seat nearest to you, so you get the cup in front of you.
+local function nearestFreeSeat(ride: Model, position: Vector3, t: number, cup: number?): number?
+	local per = attrNumber(ride, "SeatsPerCup", 4)
+	local best, bestD = nil, math.huge
+	for index = 1, ParkConfig.rideSeatCount(ride) do
+		if (cup == nil or math.ceil(index / per) == cup) and ride:GetAttribute("Rider" .. index) == nil then
+			local seat = ParkConfig.seatRideSeatCFrame(ride, index, t)
+			local d = if seat then (seat.Position - position).Magnitude else math.huge
+			if not best or d < bestD then best, bestD = index, d end
+		end
+	end
+	return best
+end
 local function currentOffer(t: number): Offer?
 	local root = ownRoot()
 	if not root then return nil end
@@ -960,7 +1007,8 @@ local function currentOffer(t: number): Offer?
 				if ride:GetAttribute("Rider" .. index) == nil then free = true break end
 			end
 			if free then
-				return { text = string.format("%s %s 타기 (%d초 뒤 출발)", icon, label, math.ceil(left)), ride = ride, slot = nil, ready = true }
+				local pick = if kind == "ParkTeaCups" then nearestFreeSeat(ride, position, t) else nil -- (D-1778)
+				return { text = string.format("%s %s 타기 (%d초 뒤 출발)", icon, label, math.ceil(left)), ride = ride, slot = nil, ready = true, pick = pick }
 			end
 			return { text = icon .. " 자리가 가득 찼어요", ride = nil, slot = nil, ready = false }
 		end
@@ -998,7 +1046,7 @@ local function pressMain()
 		if ok then stopRiding(if typeof(result) == "CFrame" then result else nil)
 		elseif typeof(result) == "string" then toast(result) end
 	elseif offer and offer.ready and offer.ride then
-		local ok, result = remote:InvokeServer("Board", offer.ride, offer.slot)
+		local ok, result = remote:InvokeServer("Board", offer.ride, offer.pick or offer.slot)
 		if ok and typeof(result) == "table" then
 			for _, entry in ipairs(slots) do
 				if entry.slot == result.slot and entry.key == result.key then mySlot = entry boardedAt = os.clock() end
@@ -1115,6 +1163,232 @@ addSeatPicks = function(model: Model)
 		table.insert(seatPicks, { ride = model, index = index, gui = g, anchor = anchor })
 	end
 end
+
+-- (D-1778, user 2026-11-18: "회전컵은 운행 멈춰서 탈 수 있을 때 해당 컵 누르면 그 컵에 탈 수 있게") a click or
+-- tap anywhere on a cup (its saucer up to over the rim, not only the small spot over a seat) while
+-- the tea cups stand still and you are by them seats you in that cup, on its free seat nearest to
+-- where you pressed; already in another cup of the same ride, it moves you there (the server's
+-- D-1429 move). The cups' parts have CanQuery off (they move on each screen), so the press is
+-- tested against each cup's shape here: an upright cylinder of the cup's width round its pivot.
+local CUP_PICK_R = 6.5 -- (a cup is 10 across, the saucer 12.9: a little over the saucer's edge)
+local CUP_PICK_LOW, CUP_PICK_HIGH = -1.5, 8 -- (from the saucer top: the cup is about 6.7 high)
+local function cupUnderScreen(x: number, y: number): (Model?, number?, Vector3?)
+	local camera = workspace.CurrentCamera
+	if not camera then return nil end
+	local ray = camera:ScreenPointToRay(x, y)
+	local o, d = ray.Origin, ray.Direction
+	local t = now()
+	local bestRide, bestCup, bestHit, bestS = nil, nil, nil, math.huge
+	for _, tc in ipairs(teacups) do
+		local ride = tc.model
+		if ride.Parent and ParkConfig.rideState(ride, t) then
+			for cup = 1, ParkConfig.teacupCount(ride) do
+				local cf = ParkConfig.teacupCFrame(ride, cup, t)
+				if cf then
+					-- ray against the upright circle (x, z), then the height window
+					local px, pz = o.X - cf.X, o.Z - cf.Z
+					local a = d.X * d.X + d.Z * d.Z
+					local b = 2 * (px * d.X + pz * d.Z)
+					local c = px * px + pz * pz - CUP_PICK_R * CUP_PICK_R
+					local disc = b * b - 4 * a * c
+					if a > 1e-6 and disc >= 0 then
+						local r = math.sqrt(disc)
+						for _, sAt in ipairs({ (-b - r) / (2 * a), (-b + r) / (2 * a) }) do
+							local hit = o + d * sAt
+							local rel = hit.Y - cf.Y
+							if sAt > 0 and sAt < bestS and rel >= CUP_PICK_LOW and rel <= CUP_PICK_HIGH then
+								bestRide, bestCup, bestHit, bestS = ride, cup, hit, sAt
+								break
+							end
+						end
+					end
+				end
+			end
+		end
+	end
+	return bestRide, bestCup, bestHit
+end
+
+-- (D-1780, user 2026-11-18: "다른 놀이기구도 운행 멈춰 있을 때는 놀이기구 클릭하면 탑승할 수 있도록") the same
+-- for the vikings and the jumping star: a press on the boat / the seat ring (the moving piece's
+-- bounding box) while it stands still seats you on its free seat nearest to where you pressed; and
+-- the ferris wheel: a press on the cabin standing at the bottom gets you in, as 🎡 관람차 타기 does.
+-- The nearest thing along the ray wins (a tea cup in front of a viking, ...).
+local function rayBox(o: Vector3, d: Vector3, cf: CFrame, size: Vector3): number?
+	local lo, ld = cf:PointToObjectSpace(o), cf:VectorToObjectSpace(d)
+	local tmin, tmax = -math.huge, math.huge
+	for _, axis in ipairs({ "X", "Y", "Z" }) do
+		local p0, dv, half = (lo :: any)[axis], (ld :: any)[axis], (size :: any)[axis] / 2
+		if math.abs(dv) < 1e-9 then
+			if math.abs(p0) > half then return nil end
+		else
+			local t1, t2 = (-half - p0) / dv, (half - p0) / dv
+			tmin, tmax = math.max(tmin, math.min(t1, t2)), math.min(tmax, math.max(t1, t2))
+		end
+	end
+	if tmax < math.max(tmin, 0) then return nil end
+	return if tmin > 0 then tmin else tmax
+end
+
+local function nearRide(ride: Model, root: BasePart): boolean
+	local pivot = ride:GetPivot()
+	return Vector3.new(root.Position.X - pivot.X, 0, root.Position.Z - pivot.Z).Magnitude <= attrNumber(ride, "Reach", 20)
+		and math.abs(root.Position.Y - pivot.Y) <= 60
+end
+
+local function boardRide(ride: Model, arg: any?)
+	if busy or mySlot then return end
+	busy = true
+	local ok, result = remote:InvokeServer("Board", ride, arg)
+	if ok and typeof(result) == "table" then
+		for _, entry in ipairs(slots) do
+			if entry.slot == result.slot and entry.key == result.key then mySlot = entry boardedAt = os.clock() end
+		end
+		setJump(mySlot ~= nil and jumpOff(mySlot.kind))
+	elseif typeof(result) == "string" then
+		toast(result)
+	end
+	busy = false
+end
+
+local function pressAt(x: number, y: number)
+	local camera = workspace.CurrentCamera
+	local root = ownRoot()
+	if not camera or not root then return end
+	local ray = camera:ScreenPointToRay(x, y)
+	local o, d = ray.Origin, ray.Direction
+	local t = now()
+	local current = mySlot
+	-- the nearest pressed ride: a tea cup, a viking boat / jumping star ring, a wheel cabin at the bottom
+	local bestS = math.huge
+	local action: (() -> ())? = nil
+	local cupRide, cup, cupHit = cupUnderScreen(x, y)
+	if cupRide and cup and cupHit then
+		bestS = (cupHit - o).Magnitude
+		action = function()
+			if current and current.ride ~= cupRide then return end
+			if not nearRide(cupRide, root) then toast("회전컵 앞에서 탈 수 있어요.") return end
+			local per = attrNumber(cupRide, "SeatsPerCup", 4)
+			if current and math.ceil((tonumber(string.match(current.key, "%d+")) or 0) / per) == cup then return end -- (already in it)
+			local index = nearestFreeSeat(cupRide, cupHit, now(), cup)
+			if not index then toast("이 컵은 자리가 가득 찼어요. 다른 컵을 눌러 보세요.") return end
+			task.spawn(pickSeat, cupRide, index)
+		end
+	end
+	local bodies = {}
+	for _, v in ipairs(vikings) do table.insert(bodies, { ride = v.model, body = v.swing or v.model }) end
+	for _, j in ipairs(jumpstars) do
+		table.insert(bodies, { ride = j.model, body = j.car or j.model })
+		-- (its seat car is small: the tower it runs on counts too)
+		local tower = j.model.Parent and j.model.Parent:FindFirstChild("TowerMesh")
+		if tower and tower:IsA("BasePart") then table.insert(bodies, { ride = j.model, body = tower }) end
+	end
+	for _, b in ipairs(bodies) do
+		local ride = b.ride
+		if ride.Parent and ParkConfig.rideState(ride, t) then
+			local body = b.body :: any
+			local cf, size
+			if body:IsA("BasePart") then cf, size = body.CFrame, body.Size else cf, size = body:GetBoundingBox() end
+			local sAt = rayBox(o, d, cf, size)
+			if sAt and sAt < bestS then
+				bestS = sAt
+				local hit = o + d * sAt
+				action = function()
+					if current then return end -- (on it already: the seat spots move you, D-1429)
+					if not nearRide(ride, root) then
+						toast((ParkConfig.SeatRideNames[ParkConfig.seatRideKind(ride) or ""] or "놀이기구") .. " 앞에서 탈 수 있어요.")
+						return
+					end
+					local index = nearestFreeSeat(ride, hit, now())
+					if not index then toast("자리가 가득 찼어요. 다음 운행을 기다려 주세요.") return end
+					task.spawn(pickSeat, ride, index)
+				end
+			end
+		end
+	end
+	for _, w in ipairs(wheels) do
+		local ride = w.model
+		local index = ride.Parent and ParkConfig.cabinAtBottom(ride, t)
+		local cabin = index and ride:FindFirstChild("Cabin" .. index)
+		if cabin and cabin:IsA("Model") then
+			local cf, size = cabin:GetBoundingBox()
+			local sAt = rayBox(o, d, cf, size)
+			if sAt and sAt < bestS then
+				bestS = sAt
+				action = function()
+					if current then return end
+					local boardPoint = ride:FindFirstChild("BoardPoint")
+					if boardPoint and boardPoint:IsA("BasePart") and (boardPoint.Position - root.Position).Magnitude > ParkConfig.BoardDistance then
+						toast("관람차 탑승장에서 탈 수 있어요.")
+						return
+					end
+					task.spawn(boardRide, ride)
+				end
+			end
+		end
+	end
+	-- (D-1785, user 2026-11-18: "범퍼카랑 회전목마도 클릭하는 거 타게 하자") the carousel's horses and the
+	-- fire trucks (built on its code): a press on a free horse / truck rides it, as its 타기 button does
+	-- (the server wants you within 10 studs of it: "더 가까이 가 주세요." otherwise)
+	for _, entry in ipairs(slots) do
+		local horse = entry.slot
+		if entry.kind == "ParkCarousel" and horse and horse:IsA("Model") and horse.Parent and horse:GetAttribute("Rider") == nil then
+			local cf, size = horse:GetBoundingBox()
+			local sAt = rayBox(o, d, cf, size)
+			if sAt and sAt < bestS then
+				bestS = sAt
+				local ride = entry.ride
+				action = function()
+					if current then return end
+					task.spawn(boardRide, ride, horse)
+				end
+			end
+		end
+	end
+	-- bumper cars: a press on a car with a free seat sits you in it, the way its "범퍼카 타기" prompt
+	-- does (the prompt is pressed for you; it reaches 11 studs)
+	for _, carRoot in ipairs(CollectionService:GetTagged("BumperCarRoot")) do
+		local car = carRoot.Parent
+		if car and car:IsA("Model") and car:IsDescendantOf(workspace) then
+			local cf, size = car:GetBoundingBox()
+			local sAt = rayBox(o, d, cf, size)
+			if sAt and sAt < bestS then
+				bestS = sAt
+				action = function()
+					local humanoid = ownHumanoid()
+					if current or (humanoid and humanoid.SeatPart) then return end
+					local prompt = car:FindFirstChildWhichIsA("ProximityPrompt", true)
+					if not prompt or not prompt.Enabled then toast("이 범퍼카는 자리가 가득 찼어요.") return end
+					if carRoot:IsA("BasePart") and (carRoot.Position - root.Position).Magnitude > prompt.MaxActivationDistance then
+						toast("범퍼카 가까이 가서 눌러 주세요.")
+						return
+					end
+					prompt:InputHoldBegin()
+					task.delay(0.05, function() prompt:InputHoldEnd() end)
+				end
+			end
+		end
+	end
+	if action then action() end
+end
+
+-- a short press that did not move: a mouse click, or a finger tapped and lifted within 0.4 s
+-- (TouchTapInWorld did not fire for every tap, so taps are told apart here; a camera drag moves
+-- more than 12 px, the thumbstick and buttons are GUI and come in processed)
+local presses: {[InputObject]: { at: Vector2, began: number }} = {}
+UserInputService.InputBegan:Connect(function(input, processed)
+	if processed then return end
+	if input.UserInputType ~= Enum.UserInputType.MouseButton1 and input.UserInputType ~= Enum.UserInputType.Touch then return end
+	presses[input] = { at = Vector2.new(input.Position.X, input.Position.Y), began = os.clock() }
+end)
+UserInputService.InputEnded:Connect(function(input)
+	local press = presses[input]
+	if not press then return end
+	presses[input] = nil
+	if os.clock() - press.began > 0.4 then return end
+	if (Vector2.new(input.Position.X, input.Position.Y) - press.at).Magnitude > 12 then return end
+	pressAt(press.at.X, press.at.Y)
+end)
 
 -- (D-1442, user: "회전컵은 가운데 핸들 클릭하면 점점 더 빨라지고 클릭 안 하면 점점 느려지게") while a tea
 -- cup runs, its rider taps to spin the cup faster; ParkConfig.teacupExtra / ParkRideService "Spin".
@@ -1282,6 +1556,7 @@ plusButton.MouseButton1Click:Connect(function() changeLevel(1) end)
 
 local function refreshUi(t: number)
 	updateSeatPicks(t)
+	dockOverHotbar() -- (D-1777)
 	local entry = mySlot
 	if entry then
 		bar.Visible = true
