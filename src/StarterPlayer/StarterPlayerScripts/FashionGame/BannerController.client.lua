@@ -115,6 +115,7 @@ local function showNext()
 	BottomNotice.show(line, BottomNotice.RED, if data.kind == "support" then GIFT_SECONDS else SPARK_SECONDS)
 	showNext()
 end
+
 -- A cold spark bought while another show is on (user 2026-10-27): a big white
 -- countdown in the middle of the buyer's screen until theirs goes off
 local wait = Instance.new("TextLabel")
