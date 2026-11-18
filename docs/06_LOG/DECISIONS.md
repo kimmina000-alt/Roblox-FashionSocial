@@ -6299,3 +6299,16 @@ Studio only (no script yet).
 - User: "받은 의견 뜨는데 오래 걸리네. 새로운 의견 올라오면 n 띄워 줘 없으면 그냥 두고".
 - FeedbackService.list read the newest 60 messages one after another (GetAsync, then FilterStringAsync for old ones): seconds. Now they are read all at once (task.spawn per key, at most 15 s), kept in valueCache with the filtered text (done / reward update the cache), and read ahead when the owner joins, so opening 📥 is quick.
 - New messages: player attribute FeedbackNew = true while a message newer than the owner's last look waits (checked at join, every 60 s, and at once when someone in the same server sends one). Opening 📥 marks what it lists as seen: DataStore FeedbackSeen_v1 (Studio: FeedbackSeen_Studio_v1), u_<userId> = newest time. Feedback.lua puts a red "N" on the 💬 top button and on 📥 받은 의견 while FeedbackNew is set; nothing when there is nothing new.
+
+## D-1860 캐치 캐치-YENA 줄 교체 + 5곡 lab 값 변경 (2026-11-19)
+- 사용자가 캐치 캐치 줄과 5곡의 lab 줄을 보냄(이미 목록에 있는 곡: 음색 / boost3만 바뀜).
+- 캐치 캐치-YENA 119002946047943: 제목 Catch Catch-YENA → 캐치 캐치-YENA, fileSpeed 1.0702 → 1.0496(171.491 s × 1.0496 = 곡 3:00), EQ 0/0/0 → -6/0/-2.5. 1.0702는 옛 3배 파일(곡 183.53 s)에 맞춘 값이라 안무 · 무대 카메라가 끝쪽에서 약 3초 어긋날 수 있다고 물었고, 사용자가 1.0496을 고름.
+- Hot Girls Cold Vibe-Red Velvet 73504070212379: EQ -8/-3/-11.5, boost3 4.
+- Iconic by Mistake 87223810235707: EQ 0/0/-21, boost3 2.75, tempo 0.951.
+- Heavy Serenade-NMIXX 135622277389773: EQ -16.5/-7/-22.5, boost3 3.
+- YOUNGCREATORCREW-CORTIS 110347638399953: EQ -6.5/-3/-12.5, boost3 4.
+- RUDE-Hearts2Hearts 70718180522748: EQ -10/-2/-21.5, boost3 4.
+- Play로 들어 보지는 않음.
+
+## D-1861 체포하겠어-ILLIT boost2 10 → 5 (2026-11-19)
+- 사용자: "체포하겠어 부스트 값 몇이야" → boost 10 / boost2 10, "부스트2 5로 변경". 나머지 그대로. Play로 들어 보지는 않음.
