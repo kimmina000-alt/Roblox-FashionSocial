@@ -6124,3 +6124,7 @@ Studio only (no script yet).
 ## D-1802 (2026-11-18) 카탈로그: 같은 목록을 다시 그리면 스크롤 유지
 - User (phone shot of 착용 중 scrolled down): "카탈로그에서 옷 벗을 때 드래그해서 내려서 벗으면 스크롤 다시 올라감 스크롤 고정". renderLocalMode set CanvasPosition to 0 on every redraw, and taking an item off (WORN) redraws 착용 중.
 - renderLocalMode remembers the list it drew (resultsFrame attribute LocalRenderMode); redrawing the same list puts the old scroll back as the cards come in (new module CatalogScrollKeep.hold: at most 2 s, never past the end). A search, category change or the catalog reset (CatalogScrollKeep.reset) still starts at the top. CatalogController got 7 lines and no new top-level locals (200-register limit).
+
+## D-1803 D-1710 이후 새 문구 16개 언어 번역 (2026-11-18)
+- 진행 관리 세션(사용자 요청): catalog-ui-redesign 2893a9f0까지 들어온 새 한국어 문구 번역. tools/i18n extract → 빠진 36개를 tools/i18n/tr/p19_gift1118.tsv에 16개 언어로: 패스 선물(가드 · VIP · DJ 30분, GiftPassService · GiftPassCard), 양손 스파클러 두 번 탭 안내, 스킵 투표 한 줄 "⏭ {1}초 · {2}/{3} 예 · {4} 아니요", 다음 곡 / 다음 곡에서 빼기, 회전컵 · 관람차 · 범퍼카 눌러서 타기 안내, 추천 룩 "네온 스테이지".
+- GiftPassCard의 "🛡 가드권" .. " 보유"는 이어 붙인 문구라 tools/i18n/extra_templates.txt에 "{1} 보유" 추가. 같이 추기 · 환호성 · 폭죽 소리 등은 이미 표에 있었음. 채팅 명령어는 번역하지 않음(기존 원칙).
