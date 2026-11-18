@@ -6120,3 +6120,7 @@ Studio only (no script yet).
 - 전체 목록을 보여 주고 사용자가 ①~③(OH24 창가 바, 해변 카페 벤치 테이블, 해변 카페 의자 테이블)을 골랐음. 처음 목록의 해변 카페 높이(6.19 / 7.99)는 돌려 놓인 둥근 윗면(원통)을 잘못 잰 값이었고, 바로 재면 3.94 / 5.51로 이미 기준 이하 → 그대로. 실제로 바뀌는 곳은 OH24 두 바(창가 바 + 온수기 쪽 바) 5.40 → 5.01(덱 위 기준, 스툴 3.01).
 - tools/graybox/table_height_1118.lua(체인 단계, user_map_snapshot 뒤): 테이블 발밑 바닥과 가장 가까운 의자를 읽어 목표 높이로 낮춤(올리지는 않음), 다리는 짧게, 윗면에 닿은 것(온수기 · 탭 · 트레이 · 전자레인지 · 표지)은 같이 내림, 스툴 · 의자는 그대로. 다시 돌려도 같음. 테이블 위 음식은 윗면을 따라감(SnackConfig.onTable).
 - 사용자가 고르지 않은 곳(그대로): 한옥 카페 라운지 · 커피바 · 북카페, 국밥집, 클럽 VIP · 둥근 스탠딩 테이블, 정자 찻상, 퍼걸러 낮은 테이블. 이 값들도 원통 윗면이 섞여 있을 수 있어 다시 고를 땐 다시 잴 것.
+
+## D-1802 (2026-11-18) 카탈로그: 같은 목록을 다시 그리면 스크롤 유지
+- User (phone shot of 착용 중 scrolled down): "카탈로그에서 옷 벗을 때 드래그해서 내려서 벗으면 스크롤 다시 올라감 스크롤 고정". renderLocalMode set CanvasPosition to 0 on every redraw, and taking an item off (WORN) redraws 착용 중.
+- renderLocalMode remembers the list it drew (resultsFrame attribute LocalRenderMode); redrawing the same list puts the old scroll back as the cards come in (new module CatalogScrollKeep.hold: at most 2 s, never past the end). A search, category change or the catalog reset (CatalogScrollKeep.reset) still starts at the top. CatalogController got 7 lines and no new top-level locals (200-register limit).
