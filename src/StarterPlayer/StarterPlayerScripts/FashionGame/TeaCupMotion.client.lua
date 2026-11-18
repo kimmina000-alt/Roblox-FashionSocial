@@ -6,7 +6,7 @@
 --     ParkRideService "Spin") holds the wheel in the middle of the cup with both hands (IKControls on
 --     the arms) and turns it: the hands go round the rim and back, quicker the faster the cup spins;
 --   * everyone else in a running cup is pushed outward by the ride: the body leans the way the seat is
---     thrown (against its acceleration: the cup's own spin and the table's turn), up to LEAN_MAX, eased.
+--     thrown (against its acceleration: the cup's own spin and the table's turn), up to LEAN_MAX (25 degrees), eased.
 --     The lean turns the whole body about the hips (the legs are hidden in the cup). Not on this
 --     player's own body in first person (the view would roll).
 -- R15 for the hands (IK needs the arm chain); the lean works on any rig.
@@ -22,8 +22,10 @@ local player = Players.LocalPlayer
 local NEAR = 200
 local TURN_HOLD = 1.2 -- seconds after a tap the hands stay on the wheel
 local RATE_ON, RATE_OFF = 1 / 0.25, 1 / 0.5 -- hands on in 0.25 s, off in 0.5 s
-local LEAN_MAX = math.rad(22)
-local LEAN_SCALE = 14 -- studs/s² of the seat's acceleration for about 2/3 of LEAN_MAX
+local LEAN_MAX = math.rad(25)
+-- (Play check: at the normal speed the seat's acceleration is about 4..9 studs/s², which leaned only
+-- 2-7 degrees at 14 here: 7 makes it 11-18, more with taps)
+local LEAN_SCALE = 7 -- studs/s² of the seat's acceleration for about 2/3 of LEAN_MAX
 local LEAN_EASE = 5 -- 1/s: how quickly the lean follows
 local DIFF = 0.06 -- seconds between the seat samples the acceleration is read from
 
