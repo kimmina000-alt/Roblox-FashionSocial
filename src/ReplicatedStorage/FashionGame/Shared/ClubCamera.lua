@@ -746,7 +746,7 @@ ClubCamera.Songs[139044453511745] = {
 		{ 197.0, "xwide", 0, 6 }, { 201.5, "wide" }, { 202.5, "xwide", 0, 6 }, { 203.0, "wide" }, { 207.0, "waist" },
 	}),
 }
-
+
 -- (D-944) four stages at once, shot lists made by tools/choreo/stagecam/shots_to_lua.py
 -- from shots.py (size from the biggest dancer's pose in each shot's sample frames)
 -- and written in song seconds. The start point of each video: the original mp3's
