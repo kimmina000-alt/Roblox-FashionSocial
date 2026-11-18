@@ -158,7 +158,7 @@ local function sanitizeWallet(raw: any): Wallet
 	-- (D-1377 / D-1378) the ☰ menu's 닉네임 숨기기 and each badge's 숨기기 (PlayerPrefsService)
 	if raw.hideName == true then wallet.hideName = true end
 	if raw.muteCheer == true then wallet.muteCheer = true end -- (D-1709: 놀이기구 환호성 off)
-	-- (D-1804) DJ tickets (DjService): unused 30-min tickets and saved DJ seconds
+	-- (D-1810) DJ tickets (DjService): unused 30-min tickets and saved DJ seconds
 	if typeof(raw.djTickets) == "number" and raw.djTickets == raw.djTickets and raw.djTickets >= 1 then
 		wallet.djTickets = math.clamp(math.floor(raw.djTickets), 1, 99)
 	end
@@ -634,7 +634,7 @@ function PlayerDataService.GetLook(player: Player): any
 	return load(player).wallet.look
 end
 
--- (D-1804) called with the leaving player right before their last save
+-- (D-1810) called with the leaving player right before their last save
 local leavingHooks: {(Player) -> ()} = {}
 function PlayerDataService.OnLeaving(hook: (Player) -> ())
 	table.insert(leavingHooks, hook)
@@ -765,7 +765,7 @@ function PlayerDataService.Start()
 	local pendingSaves = 0
 	Players.PlayerRemoving:Connect(function(player)
 		pendingSaves += 1
-		-- (D-1804) services that put something back in the wallet when a player
+		-- (D-1810) services that put something back in the wallet when a player
 		-- leaves (DjService: DJ tickets) do it before this last save
 		for _, hook in ipairs(leavingHooks) do
 			pcall(hook, player)

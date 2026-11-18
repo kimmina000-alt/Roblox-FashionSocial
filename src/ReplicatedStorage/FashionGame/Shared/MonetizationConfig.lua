@@ -160,7 +160,7 @@ MonetizationConfig.Products = {
 
 -- Minutes of DJ time per DJ purchase.
 MonetizationConfig.DJMinutes = 30
--- (D-1804) DJ 이용권: a bought / gifted DJ 30 min is a ticket kept in the wallet until it
+-- (D-1810) DJ 이용권: a bought / gifted DJ 30 min is a ticket kept in the wallet until it
 -- is used at night inside the club (DjService.UseTicket). When the DJ leaves the game
 -- mid-turn, what is left of their time:
 --   "A" = a ticket back for every full 30 min left, plus one more if the rest is at least

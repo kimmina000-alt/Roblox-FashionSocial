@@ -940,7 +940,7 @@ local function refresh()
 		djLabel.Text = "DJ 없음 · 누구나 세 곡까지 신청" -- (D-1416)
 		djButton.Text = string.format("DJ %d분 · R$%d", MonetizationConfig.DJMinutes, MonetizationConfig.Products.DJ.price)
 	end
-	-- (D-1804) DJ 이용권 in the wallet: the button uses one instead of buying
+	-- (D-1810) DJ 이용권 in the wallet: the button uses one instead of buying
 	if (player:GetAttribute("DjTickets") or 0) > 0 or player:GetAttribute("DjLeftSeconds") then
 		local count = (player:GetAttribute("DjTickets") or 0) :: number
 		local word = if dj then "🎧 연장" elseif djId ~= 0 then "🎧 DJ 대기" else "🎧 DJ 시작"
@@ -1192,7 +1192,7 @@ djButton.MouseButton1Click:Connect(function()
 		return
 	end
 	if (player:GetAttribute("DjTickets") or 0) > 0 or player:GetAttribute("DjLeftSeconds") then
-		-- (D-1804) use a DJ 이용권 (night, inside the club; the server says why not)
+		-- (D-1810) use a DJ 이용권 (night, inside the club; the server says why not)
 		local ok, message = ClubShop:InvokeServer("UseDjTicket", nil)
 		if message then toast(message) elseif not ok then toast("지금은 쓸 수 없어요.") end
 		refresh()

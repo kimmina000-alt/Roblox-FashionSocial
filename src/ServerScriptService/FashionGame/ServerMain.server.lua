@@ -36,7 +36,7 @@ EconomyService.Start(PlayerDataService)
 require(script.Parent.Services.OpeningEventService).Start(PlayerDataService, EconomyService) -- (D-1366 오픈 출석 이벤트)
 require(script.Parent.Services.PlayerPrefsService).Start(PlayerDataService) -- (D-1377 ☰ 닉네임 / 칭호 숨기기)
 DjService.Start()
-DjService.SetData(PlayerDataService) -- (D-1804 DJ 이용권)
+DjService.SetData(PlayerDataService) -- (D-1810 DJ 이용권)
 ClubAccessService.Start()
 DrinkService.Start()
 ClubService.Start()
@@ -96,7 +96,7 @@ local function grantDJ(player: Player): (boolean, string?)
 	-- only: their first purchase sets the player attribute DJFirstGuide (the
 	-- button shows while that DJ time lasts, ClubMusicController); later buyers
 	-- start DJing with the 🎵 button by the turntable. wallet.tips.djFirst keeps it.
-	-- (D-1804) bought by day or outside the club: a DJ 이용권 for later (the
+	-- (D-1810) bought by day or outside the club: a DJ 이용권 for later (the
 	-- first-buyer guide waits for the ticket's use, DjService.UseTicket)
 	if not DjService.CanStartNow(player) then
 		DjService.AddTicket(player, 1)
@@ -173,11 +173,11 @@ ClubShop.OnServerInvoke = function(player: Player, action: any, payload: any)
 		ClubAccessService.SendToDJBooth(player)
 		return true, nil
 	elseif action == "UseDjTicket" then
-		-- (D-1804) "🎧 DJ 시작" in the DJ window / the gift window's 지금 DJ 하기
+		-- (D-1810) "🎧 DJ 시작" in the DJ window / the gift window's 지금 DJ 하기
 		local ok, message = DjService.UseTicket(player)
 		return ok, message
 	elseif action == "StudioDJTest" and game:GetService("RunService"):IsStudio() then
-		-- (D-1804) Studio play tests only: the DJ products have real ids, so a test cannot
+		-- (D-1810) Studio play tests only: the DJ products have real ids, so a test cannot
 		-- buy them. payload "buy" = the DJ purchase, "gift" = a DJ gift to yourself,
 		-- "leave" = what leaving the game gives back (no real leave, no save)
 		if payload == "buy" then return grantDJ(player) end

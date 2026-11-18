@@ -37,7 +37,7 @@ local CollectionService = game:GetService("CollectionService")
 local DjService = {}
 
 -- paid = bought / gifted / ticket time (comes back as tickets when its owner leaves,
--- D-1804); the owner / granted / Studio test time is free and does not
+-- D-1810); the owner / granted / Studio test time is free and does not
 type Slot = { userId: number, seconds: number, paid: boolean? }
 
 local current: Slot? = nil
@@ -119,7 +119,7 @@ end
 
 -- Adds DJ time for the player. Returns (true, message for the buyer, kind)
 -- where kind is "start" (DJ now), "extend" or "queue".
--- seconds: how much (default DJMinutes; a saved rest can be less, D-1804);
+-- seconds: how much (default DJMinutes; a saved rest can be less, D-1810);
 -- free: the owner / granted / Studio test time (no tickets back when leaving)
 function DjService.AddTime(player: Player, amount: number?, free: boolean?): (boolean, string?, string?)
 	local seconds = amount or MonetizationConfig.DJMinutes * 60
@@ -163,7 +163,7 @@ function DjService.AddTime(player: Player, amount: number?, free: boolean?): (bo
 end
 
 --------------------------------------------------------------------------
--- DJ 이용권 (D-1804, user 2026-11-19 via the main session: "DJ권을 DJ 이용권 방식으로").
+-- DJ 이용권 (D-1810, user 2026-11-19 via the main session: "DJ권을 DJ 이용권 방식으로").
 -- A bought or gifted DJ 30 min no longer starts at once anywhere: it is a ticket
 -- in the wallet (wallet.djTickets, kept across visits) used with "🎧 DJ 시작" in the
 -- DJ window, only at night inside the club (CanStartNow). Bought / gifted there and
@@ -217,7 +217,7 @@ function DjService.CanStartNow(player: Player): boolean
 	return access.ClubOpen()
 end
 
--- (D-1185, moved here by D-1804) the turntable's "E 디제잉하기" guide is for a
+-- (D-1185, moved here by D-1810) the turntable's "E 디제잉하기" guide is for a
 -- first-ever DJ only: player attribute DJFirstGuide, wallet.tips.djFirst keeps it.
 -- Returns whether this is their first DJ time.
 function DjService.FirstGuide(player: Player): boolean
@@ -546,7 +546,7 @@ function DjService.Start()
 			end
 		end)
 	end
-	Players.PlayerRemoving:Connect(leave) -- (D-1804: tickets back, see leave)
+	Players.PlayerRemoving:Connect(leave) -- (D-1810: tickets back, see leave)
 	task.spawn(function()
 		while true do
 			task.wait(1)

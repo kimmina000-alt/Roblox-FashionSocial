@@ -283,7 +283,7 @@ ClubNotify.OnClientEvent:Connect(function(kind: any, value: any)
 		elseif value == "DJ" then
 			local tickets = (player:GetAttribute("DjTickets") or 0) :: number
 			if tickets > 0 or player:GetAttribute("DjLeftSeconds") then
-				-- (D-1804) a DJ 이용권 in the wallet: use it instead of buying
+				-- (D-1810) a DJ 이용권 in the wallet: use it instead of buying
 				showModal("🎫 DJ 이용권", string.format("DJ 이용권이 %d장 있어요. 지금 쓸까요?\n%s", tickets, djStatusLine()), {
 					{ name = "No", text = "나중에", color = COLORS.card, onClick = function() end },
 					{ name = "Ok", text = "🎧 DJ 시작", color = COLORS.robux, onClick = function()
@@ -297,7 +297,7 @@ ClubNotify.OnClientEvent:Connect(function(kind: any, value: any)
 			end
 		end
 	elseif kind == "DJGift" then
-		-- (D-1804) a DJ 30 min gift received at night inside the club: now or later
+		-- (D-1810) a DJ 30 min gift received at night inside the club: now or later
 		local from = if typeof(value) == "table" and typeof(value.from) == "string" then value.from else "누군가"
 		local minutes = if typeof(value) == "table" and typeof(value.minutes) == "number" then value.minutes else MonetizationConfig.DJMinutes
 		showModal(string.format("🎁 %s님이 DJ %d분을 선물했어요!", from, minutes),

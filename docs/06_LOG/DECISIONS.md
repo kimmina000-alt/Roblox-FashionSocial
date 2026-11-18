@@ -6177,7 +6177,7 @@ Studio only (no script yet).
 - 진행 관리 세션(사용자 요청): catalog-ui-redesign 2893a9f0까지 들어온 새 한국어 문구 번역. tools/i18n extract → 빠진 36개를 tools/i18n/tr/p19_gift1118.tsv에 16개 언어로: 패스 선물(가드 · VIP · DJ 30분, GiftPassService · GiftPassCard), 양손 스파클러 두 번 탭 안내, 스킵 투표 한 줄 "⏭ {1}초 · {2}/{3} 예 · {4} 아니요", 다음 곡 / 다음 곡에서 빼기, 회전컵 · 관람차 · 범퍼카 눌러서 타기 안내, 추천 룩 "네온 스테이지".
 - GiftPassCard의 "🛡 가드권" .. " 보유"는 이어 붙인 문구라 tools/i18n/extra_templates.txt에 "{1} 보유" 추가. 같이 추기 · 환호성 · 폭죽 소리 등은 이미 표에 있었음. 채팅 명령어는 번역하지 않음(기존 원칙).
 
-## D-1804 DJ 이용권 (2026-11-19)
+## D-1810 DJ 이용권 (2026-11-19)
 - 사용자(메인 세션 · 진행 관리 세션 경유): DJ권을 "DJ 이용권" 방식으로. 예전엔 사거나 선물받는 순간 30분이 시작되거나 대기 줄에 들어가서 ① 낮 · 클럽 밖에서도 시간이 흐르고 ② DJ 중 · 대기 중에 나가면 시간이 사라지고 ③ 오프라인 선물(PassGifts_v1)은 다음 접속 때 낮이어도 바로 시작됐음.
 - 이용권: wallet.djTickets(1..99, PlayerDataService sanitize, 재접속 유지), wallet.djSeconds(B 모드의 남은 초). 플레이어 속성 DjTickets / DjLeftSeconds로 클라이언트에 보임.
 - DjService: AddTicket / UseTicket / CanStartNow(클럽 안 + 클럽 열림(밤), ClubAccessService.ClubOpen) / FirstGuide(D-1185 첫 DJ 안내를 여기로) / leave. AddTime(player, seconds?, free?): slot.paid = 산 · 선물 · 이용권 시간(주인 · 허용 계정 · Studio 테스트 시간은 free).

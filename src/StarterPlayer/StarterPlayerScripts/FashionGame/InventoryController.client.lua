@@ -61,7 +61,7 @@ title.Font = Enum.Font.GothamBold
 title.TextXAlignment = Enum.TextXAlignment.Left
 title.Parent = panel
 
--- (D-1804) DJ 이용권 count (player attribute DjTickets, DjService), right of the title
+-- (D-1810) DJ 이용권 count (player attribute DjTickets, DjService), right of the title
 do
 	local tickets = Instance.new("TextLabel")
 	tickets.Name = "DjTickets"

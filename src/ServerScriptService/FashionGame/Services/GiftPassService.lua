@@ -7,7 +7,7 @@
 --      (in this server, not the giver, a pass they do not have yet) and kept for the giver for 10 min;
 --   2. the giver buys the product; its handler gives the gift to that player:
 --      Guard / VIP → a gifted pass, kept in the receiver's wallet.gifted and counted as owning the pass
---      (MonetizationService.GrantGiftedPass); DJ → a DJ 이용권 (DjService.AddTicket, D-1804).
+--      (MonetizationService.GrantGiftedPass); DJ → a DJ 이용권 (DjService.AddTicket, D-1810).
 --   A receiver who left before the purchase finished gets it on the next visit (DataStore PassGifts_v1,
 --   never written in Studio). Without a kept target (a server restart) the buyer keeps it themselves.
 
@@ -58,7 +58,7 @@ local function give(receiver: Player, key: string, fromName: string): (boolean, 
 		toast(receiver, string.format("🎁 %s님이 %s를 선물했어요!", fromName, GiftPassService.Kinds[key].name))
 		return true, nil
 	elseif key == "DJ" then
-		-- (D-1804) a DJ 이용권: kept in the wallet. Inside the club at night the receiver
+		-- (D-1810) a DJ 이용권: kept in the wallet. Inside the club at night the receiver
 		-- is asked [🎧 지금 DJ 하기] / [나중에 쓰기] (ClubShopController "DJGift");
 		-- by day, outside the club or offline it just waits as a ticket
 		dj.AddTicket(receiver, 1)
@@ -149,7 +149,7 @@ local function onJoin(player: Player)
 	end)
 end
 
--- (D-1804) Studio play tests only: a gift of this kind to the player themselves
+-- (D-1810) Studio play tests only: a gift of this kind to the player themselves
 function GiftPassService.StudioGive(player: Player, key: string): (boolean, string?)
 	if not RunService:IsStudio() then return false, nil end
 	return give(player, key, "Studio 테스트")
