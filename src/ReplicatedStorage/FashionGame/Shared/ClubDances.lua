@@ -105,7 +105,7 @@ M.ChoreoPhrases = {
 	{ key = "phrase_98124521559769", name = "I SPY", soundId = 98124521559769, from = 49.27, to = 72.27 }, -- 0:49.3-1:12.3
 	{ key = "phrase_76034005809699", name = "REDRED", soundId = 76034005809699, from = 48.43, to = 65.27 }, -- 0:48.4-1:05.3
 	{ key = "phrase_94774089824958", name = "ANIMAL", soundId = 94774089824958, from = 39.86, to = 63.36 }, -- 0:39.9-1:03.4
-	{ key = "phrase_89634330677538", name = "Pretty Girl", soundId = 89634330677538, from = 58.03, to = 79.58 }, -- 0:58.0-1:19.6
+	{ key = "phrase_89634330677538", name = "Pretty Girl", soundId = 140273876429390, from = 58.03, to = 79.58 }, -- 0:58.0-1:19.6
 	{ key = "phrase_131620527618857", name = "Pop Off", soundId = 131620527618857, from = 45.3, to = 63.3 }, -- 0:45.3-1:03.3
 	{ key = "phrase_112509101263761", name = "With", soundId = 112509101263761, from = 59.04, to = 78.99 }, -- 0:59.0-1:19.0
 	{ key = "phrase_86115718533153", name = "CRASH", soundId = 86115718533153, from = 51.62, to = 73.91 }, -- 0:51.6-1:13.9
