@@ -151,10 +151,10 @@ M.ChoreoFixes = {
 	-- 9 starts with a lap after the default dance (fromPrev has no piece before) → blend 0.08 + its own spin
 	[88993457159273] = { spin = { from = 4.3, to = 5.55, ease = "both", add = -52 } }, -- TWS 2 (one lap with a -165° keyframe; D-1850: done by 0:17.3, ending to the front)
 	[83828094822862] = { spin = { { from = 0, to = 1.1, fromPrev = true, dir = -1, ease = "both" }, { from = 4.4, to = 5.9, ease = "both" } } }, -- TWS 5
-	[107391937407645] = { spin = { from = 7.0, to = 8.4, ease = "both" } }, -- TWS 6
+	-- TWS 6: (D-1855) no spin: the 0:48 bend stands on planted legs (the capture's lap there is held by a freeze)
 	[73429358232249] = { spin = { from = 0, to = 1.1, fromPrev = true, dir = 1, ease = "both" } }, -- TWS 9 (D-1658: after 8 again, which ends turned 130° away: one +159° turn back to the front, as in the video)
-	[133275108218481] = { spin = { from = 0, to = 2.7, fromPrev = true, dir = -1, turns = -1, ease = "both" } }, -- TWS 11 (D-1850: one whole turn to 1:16.5, the capture turned half way and back)
-	[107243018629607] = { spin = { from = 0, to = 1.0, fromPrev = true, dir = -1, ease = "both" } }, -- TWS 12 (627°/s at the seam, 2nd Play scan)
+	[133275108218481] = { spin = { { from = 0, to = 2.7, fromPrev = true, dir = -1, turns = -1, ease = "both" }, { from = 2.7, to = 3.93, ease = "linear" } } }, -- TWS 11 (D-1850: one whole turn to 1:16.5, the capture turned half way and back; D-1855: then on at one speed into 12)
+	[107243018629607] = { spin = { from = 0, to = 1.85, fromPrev = true, dir = -1, ease = "linear" } }, -- TWS 12 (627°/s at the seam, 2nd Play scan; D-1855, user "1:18 회전할 때 프레임 끊김": it stood still at the seam 77.8-77.9 and at 78.9, now one even turn to 79.6; blend 1 -> 0.4: the slow hand-over held the turn)
 	[137670042338904] = { spin = { from = 6.5, to = 8.0, ease = "both" } }, -- TWS 14
 	[107246799142521] = { spin = { from = 6.8, to = 7.97, ease = "linear" } }, -- TWS 17 (carried on by 18)
 	[100667532281425] = { spin = { { from = 0, to = 1.0, fromPrev = true, dir = 1 }, { from = 2.6, to = 4.6, ease = "both" } } }, -- TWS 18
@@ -2327,7 +2327,7 @@ do
 	end
 	-- (the drop is deeper than needed: the floor lift brings the lowest part, the hand, back onto the floor, so it
 	-- lands on any body; 1.1 left a default test avatar's hand 1.1 over the floor)
-	floorTouch(P6, 6.55, 2.4)
+	-- (D-1855: 0:48 is now a bend on planted legs, plantBend below)
 	floorTouch(P15, 3.85, 2.4)
 	-- 1:07 왼손 꽃받침처럼 대고 볼 터치, 1:08 손목 밖으로 (video 68.2-69.2: crouched, the left hand cupping the cheek;
 	-- P9 at 66.75)
@@ -2353,9 +2353,10 @@ do
 	local bentArms = both(arm("Left", { { -73, -47, -3 }, { 71, 0, 0 }, { 80, -40, 70 } }), arm("Right", { { 80, 0, 5 }, { 5, 0, 0 }, { 0, 0, 0 } }))
 	addList(P18, "guardOff", { from = 9.45, to = 11.55, side = "Left" })
 	addPose(P18, { from = 9.45, to = 11.55, ease = 0.25, keys = {
-		{ t = 9.6, add = { UpperTorso = { 0, 0, 0 }, LowerTorso = { 0, 0, 0 } } },
-		{ t = 9.9, set = bentArms, add = { UpperTorso = { -55, 0, 0 }, LowerTorso = { -25, 0, 0 } } },
-		{ t = 10.45, set = bentArms, add = { UpperTorso = { -55, 0, 0 }, LowerTorso = { -25, 0, 0 } } },
+		{ t = 9.6, add = { UpperTorso = { 0, 0, 0 } } },
+		-- (D-1855: the hips and legs are held where they stand, so the whole bend is the waist's, set)
+		{ t = 9.9, set = both(bentArms, { UpperTorso = { -65, 0, 0 }, RightUpperArm = { 60, 0, -20 } }) },
+		{ t = 10.45, set = both(bentArms, { UpperTorso = { -65, 0, 0 }, RightUpperArm = { 60, 0, -20 } }) },
 		{ t = 11.3, set = both(arm("Left", { { -73, -47, -3 }, { 71, 0, 0 }, { 80, -40, 70 } }), arm("Right", { { 15, 0, 5 }, { 10, 0, 0 }, { 0, 0, 0 } })),
 			add = { UpperTorso = { 0, 0, 0 }, LowerTorso = { 0, 0, 0 } } } } })
 	-- 2:37 오른 무릎 꿇고 왼 무릎 세운 채 고정, 고개 숙였다가 천천히 들면서 끝: the capture already kneels that way (right
@@ -2508,7 +2509,8 @@ do
 	addList(P9, "jump", { from = 2.58, to = 2.98, height = 1.2 })
 	-- 1:16-1:18 양팔 ㄴ에서 좌우로 빨리 두 번씩 털기, 박자마다 (song 75.9-78.0)
 	local shake = {}
-	local tb = 5.5
+	-- (D-1855, user: "1:15쯤 상체 좌우로 흔드는 거 한박자 빠름. 앞에 좌우로 흔드는 것만 없애기") the shakes start a beat later (76.44)
+	local tb = 5.5 + BEAT
 	while tb < 7.5 do
 		table.insert(shake, { tb, 0, 0, 0 })
 		table.insert(shake, { tb + 0.06, 0, 0, 14 })
@@ -2647,7 +2649,10 @@ do
 	addBend(P21, "RightHand", flick(6.4, 7.15, 0.13, 35))
 	-- 2:51 팔 ㄱ 직각으로 팔꿈치 확실히 벌림, 허리 더 숙임, 발끝 바깥으로 (P22 at 171.26: song 171.0-172.2)
 	local wide = both(both(arm("Right", gR), arm("Left", gL)), { LeftUpperLeg = { 0, 25, -8 }, RightUpperLeg = { 0, -25, 8 }, LeftFoot = { 0, 20, 0 }, RightFoot = { 0, -20, 0 } })
-	addPose(P22, { from = -0.35, to = 1.0, ease = 0.2, keys = { { t = -0.15, set = wide, add = { UpperTorso = { -25, 0, 0 } } }, { t = 0.8, set = wide, add = { UpperTorso = { -25, 0, 0 } } } } })
+	-- (D-1855, user "2:51 발 땅에 붙이고 다리 고정하고 상체만 숙이기") to 1.75 (the capture bends to 172.9) with the waist set
+	-- on the held legs (freeze below)
+	addPose(P22, { from = -0.35, to = 1.75, ease = 0.2, keys = { { t = -0.15, set = wide, add = { UpperTorso = { -25, 0, 0 } } }, { t = 0.25, set = wide, add = { UpperTorso = { -25, 0, 0 } } },
+		{ t = 0.6, set = both(wide, { UpperTorso = { -60, 0, 0 } }), add = { UpperTorso = { 0, 0, 0 } } }, { t = 1.45, set = both(wide, { UpperTorso = { -60, 0, 0 } }), add = { UpperTorso = { 0, 0, 0 } } } } })
 	-- 3:00 다리 일자로 쭉 뻗으며 성큼성큼 원 그리며 걷기 (P23 at 174.93: song 179.8-182.4; the capture walks the circle)
 	addList(P23, "amp", { from = 4.8, to = 7.5, ease = 0.3, parts = { LeftLowerLeg = 0.3, RightLowerLeg = 0.3, LeftUpperLeg = 1.3, RightUpperLeg = 1.3 } })
 	-- 3:05 양팔 들고 손목 안으로 두세 번 (P24 at 185.81: the arms up 185.7-186.6)
@@ -2702,10 +2707,43 @@ do
 	-- go down; the upright kneel at its 4.75 is held to its end
 	fx(97670698889704).freeze = { from = 4.75, to = 7, ease = 0.3 }
 	addList(97670698889704, "still", { from = 4.75, to = 7 })
+	-- (D-1855, user: "가만히만 있어서 어색함. 뒤에 이어지는 안무로 슬로우 걸어서 연결") the next piece (103780560163454 at 156.95)
+	-- starts 2.0 s early (20 stops at 154.95) and plays its first 0.5 s (the rise with the arm out) over 2.5 s: ClubPlaylist slowIn; the rise is then at 155.9-157.1 as in the video
 	-- (D-1854, user's screen recording: 갑자기 0:08-0:12 the hand at the chin shivers) piece 140529283375287 (at 8.5): the
 	-- hands at the face / chest touch the head and body bounds, so the body guard stays off there and the arms are calmed
 	addList(140529283375287, "guardOff", { from = 0, to = 4.0 })
 	addList(140529283375287, "steady", { from = 0, to = 4.0, passes = 8, parts = ARMS })
+	-- (D-1855, user: "갑자기 0:11~0:12 몸이 가만히 있지 않는데") the original: arms crossed, one hand at the chin, standing
+	-- still 11.0-12.4 (piece 2.5-3.9): the whole body held
+	fx(140529283375287).freeze = { from = 2.55, to = 3.9, ease = 0.3 }
+	-- (D-1855, user: "내이름을불러줘 0:48 다리 발 바닥에 붙은 상태로 고정하고 상체만 숙여. 오른팔은 땅과 직각으로 / 2:14 여기도 /
+	-- boogie woogie 2:51 발 땅에 붙이고 다리 고정하고 상체만 숙이기") the hips and legs are held from where the bend begins
+	-- (feet and knees where they stand), the waist bends forward (UpperTorso set, R15: x - = forward) and the right arm
+	-- hangs straight down to the floor (shoulder forward by the bend, elbow straight)
+	local UPPER = { "UpperTorso", "Head", "LeftUpperArm", "LeftLowerArm", "LeftHand", "RightUpperArm", "RightLowerArm", "RightHand" }
+	local function plantBend(id: number, t0: number, down: number, up: number, t1: number, deg: number?, extra: any?)
+		addList(id, "freeze", { from = t0, to = t1, ease = 0.3, except = UPPER })
+		if deg then
+			local set = { UpperTorso = { -deg, 0, 0 }, RightUpperArm = { deg - 12, 0, -32 }, RightLowerArm = { 0, 0, 0 } }
+			for k, v in pairs(extra or {}) do set[k] = v end
+			addList(id, "pose", { from = t0, to = t1, ease = down - t0, keys = { { t = down, set = set }, { t = up, set = set } } })
+		end
+		addList(id, "guardOff", { from = t0, to = t1 })
+		addList(id, "still", { from = t0, to = t1 })
+	end
+	-- 내 이름을 불러줘 0:48 (6 at 41.26: the video bends 48.1-49.3, the right hand down to the floor)
+	plantBend(107391937407645, 6.75, 7.05, 7.95, 8.3, 70)
+	-- 2:14 (18 at 124.74 to 135.05, then 19: the video bends 134.3-135.7 and is up by 135.9): 18 keeps its D-1850 window
+	-- (left arm behind the back, right arm hanging, waist set -65) on the held legs; 19 carries the same bend on
+	plantBend(100667532281425, 9.5, 9.8, 10.4, 10.6, nil)
+	plantBend(122207092339520, -0.3, 0, 0.45, 0.95, 65, { LeftUpperArm = { -73, -47, -3 }, LeftLowerArm = { 71, 0, 0 }, LeftHand = { 80, -40, 70 },
+		RightUpperArm = { 60, 0, -20 }, RightLowerArm = { 5, 0, 0 } })
+	-- Boogie Woogie 2:51 (22 at 171.26: the capture bends 171.6-172.9; its earlier pose keeps the arms in an L)
+	addList(79114246750826, "freeze", { from = 0.25, to = 1.75, ease = 0.3, except = UPPER })
+	addList(79114246750826, "still", { from = 0.25, to = 1.75 })
+	-- (D-1855, user: "2:37부터 왼손 작은 프레임 안에서는 그냥 고정") the left hand on the hip 157.0-159.9 (20 at 153.71) held still
+	addList(130987200839765, "freeze", { from = 3.3, to = 6.2, ease = 0.3, except = { "LowerTorso", "UpperTorso", "Head", "RightUpperArm", "RightLowerArm", "RightHand",
+		"LeftUpperLeg", "LeftLowerLeg", "LeftFoot", "RightUpperLeg", "RightLowerLeg", "RightFoot" } })
 end
 
 -- (D-1853, user 2026-11-19: "언빌리버블 손만 떠는 게 아니고 전체를 다 떨어 사시나무처럼 … 안무 동작 정확하고 크게 보정해") Play:
