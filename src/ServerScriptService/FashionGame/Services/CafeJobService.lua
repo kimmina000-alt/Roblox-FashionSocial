@@ -845,8 +845,8 @@ local function startWork(player: Player, shopKey: any): (boolean, string?)
 		end
 	end
 	staff[player] = shopKey
-	lastNpcAt[shopKey] = os.clock() - CafeJobConfig.NpcEverySeconds + 4 -- first NPC soon
-	npcGap[shopKey] = nil -- (D-1025: the first gap is NpcEverySeconds, so 4 s from here)
+	lastNpcAt[shopKey] = os.clock() - CafeJobConfig.NpcEverySeconds + CafeJobConfig.NpcFirstSeconds -- first NPC (D-1804: 15 s)
+	npcGap[shopKey] = nil -- (D-1025: the first gap is NpcEverySeconds, so NpcFirstSeconds from here)
 	require(script.Parent:WaitForChild("Analytics")).interact(player, "Job") -- (D-1124: a shift started)
 	if player.Character then
 		player.Character:SetAttribute("CafeJob", shopKey)

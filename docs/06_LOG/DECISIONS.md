@@ -6194,3 +6194,6 @@ Studio only (no script yet).
 - 단상: 반지름 18, 높이 1.2(예전 윗면 높이) 한 층. 네온 띠·네온 원·안쪽 원 삭제, 얇고 연한 분홍 선 하나(StageLine: 가장자리 0.06 밖, 높이 0.1, 투명도 0.35, 윗면보다 0.08 아래). 가장자리 조명 6개는 남김. 1.2 턱은 Play에서 걸어서 막힘 없이 올라가 경사로는 안 넣음.
 - 무대 카메라: 무대 위에서 그 곡에 무대 카메라 샷이 있으면 아래 가운데(놀이기구 1인칭 자리, 아이템 칸 위)에 "🎥 무대 카메라" 버튼(꺼짐 파랑 / 켜짐 분홍). 누르면 클럽의 무대 카메라(StageCameraController)가 무대 곡 시각에 맞춰 찍음. 버튼 글씨 "무대 카메라"는 번역 표에 이미 있음(새 번역 없음).
 - 확인(Studio Play): 후보 24곡, 걸어서 올라가니 무작위 곡(Get A Guitar-RIIZE) 재생 + 안무, 버튼 누르니 무대 카메라 촬영, 오류 0.
+
+## D-1804 (2026-11-18) 카페 알바 손님 다시 천천히
+- Players via the user: "카페 알바 너무 빨리 온대" → picked "11/13 전으로". CafeJobConfig NpcGapMin / Max 8 / 40 (D-1354, about 24 s) → 12 / 60 (about 36 s, as at D-1025); the first customer after a shift starts comes after NpcFirstSeconds = 15 (was 4, CafeJobService). Opening-hour rates (CafeJobConfig.NpcHours) unchanged.
