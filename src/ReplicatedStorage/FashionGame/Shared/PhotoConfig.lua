@@ -6,7 +6,7 @@ export type Layout = { key: string, name: string, cols: number, rows: number }
 -- price: "free" | "coins" (EconomyConfig coin price, unlocked forever) |
 -- "pass" (Game Pass MonetizationConfig.GamePasses.FramePack).
 -- style: "solid" | "gloss" (shine gradient) | "glitter" (sparkles).
-export type Frame = { key: string, name: string, color: Color3, text: Color3, tab: string, price: string, coins: number?, style: string }
+export type Frame = { key: string, name: string, color: Color3, text: Color3, tab: string, price: string, coins: number?, style: string, stickers: {string}?, neon: Color3?, art: any? }
 
 local PhotoConfig = {}
 
@@ -119,8 +119,15 @@ PhotoConfig.Frames = {
 	{ key = "flowers", name = "꽃", color = Color3.fromRGB(214, 240, 200), text = Color3.fromRGB(70, 110, 60), tab = "특별한", price = "pass", style = "sticker", stickers = { "🌸", "🌼", "🌷" } },
 	{ key = "mongi", name = "몽이", color = Color3.fromRGB(255, 226, 234), text = Color3.fromRGB(150, 80, 110), tab = "특별한", price = "pass", style = "sticker", stickers = { "rbxassetid://139448598693468", "rbxassetid://102428635231665", "💗" } }, -- (the shop's own mascot, user 2026-10-30; docs/04_ART/textures/mascot_mongi*.png)
 	-- (D-1366) the opening event's limited frame: the 7th attendance gives it (price "event",
-	-- never sold); the user's own art comes later, until then a pink sticker frame
-	{ key = "opening2026", name = "오픈 기념", color = Color3.fromRGB(255, 196, 222), text = Color3.fromRGB(150, 70, 140), tab = "특별한", price = "event", style = "sticker", stickers = { "🌸", "👑", "💜" } },
+	-- never sold). (D-1412, user 2026-11-14: "출석 이벤트 프레임 이거 누끼 따서 사용하자") the user's
+	-- drawing (pink lace frame, ribbon, bears, OHU), cut out and fitted to each layout's cells
+	-- (tools/art/opening_frame; the 1x4 uses rows 1, 2, 5, 6 of the drawing's six): art[layout]
+	-- = the image and its rectangle in strip fractions (it reaches past the strip's edges)
+	{ key = "opening2026", name = "오픈 기념", color = Color3.fromRGB(255, 196, 222), text = Color3.fromRGB(150, 70, 140), tab = "특별한", price = "event", style = "art",
+		art = {
+			["1x4"] = { image = "rbxassetid://98572338696618", x = -0.4519, y = -0.0533, w = 1.8100, h = 1.0364 },
+			["2x2"] = { image = "rbxassetid://126371730378535", x = -0.0802, y = -0.1587, w = 1.1686, h = 1.1122 },
+		} },
 	{ key = "hamster", name = "햄찌·토끼", color = Color3.fromRGB(255, 236, 200), text = Color3.fromRGB(130, 90, 50), tab = "특별한", price = "pass", style = "sticker", stickers = { "🐹", "🐰", "🍙" } },
 } :: {Frame}
 

@@ -6157,3 +6157,10 @@ Studio only (no script yet).
 - User: "클럽에서 다른 사람 누르면 다른 사람 간단한 프로필이랑 춤 따라추기 뜨는 창에 가드는 그 창에서 수갑, 들기 추가되는 거고. 아이템 들고 누르면 아이템 주기 버튼 추가되는 걸로 수정. 현재 가드가 아이템 들고 사람 누르면 들기, 수갑만 뜸."
 - Cause: a tap on a player opened two windows (DanceController's player card and GiveController's own "줄까요?" window, D-1396); only one popup is open at a time (Popups), so the guard was left with the card's 들기 / 수갑 row.
 - DanceController's player card is the one window: profile, 💃 같이 추기 (both in the club), 🎧 DJ 존 초대 (the DJ), 들기 / 수갑 (a guard), and now 🎁 OO 주기 (a giveable item in the hand and the player within 16 studs; then the card also opens outside the club). The button fires UiBus.GiveTo → GiveController sends the offer (the other one still accepts). GiveController no longer opens a window of its own on the tap (it keeps the press guard: a held drink / sparkler is not used on that tap). Shared check: GiveItem (client module: giveable, heldTool, near, itemName).
+
+
+## D-1412 Opening event frame = the user's drawing (2026-11-14)
+- User (with the drawing: a pink lace 6-cut strip and a 2x2 frame with a ribbon, bears and ♡OHU♡): "출석 이벤트 프레임 이거 누끼 따서 사용하자 아이템 넣어".
+- tools/art/opening_frame (cut.py, warp.py, README): cut out, straightened and warped so the holes sit exactly on the game's cells (4:3, 0.35 gaps); the border keeps its scale and reaches past the strip (ribbon, bears). The 1x4 uses rows 1, 2, 5, 6 of the strip's six. Images: 1x4 rbxassetid://98572338696618, 2x2 rbxassetid://126371730378535.
+- PhotoConfig `opening2026`: style "art", `art[layout] = { image, x, y, w, h }` (strip fractions). PhotoRender.applyStyle draws an art frame as an ImageLabel over the cells (ZIndex 3) and hides the strip's colour and OHU footer (the drawing has its own); stickers / neon edge are skipped. Everything that draws a strip (frame picker, album, viewer, photo wall) goes through newStrip, so all show it.
+- Play: wall photos of both layouts drawn with the frame (docs/06_LOG/images/2026-11-14/opening_frame_photos.jpg). On the photo wall the 1x4's bears reach about 45 % of a strip's width past each side.
