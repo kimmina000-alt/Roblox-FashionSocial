@@ -651,7 +651,13 @@ closeShops = function() -- (D-1273)
 		Popups.closed("ClubItemShop")
 	end
 end
+-- Where the player stood when the item window opened (D-1772): the seller
+-- wanders (x 130..172, D-1566), so the window follows the player's own steps,
+-- not the seller's spot.
+local itemShopAnchor: Vector3? = nil
 local function openItemShop()
+	local openRoot = player.Character and player.Character:FindFirstChild("HumanoidRootPart") :: BasePart?
+	itemShopAnchor = openRoot and openRoot.Position or nil
 	layoutWindow(itemWindow.frame)
 	buildItemShop()
 	itemWindow.frame.Visible = true
@@ -706,8 +712,15 @@ task.spawn(function()
 			for _, spot in ipairs(game:GetService("CollectionService"):GetTagged("BartenderSpot")) do
 				if spot:IsA("BasePart") and root then
 					nearBar = math.min(nearBar, (spot.Position - root.Position).Magnitude)
-					nearSeller = math.min(nearSeller, ((spot.CFrame * ClubConfig.ItemSellerOffset).Position - root.Position).Magnitude)
 				end
+			end
+			-- (D-1772: the item window closes only when the player walks 22
+			-- away from where they opened it; the wandering seller used to
+			-- take the window with them)
+			if root and itemShopAnchor then
+				nearSeller = (itemShopAnchor - root.Position).Magnitude
+			elseif not root then
+				nearSeller = 0
 			end
 			if nearBar > 22 then menu.Visible = false end
 			if nearSeller > 22 then itemWindow.frame.Visible = false end
