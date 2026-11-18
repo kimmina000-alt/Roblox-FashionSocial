@@ -2506,19 +2506,22 @@ do
 	addBend(P8, "RightHand", flick(7.1, 7.75, 0.13, 35))
 	addBend(P9, "RightHand", flick(0.0, 1.0, 0.13, 35))
 	-- 1:13 점프 (song 73.0-73.4, P9 at 70.42)
-	addList(P9, "jump", { from = 2.58, to = 2.98, height = 1.2 })
+	-- (D-1858, user: "1:13 점프 원본에 있는 건지 확인": yes, a small hop with a right-leg kick, in the air at 72.85-73.15) 0.15 s earlier, lower
+	addList(P9, "jump", { from = 2.43, to = 2.78, height = 0.9 })
 	-- 1:16-1:18 양팔 ㄴ에서 좌우로 빨리 두 번씩 털기, 박자마다 (song 75.9-78.0)
 	local shake = {}
 	-- (D-1855, user: "1:15쯤 상체 좌우로 흔드는 거 한박자 빠름. 앞에 좌우로 흔드는 것만 없애기") the shakes start a beat later (76.44)
 	local tb = 5.5 + BEAT
-	while tb < 7.5 do
-		table.insert(shake, { tb, 0, 0, 0 })
-		table.insert(shake, { tb + 0.06, 0, 0, 14 })
-		table.insert(shake, { tb + 0.12, 0, 0, -14 })
-		table.insert(shake, { tb + 0.18, 0, 0, 14 })
-		table.insert(shake, { tb + 0.24, 0, 0, 0 })
-		tb += BEAT
+	-- (D-1858, user: "스프링마냥 너무 빨리 흔들어. 슬로우 걸어서 춤추는 것처럼") was 3 flicks in 0.24 s a beat; now one sway a
+	-- half beat (left on the beat, right on the and), eased, through 76.44-78.0
+	table.insert(shake, { tb - BEAT / 4, 0, 0, 0 })
+	local side = 1
+	while tb < 7.45 do
+		table.insert(shake, { tb, 0, 0, 13 * side })
+		side = -side
+		tb += BEAT / 2
 	end
+	table.insert(shake, { tb, 0, 0, 0 })
 	addBend(P9, "UpperTorso", shake)
 	-- 1:21 양손 반바퀴씩 (P10 at 79.67) / 1:25 양쪽 손목 밖으로 / 1:26 가슴 튕기기 / 1:26-1:28 개다리 춤
 	addBend(P10, "LeftHand", wristTwinkle(1.23, 2.23, BEAT / 2, 80))
@@ -2736,8 +2739,9 @@ do
 	-- 2:14 (18 at 124.74 to 135.05, then 19: the video bends 134.3-135.7 and is up by 135.9): 18 keeps its D-1850 window
 	-- (left arm behind the back, right arm hanging, waist set -65) on the held legs; 19 carries the same bend on
 	plantBend(100667532281425, 9.5, 9.8, 10.4, 10.6, nil)
-	plantBend(122207092339520, -0.3, 0, 0.45, 0.95, 65, { LeftUpperArm = { -73, -47, -3 }, LeftLowerArm = { 71, 0, 0 }, LeftHand = { 80, -40, 70 },
-		RightUpperArm = { 60, 0, -20 }, RightLowerArm = { 5, 0, 0 } })
+	-- (D-1858, user: "2:14-2:15 움찔하는 거 정리") 19 taking the bend over at 135.05 shifted the hands 0.2 and the feet 0.08 twice
+	-- (135.1-135.4: two captures of the same bend): 18 now holds its bend to 135.60 and 19 comes in rising, from its 0.55 s
+	-- (ClubPlaylist: at 135.60, from 0.55)
 	-- Boogie Woogie 2:51 (22 at 171.26: the capture bends 171.6-172.9; its earlier pose keeps the arms in an L)
 	addList(79114246750826, "freeze", { from = 0.25, to = 1.75, ease = 0.3, except = UPPER })
 	addList(79114246750826, "still", { from = 0.25, to = 1.75 })
@@ -2782,10 +2786,40 @@ do
 			f.bend = if f.bend then table.clone(f.bend) else {}
 			table.insert(f.bend, { part = part, keys = keys })
 		end
-		addBend(U1, "UpperTorso", { { 5.85, 0, 0, 0 }, { 6.15, -16, 0, 0 }, { 6.45, 14, 0, 0 }, { 6.75, 0, 0, 0 }, { 6.85, -13, 0, 0 }, { 7.0, 11, 0, 0 }, { 7.15, 0, 0, 0 } })
-		addBend(U1, "LowerTorso", { { 5.85, 0, 0, 0 }, { 6.15, 8, 0, 0 }, { 6.45, -7, 0, 0 }, { 6.75, 0, 0, 0 }, { 6.85, 6, 0, 0 }, { 7.0, -5, 0, 0 }, { 7.15, 0, 0, 0 } })
-		addBend(U2, "UpperTorso", { { 0.03, 0, 0, 0 }, { 0.13, -13, 0, 0 }, { 0.28, 11, 0, 0 }, { 0.42, 0, 0, 0 } })
-		addBend(U2, "LowerTorso", { { 0.03, 0, 0, 0 }, { 0.13, 6, 0, 0 }, { 0.28, -5, 0, 0 }, { 0.42, 0, 0, 0 } })
+		-- (D-1858, user: "0:04-0:06 웨이브가 아님. 웨이브 연구해서 구현") a body wave is a push forward that travels down the
+		-- body, each part following the one above: head (chin out) -> chest out while the head comes back -> hips out while the
+		-- chest pulls back in -> knees give and straighten. Each push is a raised-cosine bump half a wave long, 0.2 of a wave
+		-- after the one above. Chest out = the hips lean forward 30° + the waist arched back 22° (measured in Play: the breastbone
+		-- goes forward, the seat back; an arch alone only leans back; the hips cannot be moved forward, their sideways place goes
+		-- to the root), thighs turned so the feet stay; hips out = pelvis tucked back + chest curled in; knees =
+		-- thighs / shins / feet fold and the hips sink. One slow wave over two beats (4.49-5.40), two fast ones a beat each
+		-- (5.40-5.86, 5.86-6.31, the last over the seam into piece 2)
+		local function bump(x: number): number
+			return if x <= 0 or x >= 0.5 then 0 else 0.5 - 0.5 * math.cos(x * 4 * math.pi)
+		end
+		local function waveKey(t: number, ph: number, amp: number): any
+			local h, c, p, k = bump(ph) * amp, bump(ph - 0.17) * amp, bump(ph - 0.34) * amp, bump(ph - 0.5) * amp
+			local thigh = 30 * c - 12 * p + 24 * k
+			return { t = t, curve = "linear",
+				add = { Head = { -12 * h + 14 * c - 8 * p, 0, 0 }, UpperTorso = { 22 * c - 22 * p, 0, 0 }, LowerTorso = { -30 * c + 12 * p, 0, 0 },
+					LeftUpperLeg = { thigh, 0, 0 }, RightUpperLeg = { thigh, 0, 0 }, LeftLowerLeg = { -46 * k, 0, 0 }, RightLowerLeg = { -46 * k, 0, 0 },
+					LeftFoot = { 22 * k, 0, 0 }, RightFoot = { 22 * k, 0, 0 } },
+				move = { LowerTorso = { 0, -0.3 * k, 0 } } }
+		end
+		local waves = { { 4.49, 5.40, 1 }, { 5.40, 5.86, 0.8 }, { 5.86, 6.31, 0.8 } }
+		for _, piece in ipairs({ { U1, 1.15, 5.5, 7.3 }, { U2, -6.02, -0.6, 0.45 } }) do
+			local keys = {}
+			local t = piece[3]
+			while t <= piece[4] + 0.001 do
+				local song, key = t - piece[2], nil
+				for _, w in ipairs(waves) do
+					if song >= w[1] and song < w[2] then key = waveKey(t, (song - w[1]) / (w[2] - w[1]), w[3]) end
+				end
+				table.insert(keys, key or waveKey(t, 0, 0))
+				t += 0.05
+			end
+			addList(piece[1], "pose", { from = piece[3], to = piece[4], ease = 0.05, keys = keys })
+		end
 		-- 0:07 "허허: 고개 왼쪽으로 갔다가 오른쪽으로 까딱하면서 양팔 앞으로 쭉 뻗음" / 0:09 "양팔 아래로 내리면서 걸어나옴"
 		local fwd = { RightUpperArm = { 90, 0, 0 }, RightLowerArm = { 0, 0, 0 }, LeftUpperArm = { 90, 0, 0 }, LeftLowerArm = { 0, 0, 0 } }
 		local half = { RightUpperArm = { 45, 0, 5 }, RightLowerArm = { 5, 0, 0 }, LeftUpperArm = { 45, 0, -5 }, LeftLowerArm = { 5, 0, 0 } }
