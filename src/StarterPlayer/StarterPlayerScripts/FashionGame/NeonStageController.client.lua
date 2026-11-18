@@ -9,7 +9,7 @@
 --     ChoreoController), so everyone up there is on the same beat. Walking stops it (as everywhere);
 --     standing still starts it again. 춤 멈추기 (or a dance from the menu) is respected until this
 --     player steps off the stage;
---   * (D-1820) the song's title floats over the stage while it plays, and on the stage a
+--   * (D-1820) on the stage a
 --     "🎥 무대 카메라" button (like the rides' 👁 1인칭) switches the club's stage camera, which then
 --     films this player on the stage song's clock (StageCameraController), for songs that have shots.
 
@@ -92,36 +92,6 @@ local function rootAndHumanoid(): (BasePart?, Humanoid?)
 	local humanoid = character and character:FindFirstChildOfClass("Humanoid")
 	return if root and root:IsA("BasePart") then root else nil, humanoid
 end
-
--- the title over the stage
-local titleAnchor = Instance.new("Part")
-titleAnchor.Name = "NeonStageTitleAnchor"
-titleAnchor.Anchored = true
-titleAnchor.CanCollide = false
-titleAnchor.CanQuery = false
-titleAnchor.CanTouch = false
-titleAnchor.Transparency = 1
-titleAnchor.Size = Vector3.new(0.2, 0.2, 0.2)
-titleAnchor.CFrame = CFrame.new(NeonStageConfig.Center + Vector3.new(0, NeonStageConfig.Height + 11, 0))
-titleAnchor.Parent = workspace
-local titleGui = Instance.new("BillboardGui")
-titleGui.Name = "NeonStageTitle"
-titleGui.Adornee = titleAnchor
-titleGui.Size = UDim2.fromOffset(360, 40)
-titleGui.MaxDistance = 90
-titleGui.LightInfluence = 0
-titleGui.Enabled = false
-titleGui.Parent = playerGui
-local titleLabel = Instance.new("TextLabel")
-titleLabel.Size = UDim2.fromScale(1, 1)
-titleLabel.BackgroundTransparency = 1
-titleLabel.Font = Enum.Font.GothamBold
-titleLabel.TextScaled = true
-titleLabel.TextColor3 = Color3.fromRGB(255, 235, 248)
-titleLabel.TextStrokeColor3 = Color3.fromRGB(150, 40, 110)
-titleLabel.TextStrokeTransparency = 0.2
-titleLabel.Text = ""
-titleLabel.Parent = titleGui
 
 -- the 🎥 무대 카메라 button, where the rides' 👁 1인칭 sits (bottom middle, over the item hotbar)
 local TOUCH = UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled
@@ -220,8 +190,6 @@ RunService.Heartbeat:Connect(function(dt)
 	end
 	local heard = if level > 0 then level else nil
 	if player:GetAttribute("NeonHeard") ~= heard then player:SetAttribute("NeonHeard", heard) end
-	titleGui.Enabled = running and level > 0
-	if running and track and titleLabel.Text ~= "♪ " .. track.title then titleLabel.Text = "♪ " .. track.title end
 	-- the stage dance
 	local onStage = running and root ~= nil and NeonStageConfig.onStage(root.Position)
 	if not onStage then optedOut = false end
