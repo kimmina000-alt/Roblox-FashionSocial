@@ -11,6 +11,12 @@
 -- newest-first list. Every message is printed in the server output too.
 -- The owner = the user who owns the experience (game.CreatorId), or anyone in
 -- Studio. Player attribute FeedbackAdmin = true shows them the 📥 tab.
+-- (D-1805, user 2026-11-18: "받은 의견 뜨는데 오래 걸리네. 새로운 의견 올라오면 n 띄워 줘") the newest
+-- messages are read all at once and kept (valueCache; a message only changes by done / reward,
+-- which update it too), read ahead when the owner joins; player attribute FeedbackNew = true
+-- (a red N on 💬 and 📥) while a message newer than the last one the owner saw is waiting: checked
+-- at join, every NewCheckSeconds, and at once when someone in this server sends one; opening the
+-- inbox marks everything listed as seen (DataStore "FeedbackSeen_v1", u_<userId> = newest time).
 
 local Players = game:GetService("Players")
 local DataStoreService = game:GetService("DataStoreService")
@@ -34,6 +40,12 @@ pcall(function()
 end)
 
 local lastSent: {[Player]: number} = {}
+local valueCache: {[string]: any} = {} -- (D-1805) key → the stored message (filtered text in .tf)
+local seenStore: DataStore? = nil
+pcall(function()
+	seenStore = DataStoreService:GetDataStore(if RunService:IsStudio() then "FeedbackSeen_Studio_v1" else "FeedbackSeen_v1")
+end)
+local NEW_CHECK_SECONDS = 60
 -- (Studio has no DataStore access here: kept for the session so the window can be tested)
 local session: {{ key: string, value: any }} = {}
 
@@ -91,6 +103,10 @@ local function send(player: Player, payload: any): (boolean, string?)
 			return false, "지금은 보낼 수 없어요. 잠시 뒤에 다시 해 주세요."
 		end
 	end
+	-- (D-1805) the owner, if here, sees the N at once
+	for _, other in ipairs(Players:GetPlayers()) do
+		if other:GetAttribute("FeedbackAdmin") then other:SetAttribute("FeedbackNew", true) end
+	end
 	-- (D-769, user: shown for 1 s over the form, Feedback.lua)
 	return true, "소중한 의견이 잘 접수되었어요. 고마워요! 💛"
 end
@@ -114,6 +130,15 @@ local function filtered(value: any, to: Player): string
 	return "(필터를 거치지 못한 글)"
 end
 
+-- (D-1805) the owner's newest seen time (0 when never)
+local function seenAt(player: Player): number
+	local seen = 0
+	if seenStore then
+		pcall(function() seen = tonumber((seenStore :: DataStore):GetAsync("u_" .. player.UserId)) or 0 end)
+	end
+	return seen
+end
+
 local function list(player: Player): {any}
 	if not isAdmin(player) then return {} end
 	local out = {}
@@ -124,14 +149,53 @@ local function list(player: Player): {any}
 	end
 	pcall(function()
 		local page = (times :: OrderedDataStore):GetSortedAsync(false, FeedbackConfig.ListSize):GetCurrentPage()
-		for _, row in ipairs(page) do
-			local value = (store :: DataStore):GetAsync(row.key)
+		-- (D-1805) every message read at the same time (one after another took seconds), and kept
+		local rows: {any} = {}
+		local left = #page
+		for i, row in ipairs(page) do
+			task.spawn(function()
+				local value = valueCache[row.key]
+				if value == nil then
+					pcall(function() value = (store :: DataStore):GetAsync(row.key) end)
+					if typeof(value) == "table" then
+						value.tf = filtered(value, player) -- (filtered once, then kept)
+						valueCache[row.key] = value
+					end
+				end
+				rows[i] = value
+				left -= 1
+			end)
+		end
+		local t0 = os.clock()
+		while left > 0 and os.clock() - t0 < 15 do task.wait() end
+		for i, row in ipairs(page) do
+			local value = rows[i]
 			if typeof(value) == "table" and not value.done then
-				table.insert(out, { key = row.key, n = value.n, k = value.k, at = value.at, t = filtered(value, player), x = value.x, z = value.z, r = value.r })
+				table.insert(out, { key = row.key, n = value.n, k = value.k, at = value.at, t = value.tf or tostring(value.t), x = value.x, z = value.z, r = value.r })
 			end
 		end
 	end)
+	-- (D-1805) everything listed now counts as seen
+	local newest = 0
+	for _, row in ipairs(out) do
+		if typeof(row.at) == "number" and row.at > newest then newest = row.at end
+	end
+	if newest > 0 and seenStore then
+		task.spawn(pcall, function() (seenStore :: DataStore):SetAsync("u_" .. player.UserId, newest) end)
+	end
+	player:SetAttribute("FeedbackSeenAt", math.max(newest, (player:GetAttribute("FeedbackSeenAt") :: number?) or 0))
+	player:SetAttribute("FeedbackNew", false)
 	return out
+end
+
+-- (D-1805) is there a message newer than the owner's last look?
+local function checkNew(player: Player)
+	if not times or not player.Parent then return end
+	local seen = (player:GetAttribute("FeedbackSeenAt") :: number?) or 0
+	pcall(function()
+		local page = (times :: OrderedDataStore):GetSortedAsync(false, 1, seen + 1):GetCurrentPage()
+		if #page > 0 then player:SetAttribute("FeedbackNew", true) end
+	end)
 end
 
 local function done(player: Player, key: any): boolean
@@ -139,6 +203,7 @@ local function done(player: Player, key: any): boolean
 	for _, entry in ipairs(session) do
 		if entry.key == key then entry.value.done = true return true end
 	end
+	if valueCache[key] then valueCache[key].done = true end -- (D-1805)
 	local ok = pcall(function()
 		(store :: DataStore):UpdateAsync(key, function(value)
 			if typeof(value) ~= "table" then return nil end
@@ -189,6 +254,7 @@ local function reward(player: Player, key: any): (boolean, string?)
 		end)
 	end)
 	if not ok then return false, "지금은 보낼 수 없어요. 잠시 뒤에 다시 해 주세요." end
+	if valueCache[key] then valueCache[key].r = true end -- (D-1805)
 	if typeof(sender) ~= "number" then return false, "이미 코인을 보냈어요." end
 	return true, give(sender :: number, amount)
 end
@@ -221,7 +287,35 @@ function FeedbackService.Start()
 		return false
 	end
 	local function tell(player: Player)
-		if isAdmin(player) then player:SetAttribute("FeedbackAdmin", true) end
+		if isAdmin(player) then
+			player:SetAttribute("FeedbackAdmin", true)
+			-- (D-1805) the N, then a check every minute; the inbox read ahead so it opens at once
+			task.spawn(function()
+				player:SetAttribute("FeedbackSeenAt", seenAt(player))
+				checkNew(player)
+				task.spawn(function()
+					pcall(function()
+						local page = (times :: OrderedDataStore):GetSortedAsync(false, FeedbackConfig.ListSize):GetCurrentPage()
+						for _, row in ipairs(page) do
+							if valueCache[row.key] == nil then
+								task.spawn(function()
+									local value
+									pcall(function() value = (store :: DataStore):GetAsync(row.key) end)
+									if typeof(value) == "table" and valueCache[row.key] == nil then
+										value.tf = filtered(value, player)
+										valueCache[row.key] = value
+									end
+								end)
+							end
+						end
+					end)
+				end)
+				while player.Parent do
+					task.wait(NEW_CHECK_SECONDS)
+					if not player:GetAttribute("FeedbackNew") then checkNew(player) end
+				end
+			end)
+		end
 		task.spawn(claim, player)
 	end
 	Players.PlayerAdded:Connect(tell)

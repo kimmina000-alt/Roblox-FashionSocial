@@ -6223,3 +6223,8 @@ Studio only (no script yet).
 - 2:00 무릎 꿇은 동안 steady + still. 2:37 오른 무릎 꿇고 왼 무릎 세운 자세(캡처 그대로)를 157.8부터 곡 끝까지 freeze(머리만 자유) + ClubPlaylist slowOut { 0.3, 4.8 }, 고개 숙였다가(−47°) 천천히 듦.
 - 이동: 영상의 가운데 멤버 엉덩이가 초당 2-8 stud 움직이는 구간(tracks.json)에 걸려 있던 미끄러짐 고정(still)을 풀어 캡처의 이동 그대로: 1번 2.2-6.0(0:01-0:04), 5번 0.6-2.2 · 3.0-3.9(0:34-0:37), 8번 7.4-8.1(1:05), 19번 3.7-4.6 · 12.3-13.0, 20번 3.0-3.9 · 4.6-6.9. Play: 0:01-0:04 초당 1.1-2.3, 0:34-0:35 4.5-6.4 stud 이동(전에는 0).
 - Play 검사(전 곡, SNAP · SPIN): 0:16 회전 612°/s → 시작을 당겨 552°/s, 나머지 없음. 84-95초 TELEPORT 2곳(86.6 · 92.5)은 이번에 안 바꾼 걸음 / 깡충 착지 이동.
+
+## D-1805 (2026-11-18) 받은 의견 빨리 열기 + 새 의견 N 표시
+- User: "받은 의견 뜨는데 오래 걸리네. 새로운 의견 올라오면 n 띄워 줘 없으면 그냥 두고".
+- FeedbackService.list read the newest 60 messages one after another (GetAsync, then FilterStringAsync for old ones): seconds. Now they are read all at once (task.spawn per key, at most 15 s), kept in valueCache with the filtered text (done / reward update the cache), and read ahead when the owner joins, so opening 📥 is quick.
+- New messages: player attribute FeedbackNew = true while a message newer than the owner's last look waits (checked at join, every 60 s, and at once when someone in the same server sends one). Opening 📥 marks what it lists as seen: DataStore FeedbackSeen_v1 (Studio: FeedbackSeen_Studio_v1), u_<userId> = newest time. Feedback.lua puts a red "N" on the 💬 top button and on 📥 받은 의견 while FeedbackNew is set; nothing when there is nothing new.

@@ -74,6 +74,21 @@ inboxButton.Size = UDim2.fromOffset(96, 30)
 inboxButton.TextSize = 13
 inboxButton.Visible = false
 
+-- (D-1805, user 2026-11-18: "새로운 의견 올라오면 n 띄워 줘 없으면 그냥 두고") a red N on the
+-- 💬 button and on 📥 while the server says a new message waits (attribute FeedbackNew)
+local function newBadge(parent: GuiObject)
+	local badge = create("TextLabel", {
+		Name = "NewBadge", AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.new(1, -3, 0, 3),
+		Size = UDim2.fromOffset(16, 16), BackgroundColor3 = Color3.fromRGB(235, 60, 70), BorderSizePixel = 0,
+		Text = "N", TextColor3 = Color3.new(1, 1, 1), TextSize = 11, Font = Enum.Font.GothamBold, ZIndex = 20,
+	}, parent)
+	corner(badge, 8)
+	local function refresh() badge.Visible = player:GetAttribute("FeedbackNew") == true end
+	player:GetAttributeChangedSignal("FeedbackNew"):Connect(refresh)
+	refresh()
+end
+newBadge(inboxButton)
+
 -- the form
 local form = create("Frame", { Position = UDim2.fromOffset(14, 46), Size = UDim2.new(1, -28, 1, -58), BackgroundTransparency = 1 }, window)
 create("TextLabel", {
@@ -311,6 +326,7 @@ if FeedbackConfig.TopButton then
 		corner(dot, 2)
 	end
 	TopBar.add(topButton, 2)
+	newBadge(topButton) -- (D-1805)
 	topButton.Activated:Connect(function()
 		if window.Visible then close() else Feedback.open() end
 	end)
