@@ -281,79 +281,18 @@ task.spawn(function()
 	end
 end)
 
--- (D-1311) "ㅇㅇㅇ님이 쓰레기통에서 "ㅇㅇㅇㅇ"를 주웠습니다." for everyone, at the top middle under the top bar: white
--- text with a black shadow, 13 px (the GUARD / VIP / DJ badges' size), 4 s each, up to 3 at once (newest on top)
+-- (D-1311) "ㅇㅇㅇ님이 쓰레기통에서 "ㅇㅇㅇㅇ"를 주웠습니다." for everyone: white 13 px with a black outline
+-- and shadow, 4 s each, at the bottom middle over the hotbar, newest lowest (D-1765). (D-1811) the stack is
+-- the shared BottomNotice (stage cold sparks and supporter gifts use it too, in red)
 do
-	local noticeGui = Instance.new("ScreenGui")
-	noticeGui.Name = "TrashNoticeGui"
-	noticeGui.ResetOnSpawn = false
-	noticeGui.IgnoreGuiInset = true
-	noticeGui.DisplayOrder = 40
-	noticeGui.Parent = player:WaitForChild("PlayerGui")
-	local stack = Instance.new("Frame")
-	-- (D-1765, user 2026-11-18: "쓰레기 주웠다는 문구 화면 아래에 띄우기") at the bottom middle, over the hotbar
-	-- (was under the top bar); the newest line lowest
-	stack.AnchorPoint = Vector2.new(0.5, 1)
-	stack.Size = UDim2.new(1, -24, 0, 60)
-	stack.BackgroundTransparency = 1
-	stack.Parent = noticeGui
-	local list = Instance.new("UIListLayout")
-	list.HorizontalAlignment = Enum.HorizontalAlignment.Center
-	list.SortOrder = Enum.SortOrder.LayoutOrder
-	list.Padding = UDim.new(0, 2)
-	list.VerticalAlignment = Enum.VerticalAlignment.Bottom
-	list.Parent = stack
-	local function place() stack.Position = UDim2.new(0.5, 0, 1, -96) end
-	place()
-	local order = 0
-	local font = Font.new("rbxasset://fonts/families/GothamSSm.json", Enum.FontWeight.Bold)
+	local BottomNotice = require(script.Parent:WaitForChild("BottomNotice"))
 	local function show(who: string, itemName: string)
-		place()
 		local _, name = Hotbar.split(itemName)
 		name = if name ~= "" then name else itemName
 		-- 을 after a final consonant (도넛을, 빵을), 를 otherwise (커피를)
 		local last = utf8.codepoint(name, utf8.offset(name, -1) or 1)
 		local particle = if last >= 0xAC00 and last <= 0xD7A3 and (last - 0xAC00) % 28 ~= 0 then "을" else "를"
-		local text = string.format("%s님이 쓰레기통에서 \"%s\"%s 주웠습니다.", who, name, particle)
-		order += 1 -- (D-1765: newest last = lowest)
-		local row = Instance.new("Frame")
-		row.LayoutOrder = order
-		row.Size = UDim2.new(1, 0, 0, 16)
-		row.BackgroundTransparency = 1
-		row.Parent = stack
-		local function label(color: Color3, offset: number, z: number): TextLabel
-			local l = Instance.new("TextLabel")
-			l.BackgroundTransparency = 1
-			l.Position = UDim2.fromOffset(offset, offset)
-			l.Size = UDim2.fromScale(1, 1)
-			l.Text = text
-			l.TextSize = 13
-			l.FontFace = font
-			l.TextColor3 = color
-			l.ZIndex = z
-			l.Parent = row
-			return l
-		end
-		local shadow = label(Color3.new(0, 0, 0), 1, 1)
-		shadow.TextTransparency = 0.25
-		local front = label(Color3.new(1, 1, 1), 0, 2)
-		-- (user 2026-11-11: "검은색 외곽선도 넣어 잘 안 보임") a black outline as well as the shadow
-		front.TextStrokeColor3 = Color3.new(0, 0, 0)
-		front.TextStrokeTransparency = 0
-		local rows = {}
-		for _, r in ipairs(stack:GetChildren()) do if r:IsA("Frame") then table.insert(rows, r) end end
-		table.sort(rows, function(a, b) return a.LayoutOrder > b.LayoutOrder end) -- (newest first: the oldest go)
-		for i = 4, #rows do rows[i]:Destroy() end
-		task.delay(4, function()
-			for k = 1, 10 do
-				if not row.Parent then return end
-				front.TextTransparency = k / 10
-				front.TextStrokeTransparency = k / 10
-				shadow.TextTransparency = 0.25 + 0.75 * k / 10
-				task.wait(0.05)
-			end
-			row:Destroy()
-		end)
+		BottomNotice.show(string.format("%s님이 쓰레기통에서 \"%s\"%s 주웠습니다.", who, name, particle))
 	end
 	local ev = FashionGame:WaitForChild("Remotes"):WaitForChild("TrashNotice", 30) :: RemoteEvent?
 	if ev then
