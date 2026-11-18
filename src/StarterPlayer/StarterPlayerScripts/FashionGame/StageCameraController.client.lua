@@ -24,6 +24,7 @@ local FashionGame = ReplicatedStorage:WaitForChild("FashionGame")
 local Shared = FashionGame:WaitForChild("Shared")
 local ClubConfig = require(Shared:WaitForChild("ClubConfig"))
 local ClubCamera = require(Shared:WaitForChild("ClubCamera"))
+local NeonStageConfig = require(Shared:WaitForChild("NeonStageConfig")) -- (D-1820)
 local UiBus = require(script.Parent:WaitForChild("UiBus"))
 local player = Players.LocalPlayer
 
@@ -44,7 +45,29 @@ end
 
 -- (D-876, as ChoreoController) the song's place in original seconds
 local audioLag, audioLagFor = 0, ""
+-- (D-1820) dancing on the park's neon stage (ChoreoController's stage mode, LocalPlayer attribute
+-- ChoreoStage = the stage song's start): that song's clock and its own Sound, not the club's
+local function stageStart(): number?
+	local v = player:GetAttribute("ChoreoStage")
+	return if typeof(v) == "number" then v else nil
+end
 local function songTime(track: ClubConfig.Track): number
+	local onStage = stageStart()
+	if onStage then
+		local t = NeonStageConfig.songTime(track, onStage, workspace:GetServerTimeNow())
+		local stage = script.Parent:FindFirstChild("NeonStageController")
+		local sound = stage and stage:FindFirstChild("NeonStageMusic")
+		if sound and sound:IsA("Sound") and sound.IsPlaying and sound.TimePosition > 0.05 then
+			local heard = sound.TimePosition * ClubConfig.fileSpeed(track) - t
+			if math.abs(heard) < 3 then
+				local key = "stage:" .. tostring(track.soundId) .. ":" .. tostring(onStage)
+				if audioLagFor ~= key or math.abs(heard - audioLag) > 0.5 then audioLag = heard else audioLag += (heard - audioLag) * 0.05 end
+				audioLagFor = key
+			end
+			t += audioLag
+		end
+		return t
+	end
 	local paused = FashionGame:GetAttribute("ClubMusicPaused") == true
 	local start = attr("ClubTrackStart", workspace:GetServerTimeNow())
 	if paused then return attr("ClubMusicPausedAt", 0) * ClubConfig.fileSpeed(track) end
@@ -96,6 +119,13 @@ local function wanted(): (ClubConfig.Track?, ClubCamera.Song?)
 	-- while the song's choreography is danced too (🎵 on, not a phrase from the 안무 tab)
 	if player:GetAttribute("ChoreoFollowing") ~= true or player:GetAttribute("ChoreoPhrase") ~= nil then return nil, nil end
 	local r = root()
+	-- (D-1820) on the neon stage: the stage's song
+	if stageStart() then
+		local stageTrack = NeonStageConfig.track()
+		local stageSong = stageTrack and ClubCamera.forTrack(stageTrack)
+		if not stageTrack or not stageSong then return nil, nil end
+		return stageTrack, stageSong
+	end
 	-- (D-993) wherever the club music is heard, not only in the club
 	if not r or not (ClubConfig.isInClub(r.Position) or player:GetAttribute("HearsClub") == true) then return nil, nil end
 	local track = playingTrack()
