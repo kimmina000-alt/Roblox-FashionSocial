@@ -998,6 +998,7 @@ return {
 	["온수기 가까이 가서 눌러 주세요."] = "Approche-toi du distributeur et touche.",
 	["올드 머니 룩"] = "Look old money",
 	["네온 스테이지"] = "Scène néon",
+	["네온 스테이지 2"] = "Scène néon 2",
 	["옮길 수 없어요."] = "Impossible de changer.",
 	["옷은 어떻게 갈아입어요?"] = "Comment changer de tenue ?",
 	["옷장"] = "Garde-robe",

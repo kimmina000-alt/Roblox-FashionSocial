@@ -998,6 +998,7 @@ return {
 	["온수기 가까이 가서 눌러 주세요."] = "Mendekat ke dispenser lalu ketuk.",
 	["올드 머니 룩"] = "Gaya old money",
 	["네온 스테이지"] = "Panggung neon",
+	["네온 스테이지 2"] = "Panggung neon 2",
 	["옮길 수 없어요."] = "Tidak bisa pindah.",
 	["옷은 어떻게 갈아입어요?"] = "Bagaimana ganti baju?",
 	["옷장"] = "Lemari",

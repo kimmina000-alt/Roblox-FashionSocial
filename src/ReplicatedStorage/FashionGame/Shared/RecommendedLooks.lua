@@ -34,6 +34,17 @@ local RecommendedLooks: {Look} = {
 		},
 		snapshot = { scales = { BodyTypeScale = 1, DepthScale = 1, HeadScale = 0.95, HeightScale = 1.05, WidthScale = 1, ProportionScale = 0 }, assets = { SwimAnimation = 2510240941, RightArm = 125881995101705, WalkAnimation = 2510242378, Head = 126197053212196, MoodAnimation = 14618207727, Torso = 126463904908751, JumpAnimation = 2510236649, RightLeg = 125214921129997, FallAnimation = 2510233257, RunAnimation = 2510238627, IdleAnimation = 2510235063, LeftArm = 71109200746535, Pants = 133566828283173, ClimbAnimation = 2510230574, Shirt = 106414136243831, LeftLeg = 126800755589421 }, accessories = { { l = true, p = { 0, 0, 0 }, s = { 1, 1, 1 }, r = { 0, 0, 0 }, id = 112519388565786, t = "Jacket", o = 4, pf = 1 }, { l = false, p = { 0, 0, 0 }, s = { 1, 1, 1 }, r = { 0, 0, 0 }, id = 127351822617530, t = "Hair", o = 0, pf = 1 }, { l = true, p = { 0, 0, 0 }, s = { 1, 1, 1 }, r = { 0, 0, 0 }, id = 113442333356861, t = "Pants", o = 4, pf = 1 }, { l = true, p = { 0, 0, 0 }, s = { 1, 1, 1 }, r = { 0, 0, 0 }, id = 11893361899, t = "Shirt", o = 7, pf = 1 } }, emotes = {  }, makeup = {  }, colors = { HeadColor = "edd5b4", TorsoColor = "edd5b4", LeftArmColor = "edd5b4", RightLegColor = "edd5b4", LeftLegColor = "edd5b4", RightArmColor = "edd5b4" }, equipped = {  }, v = 1 },
 	},
+	-- (D-1801, user 2026-11-18: 코디 코드 9H5TYW "이것도 추가") white crop tee and white pants,
+	-- long straight black hair, the anime dreaming girl body
+	{
+		key = "code9H5TYW", name = "네온 스테이지 2", price = 290, lookId = "", outfitId = 0,
+		items = {
+			{ kind = "Bundle", id = 104077541197932, price = 75 }, { kind = "Asset", id = 12866539725, price = 65 },
+			{ kind = "Asset", id = 112307027330610, price = 65 }, { kind = "Asset", id = 124373716702512, price = 75 },
+			{ kind = "Asset", id = 106414136243831, price = 5 }, { kind = "Asset", id = 133566828283173, price = 5 },
+		},
+		snapshot = { scales = { BodyTypeScale = 1, DepthScale = 1, HeadScale = 0.95, HeightScale = 1.05, WidthScale = 1, ProportionScale = 0 }, assets = { SwimAnimation = 2510240941, RightArm = 78267702282901, WalkAnimation = 2510242378, Head = 132388281105173, MoodAnimation = 14618207727, Torso = 94877299171933, JumpAnimation = 2510236649, RightLeg = 135840749728749, FallAnimation = 2510233257, RunAnimation = 2510238627, IdleAnimation = 2510235063, LeftArm = 88172459824031, Pants = 133566828283173, ClimbAnimation = 2510230574, Shirt = 106414136243831, LeftLeg = 107490159762425 }, accessories = { { l = true, p = { 0, 0, 0 }, s = { 1, 1, 1 }, r = { 0, 0, 0 }, id = 124373716702512, t = "Pants", o = 4, pf = 1 }, { l = true, p = { 0, 0, 0 }, s = { 1, 1, 1 }, r = { 0, 0, 0 }, id = 112307027330610, t = "Shirt", o = 7, pf = 1 }, { l = false, p = { 0, 0, 0 }, s = { 1, 1, 1 }, r = { 0, 0, 0 }, id = 12866539725, t = "Hair", o = 0, pf = 1 } }, emotes = {  }, makeup = {  }, colors = { HeadColor = "edd5b4", TorsoColor = "edd5b4", LeftArmColor = "edd5b4", RightLegColor = "edd5b4", LeftLegColor = "edd5b4", RightArmColor = "edd5b4" }, equipped = {  }, v = 1 },
+	},
 	{
 		key = "look3280169265994531316", name = "줄무늬 거리 방랑자", price = 660, lookId = "3280169265994531316", outfitId = 4814767058567451,
 		items = {
