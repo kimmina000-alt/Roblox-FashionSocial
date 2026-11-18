@@ -3740,6 +3740,7 @@ do
 		end
 		return best
 	end
+	local PARK_TIER_SEATS = false -- D-1776: walking over the tiers no longer sits you down
 	local function tiers(a0, a1, r0, stop0, stop1, seatZones)
 		local dir = if a1 > a0 then 1 else -1 -- the arc runs from a0 to a1
 		for k = 0, 2 do
@@ -3781,7 +3782,9 @@ do
 			-- seats side by side every 2 studs so a group sits together, the rest
 			-- of the tiers stays free to walk on (user 2026-10-24)
 			local angles = {}
-			for _, zone in ipairs(seatZones or { { e0 + dir, e1 - dir } }) do
+			-- D-1776 (user 2026-11-18): no sitting on the tiers any more; the tiers stay,
+			-- only the touch seats are gone (PARK_TIER_SEATS = true brings them back)
+			for _, zone in ipairs(if PARK_TIER_SEATS then (seatZones or { { e0 + dir, e1 - dir } }) else {}) do
 				local step = math.deg(2 / rs)
 				local lo, hi = math.min(zone[1], zone[2]), math.max(zone[1], zone[2])
 				local za, zb = lo + math.deg(1 / rs), hi - math.deg(1 / rs)
