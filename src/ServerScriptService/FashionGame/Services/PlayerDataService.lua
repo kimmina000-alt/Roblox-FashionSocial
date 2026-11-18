@@ -63,7 +63,7 @@ export type JobRecord = { xp: number, served: number, cleaned: number }
 -- look = the last outfit worn (OutfitSnapshot), put back on the next visit (D-771)
 -- bag = the items carried when the player left (BagService, D-790): plain
 -- tables { k = kind, ... }, given back on the next visit
-export type Wallet = { coins: number, xp: number, frames: {string}, slots: number, daily: { day: string, counts: {[string]: number} }, jobs: {[string]: JobRecord}, boost: number, hair: {[string]: {number}}, tutorial: boolean, tips: {[string]: boolean}, welcome: boolean, look: any?, bag: {any}?, opening: { n: number, last: number, title: boolean, shownDay: number? }?, hideName: boolean?, hideBadges: {[string]: boolean}?, muteCheer: boolean?, gifted: {[string]: boolean}? }
+export type Wallet = { coins: number, xp: number, frames: {string}, slots: number, daily: { day: string, counts: {[string]: number} }, jobs: {[string]: JobRecord}, boost: number, hair: {[string]: {number}}, tutorial: boolean, tips: {[string]: boolean}, welcome: boolean, look: any?, bag: {any}?, opening: { n: number, last: number, title: boolean, shownDay: number? }?, hideName: boolean?, hideBadges: {[string]: boolean}?, muteCheer: boolean?, gifted: {[string]: boolean}?, djTickets: number?, djSeconds: number? }
 type Session = {
 	favorites: {Favorite},
 	outfits: {Outfit},
@@ -158,6 +158,13 @@ local function sanitizeWallet(raw: any): Wallet
 	-- (D-1377 / D-1378) the ☰ menu's 닉네임 숨기기 and each badge's 숨기기 (PlayerPrefsService)
 	if raw.hideName == true then wallet.hideName = true end
 	if raw.muteCheer == true then wallet.muteCheer = true end -- (D-1709: 놀이기구 환호성 off)
+	-- (D-1804) DJ tickets (DjService): unused 30-min tickets and saved DJ seconds
+	if typeof(raw.djTickets) == "number" and raw.djTickets == raw.djTickets and raw.djTickets >= 1 then
+		wallet.djTickets = math.clamp(math.floor(raw.djTickets), 1, 99)
+	end
+	if typeof(raw.djSeconds) == "number" and raw.djSeconds == raw.djSeconds and raw.djSeconds >= 60 then
+		wallet.djSeconds = math.clamp(math.floor(raw.djSeconds), 60, 4 * 3600)
+	end
 	-- (D-1768) passes other players gifted (GiftPassService)
 	if typeof(raw.gifted) == "table" then
 		local gifted = {}
@@ -627,6 +634,12 @@ function PlayerDataService.GetLook(player: Player): any
 	return load(player).wallet.look
 end
 
+-- (D-1804) called with the leaving player right before their last save
+local leavingHooks: {(Player) -> ()} = {}
+function PlayerDataService.OnLeaving(hook: (Player) -> ())
+	table.insert(leavingHooks, hook)
+end
+
 function PlayerDataService.MarkDirty(player: Player)
 	local session = sessions[player.UserId]
 	if session then session.dirty = true end
@@ -752,6 +765,11 @@ function PlayerDataService.Start()
 	local pendingSaves = 0
 	Players.PlayerRemoving:Connect(function(player)
 		pendingSaves += 1
+		-- (D-1804) services that put something back in the wallet when a player
+		-- leaves (DjService: DJ tickets) do it before this last save
+		for _, hook in ipairs(leavingHooks) do
+			pcall(hook, player)
+		end
 		save(player)
 		sessions[player.UserId] = nil
 		pendingSaves -= 1

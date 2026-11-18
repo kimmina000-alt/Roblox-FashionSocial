@@ -36,6 +36,7 @@ EconomyService.Start(PlayerDataService)
 require(script.Parent.Services.OpeningEventService).Start(PlayerDataService, EconomyService) -- (D-1366 오픈 출석 이벤트)
 require(script.Parent.Services.PlayerPrefsService).Start(PlayerDataService) -- (D-1377 ☰ 닉네임 / 칭호 숨기기)
 DjService.Start()
+DjService.SetData(PlayerDataService) -- (D-1804 DJ 이용권)
 ClubAccessService.Start()
 DrinkService.Start()
 ClubService.Start()
@@ -89,20 +90,22 @@ require(script.Parent.Services.GiftPassService).Start(PlayerDataService, Monetiz
 -- are asked when their turn starts (ClubAccessService). Nobody is moved
 -- without saying OK (user, 2026-10-20).
 local ClubNotify = Remotes:WaitForChild("ClubNotify") :: RemoteEvent
-MonetizationService.RegisterProduct("DJ", function(player)
+local function grantDJ(player: Player): (boolean, string?)
 	-- (D-1185, user 2026-11-10: "디제잉하기 창 삭제 / 디제이권 사면 안내 첫 구매자한테만 보여
 	-- 주기") the turntable's "E 디제잉하기" button is a guide for a first-ever buyer
 	-- only: their first purchase sets the player attribute DJFirstGuide (the
 	-- button shows while that DJ time lasts, ClubMusicController); later buyers
 	-- start DJing with the 🎵 button by the turntable. wallet.tips.djFirst keeps it.
-	local wallet = PlayerDataService.Wallet(player)
-	wallet.tips = wallet.tips or {}
-	local first = not wallet.tips.djFirst
-	if first then
-		wallet.tips.djFirst = true
-		PlayerDataService.MarkDirty(player)
+	-- (D-1804) bought by day or outside the club: a DJ 이용권 for later (the
+	-- first-buyer guide waits for the ticket's use, DjService.UseTicket)
+	if not DjService.CanStartNow(player) then
+		DjService.AddTicket(player, 1)
+		local text = string.format("🎫 DJ 이용권 1장을 받았어요! 밤(18:00~06:00)에 클럽 DJ 창에서 '🎧 DJ 시작'을 누르면 %d분이 시작돼요.",
+			require(game:GetService("ReplicatedStorage").FashionGame.Shared.MonetizationConfig).DJMinutes)
+		ClubNotify:FireClient(player, "Toast", text)
+		return true, text
 	end
-	player:SetAttribute("DJFirstGuide", if first then true else nil)
+	local first = DjService.FirstGuide(player)
 	local ok, message, kind = DjService.AddTime(player)
 	if ok and kind == "start" and not first then
 		local minutes = require(game:GetService("ReplicatedStorage").FashionGame.Shared.MonetizationConfig).DJMinutes
@@ -115,7 +118,8 @@ MonetizationService.RegisterProduct("DJ", function(player)
 		task.defer(ClubAccessService.OfferDJBooth, player, false)
 	end
 	return ok, message
-end)
+end
+MonetizationService.RegisterProduct("DJ", grantDJ)
 
 -- 1 hour of coin x2 (D-278).
 MonetizationService.RegisterProduct("CoinBoost1h", function(player)
@@ -168,6 +172,18 @@ ClubShop.OnServerInvoke = function(player: Player, action: any, payload: any)
 	if action == "DJGo" then
 		ClubAccessService.SendToDJBooth(player)
 		return true, nil
+	elseif action == "UseDjTicket" then
+		-- (D-1804) "🎧 DJ 시작" in the DJ window / the gift window's 지금 DJ 하기
+		local ok, message = DjService.UseTicket(player)
+		return ok, message
+	elseif action == "StudioDJTest" and game:GetService("RunService"):IsStudio() then
+		-- (D-1804) Studio play tests only: the DJ products have real ids, so a test cannot
+		-- buy them. payload "buy" = the DJ purchase, "gift" = a DJ gift to yourself,
+		-- "leave" = what leaving the game gives back (no real leave, no save)
+		if payload == "buy" then return grantDJ(player) end
+		if payload == "gift" then return require(script.Parent.Services.GiftPassService).StudioGive(player, "DJ") end
+		if payload == "leave" then return DjService.StudioLeave(player) end
+		return false, nil
 	elseif action == "DJPass" then
 		if DjService.Pass(player) then
 			return true, "DJ 차례를 다음 사람에게 넘겼어요."

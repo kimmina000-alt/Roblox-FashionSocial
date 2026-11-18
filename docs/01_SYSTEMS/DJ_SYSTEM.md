@@ -150,3 +150,8 @@ DJ를 여러 번 한 사람에게 영구 칭호를 준다. 단골 DJ를 만들�
 - 셀 것: DJ 30분 결제로 시작한 차례(친구 초대·게스트는 세지 않음), 차례가 10분 이상 이어졌을 때만 1회.
 - 저장: 플레이어 데이터 `djTurns`(영구), 칭호는 NameTagService 역할 줄에 `DJ` 대신 칭호 글자(DJ 중일 때는 지금처럼 DJ).
 - 숫자(5 / 20 / 50)와 이름은 만들 때 사용자와 다시 정한다.
+
+## DJ 이용권 (D-1804, 2026-11-19)
+- DJ 30분은 이제 "이용권": 사거나 선물받으면 지갑(wallet.djTickets)에 남고, 밤에 클럽 안에서 DJ 창의 "🎧 DJ 시작 (이용권 N장)"으로 쓸 때부터 30분이 흐른다. 클럽 안 + 밤에 사면 바로 시작(예전과 같음), 그 자리에서 받은 선물은 [🎧 지금 DJ 하기] / [나중에 쓰기].
+- 나가면: 대기 줄 시간은 이용권으로 통째로 돌려받고, DJ 중이던 남은 시간은 MonetizationConfig.DJLeaveRefund("A" 기본 / "B" / "C", DECISIONS D-1804).
+- 코드: DjService(AddTicket / UseTicket / CanStartNow / leave), ServerMain grantDJ, GiftPassService(DJ), ClubShopController("DJGift", 문 창), ClubMusicController(DJ 버튼), InventoryController(가방 표시).

@@ -281,9 +281,36 @@ ClubNotify.OnClientEvent:Connect(function(kind: any, value: any)
 			toast("VIP 전용 공간이에요. VIP 패스로 입장할 수 있어요.")
 			buyPass("VIP", true)
 		elseif value == "DJ" then
-			toast(djStatusLine())
-			buyProduct("DJ", true)
+			local tickets = (player:GetAttribute("DjTickets") or 0) :: number
+			if tickets > 0 or player:GetAttribute("DjLeftSeconds") then
+				-- (D-1804) a DJ 이용권 in the wallet: use it instead of buying
+				showModal("🎫 DJ 이용권", string.format("DJ 이용권이 %d장 있어요. 지금 쓸까요?\n%s", tickets, djStatusLine()), {
+					{ name = "No", text = "나중에", color = COLORS.card, onClick = function() end },
+					{ name = "Ok", text = "🎧 DJ 시작", color = COLORS.robux, onClick = function()
+						local ok, message = ClubShop:InvokeServer("UseDjTicket", nil)
+						if message then toast(tostring(message)) elseif not ok then toast("지금은 쓸 수 없어요.") end
+					end },
+				})
+			else
+				toast(djStatusLine())
+				buyProduct("DJ", true)
+			end
 		end
+	elseif kind == "DJGift" then
+		-- (D-1804) a DJ 30 min gift received at night inside the club: now or later
+		local from = if typeof(value) == "table" and typeof(value.from) == "string" then value.from else "누군가"
+		local minutes = if typeof(value) == "table" and typeof(value.minutes) == "number" then value.minutes else MonetizationConfig.DJMinutes
+		showModal(string.format("🎁 %s님이 DJ %d분을 선물했어요!", from, minutes),
+			"지금 DJ를 시작할까요?\n나중에 쓰면 DJ 이용권으로 남아요.",
+			{
+				{ name = "No", text = "나중에 쓰기", color = COLORS.card, onClick = function()
+					toast("DJ 이용권으로 넣어 뒀어요. DJ 창에서 '🎧 DJ 시작'으로 쓸 수 있어요.")
+				end },
+				{ name = "Ok", text = "🎧 지금 DJ 하기", color = COLORS.robux, onClick = function()
+					local ok, message = ClubShop:InvokeServer("UseDjTicket", nil)
+					if message then toast(tostring(message)) elseif not ok then toast("지금은 쓸 수 없어요.") end
+				end },
+			})
 	elseif kind == "DJTurn" then
 		-- Never move people without asking (user, 2026-10-20).
 		local queued = typeof(value) == "table" and value.queued == true

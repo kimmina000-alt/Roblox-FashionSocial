@@ -7,7 +7,7 @@
 --      (in this server, not the giver, a pass they do not have yet) and kept for the giver for 10 min;
 --   2. the giver buys the product; its handler gives the gift to that player:
 --      Guard / VIP → a gifted pass, kept in the receiver's wallet.gifted and counted as owning the pass
---      (MonetizationService.GrantGiftedPass); DJ → 30 min of DJ time (DjService.AddTime), as a DJ buy.
+--      (MonetizationService.GrantGiftedPass); DJ → a DJ 이용권 (DjService.AddTicket, D-1804).
 --   A receiver who left before the purchase finished gets it on the next visit (DataStore PassGifts_v1,
 --   never written in Studio). Without a kept target (a server restart) the buyer keeps it themselves.
 
@@ -58,9 +58,16 @@ local function give(receiver: Player, key: string, fromName: string): (boolean, 
 		toast(receiver, string.format("🎁 %s님이 %s를 선물했어요!", fromName, GiftPassService.Kinds[key].name))
 		return true, nil
 	elseif key == "DJ" then
-		local ok, message = dj.AddTime(receiver)
-		if not ok then return false, message end
-		toast(receiver, string.format("🎁 %s님이 DJ 30분을 선물했어요! %s", fromName, message or ""))
+		-- (D-1804) a DJ 이용권: kept in the wallet. Inside the club at night the receiver
+		-- is asked [🎧 지금 DJ 하기] / [나중에 쓰기] (ClubShopController "DJGift");
+		-- by day, outside the club or offline it just waits as a ticket
+		dj.AddTicket(receiver, 1)
+		if dj.CanStartNow(receiver) and notify then
+			notify:FireClient(receiver, "DJGift", { from = fromName, minutes = MonetizationConfig.DJMinutes })
+		else
+			toast(receiver, string.format("🎁 %s님이 DJ %d분을 선물했어요! DJ 이용권으로 넣어 뒀어요. 밤(18:00~06:00)에 클럽 DJ 창에서 '🎧 DJ 시작'을 눌러 쓰세요.",
+				fromName, MonetizationConfig.DJMinutes))
+		end
 		return true, nil
 	end
 	return false, nil
@@ -140,6 +147,12 @@ local function onJoin(player: Player)
 			end
 		end
 	end)
+end
+
+-- (D-1804) Studio play tests only: a gift of this kind to the player themselves
+function GiftPassService.StudioGive(player: Player, key: string): (boolean, string?)
+	if not RunService:IsStudio() then return false, nil end
+	return give(player, key, "Studio 테스트")
 end
 
 function GiftPassService.Start(playerData: any, monetizationService: any, djService: any)

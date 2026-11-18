@@ -61,6 +61,32 @@ title.Font = Enum.Font.GothamBold
 title.TextXAlignment = Enum.TextXAlignment.Left
 title.Parent = panel
 
+-- (D-1804) DJ 이용권 count (player attribute DjTickets, DjService), right of the title
+do
+	local tickets = Instance.new("TextLabel")
+	tickets.Name = "DjTickets"
+	tickets.AnchorPoint = Vector2.new(1, 0)
+	tickets.Position = UDim2.new(1, -56, 0, 10)
+	tickets.Size = UDim2.fromOffset(200, 28)
+	tickets.BackgroundTransparency = 1
+	tickets.TextColor3 = Color3.fromRGB(255, 215, 120)
+	tickets.TextSize = 16
+	tickets.Font = Enum.Font.GothamBold
+	tickets.TextXAlignment = Enum.TextXAlignment.Right
+	tickets.Parent = panel
+	local function show()
+		local n = (player:GetAttribute("DjTickets") or 0) :: number
+		local rest = player:GetAttribute("DjLeftSeconds")
+		tickets.Text = if n > 0 then string.format("🎫 DJ 이용권 %d장", n)
+			elseif typeof(rest) == "number" then string.format("🎫 DJ %d분 남음", math.floor(rest / 60))
+			else ""
+		tickets.Visible = tickets.Text ~= ""
+	end
+	player:GetAttributeChangedSignal("DjTickets"):Connect(show)
+	player:GetAttributeChangedSignal("DjLeftSeconds"):Connect(show)
+	show()
+end
+
 local close = Instance.new("TextButton")
 close.AnchorPoint = Vector2.new(1, 0)
 close.Position = UDim2.new(1, -10, 0, 10)

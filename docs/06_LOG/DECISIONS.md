@@ -6176,3 +6176,14 @@ Studio only (no script yet).
 ## D-1803 D-1710 이후 새 문구 16개 언어 번역 (2026-11-18)
 - 진행 관리 세션(사용자 요청): catalog-ui-redesign 2893a9f0까지 들어온 새 한국어 문구 번역. tools/i18n extract → 빠진 36개를 tools/i18n/tr/p19_gift1118.tsv에 16개 언어로: 패스 선물(가드 · VIP · DJ 30분, GiftPassService · GiftPassCard), 양손 스파클러 두 번 탭 안내, 스킵 투표 한 줄 "⏭ {1}초 · {2}/{3} 예 · {4} 아니요", 다음 곡 / 다음 곡에서 빼기, 회전컵 · 관람차 · 범퍼카 눌러서 타기 안내, 추천 룩 "네온 스테이지".
 - GiftPassCard의 "🛡 가드권" .. " 보유"는 이어 붙인 문구라 tools/i18n/extra_templates.txt에 "{1} 보유" 추가. 같이 추기 · 환호성 · 폭죽 소리 등은 이미 표에 있었음. 채팅 명령어는 번역하지 않음(기존 원칙).
+
+## D-1804 DJ 이용권 (2026-11-19)
+- 사용자(메인 세션 · 진행 관리 세션 경유): DJ권을 "DJ 이용권" 방식으로. 예전엔 사거나 선물받는 순간 30분이 시작되거나 대기 줄에 들어가서 ① 낮 · 클럽 밖에서도 시간이 흐르고 ② DJ 중 · 대기 중에 나가면 시간이 사라지고 ③ 오프라인 선물(PassGifts_v1)은 다음 접속 때 낮이어도 바로 시작됐음.
+- 이용권: wallet.djTickets(1..99, PlayerDataService sanitize, 재접속 유지), wallet.djSeconds(B 모드의 남은 초). 플레이어 속성 DjTickets / DjLeftSeconds로 클라이언트에 보임.
+- DjService: AddTicket / UseTicket / CanStartNow(클럽 안 + 클럽 열림(밤), ClubAccessService.ClubOpen) / FirstGuide(D-1185 첫 DJ 안내를 여기로) / leave. AddTime(player, seconds?, free?): slot.paid = 산 · 선물 · 이용권 시간(주인 · 허용 계정 · Studio 테스트 시간은 free).
+- 구매(ServerMain grantDJ): 클럽 안 + 밤이면 예전처럼 바로 시작(DJ가 있으면 대기 줄, 내가 DJ면 연장), 아니면 이용권 +1 + 안내.
+- 선물(GiftPassService DJ): 이용권 +1. 받는 사람이 클럽 안 + 밤이면 창 "🎁 ○○님이 DJ 30분을 선물했어요!" [나중에 쓰기] [🎧 지금 DJ 하기](ClubNotify "DJGift"), 아니면(낮 · 클럽 밖 · 오프라인 선물의 다음 접속) 안내만 하고 이용권으로 남음.
+- DJ 창 버튼: 이용권이 있으면 "🎧 DJ 시작 (이용권 N장)" / DJ가 있으면 "🎧 DJ 대기 (…)" / 내가 DJ면 "🎧 연장 (…)" → ClubShop "UseDjTicket". DJ 존 문(Gate DJ)도 이용권이 있으면 쓰기 창. 가방 제목 오른쪽 "🎫 DJ 이용권 N장".
+- 나갈 때(PlayerDataService.OnLeaving 훅 = 마지막 저장 전, 그리고 PlayerRemoving; 두 번째는 할 일 없음): 대기 줄 시간은 통째로 돌려줌(30분마다 1장, 나머지는 djSeconds). DJ 중이던 남은 시간은 MonetizationConfig.DJLeaveRefund: "A"(기본) 30분마다 1장 + 나머지가 DJLeaveRefundMinutes(10) 이상이면 1장 더 / "B" 남은 초 저장 후 다음에 이어서 / "C" 사라짐. 사용자 선택 대기 중이라 기본 A.
+- Studio 테스트: ClubShop "StudioDJTest" ("buy" / "gift" / "leave", Studio에서만): 실제 상품 id가 있어 테스트 구매가 안 되므로. 확인(Studio Play, 1인): 낮 · 클럽 밖 구매 → 이용권 1, 밖에서 쓰기 거절; 선물 밖 → 이용권; 밤 클럽 안 쓰기 → 30분 시작; 안에서 구매 → 30분 연장; 나가기(A, 60분 남음) → 이용권 2장 돌려받음; 밤 클럽 안 선물 → 창 뜸; 가방 "🎫 DJ 이용권 5장", DJ 창 버튼 "🎧 DJ 시작 (이용권 N장)". 게임 스크립트 오류 0. 대기 줄 환불은 2P에서 확인 필요.
+- 번역할 새 문구: "🎫 DJ 이용권 1장을 받았어요! 밤(18:00~06:00)에 클럽 DJ 창에서 '🎧 DJ 시작'을 누르면 %d분이 시작돼요.", "🎁 %s님이 DJ %d분을 선물했어요! DJ 이용권으로 넣어 뒀어요. 밤(18:00~06:00)에 클럽 DJ 창에서 '🎧 DJ 시작'을 눌러 쓰세요.", "🎁 %s님이 DJ %d분을 선물했어요!", "지금 DJ를 시작할까요?\n나중에 쓰면 DJ 이용권으로 남아요.", "나중에 쓰기", "🎧 지금 DJ 하기", "DJ 이용권으로 넣어 뒀어요. DJ 창에서 '🎧 DJ 시작'으로 쓸 수 있어요.", "🎫 DJ 이용권", "DJ 이용권이 %d장 있어요. 지금 쓸까요?\n%s", "나중에", "🎧 DJ 시작", "🎧 DJ 대기", "🎧 연장", "%s (이용권 %d장)", " (남은 시간)", "🎫 DJ 이용권 %d장", "🎫 DJ %d분 남음", "DJ 이용권이 없어요.", "DJ 이용권은 밤(18:00~06:00)에 클럽 안에서 쓸 수 있어요.", "잠시 후 다시 시도하세요.", "지금은 쓸 수 없어요.".

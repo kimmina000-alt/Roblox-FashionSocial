@@ -36,7 +36,9 @@ local CollectionService = game:GetService("CollectionService")
 
 local DjService = {}
 
-type Slot = { userId: number, seconds: number }
+-- paid = bought / gifted / ticket time (comes back as tickets when its owner leaves,
+-- D-1804); the owner / granted / Studio test time is free and does not
+type Slot = { userId: number, seconds: number, paid: boolean? }
 
 local current: Slot? = nil
 local fromQueue = false
@@ -117,23 +119,29 @@ end
 
 -- Adds DJ time for the player. Returns (true, message for the buyer, kind)
 -- where kind is "start" (DJ now), "extend" or "queue".
-function DjService.AddTime(player: Player): (boolean, string?, string?)
-	local seconds = MonetizationConfig.DJMinutes * 60
+-- seconds: how much (default DJMinutes; a saved rest can be less, D-1804);
+-- free: the owner / granted / Studio test time (no tickets back when leaving)
+function DjService.AddTime(player: Player, amount: number?, free: boolean?): (boolean, string?, string?)
+	local seconds = amount or MonetizationConfig.DJMinutes * 60
+	local minutes = math.max(1, math.floor(seconds / 60 + 0.5))
+	local paid = free ~= true
 	if current and current.userId == player.UserId then
 		if #queue == 0 then
 			currentUntil += seconds
+			if paid then current.paid = true end
 			publish()
-			return true, string.format("DJ 시간이 %d분 연장되었습니다.", MonetizationConfig.DJMinutes), "extend"
+			return true, string.format("DJ 시간이 %d분 연장되었습니다.", minutes), "extend"
 		end
 		-- Others are waiting (the client hides 연장 then; this covers a race):
 		-- the bought time becomes a new turn at the back of the queue.
-		table.insert(queue, { userId = player.UserId, seconds = seconds })
+		table.insert(queue, { userId = player.UserId, seconds = seconds, paid = paid })
 		publish()
 		return true, string.format("기다리는 DJ가 있어 연장 대신 대기 %d번째로 넣었어요.", #queue), "queue"
 	end
 	for _, slot in ipairs(queue) do
 		if slot.userId == player.UserId then
 			slot.seconds += seconds
+			if paid then slot.paid = true end
 			publish()
 			return true, "대기 중인 DJ 시간이 늘어났습니다.", "queue"
 		end
@@ -143,15 +151,160 @@ function DjService.AddTime(player: Player): (boolean, string?, string?)
 		startNext()
 	end
 	if not current then
-		current = { userId = player.UserId, seconds = seconds }
+		current = { userId = player.UserId, seconds = seconds, paid = paid }
 		currentUntil = now() + seconds
 		fromQueue = false
 		publish()
-		return true, string.format("지금부터 %d분 동안 DJ입니다! DJ 턴테이블 앞에서 '디제잉하기'를 누르세요.", MonetizationConfig.DJMinutes), "start"
+		return true, string.format("지금부터 %d분 동안 DJ입니다! DJ 턴테이블 앞에서 '디제잉하기'를 누르세요.", minutes), "start"
 	end
-	table.insert(queue, { userId = player.UserId, seconds = seconds })
+	table.insert(queue, { userId = player.UserId, seconds = seconds, paid = paid })
 	publish()
 	return true, string.format("DJ 대기 %d번째입니다. 차례가 되면 이동할지 물어볼게요.", #queue), "queue"
+end
+
+--------------------------------------------------------------------------
+-- DJ 이용권 (D-1804, user 2026-11-19 via the main session: "DJ권을 DJ 이용권 방식으로").
+-- A bought or gifted DJ 30 min no longer starts at once anywhere: it is a ticket
+-- in the wallet (wallet.djTickets, kept across visits) used with "🎧 DJ 시작" in the
+-- DJ window, only at night inside the club (CanStartNow). Bought / gifted there and
+-- then, it starts right away (or joins the queue). Leaving the game gives back the
+-- queue time whole and the DJ's own rest by MonetizationConfig.DJLeaveRefund.
+-- Player attributes DjTickets / DjLeftSeconds show the count to the client.
+local data: any = nil
+local TICKET = MonetizationConfig.DJMinutes * 60
+
+local function showTickets(player: Player)
+	local wallet = data and data.Wallet(player)
+	if not wallet then return end
+	player:SetAttribute("DjTickets", wallet.djTickets)
+	player:SetAttribute("DjLeftSeconds", wallet.djSeconds)
+end
+
+-- puts seconds back as tickets (each full 30 min) and the rest as saved seconds
+local function giveBack(player: Player, seconds: number, restAsTicket: boolean)
+	local wallet = data and data.Wallet(player)
+	if not wallet or seconds < 60 then return end
+	local tickets = math.floor(seconds / TICKET)
+	local rest = seconds - tickets * TICKET
+	if restAsTicket then
+		if rest >= MonetizationConfig.DJLeaveRefundMinutes * 60 then tickets += 1 end
+	elseif rest >= 60 then
+		wallet.djSeconds = math.min((wallet.djSeconds or 0) + math.floor(rest), 4 * 3600)
+	end
+	if tickets > 0 then wallet.djTickets = math.min((wallet.djTickets or 0) + tickets, 99) end
+	data.MarkDirty(player)
+end
+
+function DjService.Tickets(player: Player): number
+	local wallet = data and data.Wallet(player)
+	return if wallet then (wallet.djTickets or 0) else 0
+end
+
+function DjService.AddTicket(player: Player, count: number?)
+	local wallet = data and data.Wallet(player)
+	if not wallet then return end
+	wallet.djTickets = math.min((wallet.djTickets or 0) + (count or 1), 99)
+	data.MarkDirty(player)
+	showTickets(player)
+end
+
+-- night (the club open) and the player inside the club
+function DjService.CanStartNow(player: Player): boolean
+	local character = player.Character
+	local root = character and character:FindFirstChild("HumanoidRootPart") :: BasePart?
+	if not root or not ClubConfig.isInClub(root.Position) then return false end
+	local access = require(script.Parent:WaitForChild("ClubAccessService")) :: any
+	return access.ClubOpen()
+end
+
+-- (D-1185, moved here by D-1804) the turntable's "E 디제잉하기" guide is for a
+-- first-ever DJ only: player attribute DJFirstGuide, wallet.tips.djFirst keeps it.
+-- Returns whether this is their first DJ time.
+function DjService.FirstGuide(player: Player): boolean
+	local wallet = data and data.Wallet(player)
+	if not wallet then return false end
+	wallet.tips = wallet.tips or {}
+	local first = not wallet.tips.djFirst
+	if first then
+		wallet.tips.djFirst = true
+		data.MarkDirty(player)
+	end
+	player:SetAttribute("DJFirstGuide", if first then true else nil)
+	return first
+end
+
+-- "🎧 DJ 시작": saved seconds first, else one ticket
+function DjService.UseTicket(player: Player): (boolean, string?, string?)
+	local wallet = data and data.Wallet(player)
+	if not wallet then return false, "잠시 후 다시 시도하세요." end
+	if (wallet.djTickets or 0) < 1 and (wallet.djSeconds or 0) < 60 then return false, "DJ 이용권이 없어요." end
+	if not DjService.CanStartNow(player) then
+		return false, "DJ 이용권은 밤(18:00~06:00)에 클럽 안에서 쓸 수 있어요."
+	end
+	local seconds: number
+	if (wallet.djSeconds or 0) >= 60 then
+		seconds = wallet.djSeconds :: number
+		wallet.djSeconds = nil
+	else
+		seconds = TICKET
+		wallet.djTickets = if (wallet.djTickets :: number) > 1 then (wallet.djTickets :: number) - 1 else nil
+	end
+	data.MarkDirty(player)
+	showTickets(player)
+	DjService.FirstGuide(player)
+	local ok, message, kind = DjService.AddTime(player, seconds)
+	if ok and kind == "start" then
+		local access = require(script.Parent:WaitForChild("ClubAccessService")) :: any
+		task.defer(access.OfferDJBooth, player, false)
+	end
+	return ok, message, kind
+end
+
+-- a player leaves the game: their queue time back whole, their own DJ rest by
+-- DJLeaveRefund ("A" tickets / "B" saved seconds / "C" gone). Runs from the
+-- PlayerDataService leave hook (before the last save) and from PlayerRemoving
+-- below; the second call finds nothing left.
+local function leave(player: Player)
+	guests[player.UserId] = nil
+	for index = #queue, 1, -1 do
+		local slot = queue[index]
+		if slot.userId == player.UserId then
+			if slot.paid then giveBack(player, slot.seconds, false) end
+			table.remove(queue, index)
+		end
+	end
+	if current and current.userId == player.UserId then
+		local rest = currentUntil - now()
+		local mode = MonetizationConfig.DJLeaveRefund
+		if current.paid and rest >= 60 then
+			if mode == "A" then giveBack(player, rest, true)
+			elseif mode == "B" then giveBack(player, rest, false) end
+		end
+		startNext()
+	else
+		publish()
+	end
+end
+
+-- (Studio play tests only) what leaving would give back, without leaving
+function DjService.StudioLeave(player: Player): (boolean, string?)
+	if not game:GetService("RunService"):IsStudio() then return false, nil end
+	leave(player)
+	showTickets(player)
+	return true, nil
+end
+
+function DjService.SetData(playerData: any)
+	data = playerData
+	playerData.OnLeaving(leave)
+	local function onJoin(player: Player)
+		task.spawn(function()
+			playerData.Wallet(player) -- (waits for the saved data)
+			if player.Parent then showTickets(player) end
+		end)
+	end
+	Players.PlayerAdded:Connect(onJoin)
+	for _, p in ipairs(Players:GetPlayers()) do onJoin(p) end
 end
 
 -- Future DJ abilities register here: DjService.Actions[name] = function(player, payload) ... end
@@ -352,7 +505,7 @@ function DjService.Start()
 			if typeof(list) ~= "string" then return end
 			for id in string.gmatch(list, "%-?%d+") do
 				if tonumber(id) == player.UserId then
-					task.delay(3, function() if player.Parent then DjService.AddTime(player) end end)
+					task.delay(3, function() if player.Parent then DjService.AddTime(player, nil, true) end end)
 					return
 				end
 			end
@@ -372,7 +525,7 @@ function DjService.Start()
 		local function ownerDJ(player: Player)
 			local owner = game.CreatorType == Enum.CreatorType.User and player.UserId == game.CreatorId
 			if not owner and not GRANTED[player.UserId] then return end
-			task.delay(3, function() if player.Parent then DjService.AddTime(player) end end)
+			task.delay(3, function() if player.Parent then DjService.AddTime(player, nil, true) end end)
 		end
 		Players.PlayerAdded:Connect(ownerDJ)
 		for _, p in ipairs(Players:GetPlayers()) do ownerDJ(p) end
@@ -385,7 +538,7 @@ function DjService.Start()
 				if not current and #queue == 0 then
 					for _, p in ipairs(Players:GetPlayers()) do
 						if GRANTED[p.UserId] then
-							DjService.AddTime(p)
+							DjService.AddTime(p, nil, true)
 							break
 						end
 					end
@@ -393,21 +546,7 @@ function DjService.Start()
 			end
 		end)
 	end
-	Players.PlayerRemoving:Connect(function(player)
-		if guests[player.UserId] then
-			guests[player.UserId] = nil
-		end
-		for index = #queue, 1, -1 do
-			if queue[index].userId == player.UserId then
-				table.remove(queue, index)
-			end
-		end
-		if current and current.userId == player.UserId then
-			startNext()
-		else
-			publish()
-		end
-	end)
+	Players.PlayerRemoving:Connect(leave) -- (D-1804: tickets back, see leave)
 	task.spawn(function()
 		while true do
 			task.wait(1)
