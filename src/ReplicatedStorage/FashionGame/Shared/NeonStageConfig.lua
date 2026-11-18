@@ -26,9 +26,11 @@ local NeonStageConfig = {}
 
 NeonStageConfig.SoundId = 140713297574648 -- NEON-A2O LITE (ClubPlaylist): the song when no other is set
 NeonStageConfig.Center = Vector3.new(-96, -1.98, -128) -- (the plaza floor at the stage's middle: the walked face, measured)
-NeonStageConfig.Radius = 18 -- (the stage; D-1820: one step, as wide as the old low step)
-NeonStageConfig.StepRadius = 18 -- (= Radius since D-1820: no low step any more)
-NeonStageConfig.Height = 1.2 -- (the top over the plaza floor, the old top's height; walked up, D-1820)
+-- (D-1822, user 2026-11-19: "무대 단상 한 단 더 올리기") two steps: the low ring of radius 18 (1.2 high)
+-- and the top of radius 15 on it (2.4 over the plaza floor); the dance is on the top
+NeonStageConfig.Radius = 15 -- (the top)
+NeonStageConfig.StepRadius = 18 -- (the low ring round it)
+NeonStageConfig.Height = 2.4 -- (the top over the plaza floor: two 1.2 steps, walked up from any side)
 NeonStageConfig.Top = NeonStageConfig.Center.Y + NeonStageConfig.Height
 NeonStageConfig.HearInner = 34 -- (full plaza level inside the tiers' front edge, r 34.6)
 NeonStageConfig.HearOuter = 48 -- (silent from here out)

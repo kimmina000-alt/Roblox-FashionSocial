@@ -18,8 +18,9 @@ local C = Vector3.new(-96, -1.98, -128) -- (the plaza's walked face, measured: P
 -- (D-1820, user 2026-11-19: "단상 가장 넓은 원 크기에 가장 높은 높이로 한 층으로만", "네온 조명선 삭제", then "조명선
 -- 하나만 얇고 연하게 넣자. 분홍색") one step of radius 18 at the old top's height (1.2), the neon bands,
 -- ring and inner disc gone, one thin pale pink line under the top edge
-local TOP_R, STEP_R = 18, 18
-local STEP_TOP, TOP_TOP = C.Y + 0.6, C.Y + 1.2
+-- (D-1822, user: "무대 단상 한 단 더 올리기") a second step on top: radius 15, 2.4 over the plaza
+local TOP_R, STEP_R = 15, 18
+local STEP_TOP, TOP_TOP = C.Y + 1.2, C.Y + 2.4
 local SINK = 0.1 -- (the solids start under the plaza floor: no shared face with it)
 -- the club dance poles' base (Graybox_MainSocial.02_Club.PoleBase): silver DiamondPlate
 local BODY = Color3.fromRGB(190, 192, 198)
@@ -52,10 +53,14 @@ local function disc(name: string, radius: number, y0: number, y1: number, color:
 	return p
 end
 
+disc("StageStep", STEP_R, C.Y - SINK, STEP_TOP, BODY, BODY_MAT, true)
 disc("StageTop", TOP_R, C.Y - SINK, TOP_TOP, BODY, BODY_MAT, true)
 -- the one light line: 0.06 out from the edge, 0.1 high, its top 0.08 under the walking face
-local line = disc("StageLine", TOP_R + 0.06, TOP_TOP - 0.18, TOP_TOP - 0.08, PALE_PINK, Enum.Material.Neon, false)
+local line = disc("StageLine", STEP_R + 0.06, STEP_TOP - 0.18, STEP_TOP - 0.08, PALE_PINK, Enum.Material.Neon, false)
 line.Transparency = 0.35
+-- (D-1825, user 2026-11-19: "위 단상에도 같은 조명선 설치") the same line under the top step's edge
+local topLine = disc("StageLineTop", TOP_R + 0.06, TOP_TOP - 0.18, TOP_TOP - 0.08, PALE_PINK, Enum.Material.Neon, false)
+topLine.Transparency = 0.35
 
 -- six small lights round the edge, pink and violet in turn
 for k = 0, 5 do
