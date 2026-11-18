@@ -4570,8 +4570,14 @@ do -- three ranking boards in the pocket park in front of the park gate (user
 	-- one face each now (the wall is behind them). Not in park_raise's plot
 	-- (z > -224), so it does not move them.
 	local WALL_Z = -216
-	for _, spec in ipairs({ { "level", -133.5 }, { "support", -63 } }) do
-		local x = spec[2]
+	-- (D-1821, user 2026-11-19: "순위표 벽에 꽉 차게 키울 것") each board fills its part of the wall: from
+	-- the stair's side wall to the park's corner (0.6 in from each end: west x -152.5..-115.1, east
+	-- -78.9..-46.5) and from 0.5 over the deck (y 1.5) to 0.5 under the parapet's top (19.5);
+	-- RankingBoards.client scales the content with the board (the same 424-pixel-high layout)
+	HALF, Y0, Y1 = 0, 2.0, 19.0
+	for _, spec in ipairs({ { "level", -151.9, -115.7 }, { "support", -78.3, -47.1 } }) do
+		local x = (spec[2] + spec[3]) / 2
+		HALF = (spec[3] - spec[2]) / 2
 		local z = WALL_Z + 0.25 -- (a little off the stone)
 		local pane = box("BoardPane", x - HALF, Y0, z - 0.06, x + HALF, Y1, z + 0.06, Color3.fromRGB(20, 10, 24), { parent = B, material = Enum.Material.Glass })
 		pane.Transparency = 0.7
