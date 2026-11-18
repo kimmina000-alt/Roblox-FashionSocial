@@ -186,6 +186,7 @@ local TRACKS = {
 	{ title = "뛰어 JUMP-BLACKPINK", id = 82763014578432 }, -- file 154.0 s, song 2:45
 	{ title = "Blue Valentine-NMIXX", id = 111032764768565 }, -- file 173.9 s, song 3:06
 	{ title = "빌려온 고양이 Do the Dance-ILLIT", id = 126150660776305 }, -- file 176.3 s, song 3:09
+	{ title = "Pretty Girl-RESCENE (2)", id = 140273876429390 }, -- user 2026-11-18, song 3:30 (old 3x file 70.01 s)
 }
 -- a track's club value as a full lab table (nil for the Roblox tracks)
 local function clubValues(t: any): any
@@ -570,7 +571,7 @@ local trackLabel = label(trackRow, "", UDim2.new(1, -84, 1, 0), UDim2.fromOffset
 
 local idRow = row(32)
 local idBox = mk("TextBox", {
-	Size = UDim2.new(1, -96, 1, 0), BackgroundColor3 = CARD, Text = "", PlaceholderText = "음원 ID 직접 입력 (rbxassetid 숫자)",
+	Size = UDim2.new(1, -96, 1, 0), BackgroundColor3 = CARD, Text = "", PlaceholderText = "곡 이름 또는 음원 ID 검색",
 	TextColor3 = TEXT, PlaceholderColor3 = DIM, Font = Enum.Font.Gotham, TextSize = 14, ClearTextOnFocus = false,
 }, idRow)
 corner(idBox, 6)
@@ -598,6 +599,21 @@ for i, t in ipairs(TRACKS) do
 	listTags[i] = label(b, "", UDim2.fromOffset(92, 28), UDim2.new(1, -92, 0, 0), { TextSize = 11, TextColor3 = DIM, TextXAlignment = Enum.TextXAlignment.Right })
 	listButtons[i] = b
 end
+-- search (user 2026-11-18): the box filters the list by title or id as you type
+local function searchText(): string
+	local q = idBox.Text:gsub("^%s+", "")
+	q = q:gsub("%s+$", "")
+	return string.lower(q)
+end
+local function filterList()
+	local q = searchText()
+	for i, b in ipairs(listButtons) do
+		local t = TRACKS[i]
+		local idText = tostring(t.id or (t.joined and t.joined.parts[1]) or "")
+		b.Visible = q == "" or string.find(string.lower(t.title), q, 1, true) ~= nil or string.find(idText, q, 1, true) ~= nil
+	end
+end
+idBox:GetPropertyChangedSignal("Text"):Connect(filterList)
 
 -- transport
 local tRow = row(40)
@@ -1356,12 +1372,30 @@ for i, b in ipairs(listButtons) do
 		load(true) -- picked from the list: play it
 	end)
 end
-idLoad.MouseButton1Click:Connect(function()
-	local n = tonumber((idBox.Text:gsub("%D", "")))
+local function loadFromBox()
+	local text = searchText()
+	if text == "" then return end
+	-- a name (letters or Korean): load the first track the search shows
+	if text:match("%a") or text:match("[\128-\255]") then
+		for i, b in ipairs(listButtons) do
+			if b.Visible then
+				customId = nil
+				trackIndex = i
+				load(true)
+				return
+			end
+		end
+		return
+	end
+	local n = tonumber((text:gsub("%D", "")))
 	if n and n > 0 then
 		customId = n
 		load(false)
 	end
+end
+idLoad.MouseButton1Click:Connect(loadFromBox)
+idBox.FocusLost:Connect(function(enterPressed)
+	if enterPressed then loadFromBox() end
 end)
 playB.MouseButton1Click:Connect(function()
 	if sound.IsPlaying then
