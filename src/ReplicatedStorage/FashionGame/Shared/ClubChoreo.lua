@@ -1562,6 +1562,12 @@ M.ChoreoJumps = {
 	-- 14 1:32.0 knee-up hop, 16 1:58.2 tuck jump (lands as the clip ends, 1.93 s), 19 2:16.9 tuck jump (lowest -1.74)
 	[90921923486342] = { { 0.63, 1.15, 3.0 } }, [137670042338904] = { { 4.22, 4.62, 1.2 } },
 	[128327230683798] = { { 1.45, 1.88, 2.7 } }, [122207092339520] = { { 1.82, 2.33, 3.2 } },
+	-- (D-1781, user: "모든 안무 점프 구간 확인한 후 수정해") every song's videos scanned
+	-- (jump_scan.py over 19 centercut folders + a capture scan of all 576 pieces for
+	-- hips that drop 0.6+ and come back within 0.35 s, each candidate checked on frames):
+	-- RESCENE-Pretty Girl 20 at 2:27.8 (video 3.95-4.35 in the air, capture hips -0.07 →
+	-- -0.74 tuck) and 키키-Pop Off 7 at 0:43.3 (video 7.6-7.85, capture -0.09 → -1.14)
+	[90231422396171] = { { 3.95, 4.40, 2.7 } }, [82593368218356] = { { 7.50, 7.92, 3.0 } },
 } :: {[number]: {{number}}}
 for id, jumps in pairs(M.ChoreoJumps) do
 	local fix = (M.ChoreoFixes[id] or {}) :: any

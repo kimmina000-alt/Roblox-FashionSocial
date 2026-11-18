@@ -5991,3 +5991,14 @@ Studio only (no script yet).
 - ClubChoreo.ChoreoJumps = { [id] = { { 이륙, 착지, 높이 } } } → ChoreoFixes `jump`. ChoreoController: 이륙~착지에 포물선(꼭대기 = 높이 stud)을 엉덩이 높이에 더함, 조각 가중치만큼. 공중에 있는 동안 바닥 보정(floorLift)은 그대로 둠(파트 위치가 한 프레임 늦어 떠오르는 몸을 바닥에 박힌 것으로 읽고 보정이 점프만큼 더 올려 2배 높이가 됐었음). 착지는 클립 길이 − 0.05초 안으로(16번은 클립 끝 1.93초에 착지라 다음 조각 동안 0.9 떠 있었음).
 - 높이: 8번 3.0, 16번 2.7(착지 1.88), 19번 3.2, 14번 1.2. Play: 발이 바닥에서 3.8 / 3.4 / 3.9 / 2.0 stud 뜸, 엉덩이 +1.9 / +1.9 / +1.8 / +1.4.
 - 검사: play_record 방식(SNAP / SPIN / JUMP / TELEPORT / JITTER) 57-61, 90.5-94, 114.5-118.5, 135.5-139.5초 모두 ok. play_record의 JUMP는 가로 이동 속도라 위로 뛰는 점프는 잡지 않음. 점프 구간 안에는 `still` / 미끄러짐 고정을 넣지 않음(규칙, CHOREO_REVIEW.md 2부).
+
+## D-1781 모든 안무 점프 구간 확인 (2026-11-18)
+- 사용자: "모든 안무 점프 구간 확인한 후 수정해" (D-1771 규칙: 원본 영상의 점프는 살림).
+- 찾기 두 가지:
+  - 영상: tools/choreo/jump_scan.py를 centercut 폴더 19곳(연습 영상이 있는 곡 전부)에. 두 발목이 같이 뜨는 구간 중 발 0.8 · 엉덩이 0.35 몸통 이상 = 46곳.
+  - 캡처: 곡 안무 576조각 모두 KeyframeSequence의 엉덩이 높이에서 0.6 stud 이상 꺼졌다가 0.35초 안에 돌아오는 곳(무릎 당긴 점프의 흔적) = 49곳.
+  - 두 목록을 맞추고, 32곳을 프레임 사진으로 확인.
+- 진짜 점프: RESCENE-Pretty Girl 20번 2:27.8(영상 3.95-4.35 공중, 캡처 -0.07 → -0.74), 키키-Pop Off 7번 0:43.3(영상 7.6-7.85, 캡처 -0.09 → -1.14), (D-1771) 내 이름을 불러줘 4곳. ChoreoJumps: Pretty Girl 20 { 3.95, 4.40, 2.7 }, Pop Off 7 { 7.50, 7.92, 3.0 }.
+- 점프 아님(사진 확인): NEON 0:11 / 2:18(웅크린 춤 · 킥 후 앉기), REDRED 2:00(런지), With 2 / 8 / 11 / 16 / 20(카메라 흔들림 · 한 발 스킵), CRASH 18 · ANIMAL 20 · Boogie Woogie 4(한 발 들고 스킵), BAD 14, BANG 7, SHOCK 8, Love 119 7 / 21 / 29, 백화요란 10(의자), Unbelievable 1 / 2, ANIMAL 1(바닥 동작), Lemon Tang 27(카메라).
+- 확인 못 함: 연습 영상이 없는 곡(NEON, REDRED, I SPY, LOVE-ATTACK, Get A Guitar, Genie, Looks Can Kill, 체포하겠어)은 무대 영상뿐이고, 그 시각에 클로즈업 · 와이드라서 발이 안 보임. 캡처 꺼짐 0.8+ 자리: NEON 2:44, REDRED 0:55 / 2:22, I SPY 1:29, LOVE-ATTACK 1:36. 연습 영상을 받으면 같은 방법으로 볼 수 있음.
+- Play: Pretty Girl 발 3.4 stud · 엉덩이 +2.3, Pop Off 발 3.7 · +2.4; 146.5-150 / 42-45.5초 SNAP · SPIN · TELEPORT · JITTER 없음.

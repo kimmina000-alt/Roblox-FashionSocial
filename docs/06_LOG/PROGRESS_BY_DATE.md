@@ -941,3 +941,4 @@
 - 2026-11-18: Unbelievable-H1 KEY 안무 16조각 + 정면 · 고개 · 손목, fileSpeed 1.0499 (D-1672).
 - 2026-11-18: 무대 카메라 4곡: With, Call My Name, Boogie Woogie, Unbelievable (D-1770).
 - 2026-11-18: 점프는 오류가 아니라 살림: ChoreoFixes `jump`, 내 이름을 불러줘 점프 4곳 더 높게 (D-1771).
+- 2026-11-18: 모든 안무 점프 확인: Pretty Girl 2:27.8, Pop Off 0:43.3 점프 추가; 연습 영상 없는 8곡은 확인 못 함 (D-1781).
