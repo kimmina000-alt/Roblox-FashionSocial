@@ -699,8 +699,10 @@ M.Playlist = {
 		-- mp3 in 10 s windows, 0.82-0.99 all through), `at` = clip start - 1.15 (clip 1 `from = 1.15`); 2 / 5 re-sent (132406634119258 / 82476096356644): the first
 		-- uploads (102267066021904 / 86658699961545) were copies of 1 / 4; fileSpeed 1.0475 -> 1.0499
 		-- (in Play the game drifted 0.25 s against the mp3 over 104 s, as other x1 uploads)
+		-- (D-1857, user 2026-11-19) 0:17-0:19 = a new clip of the centre (white crop top: <> squat, left knee down, side, hand down the face;
+		-- video 17.98-20.45, H1KEY_Unbelievable_v2_centercut/clips/1.mp4); clip 3 (the red-haired member) goes on from its 2.47 s
 		choreo = {
-			{ id = 107202755656926, at = 0.00, from = 1.15 }, { id = 132406634119258, at = 6.02, blend = 0.36 }, { id = 91684619142886, at = 16.83, blend = 1 }, { id = 127086942159592, at = 25.84, blend = 0.51 }, { id = 82476096356644, at = 33.89 },
+			{ id = 107202755656926, at = 0.00, from = 1.15 }, { id = 132406634119258, at = 6.02, blend = 0.36 }, { id = 140321069508247, at = 16.83, blend = 0.6 }, { id = 91684619142886, at = 19.30, from = 2.47, blend = 0.6 }, { id = 127086942159592, at = 25.84, blend = 0.51 }, { id = 82476096356644, at = 33.89 },
 			{ id = 105450147611432, at = 45.86, blend = 0.74 }, { id = 126709034309523, at = 48.87, blend = 0.87, slowIn = { 0.4, 0.4 } }, { id = 110146513928585, at = 55.84, blend = 1 },
 			{ id = 98575698595382, at = 63.85, blend = 1 }, { id = 97422868495252, at = 68.85, blend = 0.48 }, { id = 77667909738269, at = 71.86 },
 			{ id = 98632778351786, at = 81.87, blend = 0.74 }, { id = 106947840145982, at = 89.84, blend = 1 }, { id = 121716323345976, at = 104.36 },
