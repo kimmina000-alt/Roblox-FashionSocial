@@ -58,6 +58,9 @@ disc("StageTop", TOP_R, C.Y - SINK, TOP_TOP, BODY, BODY_MAT, true)
 -- the one light line: 0.06 out from the edge, 0.1 high, its top 0.08 under the walking face
 local line = disc("StageLine", STEP_R + 0.06, STEP_TOP - 0.18, STEP_TOP - 0.08, PALE_PINK, Enum.Material.Neon, false)
 line.Transparency = 0.35
+-- (D-1825, user 2026-11-19: "위 단상에도 같은 조명선 설치") the same line under the top step's edge
+local topLine = disc("StageLineTop", TOP_R + 0.06, TOP_TOP - 0.18, TOP_TOP - 0.08, PALE_PINK, Enum.Material.Neon, false)
+topLine.Transparency = 0.35
 
 -- six small lights round the edge, pink and violet in turn
 for k = 0, 5 do
