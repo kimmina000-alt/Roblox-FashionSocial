@@ -1284,4 +1284,33 @@ ClubCamera.Songs[81736514719301] = {
 		{ 132.53, "wide", 0, 5 }, { 133.4, "bust" },
 	}),
 }
+-- (D-1822) BOYNEXTDOOR-ANIMAL: SBS Inkigayo 2026-10-04, youtube jP0EJL44QGk,
+-- video = song + 35.30 s (original mp3 g8gD2GVcg0M lined up with the stage sound in every
+-- 10 s window). Shot list made by shots_to_lua.py (D-944), to the song's end at 142.9 s (length 136.107 x fileSpeed 1.05).
+ClubCamera.Songs[94774089824958] = {
+	video = "SBS Inkigayo 2026-10-04, youtube jP0EJL44QGk",
+	offset = 35.3,
+	shots = cutList({
+		{ 0, "waist" }, { 2.63, "bust" }, { 10.41, "wide", 0, 5 }, { 17.03, "full" }, { 18.9, "bust" },
+		{ 19.71, "waist" }, { 20.2, "knee" }, { 22.24, "waist" }, { 23.2, "wide", 0, 5 }, { 24.2, "bust" },
+		{ 26.47, "wide", 0, 5 }, { 28.58, "bust" }, { 29.97, "wide", 0, 5 },
+		{ 31.9, "bust", 0, 0, { size = "waist" } }, { 34.37, "full" }, { 36.03, "waist", 0, 0, { size = "bust" } },
+		{ 36.67, "bust", 0, 0, { size = "close" } }, { 40.4, "wide", -5, 5, { size = "full" } }, { 41.47, "waist" },
+		{ 43.31, "full" }, { 44.97, "waist" }, { 46.5, "wide", 0, 5, { size = "full" } },
+		{ 48.03, "waist", -10, 0, { size = "bust" } }, { 49.7, "wide", 0, 5 }, { 51.23, "waist" },
+		{ 52.33, "xwide", 0, 8 }, { 53.3, "bust" }, { 55.41, "full" }, { 58.2, "bust" }, { 60.03, "wide", -5, 5 },
+		{ 61.67, "waist", 0, 0, { size = "bust" } }, { 63.33, "full" }, { 65.16, "waist" }, { 66.33, "knee" },
+		{ 68.25, "waist" }, { 69.53, "full" }, { 70.34, "knee" }, { 71.17, "full" }, { 71.53, "wide", 0, 5 },
+		{ 72.47, "bust" }, { 73.3, "waist" }, { 74.3, "bust" }, { 75.53, "wide", 0, 5 }, { 78.88, "knee" },
+		{ 82.43, "waist" }, { 83.17, "wide", 0, 5 }, { 84.43, "full" }, { 85.71, "knee" }, { 87.07, "wide", 0, 5 },
+		{ 87.55, "bust" }, { 91.17, "bust", 0, 0, { size = "waist" } }, { 93.1, "waist" }, { 95.09, "wide", 0, 5 },
+		{ 96.47, "bust" }, { 97.8, "knee" }, { 98.27, "wide", 0, 5 }, { 98.83, "full" }, { 100.16, "waist" },
+		{ 100.9, "bust" }, { 102.93, "bust", -15, 0, { size = "waist" } }, { 104.7, "waist" }, { 105.53, "knee" },
+		{ 106.33, "full" }, { 107.4, "bust", 5 }, { 108.1, "full" }, { 109.47, "bust", 0, 0, { size = "waist" } },
+		{ 111.47, "waist" }, { 113.33, "xwide", 0, 8, { size = "wide" } }, { 114.87, "full" },
+		{ 116.28, "xwide", 0, 8 }, { 118.37, "bust", 0, 0, { size = "waist" } }, { 122.53, "bust" },
+		{ 126.47, "waist", 5 }, { 129.57, "bust" }, { 131.19, "full" }, { 132.57, "bust" }, { 133.17, "wide", 0, 5 },
+		{ 136.28, "bust" }, { 138.33, "wide", 0, 5 },
+	}),
+}
 return ClubCamera

@@ -4023,3 +4023,8 @@ Player2 아이템 상점(밤 22시) · 클럽 안내 판매원 카메라(폰)
 ## 2026-11-18 BANG 수정 머지 (D-1399, D-1400)
 - 사용자: "머지해" → 모바일 2인 테스트(Player1 · Player2, 클럽): BANG 1:20 가슴 튕김, 1:36~1:43 허리에 손 → 왼팔 흔들기, 2:13 오른팔 → 왼팔 교차 · 옆 웨이브, 2:23 팔짱(손이 앞에서 교차) 확인, SNAP 없음, 서버 · 두 클라이언트 스크립트 오류 없음.
 - feat/bang-clips-1114 + feat/bang-fix-1114 → catalog-ui-redesign. 안무 추가 참고: CHOREO_REVIEW.md 2-1c.
+
+## 2026-11-19 ANIMAL 무대 카메라 (D-1822)
+- 사용자가 인기가요 무대(youtube jP0EJL44QGk)를 보내 D:\Roblox\영상\Animal_stage\stage.mp4로 받음.
+- 원곡 mp3와 무대 소리를 맞춰 영상 = 노래 + 35.3초(앞 35초는 소개 화면).
+- 컷 85개 → 79샷(shots_to_lua.py). 브랜치 feat/stage-camera-animal-1119. 다음: Studio 반영, 모바일 2인 테스트.
