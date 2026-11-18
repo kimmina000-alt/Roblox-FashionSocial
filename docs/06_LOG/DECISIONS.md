@@ -6177,7 +6177,7 @@ Studio only (no script yet).
 - 진행 관리 세션(사용자 요청): catalog-ui-redesign 2893a9f0까지 들어온 새 한국어 문구 번역. tools/i18n extract → 빠진 36개를 tools/i18n/tr/p19_gift1118.tsv에 16개 언어로: 패스 선물(가드 · VIP · DJ 30분, GiftPassService · GiftPassCard), 양손 스파클러 두 번 탭 안내, 스킵 투표 한 줄 "⏭ {1}초 · {2}/{3} 예 · {4} 아니요", 다음 곡 / 다음 곡에서 빼기, 회전컵 · 관람차 · 범퍼카 눌러서 타기 안내, 추천 룩 "네온 스테이지".
 - GiftPassCard의 "🛡 가드권" .. " 보유"는 이어 붙인 문구라 tools/i18n/extra_templates.txt에 "{1} 보유" 추가. 같이 추기 · 환호성 · 폭죽 소리 등은 이미 표에 있었음. 채팅 명령어는 번역하지 않음(기존 원칙).
 
-## D-1822 무대 카메라: ANIMAL-BOYNEXTDOOR (2026-11-19)
+## D-1830 무대 카메라: ANIMAL-BOYNEXTDOOR (2026-11-19)
 - 사용자: "애니멀 카메라 안 넣었어?" → 무대 영상(SBS 인기가요 2026-10-04, youtube jP0EJL44QGk)을 받아 만듦.
 - 영상 = 노래 + 35.30초: 원곡 mp3(g8gD2GVcg0M) 소리를 무대 소리에 맞춤, 10초 창 모두 +35.25..+35.30.
 - 컷 85개 → shots_to_lua.py 1 35.3 142.9, 79샷. 노래 끝 142.9초 = length 136.107 × fileSpeed 1.05. ClubCamera.Songs[94774089824958].

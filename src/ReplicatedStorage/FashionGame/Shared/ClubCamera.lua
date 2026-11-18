@@ -746,7 +746,7 @@ ClubCamera.Songs[139044453511745] = {
 		{ 197.0, "xwide", 0, 6 }, { 201.5, "wide" }, { 202.5, "xwide", 0, 6 }, { 203.0, "wide" }, { 207.0, "waist" },
 	}),
 }
-
+
 -- (D-944) four stages at once, shot lists made by tools/choreo/stagecam/shots_to_lua.py
 -- from shots.py (size from the biggest dancer's pose in each shot's sample frames)
 -- and written in song seconds. The start point of each video: the original mp3's
@@ -1284,7 +1284,7 @@ ClubCamera.Songs[81736514719301] = {
 		{ 132.53, "wide", 0, 5 }, { 133.4, "bust" },
 	}),
 }
--- (D-1822) BOYNEXTDOOR-ANIMAL: SBS Inkigayo 2026-10-04, youtube jP0EJL44QGk,
+-- (D-1830) BOYNEXTDOOR-ANIMAL: SBS Inkigayo 2026-10-04, youtube jP0EJL44QGk,
 -- video = song + 35.30 s (original mp3 g8gD2GVcg0M lined up with the stage sound in every
 -- 10 s window). Shot list made by shots_to_lua.py (D-944), to the song's end at 142.9 s (length 136.107 x fileSpeed 1.05).
 ClubCamera.Songs[94774089824958] = {
