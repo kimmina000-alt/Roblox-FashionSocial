@@ -6507,3 +6507,7 @@ Studio only (no script yet).
 - 부기우기: 숙인 채 발 밀림 0:37-0:41(왼 1.7 몸통), 1:18-1:19, 2:52-2:53. 0:37-0:41 몸 `still` + 다리 freeze(숙이기 시작 자세) + plant; 세 곳 모두 plant(`contact` 0.45: 숙인 캡처는 발이 0.3-0.4 떠 있어 기본 0.18로는 안 잡힘). ChoreoFeet `plant` 창에 `contact`(스터드) 추가.
 - Play(발 월드 이동 최대): 0:37.1-0:40.9 왼 0.03 · 오른 0.10스터드(전 1.7 · 1.1 몸통), 2:52.6-2:53.5 왼 0.51 · 오른 0.16, 1:17.9-1:19.4 왼 0.94 · 오른 1.13(발을 드는 스텝이 섞여 있어 원본 확인 필요).
 - 녹화: describe_out/TWS/편집후_전곡/tws_after2_g.json, boogie/편집후_전곡/boogie_after2_g.json(다리 freeze · contact 전).
+
+## D-1883 (2026-11-19) 범퍼카 왼쪽 ◀ ▶ 방향 버튼
+- User: "범퍼카 오른쪽에 악셀 넣었으면 왼쪽에 방향키 넣어 줘 방향 못 잡겠음". BumperCarController: ◀ ▶ buttons (BumperPedal.SteerLeft / SteerRight, 84 on phones, 70 otherwise) at the bottom left, bottoms level with the pedal. Held, they turn the car's wheel all the way to the car's own left / right (not the camera's); let go, the wheel comes back. The stick still works elsewhere on the screen (and still backs up, D-1828); a held button wins over it for turning. Unlike D-1564/D-1666 (removed then), the pedal is now on the right, so the left thumb is free for these.
+- Play (phone view): with the pedal down and ◀ held, the car turned about 180° in 1.5 s while moving 14.5 studs; without ◀ it drove straight.

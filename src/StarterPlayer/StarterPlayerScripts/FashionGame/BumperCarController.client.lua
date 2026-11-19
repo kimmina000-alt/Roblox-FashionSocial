@@ -281,6 +281,74 @@ local function placePedal()
 	end
 end
 
+-- (D-1883, user 2026-11-19: "범퍼카 오른쪽에 악셀 넣었으면 왼쪽에 방향키 넣어 줘 방향 못 잡겠음") ◀ ▶ at the bottom
+-- left under the left thumb, the pedal under the right one: held, they turn the car's wheel left / right
+-- (the car's own left / right, not the camera's); let go, the wheel comes back. The stick still works
+-- elsewhere on the screen (and backs up, D-1828); a held button wins over it for the turning.
+local steerButtons: {[number]: TextButton} = {}
+local steerInputs: {[number]: InputObject?} = {}
+for _, side in ipairs({ -1, 1 }) do
+	local b = Instance.new("TextButton")
+	b.Name = if side < 0 then "SteerLeft" else "SteerRight"
+	b.Text = if side < 0 then "◀" else "▶"
+	b.Font = Enum.Font.GothamBlack
+	b.TextScaled = true
+	b.TextColor3 = Color3.fromRGB(240, 242, 246)
+	b.AutoButtonColor = false
+	b.AnchorPoint = Vector2.new(0, 1)
+	b.BackgroundColor3 = Color3.fromRGB(36, 38, 44)
+	b.BackgroundTransparency = 0.15
+	b.Parent = pedalGui
+	Instance.new("UICorner", b).CornerRadius = UDim.new(0, 18)
+	local edge = Instance.new("UIStroke")
+	edge.Color = Color3.fromRGB(120, 124, 134)
+	edge.Thickness = 2
+	edge.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+	edge.Parent = b
+	local pad = Instance.new("UIPadding")
+	for _, k in ipairs({ "PaddingTop", "PaddingBottom", "PaddingLeft", "PaddingRight" }) do (pad :: any)[k] = UDim.new(0.2, 0) end
+	pad.Parent = b
+	steerButtons[side] = b
+	b.InputBegan:Connect(function(input)
+		if input.UserInputType == Enum.UserInputType.Touch or input.UserInputType == Enum.UserInputType.MouseButton1 then
+			steerInputs[side] = input
+			b.BackgroundColor3 = Color3.fromRGB(120, 210, 140)
+		end
+	end)
+end
+UserInputService.InputEnded:Connect(function(input)
+	for side, held in pairs(steerInputs) do
+		if held and (input == held or (input.UserInputType == Enum.UserInputType.MouseButton1 and held.UserInputType == Enum.UserInputType.MouseButton1)) then
+			steerInputs[side] = nil
+			steerButtons[side].BackgroundColor3 = Color3.fromRGB(36, 38, 44)
+		end
+	end
+end)
+local function buttonSteer(): number?
+	local l, r = steerInputs[-1] ~= nil, steerInputs[1] ~= nil
+	if l == r then return nil end
+	return if l then -1 else 1
+end
+local function releaseSteer()
+	for side, b in pairs(steerButtons) do
+		steerInputs[side] = nil
+		b.BackgroundColor3 = Color3.fromRGB(36, 38, 44)
+	end
+end
+local function placeSteer()
+	local touch = UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled
+	local size = if touch then 84 else 70
+	local gap = 14
+	-- bottoms level with the pedal's
+	local bottomY = pedal.AbsolutePosition.Y + pedal.AbsoluteSize.Y
+	local screen = pedalGui.AbsoluteSize
+	for side, b in pairs(steerButtons) do
+		b.Size = UDim2.fromOffset(size, size)
+		local x = 28 + (if side < 0 then 0 else size + gap)
+		b.Position = if bottomY > 0 and bottomY <= screen.Y then UDim2.fromOffset(x, bottomY) else UDim2.new(0, x, 1, -(if touch then 30 else 110))
+	end
+end
+
 local function forwardOf(yaw: number): Vector3
 	return Vector3.new(math.cos(yaw), 0, -math.sin(yaw)) -- the car's +X at this yaw
 end
@@ -347,6 +415,9 @@ local function simulate(d: Drive, dt: number)
 			steer = math.clamp(-diff / (C.WheelMax * 0.6), -1, 1)
 		end
 	end
+	-- (D-1883) a held ◀ / ▶ turns the wheel all the way that side of the car
+	local held = buttonSteer()
+	if held then steer = held end
 	-- (D-1826) only the pedal drives
 	if pedalInput ~= nil or pedalDown then pedal = if d.reversing then -C.ReverseFactor else 1 end
 	local target = math.clamp(steer, -1, 1) * C.WheelMax
@@ -609,11 +680,13 @@ RunService.Heartbeat:Connect(function(dt)
 		if os.clock() - pedalPlacedAt > 0.3 then
 			pedalPlacedAt = os.clock()
 			placePedal()
+			placeSteer()
 		end
 	elseif pedalInput or pedalDown then
 		pedalInput, pedalDown = nil, false
 		showPedal()
 	end
+	if not drive and next(steerInputs) then releaseSteer() end
 	driveStep(dt)
 	watchOthers()
 	steerAll()
