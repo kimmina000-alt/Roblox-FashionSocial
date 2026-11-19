@@ -6424,3 +6424,12 @@ Studio only (no script yet).
 ## D-1915 한옥 마을 6단계: 마을 뒤 산 능선 배경 (2026-11-19)
 - 사진 4(한옥 지붕 너머 바위 봉우리 산) · 은평한옥마을 북한산. AI 메시 HanokVillageAssets.Mountains 3개를 520~600 × 190~240 로 키워 남쪽 맵 밖(경계 z 665 뒤, z 810..850)에, SurfaceAppearance 로 색 차분하게(120,140,130), 충돌 · 그림자 · 레이캐스트 끔, MountainBackdrop 모델 Persistent(스트리밍과 상관없이 보임). 대기 density 0.3 이라 z 1000 쯤은 안개에 묻혀 안 보였음. 만화풍이 남아 있어 빼려면 HanokVillage.MountainBackdrop 을 지우면 됨.
 - 한옥 마을 전체: HanokVillage 부품 약 1,374 (카페 · 정원 별도). 사진: docs/06_LOG/images/2026-11-19/hanok_village_overview.jpg.
+
+## D-1812 콜드 스파크 알림: 상단, 깜빡임, 1.5배 (2026-11-19)
+- 사용자: "콜드 스파크는 상단에 띄우고 깜빡깜빡 거리게 하자 글자 1.5배 키우고" (D-1811 다음).
+- BottomNotice.show(text, color, seconds, options): options { top = true } = 상단 바 아래(TopBar.bottom() + 8)의 두 번째 줄 쌓기(TopNoticeGui), { blink = true } = 0.45초 켜짐 / 0.3초 흐림을 사라질 때까지 반복, { size = n } = 글자 크기.
+- BannerController: 콜드 스파크 · 한마디 있는 불꽃 · DJ 불꽃 쇼 = 상단, 깜빡임, 20 px(13 × 1.5), 빨강, 30초. 후원은 그대로 아래 쓰레기 알림 줄에 13 px 빨강 15초.
+- 확인(Studio Play, 1인): 콜드 스파크 2줄(한마디 없음 / 있음)이 상단 바 아래 20 px 빨강으로 쌓이고 깜빡임(투명도 0.2 ↔ 0.9 번갈아), 후원 · 쓰레기 알림은 아래 13 px 그대로. 오류 0. 사진 docs/06_LOG/images/2026-11-19/coldspark_top_a.jpg, _b.jpg.
+
+## D-1813 콜드 스파크 알림 노란색 (2026-11-19)
+- 사용자: "색 노란색으로 수정" (D-1812 상단 깜빡이는 콜드 스파크 알림). BottomNotice.YELLOW = 255/220/40, 콜드 스파크 · 한마디 불꽃 · DJ 불꽃 쇼만 노랑. 후원은 아래 빨강 그대로. Studio 반영(git과 같음), Play 확인은 다른 세션의 다인 테스트 중이라 못 함.
