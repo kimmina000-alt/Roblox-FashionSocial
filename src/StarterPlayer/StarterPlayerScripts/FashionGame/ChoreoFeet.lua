@@ -154,9 +154,10 @@ function ChoreoFeet.apply(character: Model, joints: {[string]: Joint}, active: b
 		if st.letGo then
 			if not st.arc then
 				local gap = Vector2.new(st.spot.X - A.X, st.spot.Z - A.Z).Magnitude
-				st.arc = if st.lifted or gap > 0.2 then math.max(0, STEP_LIFT - math.max(sole, 0)) else 0
+				st.arc = if st.lifted or gap > 0.2 then 1 else 0
 			end
-			T += Vector3.new(0, liftShape(1 - st.w) * (st.arc :: number), 0)
+			-- (D-1940) the lift is made up every frame: the dance may lower the foot while it is carried over
+			T += Vector3.new(0, liftShape(1 - st.w) * (st.arc :: number) * math.max(0, STEP_LIFT - sole), 0)
 		end
 		if st.stepFrom then
 			-- (D-1932) a step: from the old spot to where the dance has the foot now, lifted on the way
@@ -166,7 +167,10 @@ function ChoreoFeet.apply(character: Model, joints: {[string]: Joint}, active: b
 			local from = st.stepFrom :: Vector3
 			-- (D-1938, 2nd review of D-1937: half the step's length less the dance's own lift barely lifted it, 26 steps
 			-- dragged along the floor) the sole goes STEP_LIFT above the floor at the top, less what the dance already lifts it
-			st.stepLift = st.stepLift or math.max(0, STEP_LIFT - math.max(sole, 0))
+			-- (D-1940, 2nd review of D-1939: Lemonade 1:40.7 / BANG 2:52.6 the lift was worked out once, at the start, and the
+			-- dance lowered the foot during the step, so it still crossed 1.8 studs 0.1 above the floor) worked out every frame
+			-- from the real sole height: the capture often has the foot 0.1-0.26 below the floor (the lift ended 0.05 up)
+			st.stepLift = math.max(0, STEP_LIFT - sole)
 			T = Vector3.new(from.X + (A.X - from.X) * k, A.Y + liftShape(u) * (st.stepLift :: number), from.Z + (A.Z - from.Z) * k)
 			if u >= 1 then st.spot, st.stepFrom, st.stepT, st.stepLift = A, nil, nil, nil end
 		end
