@@ -790,7 +790,7 @@ def edit_spans(ctx, bctx):
         ea = np.nanmean([np.nanmean(ctx["GE"][g][a:b]) for g in GROUPS])
         eb = np.nanmean([np.nanmean(bctx["GE"][g][a:b]) for g in GROUPS])
         spans.append({"t0": round(float(ts[a]), 2), "t1": round(float(ts[min(b, len(ts) - 1)]), 2),
-                      "change": round(float(np.nanmax(d[a:b])), 1), "what": [w for f, w in why if f[a:b].any()],
+                      "change": round(float(np.nanmax(d[a:b])), 1) if np.isfinite(d[a:b]).any() else 0.0, "what": [w for f, w in why if f[a:b].any()],
                       "move": [round(float(np.mean(sb[a:b])), 0), round(float(np.mean(sa[a:b])), 0)],
                       "trv": [round(float(np.nanmax(tv(bctx)[a:b])), 2), round(float(np.nanmax(tv(ctx)[a:b])), 2)] if tv(ctx) is not None else None,
                       "before": None if np.isnan(eb) else round(float(eb), 1), "after": None if np.isnan(ea) else round(float(ea), 1)})
