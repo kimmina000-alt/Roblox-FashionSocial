@@ -85,6 +85,8 @@ Read `AGENTS.md` first (catalog UI rules). The user writes in Korean; report in 
 
 - 2026-11-19 (13): merged into `catalog-ui-redesign` (user asked: 2인 테스트 후 머지; server and both clients without script errors; Studio = git for ChoreoController / ChoreoFeet, ClubChoreo but for the final newline, ClubPlaylist but for Studio-only comment / line extras): `fix/trembles-1119` (D-1902..D-1908: 언빌리버블 0:09.8 walk out on the left-back diagonal with alternating steps and back again, new foot-planting IK ChoreoFeet + ChoreoFixes `plant`, ChoreoController walk `dir`; D-1906 BANG fileSpeed 1.0515 → 1.0500 so the choreography stays within 0.05 s of the video to the end), `fix/labs-bang-1119` (D-1864 BANG-After School / Magic-Secret lab values from the turntable lab; Magic-Secret fileSpeed 1.0502 as in Studio), `feat/park-shop-signs-1119` (D-1882 churros sign red, colpop orange; place change, the user must Ctrl+S). New work: branch off catalog-ui-redesign.
 
+- 2026-11-20: merged into `catalog-ui-redesign` (user's 2P windows; server and both clients without script errors; Studio = git but for ClubChoreo's final newline): `fix/trembles-1119` (D-1909 내 이름을 불러줘 stays in place off its path (67.6 → 6.9), 부기우기 0:37-0:41 feet planted while bending, plant contact height) and `feat/bumper-pedal-track-1119` (D-1883 ◀ ▶ steering buttons at the bottom left, the pedal at the right; checked by the park session on the phone view). D-number ranges: choreo edit 1930-1949. New work: branch off catalog-ui-redesign.
+
 ## Key docs
 - `docs/00_PROJECT/PLAYER_FEEDBACK.md`: real player reactions by date + improvement ideas. Add new reactions there (user, 2026-11-10).
 - `docs/00_PROJECT/DEVELOPMENT_ORDER.md`: build order.
