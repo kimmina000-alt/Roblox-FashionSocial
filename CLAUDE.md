@@ -89,6 +89,8 @@ Read `AGENTS.md` first (catalog UI rules). The user writes in Korean; report in 
 
 - 2026-11-20 (2): `fix/pose-shrug-1120` merged into `catalog-ui-redesign` (user asked: 머지해; tools / docs only, tools/choreo/describe): D-1921 the pose-text compare catches upper-arm shoulder shrugs (Boogie 0:10 / 0:17 / 0:47 found), D-1950 it counts chest pops (Boogie 1:26.1 / 1:26.6, no false hits). Pose-description session D-numbers: 1950-1959. New work: branch off catalog-ui-redesign.
 
+- 2026-11-20 (4): `fix/choreo-review-nan-1120` merged into `catalog-ui-redesign` by the choreo-analysis session (user asked there: 머지해; tools / docs only): D-1894 a one-line fix in the second-review tool + verdicts in DECISIONS: 언빌리버블 0:09.8 walk (D-1908) passes; BANG's fileSpeed change (D-1906) cannot be judged from poses (check the sound with record_loudness); 레모네이드 38 foot slides → 4 floor sweeps kept, 5 to plant, 27 to turn into steps (sent to the choreo edit session; fix/lemonade-unlock-1120 not merged yet). New work: branch off catalog-ui-redesign.
+
 ## Key docs
 - `docs/00_PROJECT/PLAYER_FEEDBACK.md`: real player reactions by date + improvement ideas. Add new reactions there (user, 2026-11-10).
 - `docs/00_PROJECT/DEVELOPMENT_ORDER.md`: build order.
