@@ -88,8 +88,43 @@ local function playThud(at: BasePart, speed: number)
 	game:GetService("Debris"):AddItem(s, 3)
 end
 
+-- (D-1829, a bumper car review the user sent: "충돌 시 시각 효과") a hard hit flashes at the contact point: a
+-- burst of sparks and stars and a quick light, bigger with the speed (each screen draws its own)
+local SPARK_MIN = 6 -- closing speed (studs/s) for the burst
+local function burst(at: Vector3, speed: number)
+	if speed < SPARK_MIN then return end
+	local p = Instance.new("Part")
+	p.Name = "BumpBurst"
+	p.Anchored, p.CanCollide, p.CanQuery, p.CanTouch, p.CastShadow = true, false, false, false, false
+	p.Transparency = 1
+	p.Size = Vector3.new(0.2, 0.2, 0.2)
+	p.CFrame = CFrame.new(at + Vector3.new(0, 1, 0))
+	p.Parent = workspace
+	local k = math.clamp(speed / 30, 0.3, 1)
+	local e = Instance.new("ParticleEmitter")
+	e.Enabled = false
+	e.Color = ColorSequence.new(Color3.fromRGB(255, 245, 170), Color3.fromRGB(255, 150, 60))
+	e.LightEmission = 1
+	e.Size = NumberSequence.new({ NumberSequenceKeypoint.new(0, 0.55 + k * 0.5), NumberSequenceKeypoint.new(1, 0) })
+	e.Lifetime = NumberRange.new(0.18, 0.4)
+	e.Speed = NumberRange.new(8 + k * 8, 14 + k * 12)
+	e.SpreadAngle = Vector2.new(180, 180)
+	e.Drag = 6
+	e.Rotation = NumberRange.new(0, 360)
+	e.RotSpeed = NumberRange.new(-360, 360)
+	e.Parent = p
+	e:Emit(math.floor(10 + 18 * k))
+	local light = Instance.new("PointLight")
+	light.Color = Color3.fromRGB(255, 220, 140)
+	light.Range = 10 + 8 * k
+	light.Brightness = 3
+	light.Parent = p
+	task.delay(0.12, function() light.Enabled = false end)
+	game:GetService("Debris"):AddItem(p, 1)
+end
+
 -- a hit at world point `at` with the push direction `n` (into this car) and closing speed
-local function kick(root: BasePart, at: Vector3, n: Vector3, speed: number)
+local function kick(root: BasePart, at: Vector3, n: Vector3, speed: number, noBurst: boolean?)
 	local w = wobbleOf(root)
 	local now = os.clock()
 	if now - w.lastHit < 0.25 then return end
@@ -101,6 +136,7 @@ local function kick(root: BasePart, at: Vector3, n: Vector3, speed: number)
 	w.vr += -nl.Z * k * C.WobbleFreq
 	w.vh += math.min(speed, 14) * C.WobbleHop * C.WobbleFreq
 	playThud(root, speed)
+	if not noBurst then burst(at, speed) end
 end
 
 local function stepWobble(w: Wobble, dt: number)
@@ -481,7 +517,7 @@ local function watchOthers()
 							local closing = -(flat(a.AssemblyLinearVelocity) - flat(b.AssemblyLinearVelocity)):Dot(n)
 							if closing > C.BumpSoundMin then
 								kick(a, y + n * B.r, n, closing)
-								kick(b, y + n * B.r, -n, closing)
+								kick(b, y + n * B.r, -n, closing, true) -- (one burst for the pair)
 							end
 						end
 					end

@@ -65,6 +65,7 @@ end
 -- random spot and heading on the floor (they stood in two rows in the south): at least SPREAD_GAP apart,
 -- SPREAD_EDGE in from the rails and clear of the south rail's two gaps (the way in and the way out)
 local SPREAD_EDGE, SPREAD_GAP, DOOR_CLEAR = 9, 15, 20
+local EMPTY_RETURN = 180 -- (D-1829) seconds an empty car waits before it goes back to its start spot
 local DOORS = { Vector2.new(-95, -645), Vector2.new(-148.5, -645) }
 local spreadRandom = Random.new()
 local placed: {Vector2} = {}
@@ -78,6 +79,8 @@ local function scatterSpot(fallback: Vector2): (Vector2, number)
 		for _, door in ipairs(DOORS) do
 			if (p - door).Magnitude < DOOR_CLEAR then ok = false break end
 		end
+		-- (D-1829) not on the track's row of cones in the infield (park_bumper_track_1119: z -702.5, x -204..-114)
+		if ok and math.abs(p.Y + 702.5) < 9 and p.X > -213 and p.X < -105 then ok = false end
 		for _, q in ipairs(placed) do
 			if not ok then break end
 			if (p - q).Magnitude < SPREAD_GAP then ok = false end
@@ -108,6 +111,12 @@ local function build(model: Model)
 	body.Anchored, body.CanCollide, body.CanQuery, body.CanTouch, body.Massless = false, false, false, false, true
 	body.CollisionGroup = CAR_GROUP
 	body.CFrame = base * CFrame.new(0, body.Size.Y / 2 - 0.5, 0)
+
+	-- (D-1829, a bumper car review the user sent: "무인 차량 초기화" must-have) a car left empty for
+	-- EMPTY_RETURN seconds goes back to the spot it started on (once nobody stands near it), so cars do not pile
+	-- up in a corner or sit on the track for good
+	local home = base
+	local leftAt = os.clock()
 
 	local root = Instance.new("Part")
 	root.Name = "BumperRoot"
@@ -255,6 +264,7 @@ local function build(model: Model)
 		else
 			setRider(riders[seat], false)
 			riders[seat], driver = nil, nil
+			leftAt = os.clock() -- (D-1829)
 			-- parked where it was left: flat on the floor, still
 			local cf = root.CFrame
 			local y = math.atan2(-cf.RightVector.Z, cf.RightVector.X)
@@ -275,6 +285,24 @@ local function build(model: Model)
 			end
 		end
 		refreshPrompt()
+	end)
+	-- (D-1829) the empty car back home after a while
+	task.spawn(function()
+		while model.Parent do
+			task.wait(10)
+			if root.Anchored and not seat.Occupant and not passengerSeat.Occupant
+				and os.clock() - leftAt > EMPTY_RETURN and (root.Position - home.Position).Magnitude > 3 then
+				local near = false
+				for _, p in ipairs(Players:GetPlayers()) do
+					local hrp = p.Character and p.Character:FindFirstChild("HumanoidRootPart")
+					if hrp and hrp:IsA("BasePart") and ((hrp.Position - root.Position).Magnitude < 14 or (hrp.Position - home.Position).Magnitude < 14) then
+						near = true
+						break
+					end
+				end
+				if not near then root.CFrame = home end
+			end
+		end
 	end)
 end
 
