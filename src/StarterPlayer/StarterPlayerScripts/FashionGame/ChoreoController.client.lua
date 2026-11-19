@@ -421,7 +421,12 @@ local function moveAlong(character: Model, joint: Motor6D | AnimationConstraint,
 			local before = lastWalk[t]
 			lastWalk[t] = done
 			if before and done > before and done - before < 0.5 then
-				local look = joint.Transform.LookVector
+				-- (D-1903) `dir` = degrees from the hips' facing, + to the dancer's left (180 = backward)
+				local turn = 0
+				for _, w in ipairs(if walk.from then { walk } else walk) do
+					if tp >= w.from and tp <= w.to then turn = w.dir or 0 end
+				end
+				local look = (joint.Transform * CFrame.Angles(0, math.rad(turn), 0)).LookVector
 				local flat = Vector3.new(look.X, 0, look.Z)
 				if flat.Magnitude > 0.1 then move += flat.Unit * (done - before) / math.max(travelScale, 0.3) end
 			end

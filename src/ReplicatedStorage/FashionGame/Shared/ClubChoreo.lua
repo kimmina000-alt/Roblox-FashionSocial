@@ -2849,7 +2849,10 @@ do
 	addList(132406634119258, "glide", { from = 3.05, to = 4.35 })
 	-- (Play: 1.5 studs with the glide alone; the video's 1.2 torso lengths are about 2.5) one more stud forward
 	-- (D-1902, 2nd review: the walk was 0.70 torso lengths against the video's 1.15 straight / 1.45 path; steps at 9.65 / 9.9 / 10.2)
-	addList(132406634119258, "walk", { from = 3.05, to = 4.35, dist = 2.0 })
+	-- (D-1903, 2nd review of D-1902: the walk pushed forward (along the hips) and undid the capture's leftward travel. Video
+	-- 9.07-10.37: left 0.93 + back 0.72 torso lengths; the capture alone: left 0.72, back 0.32 -> the rest, left 0.21 + back
+	-- 0.40 = 0.95 stud, 152° from the hips' facing toward the left)
+	addList(132406634119258, "walk", { from = 3.05, to = 4.35, dist = 0.95, dir = 152 })
 	do
 		local function stepKeys(t: number): any
 			return { { t - 0.14, 0, 0, 0 }, { t, 40, 0, 0 }, { t + 0.14, 0, 0, 0 } }
