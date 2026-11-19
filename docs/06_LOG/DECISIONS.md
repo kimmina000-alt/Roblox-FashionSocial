@@ -6403,3 +6403,9 @@ Studio only (no script yet).
   - 대문(일각문) 3: 북서 필지 남쪽 담(x 150..162), 북동 필지 서쪽 담(z 378..390), 남서 필지 북쪽 담(x 120..132). 담은 잘라 두 조각, 원본은 ParkedHanokBlocks.GateA/B/C_1119, 문 위 기와 2.6 올림, 기둥 · 인방 · 열린 문 두 짝 · 늘린 담 기와 지붕.
   - 청사초롱 74개(AI 메시 HanokVillageAssets.Lantern): 골목 담 위 나무 팔에 22 간격으로 양쪽 번갈아, 둘에 하나 빛.
 - AI 메시(ServerStorage.ArtAssets.HanokVillageAssets): Lantern, Onggi, OnggiSmall, PavilionRoof6, StoneBridge, PersimmonAutumn(납작하게 나와 다시 만들 예정).
+## D-1911 한옥 마을 2단계: 북서 필지 2층 한옥 (2026-11-19)
+- 사진 1(2층 한옥 + 아래 기와 처마 + 꽃담 + 나무 대문) · 은평한옥마을 2층 한옥. hanok_village_1119.lua TwoStoryHanok: 블록(138,374)은 그대로, 기단 3 + 남쪽 계단, 벽 키트 1층(높이 17, 남쪽 띠살문 2칸) · 아래 처마(네 면 24° 기와 경사판 hv_giwa 101329134095096 + 막새 줄 + 띠, 바깥 7) · 2층(창 칸들), 지붕(HanokRoof)은 그대로. 마당 돌 바닥(지형 잔디 비움), 대문 옆 회양목 2(AI Topiary), 담 위 붉은 장미(AI RoseBush).
+## D-1912 한옥 마을 3단계: 북동 필지 찻집 · 장독대 · 감나무 (2026-11-19)
+- 사진 3(들어열개 창 너머 경치를 보는 좌식 찻상) · 사진 5(장독대) · 사진 10(감나무 아래 의자). hanok_village_1119.lua TeaHouse: 블록(315,385)을 ParkedHanokBlocks.Part_315_385 로(지붕 그대로), 기단 + 서쪽 계단 · 경사로, 마당 쪽 가운데 두 칸 개방 + 들쇠에 걸어 올린 문짝 4, 나머지 회벽 · 빗살창, 실내 어두운 나무 바닥 · 서까래, 좌식 찻상 + 정원 다도세트 메시(주전자 · 잔) + 방석 3(앉기). 마당: 장독대 돌단(x 230..262, z 338..356) 위 옹기 26(AI Onggi / OnggiSmall), 감나무(AI PersimmonAutumn, 다시 만든 입체판) + 합판 의자 2(앉기) + 작은 탁자.
+- 마당 · 골목의 지형 잔디는 아래 칸(y -4..)까지 비워야 장식 풀이 판석 위로 안 솟음.
+- 사진: docs/06_LOG/images/2026-11-19/hanok_village_*.jpg. 감나무는 열매가 크고 만화풍이라 더 사실적인 것으로 바꿀 수 있음.

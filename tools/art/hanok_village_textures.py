@@ -37,3 +37,28 @@ if __name__ == "__main__":
     out = sys.argv[1]
     slabs().save(f"{out}/hv_slabs.png")
     print("ok")
+
+
+def giwa(S=512, n=8):
+    """hv_giwa.png: rows of round cover tiles (수키와) over concave tiles, for the lower eave skirt (photo 1)."""
+    img = Image.new("RGB", (S, S))
+    px = img.load()
+    import math
+    w = S / n
+    for x in range(S):
+        u = (x % w) / w  # 0..1 across one rib pair
+        if u < 0.42:  # round cover tile: bright centre, dark edges
+            t = math.sin(u / 0.42 * math.pi)
+            base = 70 + 70 * t
+        else:  # concave pan tile: dark trough
+            t = math.sin((u - 0.42) / 0.58 * math.pi)
+            base = 66 - 18 * t
+        for y in range(S):
+            seam = 1.0 if (y % 64) > 3 else 0.7  # tile overlap lines
+            g = base * seam
+            px[x, y] = (int(g), int(g + 3), int(g + 8))
+    return img.filter(ImageFilter.GaussianBlur(0.8))
+
+
+if __name__ == "__main__" and len(sys.argv) > 2 and sys.argv[2] == "giwa":
+    giwa().save(f"{sys.argv[1]}/hv_giwa.png")
