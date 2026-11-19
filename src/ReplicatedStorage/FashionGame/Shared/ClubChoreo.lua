@@ -2933,7 +2933,19 @@ do
 		addList(132406634119258, "pose", { from = A0 + 0.05 - 6.02, to = A1 + 0.45 - 6.02, ease = 0.12, keys = keys })
 		-- (D-1905, user: "발 고정(IK) 기능 만들기") what the leg turns above leave (0.17-0.35 torso lengths, Play; before the
 		-- walk the capture's own slide 8.6-9.2) is held by ChoreoFeet: the planted foot keeps its floor spot 8.6-10.8
-		addList(132406634119258, "plant", { from = 2.58, to = 5.2 })
+		-- (D-1908, 2nd review of D-1907: 10.4-12.0 the video walks back toward the camera lifting a foot 6 times; the game came back
+		-- as far but lifted once, so the held feet were dragged) the window to 12.0 and those six steps (left, right in turn)
+		addList(132406634119258, "plant", { from = 2.58, to = 5.98 })
+		do
+			local f = fx(132406634119258)
+			f.bend = if f.bend then table.clone(f.bend) else {}
+			for i, t in ipairs({ 10.75, 10.95, 11.2, 11.4, 11.55, 11.65 }) do
+				local side = if i % 2 == 1 then "Left" else "Right"
+				local h = if t > 11.5 then 0.06 else 0.09
+				table.insert(f.bend, { part = side .. "UpperLeg", keys = { { t - h - 6.02, 0, 0, 0 }, { t - 6.02, 30, 0, 0 }, { t + h - 6.02, 0, 0, 0 } } })
+				table.insert(f.bend, { part = side .. "LowerLeg", keys = { { t - h - 6.02, 0, 0, 0 }, { t - 6.02, -50, 0, 0 }, { t + h - 6.02, 0, 0, 0 } } })
+			end
+		end
 		-- (Play with the plant: the right foot never lifted 8.5-9.3 in the capture, so it was held until it was 1.2 studs
 		-- behind and jumped: one right step at 8.95 before the walk, one more at 10.64 after it)
 		do
