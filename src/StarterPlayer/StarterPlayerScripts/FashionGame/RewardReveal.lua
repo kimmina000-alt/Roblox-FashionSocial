@@ -127,14 +127,14 @@ function RewardReveal.show(kind: string)
 
 	-- the reward itself, gently bobbing
 	local show = create("Frame", {
-		Name = "Reward", AnchorPoint = Vector2.new(0.5, 0), Position = UDim2.new(0.5, 0, 0, 60), Size = UDim2.fromOffset(230, 172),
+		Name = "Reward", AnchorPoint = Vector2.new(0.5, 0), Position = UDim2.new(0.5, 0, 0, 64), Size = UDim2.fromOffset(230, 172),
 		BackgroundTransparency = 1, ZIndex = 3,
 	}, card)
 	local name, guide
 	if kind == "title" then
 		local plate = create("TextLabel", {
-			AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.fromScale(0.5, 0.5), Size = UDim2.fromOffset(220, 40),
-			BackgroundColor3 = Color3.fromRGB(40, 22, 12), BackgroundTransparency = 0.05, FontFace = BOLD, TextSize = 20,
+			AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.fromScale(0.5, 0.5), Size = UDim2.fromOffset(280, 54),
+			BackgroundColor3 = Color3.fromRGB(40, 22, 12), BackgroundTransparency = 0.05, FontFace = BOLD, TextSize = 27,
 			TextColor3 = Color3.fromRGB(255, 170, 90), Text = Config.TitleText, ZIndex = 4,
 		}, show)
 		corner(plate, 5)
@@ -159,11 +159,11 @@ function RewardReveal.show(kind: string)
 		guide = "오후네컷에 가서 확인해 보세요 📸"
 	end
 	create("TextLabel", {
-		Position = UDim2.fromOffset(12, 240), Size = UDim2.new(1, -24, 0, 26), BackgroundTransparency = 1, FontFace = BOLD, TextSize = 19,
+		Position = UDim2.fromOffset(12, 246), Size = UDim2.new(1, -24, 0, 26), BackgroundTransparency = 1, FontFace = BOLD, TextSize = 19,
 		TextColor3 = PINK, Text = name, TextScaled = true, ZIndex = 3,
 	}, card)
 	create("TextLabel", {
-		Position = UDim2.fromOffset(12, 268), Size = UDim2.new(1, -24, 0, 22), BackgroundTransparency = 1, FontFace = BOLD, TextSize = 15,
+		Position = UDim2.fromOffset(12, 274), Size = UDim2.new(1, -24, 0, 22), BackgroundTransparency = 1, FontFace = BOLD, TextSize = 15,
 		TextColor3 = INK, Text = guide, TextScaled = true, ZIndex = 3,
 	}, card)
 	local ok = create("TextButton", {
@@ -192,7 +192,7 @@ function RewardReveal.show(kind: string)
 	task.spawn(function()
 		local s0 = os.clock()
 		while gui.Parent and not closing do
-			show.Position = UDim2.new(0.5, 0, 0, 60 + math.sin((os.clock() - s0) * 2.4) * 4)
+			show.Position = UDim2.new(0.5, 0, 0, 64 + math.sin((os.clock() - s0) * 2.4) * 4)
 			task.wait()
 		end
 	end)
