@@ -87,6 +87,8 @@ Read `AGENTS.md` first (catalog UI rules). The user writes in Korean; report in 
 
 - 2026-11-20: merged into `catalog-ui-redesign` (user's 2P windows; server and both clients without script errors; Studio = git but for ClubChoreo's final newline): `fix/trembles-1119` (D-1909 내 이름을 불러줘 stays in place off its path (67.6 → 6.9), 부기우기 0:37-0:41 feet planted while bending, plant contact height) and `feat/bumper-pedal-track-1119` (D-1883 ◀ ▶ steering buttons at the bottom left, the pedal at the right; checked by the park session on the phone view). D-number ranges: choreo edit 1930-1949. New work: branch off catalog-ui-redesign.
 
+- 2026-11-20 (2): `fix/pose-shrug-1120` merged into `catalog-ui-redesign` (user asked: 머지해; tools / docs only, tools/choreo/describe): D-1921 the pose-text compare catches upper-arm shoulder shrugs (Boogie 0:10 / 0:17 / 0:47 found), D-1950 it counts chest pops (Boogie 1:26.1 / 1:26.6, no false hits). Pose-description session D-numbers: 1950-1959. New work: branch off catalog-ui-redesign.
+
 ## Key docs
 - `docs/00_PROJECT/PLAYER_FEEDBACK.md`: real player reactions by date + improvement ideas. Add new reactions there (user, 2026-11-10).
 - `docs/00_PROJECT/DEVELOPMENT_ORDER.md`: build order.
