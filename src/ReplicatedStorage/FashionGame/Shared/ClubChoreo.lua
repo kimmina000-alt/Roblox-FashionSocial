@@ -3108,4 +3108,39 @@ do
 	end
 end
 
+-- (D-1936, 2nd review of D-1935: BANG feet slid 1.4-1.5 studs at 2:14-2:17, the video steps there; rule "동선 아니면 자기 자리,
+-- 디딘 발 미끄러지면 안 됨" for the whole song) formation moves (the followed centre 0.6+ body heights in 1.5 s): 0:06.5-0:09.3,
+-- 0:30.5-0:33.3, 0:35-0:37.5, 0:50.8-0:52.3, 1:18-1:19.8, 2:07.3-2:12.5, 2:14-2:16.5, 2:40-2:41.5, 2:46-2:47.5, 2:50.3-2:52.5,
+-- 2:58.8-3:00.8; everything else `still`, every piece `plant` (contact 0.45; a foot the dance carries off is stepped)
+do
+	local function addList(id: number, key: string, item: any)
+		local f = (M.ChoreoFixes[id] or {}) :: any
+		M.ChoreoFixes[id] = f
+		local list = if f[key] == nil then {} elseif f[key].from then { f[key] } else table.clone(f[key])
+		table.insert(list, item)
+		f[key] = list
+	end
+	for id, wins in {
+		[84153374890352] = { { 1.81, 15.00 } },
+		[137056236927761] = { { 0.00, 8.66 }, { 11.81, 13.16 } },
+		[105204020323017] = { { 0.00, 0.75 }, { 3.65, 14.80 } },
+		[120933576855785] = { { 0.00, 2.70 }, { 4.60, 13.99 } },
+		[102971667388731] = { { 0.00, 7.88 } },
+		[103181529138741] = { { 0.00, 10.08 } },
+		[117412778868520] = { { 1.27, 12.18 } },
+		[91956738526101] = { { 0.00, 10.74 } },
+		[71518245203286] = { { 0.00, 14.25 } },
+		[88337047994676] = { { 0.00, 11.66 } },
+		[122763589970816] = { { 0.00, 3.54 }, { 9.19, 10.29 } },
+		[114991184702089] = { { 2.47, 14.62 } },
+		[133693971779949] = { { 0.00, 11.95 }, { 13.85, 14.99 } },
+		[129925869461594] = { { 0.00, 3.96 }, { 5.86, 8.21 }, { 10.86, 14.13 } },
+		[73991603786553] = { { 0.00, 3.58 }, { 5.98, 12.88 } },
+		[73314859778019] = { { 0.00, 21.00 } },
+	} do
+		for _, w in ipairs(wins) do addList(id, "still", { from = w[1], to = w[2] }) end
+		addList(id, "plant", { from = 0, to = 99, contact = 0.45 })
+	end
+end
+
 return M
