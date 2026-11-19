@@ -79,6 +79,8 @@ Read `AGENTS.md` first (catalog UI rules). The user writes in Korean; report in 
 
 - 2026-11-19 (10): `fix/choreo-review-tws-1119` merged into `catalog-ui-redesign` by the choreo-analysis session (user asked there: 머지해; tools / docs only): D-1892 review tool run on TWS and improved; the D-1864 edits got closer (0:48 54° → 49°, 1:45 50° → 30°), 0:48 torso / head still about 30% of the original's movement; results in tools/choreo/describe_out/TWS/2차검토/. New work: branch off catalog-ui-redesign.
 
+- 2026-11-19 (11): `fix/choreo-review-gaps-1119` merged into `catalog-ui-redesign` by the choreo-analysis session (user asked there: 머지해; tools / docs only): D-1893 review tool gap handling; the second review of the 5 songs edited on fix/trembles-1119 passed (Boogie re-recorded 0:16-0:19 / 2:48-2:51). User 2026-11-19 on the two held spots: "원본처럼" (언빌리버블 0:09.8 walks like the original, 갑자기 0:10 head tilt like the original) → choreo edit session, D-1901~. New work: branch off catalog-ui-redesign.
+
 ## Key docs
 - `docs/00_PROJECT/PLAYER_FEEDBACK.md`: real player reactions by date + improvement ideas. Add new reactions there (user, 2026-11-10).
 - `docs/00_PROJECT/DEVELOPMENT_ORDER.md`: build order.
