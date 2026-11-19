@@ -173,7 +173,7 @@ end
 
 ---------------------------------------------------------------- the pedal
 -- (D-1826, user 2026-11-19: "범퍼카 가운데 하단에 페달 넣자. 이거 눌러야 앞으로 가는 걸로") like a real bumper car the
--- car goes only while the pedal is down: a pedal at the bottom middle of the screen (held with a finger or
+-- car goes only while the pedal is down: a pedal at the bottom of the screen (bottom right since D-1881) (held with a finger or
 -- the mouse; on a keyboard W / ↑ press it too). The stick (A / D, or the camera way) only turns the wheel;
 -- the pedal alone drives straight on. Only the driver sees it.
 local playerGui = player:WaitForChild("PlayerGui")
@@ -261,30 +261,24 @@ local function keyPedal(): boolean
 	return UserInputService:IsKeyDown(Enum.KeyCode.W) or UserInputService:IsKeyDown(Enum.KeyCode.Up)
 		or UserInputService:IsKeyDown(Enum.KeyCode.S) or UserInputService:IsKeyDown(Enum.KeyCode.Down)
 end
--- over the item bar (and the ride bar's buttons) at the bottom middle
+-- (D-1881, user 2026-11-19: "페달 위치 왼쪽이 나을까 중앙이 나을까" → "응 오른쪽으로 옮겨") bottom right, under the right
+-- thumb (the left one steers with the stick), like a racing game's gas pedal; on phones just left of the jump
+-- button with a clear gap (a jump gets you out of the car), bottoms level; bigger there for a long press
+local PEDAL_GAP = 28
 local function placePedal()
-	local low = if UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled then 24 else 110
-	for _, name in ipairs({ "FashionHotbar", "ParkRideGui" }) do
-		local g = playerGui:FindFirstChild(name)
-		if g and g:IsA("ScreenGui") and g.Enabled then
-			local screenH = g.AbsoluteSize.Y
-			for _, o in ipairs(g:GetDescendants()) do
-				if o:IsA("GuiObject") and o.Visible and o.AbsoluteSize.Y > 0 and o.AbsoluteSize.Y < screenH * 0.4
-					and o.AbsolutePosition.Y > screenH * 0.6 and o.AbsolutePosition.Y < screenH
-					and math.abs(o.AbsolutePosition.X + o.AbsoluteSize.X / 2 - g.AbsoluteSize.X / 2) < o.AbsoluteSize.X / 2 + 40 then
-					local top = o.AbsolutePosition.Y
-					local p = o.Parent
-					local shown = true
-					while p and p ~= g do
-						if p:IsA("GuiObject") and not p.Visible then shown = false break end
-						p = p.Parent
-					end
-					if shown then low = math.max(low, math.ceil(screenH - top) + 10) end
-				end
-			end
-		end
+	local touch = UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled
+	pedal.Size = if touch then UDim2.fromOffset(86, 116) else UDim2.fromOffset(74, 100)
+	pedal.AnchorPoint = Vector2.new(1, 1)
+	local touchGui = playerGui:FindFirstChild("TouchGui")
+	local jump = touchGui and touchGui:FindFirstChild("JumpButton", true)
+	if jump and jump:IsA("GuiObject") and jump.Visible and jump.AbsoluteSize.X > 0 then
+		-- (both guis leave out the top bar inset in AbsolutePosition: the same space as this offset)
+		local x = jump.AbsolutePosition.X - PEDAL_GAP
+		local bottom = jump.AbsolutePosition.Y + jump.AbsoluteSize.Y
+		pedal.Position = UDim2.fromOffset(x, bottom)
+	else
+		pedal.Position = UDim2.new(1, -40, 1, -(if touch then 30 else 110))
 	end
-	pedal.Position = UDim2.new(0.5, 0, 1, -low)
 end
 
 local function forwardOf(yaw: number): Vector3
