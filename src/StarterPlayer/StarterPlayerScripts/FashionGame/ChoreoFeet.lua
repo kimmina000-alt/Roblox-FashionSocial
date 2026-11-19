@@ -18,7 +18,7 @@ local STEP_TIME = 0.3 -- (D-1939: was 0.2; the sideways move now takes only its 
 -- (D-1937: was 0.6 on top of the dance's own foot height, which folded the knee 30-60 degrees; D-1938: the sole clears
 -- the floor by this much at the top of a step, nothing added where the dance already lifts it that high)
 local STEP_LIFT = 0.3
-local KNEE_MORE = 20 -- (D-1937) degrees the hold may bend the knee past the dance's own
+local KNEE_MORE = 15 -- (D-1937) degrees the hold may bend the knee past the dance's own (D-1941: was 20, BANG legs 4 degrees off)
 
 -- (D-1939, 2nd review of D-1938: BANG 1:48.3 the foot went 0.6 studs sideways with the heel 0.1 above the floor, at the
 -- start and the end of a step, where a sine lift is still low) a step / a carried foot goes up first (the first quarter),
@@ -27,8 +27,10 @@ local function liftShape(u: number): number
 	local a = math.clamp(math.min(u, 1 - u) / 0.25, 0, 1)
 	return a * a * (3 - 2 * a)
 end
+-- (D-1941: a long step crossed 1.7 studs in one 0.05 s sample over the middle half; now the middle 70 %, where the
+-- sole is already 0.19+ up)
 local function midMove(u: number): number
-	local h = math.clamp((u - 0.25) / 0.5, 0, 1)
+	local h = math.clamp((u - 0.15) / 0.7, 0, 1)
 	return h * h * (3 - 2 * h)
 end
 
