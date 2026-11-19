@@ -71,7 +71,7 @@ def followed(folder, video):
         T["members"] = doc["members"]
     T["video"] = video
     print("following the centercut dancer (once per folder)...", file=sys.stderr)
-    chosen, _, _ = cc.choose(T, doc["cuts"], argparse.Namespace(conf=0.35))
+    chosen, _, _ = cc.choose(T, doc["cuts"], argparse.Namespace(conf=0.35, exclude_dark=0.6, dark_gap=0.35))  # (centercut.py defaults)
     out = [{"box": [round(v, 1) for v in p["box"]]} if p else None for p in chosen]
     json.dump(out, open(cache, "w", encoding="utf-8"))
     return out, T["meta"]["fps"]
