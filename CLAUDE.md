@@ -75,6 +75,8 @@ Read `AGENTS.md` first (catalog UI rules). The user writes in Korean; report in 
 
 - 2026-11-19 (8): `feat/choreo-review-1119` merged into `catalog-ui-redesign` by the choreo-analysis session (user asked there: 머지해; tools only, no Studio change): D-1890 second-pass choreo review tool, tools/choreo/review/choreo_review.py + viewer.html (per-part angles vs the original video, beat timing in ms, hits, bounce, 4-view overlay, --before for before/after). D-number range of that session: 1890-1899. New work: branch off catalog-ui-redesign.
 
+- 2026-11-19 (9): merged into `catalog-ui-redesign` (user's 2P windows; server and both clients without script errors): `feat/trash-treasure-1119` (D-1920 trash cans get a real item now and then: every 15 min, 30% per can, 1 per can at most, a coin-priced drink / ice cream / bread of BeachCafe / HanokCafe / IceCream (22 items) made by SnackService.MakeTool; 2P: put one in, Player1 took it into the bag), `feat/3d-hanok-village-1119` (3D session, D-1910..D-1915: alleys + 청사초롱 + gates, a two-storey hanok, tea house / 장독대 / persimmon tree, modern courtyard, pond with a hexagonal pavilion and stone bridge, mountain backdrop; place-only Workspace.HanokVillage, pond terrain, ArtAssets.HanokVillageAssets: the user must Ctrl+S; two new mesh assets still "being generated" in the 2P log), `fix/coldspark-top-1119` (D-1812 cold spark / DJ fireworks notices at the top, 20 px, blinking; D-1813 yellow (the support notice stays red at the bottom); the yellow change was not in the 2P run). New work: branch off catalog-ui-redesign.
+
 ## Key docs
 - `docs/00_PROJECT/PLAYER_FEEDBACK.md`: real player reactions by date + improvement ideas. Add new reactions there (user, 2026-11-10).
 - `docs/00_PROJECT/DEVELOPMENT_ORDER.md`: build order.
