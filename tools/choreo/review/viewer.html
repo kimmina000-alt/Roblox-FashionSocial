@@ -1,0 +1,472 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>안무 검토 — __TITLE__</title>
+<style>
+:root{--bg:#111316;--panel:#1a1d22;--line:#2a2f37;--text:#e6e8eb;--dim:#9aa3ad;--video:#e8eef5;--vl:#5aa9ff;--vr:#ff6b6b;--game:#ffc93c;--bad:#ff3cac;--ok:#3ddc84;--warn:#ffa53c}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:13px/1.45 "Malgun Gothic","Apple SD Gothic Neo",system-ui,sans-serif}
+header{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;padding:8px 14px;border-bottom:1px solid var(--line);background:var(--panel)}
+header h1{font-size:16px;margin:0 8px 0 0}
+.chip{padding:2px 8px;border-radius:10px;background:#252a31;color:var(--dim);white-space:nowrap}
+.chip b{color:var(--text);font-weight:600}
+#main{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr) 340px;gap:8px;padding:8px;height:calc(100vh - 300px);min-height:430px}
+.box{background:var(--panel);border:1px solid var(--line);border-radius:8px;position:relative;overflow:hidden;min-height:0}
+#stage{display:flex;flex-direction:column}
+#vwrap{position:relative;flex:1;min-height:0;background:#000}
+#vwrap video,#vwrap canvas{position:absolute;inset:0;width:100%;height:100%}
+#vwrap video{object-fit:contain}
+#nov{position:absolute;inset:0;display:none;align-items:center;justify-content:center;flex-direction:column;gap:8px;color:var(--dim);text-align:center;padding:20px}
+#controls{display:flex;flex-wrap:wrap;gap:6px;align-items:center;padding:6px 8px;border-top:1px solid var(--line)}
+button,select{background:#262b33;color:var(--text);border:1px solid #363c46;border-radius:6px;padding:3px 9px;font:inherit;cursor:pointer}
+button:hover{background:#30363f}
+button.on{background:#3b4a2e;border-color:#6c8f45}
+#clock{font-variant-numeric:tabular-nums;font-weight:600;min-width:118px}
+label.tg{display:flex;gap:4px;align-items:center;color:var(--dim);cursor:pointer}
+#views{display:grid;grid-template-rows:1fr 1fr;grid-template-columns:1fr 1fr;gap:6px;padding:6px}
+#views .vp{position:relative;background:#0c0e11;border-radius:6px;overflow:hidden;min-height:0}
+#views .vp canvas{width:100%;height:100%;display:block;cursor:grab}
+#views .vp span{position:absolute;left:6px;top:4px;color:var(--dim);font-size:12px;pointer-events:none}
+#now{padding:6px 8px;overflow:auto;font-size:12px}
+#now .bar{display:grid;grid-template-columns:52px 1fr 40px;gap:6px;align-items:center;margin:2px 0}
+#now .bar i{display:block;height:8px;border-radius:4px;background:#2a3038;position:relative;overflow:hidden}
+#now .bar i u{position:absolute;left:0;top:0;bottom:0;border-radius:4px}
+#now .bar i s{position:absolute;top:-2px;bottom:-2px;width:2px;background:#fff6}
+#list{display:flex;flex-direction:column}
+#filters{display:flex;flex-wrap:wrap;gap:4px;padding:6px;border-bottom:1px solid var(--line)}
+#filters button{padding:1px 7px;font-size:12px}
+#items{overflow:auto;flex:1}
+.it{padding:6px 8px;border-bottom:1px solid var(--line);cursor:pointer}
+.it:hover{background:#20252c}
+.it.cur{background:#26303a;box-shadow:inset 3px 0 0 var(--game)}
+.it .h{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.it .k{padding:0 6px;border-radius:8px;font-size:11px;color:#111;font-weight:700}
+.it .t{color:var(--dim);font-variant-numeric:tabular-nums}
+.it .x{margin-top:2px}
+.it .hint{color:var(--dim);font-size:11.5px}
+.it select{font-size:11px;padding:0 4px;margin-left:auto}
+.it.v-true{opacity:1}.it.v-false{opacity:.45}
+#tlwrap{padding:0 8px 8px}
+#tlz,#tlo{width:100%;display:block;height:300px;background:var(--panel);border:1px solid var(--line);border-radius:8px;cursor:pointer}
+#tlo{margin-top:6px;height:70px}
+#help{color:var(--dim);font-size:11.5px;padding:4px 2px}
+.legend{display:inline-flex;gap:4px;align-items:center;margin-right:10px}
+.sw{display:inline-block;width:14px;height:3px;border-radius:2px}
+@media (max-width:1100px){#main{grid-template-columns:1fr;height:auto}#vwrap{height:56vw}#views{height:520px}#list{height:420px}}
+</style>
+</head>
+<body>
+<header>
+  <h1 id="title"></h1>
+  <span id="chips" style="display:contents"></span>
+</header>
+<div id="main">
+  <section class="box" id="stage">
+    <div id="vwrap">
+      <video id="vid" preload="auto" playsinline></video>
+      <canvas id="ov"></canvas>
+      <div id="nov"><div>원본 영상을 못 열었습니다. 뼈대만 보여 줍니다.</div><div id="novpath" style="font-size:11px"></div>
+        <label><button onclick="document.getElementById('vfile').click()">영상 파일 직접 열기</button></label>
+        <input type="file" id="vfile" accept="video/*" style="display:none"></div>
+    </div>
+    <div id="controls">
+      <button id="bplay" title="Space">▶</button>
+      <span id="clock">0:00.00</span>
+      <button data-step="-1" title="←">◀ 1프레임</button><button data-step="1" title="→">1프레임 ▶</button>
+      <select id="rate" title="[ / ]"><option value="1">1배</option><option value="0.5" selected>0.5배</option><option value="0.25">0.25배</option><option value="0.1">0.1배</option></select>
+      <button id="bloop" title="L">구간 반복</button>
+      <label class="tg"><input type="checkbox" id="cGame" checked>게임 겹치기</label>
+      <label class="tg"><input type="checkbox" id="cVid" checked>원본 뼈대</label>
+      <label class="tg" title="게임 뼈대를 원본 몸 방향에 맞춰 겹침(팔·다리 모양 비교). 끄면 게임이 실제로 향한 방향 그대로."><input type="checkbox" id="cAlign" checked>방향 맞춤</label>
+      <label class="tg" title="원본 멤버를 따라가며 크게 (Z)"><input type="checkbox" id="cZoom" checked>따라 확대</label>
+      <label class="tg"><input type="checkbox" id="cDim">영상 어둡게</label>
+    </div>
+  </section>
+  <section class="box" style="display:flex;flex-direction:column">
+    <div id="views" style="flex:1;min-height:0">
+      <div class="vp"><canvas id="p0"></canvas><span>정면</span></div>
+      <div class="vp"><canvas id="p1"></canvas><span>오른쪽 옆</span></div>
+      <div class="vp"><canvas id="p2"></canvas><span>왼쪽 옆</span></div>
+      <div class="vp"><canvas id="p3"></canvas><span>위에서</span></div>
+    </div>
+    <div id="now"></div>
+  </section>
+  <aside class="box" id="list">
+    <div id="filters"></div>
+    <div id="items"></div>
+    <div style="padding:6px;border-top:1px solid var(--line);display:flex;gap:6px;flex-wrap:wrap">
+      <button id="bexport" title="'진짜'로 표시한 것만 글로 복사">판정 복사</button>
+      <span id="vcount" style="color:var(--dim);align-self:center"></span>
+    </div>
+  </aside>
+</div>
+<div id="tlwrap">
+  <canvas id="tlz" height="300"></canvas>
+  <canvas id="tlo" height="70"></canvas>
+  <div id="help">
+    <span class="legend"><span class="sw" style="background:var(--video)"></span>원본</span>
+    <span class="legend"><span class="sw" style="background:var(--game)"></span>게임</span>
+    <span class="legend"><span class="sw" style="background:var(--bad)"></span>기준 넘은 부위</span>
+    ▲ 원본 hit(빠르게 가다 딱 멈춤) ▼ 게임 hit, 잇는 선 색 = 차이(초록 ±60ms · 주황 ±120ms · 빨강 그 이상), ✕ 게임에 없음, ◆ 게임에만.
+    세로 흰 선 = 음악 박. 키: Space 재생 · ←/→ 1프레임 · Shift+←/→ 1초 · [ ] 속도 · L 반복 · N/P 다음/이전 항목 · 휠 = 타임라인 확대.
+    뷰 창은 끌어서 돌리고 두 번 누르면 원래대로.
+  </div>
+</div>
+<script>
+const D = /*__DATA__*/null;
+const $ = s => document.querySelector(s);
+const F = D.frames, N = F.t.length, ST = D.step, T0 = F.t[0], T1 = F.t[N - 1];
+const NM = D.names, NI = {}; NM.forEach((n, i) => NI[n] = i);
+const G = D.groups, THR = D.thr;
+const KIND = {"모양":"#ff8a65","방향":"#ba68c8","늦음":"#4fc3f7","빠름":"#81d4fa","hit 빠짐":"#ffd54f","게임만 hit":"#f06292","멈춤":"#e57373","작음":"#a1887f","과함":"#ce93d8","바운스":"#aed581"};
+const BONES = [["lsho","rsho"],["lsho","lelb"],["lelb","lwri"],["rsho","relb"],["relb","rwri"],["lsho","lhip"],["rsho","rhip"],["lhip","rhip"],
+  ["lhip","lkne"],["lkne","lank"],["rhip","rkne"],["rkne","rank"],["lank","ltoe"],["rank","rtoe"],["lwri","lhand"],["rwri","rhand"],["SHO","EAR"],["EAR","nose"]];
+const side = n => n[0] === "l" ? "L" : (n[0] === "r" ? "R" : "C");
+const STORE = "choreo-review:" + D.title;
+let verdict = {}; try { verdict = JSON.parse(localStorage.getItem(STORE) || "{}"); } catch (e) {}
+const saveV = () => { try { localStorage.setItem(STORE, JSON.stringify(verdict)); } catch (e) {} };
+const ft = t => { const s = t < 0 ? "-" : ""; t = Math.abs(t); const m = Math.floor(t / 60); return s + m + ":" + (t - m * 60).toFixed(2).padStart(5, "0"); };
+const ft1 = t => { const m = Math.floor(t / 60); return m + ":" + (t - m * 60).toFixed(1).padStart(4, "0"); };
+const idxAt = t => Math.max(0, Math.min(N - 1, Math.round((t - T0) / ST)));
+
+// ---------- header
+$("#title").textContent = D.title;
+(() => {
+  const s = D.summary, h = s.hits, c = [];
+  if (s.lag_overall != null) c.push(`전체 박자 <b>${s.lag_overall >= 0 ? "+" : ""}${Math.round(s.lag_overall * 1000)}ms</b>`);
+  if (h.matched) c.push(`hit 짝 <b>${h.matched}/${h.video}</b> · 중앙값 <b>${h.median_ms >= 0 ? "+" : ""}${h.median_ms}ms</b> · ±60ms <b>${Math.round(h.within60 * 100)}%</b>`);
+  if (s.beat) c.push(`<b>${s.beat.bpm}</b> BPM · 박 위 hit 원본 <b>${Math.round((s.beat.video_on || 0) * 100)}%</b> / 게임 <b>${Math.round((s.beat.game_on || 0) * 100)}%</b>`);
+  if (s.before) c.push(`편집 후 새 항목 <b>${D.issues.filter(x => x.new).length}</b> · 고쳐진 항목 <b>${s.before.gone.length}</b>`);
+  c.push(`원본 인식 <b>${Math.round(s.seen * 100)}%</b>`, s.mirror ? "<b>거울</b>로 비교" : "좌우 그대로", `항목 <b>${D.issues.length}</b>`);
+  $("#chips").innerHTML = c.map(x => `<span class="chip">${x}</span>`).join("");
+})();
+
+// ---------- clock (video or a plain timer)
+const vid = $("#vid");
+let haveVideo = false, timerT = T0, timerPlay = false, timerLast = 0, rate = 0.5, loop = null;
+function videoURL(p) { return "file:///" + p.replace(/\\/g, "/").split("/").map(encodeURIComponent).join("/").replace(/^([A-Za-z])%3A/, "$1:"); }
+const qv = new URLSearchParams(location.search).get("video");  // ?video=<url> opens another copy (e.g. served over http)
+if (qv) vid.src = qv; else if (D.video) { vid.src = videoURL(D.video); }
+if (D.video) $("#novpath").textContent = D.video;
+let pending = null;
+vid.addEventListener("loadedmetadata", () => { haveVideo = true; $("#nov").style.display = "none"; vid.playbackRate = rate; seek(pending ?? T0 + 0.01); pending = null; });
+vid.addEventListener("error", () => { haveVideo = false; $("#nov").style.display = "flex"; });
+if (!D.video) $("#nov").style.display = "flex";
+$("#vfile").addEventListener("change", e => { const f = e.target.files[0]; if (f) vid.src = URL.createObjectURL(f); });
+const now = () => haveVideo ? vid.currentTime + D.off : timerT;
+const playing = () => haveVideo ? !vid.paused : timerPlay;
+function seek(t) { t = Math.max(T0, Math.min(T1, t)); if (haveVideo) vid.currentTime = Math.max(0, t - D.off); else { timerT = t; pending = t; } }
+function play(on) { if (haveVideo) { on ? vid.play() : vid.pause(); } else { timerPlay = on; timerLast = performance.now(); } $("#bplay").textContent = on ? "⏸" : "▶"; }
+function setRate(r) { rate = r; vid.playbackRate = r; $("#rate").value = String(r); }
+$("#bplay").onclick = () => play(!playing());
+$("#rate").onchange = e => setRate(+e.target.value);
+document.querySelectorAll("[data-step]").forEach(b => b.onclick = () => { play(false); seek(now() + (+b.dataset.step) / 30); });
+$("#bloop").onclick = () => { if (loop) loop = null; else loop = [now() - 1, now() + 1]; $("#bloop").classList.toggle("on", !!loop); };
+
+// ---------- video overlay
+const ov = $("#ov"), oc = ov.getContext("2d");
+const cam2 = {x: 0, y: 0, h: 0, t: null};
+function fit(c) { const r = c.getBoundingClientRect(), d = devicePixelRatio || 1; if (c.width !== Math.round(r.width * d) || c.height !== Math.round(r.height * d)) { c.width = Math.round(r.width * d); c.height = Math.round(r.height * d); } return d; }
+function rotY(p, y) { // body (left, up, fwd) -> camera (x right, y up), dancer yaw y (deg, 0 = facing the camera)
+  const a = y * Math.PI / 180, F = [Math.sin(a), 0, Math.cos(a)], X = [Math.cos(a), 0, -Math.sin(a)];
+  return [X[0] * p[0] + F[0] * p[2], p[1], X[2] * p[0] + F[2] * p[2]];
+}
+function pt(arr, i) { return arr ? [arr[i * 3], arr[i * 3 + 1], arr[i * 3 + 2]] : null; }
+function badSegs(i) { // bone key -> over threshold
+  const e = F.e[i], out = {};
+  const grp = {"lsho-lelb":0,"lelb-lwri":0,"rsho-relb":1,"relb-rwri":1,"lwri-lhand":2,"rwri-rhand":3,"lhip-lkne":4,"lkne-lank":4,"rhip-rkne":5,"rkne-rank":5,"SHO-EAR":7,"EAR-nose":7,"lsho-rsho":6};
+  for (const k in grp) { const g = grp[k]; if (e[g] != null && e[g] > THR[g]) out[k] = true; }
+  return out;
+}
+function drawOverlay(i) {
+  const d = fit(ov); oc.setTransform(1, 0, 0, 1, 0, 0); oc.clearRect(0, 0, ov.width, ov.height);
+  const W = ov.width, H = ov.height;
+  if ($("#cDim").checked) { oc.fillStyle = "rgba(0,0,0,.45)"; oc.fillRect(0, 0, W, H); }
+  const img = F.img[i];
+  let vw = vid.videoWidth, vh = vid.videoHeight;
+  if (!haveVideo || !vw) { vw = 1920; vh = 1080; oc.fillStyle = "#000"; oc.fillRect(0, 0, W, H); }
+  // view window in video pixels: the whole frame, or a box that follows the dancer (eased so it does not shake)
+  let vx0 = 0, vy0 = 0, vww = vw, vhh = vh;
+  const zoom = $("#cZoom").checked;
+  vid.style.opacity = zoom && haveVideo ? 0 : 1;
+  if (zoom) {
+    if (img && F.sc[i] && img[NI.lhip] != null && img[NI.rhip] != null) {
+      const cx = (img[NI.lhip] + img[NI.rhip]) / 2, cy = (img[NI.lhip + 19] + img[NI.rhip + 19]) / 2 - F.sc[i] * 0.35, hh = F.sc[i] * 4.6;
+      const k = cam2.t != null && Math.abs(cam2.t - i) < 3 ? 0.18 : 1;
+      cam2.x += (cx - cam2.x) * k; cam2.y += (cy - cam2.y) * k; cam2.h += (hh - cam2.h) * k; cam2.t = i;
+    }
+    if (cam2.h > 0) { vhh = Math.min(vh, cam2.h); vww = vhh * W / H; vx0 = cam2.x - vww / 2; vy0 = cam2.y - vhh / 2; }
+  }
+  const s = Math.min(W / vww, H / vhh), ox = (W - vww * s) / 2 - vx0 * s, oy = (H - vhh * s) / 2 - vy0 * s;
+  if (zoom && haveVideo && vw) { oc.fillStyle = "#000"; oc.fillRect(0, 0, W, H); try { oc.drawImage(vid, 0, 0, vw, vh, ox, oy, vw * s, vh * s); } catch (e) {} if ($("#cDim").checked) { oc.fillStyle = "rgba(0,0,0,.45)"; oc.fillRect(0, 0, W, H); } }
+  const P = (x, y) => [ox + x * s, oy + y * s];
+  if (!img) { oc.fillStyle = "#fff8"; oc.font = `${14 * d}px sans-serif`; oc.fillText("원본: 이 순간 사람을 못 읽음 / 카메라 컷", 12 * d, 22 * d); return; }
+  const n = NM.length, ix = k => img[NI[k]], iy = k => img[19 + NI[k]];
+  const has = k => NI[k] < 19 && img[NI[k]] != null;
+  // game, laid over the video dancer
+  const hx = (ix("lhip") + ix("rhip")) / 2, hy = (iy("lhip") + iy("rhip")) / 2, sc = F.sc[i];
+  if ($("#cGame").checked && sc && has("lhip") && has("rhip")) {
+    const g = F.g[i], mir = D.mirror;
+    const yv = F.yv[i] != null ? (mir ? -F.yv[i] : F.yv[i]) : null;
+    const yg = mir ? -(F.yg[i] + D.cam) : (F.yg[i] + D.cam);
+    const y = $("#cAlign").checked && yv != null ? yv : yg;
+    const bad = badSegs(i), Q = {};
+    for (const k of NM) {
+      let kk = k; if (mir && (k[0] === "l" || k[0] === "r") && NI[(k[0] === "l" ? "r" : "l") + k.slice(1)] != null) kk = (k[0] === "l" ? "r" : "l") + k.slice(1);
+      const p = pt(g, NI[kk]); if (!p || p[0] == null) continue;
+      const c = rotY([mir ? -p[0] : p[0], p[1], p[2]], y);
+      Q[k] = P(hx + sc * c[0], hy - sc * c[1]);
+    }
+    oc.lineCap = "round";
+    for (const [a, b] of BONES) {
+      if (!Q[a] || !Q[b]) continue;
+      // which game bone is bad: in mirror mode the drawn left is the game's right
+      let ka = a, kb = b; if (mir) { const sw = k => (k[0] === "l" ? "r" + k.slice(1) : k[0] === "r" ? "l" + k.slice(1) : k); ka = sw(a); kb = sw(b); }
+      const isBad = bad[ka + "-" + kb] || bad[kb + "-" + ka];
+      oc.strokeStyle = isBad ? "#ff3cacdd" : "#ffc93ccc"; oc.lineWidth = (isBad ? 6 : 4) * d;
+      oc.beginPath(); oc.moveTo(...Q[a]); oc.lineTo(...Q[b]); oc.stroke();
+    }
+    if (Q.nose) { oc.fillStyle = "#ffc93c"; oc.beginPath(); oc.arc(...Q.nose, 4 * d, 0, 7); oc.fill(); }
+  }
+  if ($("#cVid").checked) {
+    oc.lineWidth = 2 * d;
+    for (const [a, b] of BONES) {
+      if (!has(a) || !has(b)) continue;
+      const sd = side(a) === side(b) ? side(a) : "C";
+      oc.strokeStyle = sd === "L" ? "#5aa9ff" : sd === "R" ? "#ff6b6b" : "#e8eef5";
+      oc.beginPath(); oc.moveTo(...P(ix(a), iy(a))); oc.lineTo(...P(ix(b), iy(b))); oc.stroke();
+    }
+    for (const k of ["lwri", "rwri", "nose"]) if (has(k)) { oc.fillStyle = "#fff"; oc.beginPath(); oc.arc(...P(ix(k), iy(k)), 3 * d, 0, 7); oc.fill(); }
+  }
+}
+
+// ---------- 3D views
+const VIEWS = [{y: 0, p: 8}, {y: 90, p: 8}, {y: -90, p: 8}, {y: 0, p: 88}].map((v, k) => ({...v, home: {...v}, c: $("#p" + k)}));
+VIEWS.forEach(v => {
+  let drag = null;
+  v.c.addEventListener("pointerdown", e => { drag = [e.clientX, e.clientY, v.y, v.p]; v.c.setPointerCapture(e.pointerId); });
+  v.c.addEventListener("pointermove", e => { if (!drag) return; v.y = drag[2] + (e.clientX - drag[0]) * 0.6; v.p = Math.max(-89, Math.min(89, drag[3] + (e.clientY - drag[1]) * 0.6)); });
+  v.c.addEventListener("pointerup", () => drag = null);
+  v.c.addEventListener("dblclick", () => { v.y = v.home.y; v.p = v.home.p; });
+});
+function proj(p, v) {
+  const a = v.y * Math.PI / 180, b = v.p * Math.PI / 180;
+  const x = p[0] * Math.cos(a) + p[2] * Math.sin(a), z = -p[0] * Math.sin(a) + p[2] * Math.cos(a);
+  return [x, p[1] * Math.cos(b) - z * Math.sin(b), z * Math.cos(b) + p[1] * Math.sin(b)];
+}
+function drawSkel(ctx, arr, v, s, cx, cy, style, bad) {
+  if (!arr) return;
+  const Q = {};
+  for (const k of NM) { const p = pt(arr, NI[k]); if (p && p[0] != null) Q[k] = proj(p, v); }
+  for (const [a, b] of BONES) {
+    if (!Q[a] || !Q[b]) continue;
+    const sd = side(a) === side(b) ? side(a) : "C";
+    const isBad = bad && (bad[a + "-" + b] || bad[b + "-" + a]);
+    ctx.strokeStyle = style === "g" ? (isBad ? "#ff3cac" : "#ffc93c") : (sd === "L" ? "#5aa9ff" : sd === "R" ? "#ff6b6b" : "#e8eef5");
+    ctx.lineWidth = style === "g" ? (isBad ? 5 : 3.5) : 2.2; ctx.globalAlpha = style === "g" ? 0.85 : 1;
+    ctx.beginPath(); ctx.moveTo(cx + Q[a][0] * s, cy - Q[a][1] * s); ctx.lineTo(cx + Q[b][0] * s, cy - Q[b][1] * s); ctx.stroke();
+  }
+  ctx.globalAlpha = 1;
+  if (Q.nose) { ctx.fillStyle = style === "g" ? "#ffc93c" : "#fff"; ctx.beginPath(); ctx.arc(cx + Q.nose[0] * s, cy - Q.nose[1] * s, 3, 0, 7); ctx.fill(); }
+}
+function drawViews(i) {
+  const bad = badSegs(i);
+  for (const v of VIEWS) {
+    const d = fit(v.c), ctx = v.c.getContext("2d"), W = v.c.width, H = v.c.height;
+    ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.clearRect(0, 0, W, H); ctx.setTransform(d, 0, 0, d, 0, 0);
+    const w = W / d, h = H / d, s = Math.min(w, h) / 4.6, cx = w / 2, cy = h * 0.55;
+    // floor ring + facing arrow (front = toward the camera)
+    ctx.strokeStyle = "#2b323b"; ctx.lineWidth = 1; ctx.beginPath();
+    for (let k = 0; k <= 48; k++) { const a = k / 48 * Math.PI * 2, q = proj([Math.cos(a) * 1.2, -2.05, Math.sin(a) * 1.2], v); k ? ctx.lineTo(cx + q[0] * s, cy - q[1] * s) : ctx.moveTo(cx + q[0] * s, cy - q[1] * s); }
+    ctx.stroke();
+    const f0 = proj([0, -2.05, 0], v), f1 = proj([0, -2.05, 1.6], v);
+    ctx.strokeStyle = "#3d4651"; ctx.beginPath(); ctx.moveTo(cx + f0[0] * s, cy - f0[1] * s); ctx.lineTo(cx + f1[0] * s, cy - f1[1] * s); ctx.stroke();
+    ctx.fillStyle = "#56606c"; ctx.font = "10px sans-serif"; ctx.fillText("앞", cx + f1[0] * s + 3, cy - f1[1] * s);
+    drawSkel(ctx, F.g[i], v, s, cx, cy, "g", bad);
+    drawSkel(ctx, F.v[i], v, s, cx, cy, "v");
+    if (!F.v[i]) { ctx.fillStyle = "#fff8"; ctx.fillText("원본 없음(컷/가림)", 6, h - 6); }
+  }
+}
+function drawNow(i, t) {
+  const e = F.e[i];
+  let h = "";
+  G.forEach((g, k) => {
+    const v = e[k], thr = THR[k], w = v == null ? 0 : Math.min(100, v / (thr * 2.5) * 100);
+    const col = v == null ? "#444" : v > thr ? "#ff3cac" : v > thr * 0.7 ? "#ffa53c" : "#3ddc84";
+    h += `<div class="bar"><span>${g}</span><i><u style="width:${w}%;background:${col}"></u><s style="left:${100 / 2.5}%"></s></i><span>${v == null ? "-" : v + "°"}</span></div>`;
+  });
+  const yv = F.yv[i], yg = F.yg[i];
+  if (yv != null) { const dy = ((yv - yg - D.cam) % 360 + 540) % 360 - 180; h += `<div style="margin-top:4px">몸 방향 차이 <b style="color:${Math.abs(dy) > 50 ? "#ff3cac" : "inherit"}">${Math.round(dy)}°</b></div>`; }
+  const near = D.hits.filter(x => Math.abs((x.tv ?? x.tg) - t) < 0.35);
+  if (near.length) h += `<div style="margin-top:4px">${near.map(x => x.tg == null ? `<span style="color:#ff6b6b">${x.g} ✕ 게임 hit 없음(${x.why})</span>` : x.tv == null ? `<span style="color:#f06292">${x.g} ◆ 게임만</span>` : `${x.g} ${x.d >= 0 ? "+" : ""}${Math.round(x.d * 1000)}ms`).join(" · ")}</div>`;
+  $("#now").innerHTML = h;
+}
+
+// ---------- issues list
+let filt = new Set(Object.keys(KIND)), sortBy = "sev", curIssue = null;
+function buildFilters() {
+  const cnt = {}; D.issues.forEach(x => cnt[x.kind] = (cnt[x.kind] || 0) + 1);
+  let h = `<button id="fsort">${sortBy === "sev" ? "심한 순" : "시간 순"}</button>`;
+  for (const k in KIND) if (cnt[k]) h += `<button data-k="${k}" class="${filt.has(k) ? "on" : ""}" style="border-color:${KIND[k]}">${k} ${cnt[k]}</button>`;
+  $("#filters").innerHTML = h;
+  $("#fsort").onclick = () => { sortBy = sortBy === "sev" ? "time" : "sev"; buildFilters(); buildList(); };
+  document.querySelectorAll("#filters [data-k]").forEach(b => b.onclick = e => {
+    const k = b.dataset.k;
+    if (e.shiftKey || e.ctrlKey) { filt = new Set([k]); } else if (filt.has(k)) filt.delete(k); else filt.add(k);
+    buildFilters(); buildList();
+  });
+}
+function shown() { const L = D.issues.filter(x => filt.has(x.kind)); return sortBy === "sev" ? L.sort((a, b) => b.sev - a.sev) : L.sort((a, b) => a.t0 - b.t0); }
+function buildList() {
+  const L = shown();
+  $("#items").innerHTML = L.map(x => `<div class="it v-${verdict[x.id] || ""}" data-id="${x.id}">
+    <div class="h"><span class="k" style="background:${KIND[x.kind]}">${x.kind}</span><span class="t">#${x.id} ${ft1(x.t0)}–${ft1(x.t1)}</span>${x.new ? '<span class="k" style="background:#fff">★새</span>' : ""}
+    <select data-v="${x.id}"><option value="">판정</option><option value="true" ${verdict[x.id] === "true" ? "selected" : ""}>진짜</option><option value="false" ${verdict[x.id] === "false" ? "selected" : ""}>거짓 경보</option><option value="hold" ${verdict[x.id] === "hold" ? "selected" : ""}>보류</option></select></div>
+    <div class="x">${x.text}</div><div class="hint">→ ${x.hint}</div></div>`).join("");
+  document.querySelectorAll(".it").forEach(el => el.onclick = e => { if (e.target.tagName === "SELECT" || e.target.tagName === "OPTION") return; goIssue(+el.dataset.id); });
+  document.querySelectorAll(".it select").forEach(s => s.onchange = () => { verdict[s.dataset.v] = s.value; saveV(); s.closest(".it").className = "it v-" + s.value + (curIssue === +s.dataset.v ? " cur" : ""); countV(); });
+  countV();
+}
+function countV() { const v = Object.values(verdict); $("#vcount").textContent = `진짜 ${v.filter(x => x === "true").length} · 거짓 ${v.filter(x => x === "false").length} · 보류 ${v.filter(x => x === "hold").length}`; }
+function goIssue(id) {
+  const x = D.issues.find(q => q.id === id); if (!x) return;
+  curIssue = id;
+  document.querySelectorAll(".it").forEach(el => el.classList.toggle("cur", +el.dataset.id === id));
+  const el = document.querySelector(`.it[data-id="${id}"]`); if (el) el.scrollIntoView({block: "nearest"});
+  loop = [x.t0 - 0.6, Math.max(x.t1 + 0.6, x.t0 + 1.4)]; $("#bloop").classList.add("on");
+  zoomSpan = Math.max(4, Math.min(30, (loop[1] - loop[0]) * 1.6));
+  setRate(0.5); seek(loop[0]); play(true);
+}
+$("#bexport").onclick = () => {
+  const L = D.issues.filter(x => verdict[x.id] === "true").sort((a, b) => a.t0 - b.t0);
+  const txt = `${D.title} — 2차 검토에서 '진짜'로 확인한 것 (곡 초, + = 게임이 늦음)\n` + L.map(x => `${ft1(x.t0)}-${ft1(x.t1)} [${x.kind}] ${x.text}\n    → ${x.hint}`).join("\n");
+  navigator.clipboard.writeText(txt).then(() => { $("#bexport").textContent = "복사됨 ✓"; setTimeout(() => $("#bexport").textContent = "판정 복사", 1500); },
+    () => { const w = window.open("", "_blank"); w.document.body.innerText = txt; });
+};
+
+// ---------- timeline
+const tlz = $("#tlz"), tlo = $("#tlo");
+let zoomSpan = 8;
+const ROWS = ["박 / 항목", ...G, "지연(ms)", "움직임 양", "무릎 바운스"];
+const LABW = 74;
+function heat(v, thr) { if (v == null) return "#20242a"; const r = v / thr; return r > 1 ? (r > 1.6 ? "#c2185b" : "#e5397a") : r > 0.7 ? "#b8792a" : r > 0.4 ? "#3d6b46" : "#244231"; }
+function drawTimeline(t) {
+  const d = fit(tlz), ctx = tlz.getContext("2d"), W = tlz.width / d, H = tlz.height / d;
+  ctx.setTransform(d, 0, 0, d, 0, 0); ctx.clearRect(0, 0, W, H);
+  const a = t - zoomSpan / 2, b = t + zoomSpan / 2, X = s => LABW + (s - a) / (b - a) * (W - LABW - 6);
+  const rh = (H - 8) / ROWS.length, rowY = r => 4 + r * rh;
+  ctx.font = "11px sans-serif"; ctx.textBaseline = "middle";
+  ROWS.forEach((name, r) => { ctx.fillStyle = r % 2 ? "#1d2127" : "#1a1d22"; ctx.fillRect(0, rowY(r), W, rh); ctx.fillStyle = "#9aa3ad"; ctx.fillText(name, 6, rowY(r) + rh / 2); });
+  // heat per group
+  const i0 = idxAt(a), i1 = idxAt(b);
+  G.forEach((g, k) => { const y = rowY(k + 1); for (let i = i0; i <= i1; i++) { ctx.fillStyle = heat(F.e[i][k], THR[k]); ctx.fillRect(X(F.t[i]), y + 2, Math.max(1, X(F.t[i] + ST) - X(F.t[i])) + 0.5, rh - 4); } });
+  // issues row
+  for (const x of D.issues) { if (x.t1 < a || x.t0 > b || !filt.has(x.kind)) continue; ctx.fillStyle = KIND[x.kind] + (x.id === curIssue ? "" : "99"); ctx.fillRect(X(x.t0), rowY(0) + rh * 0.55, Math.max(2, X(x.t1) - X(x.t0)), rh * 0.4); }
+  // beats
+  ctx.strokeStyle = "#ffffff30"; ctx.lineWidth = 1;
+  for (const bt of D.beats) { if (bt < a || bt > b) continue; ctx.beginPath(); ctx.moveTo(X(bt), rowY(0)); ctx.lineTo(X(bt), rowY(G.length + 1)); ctx.stroke(); }
+  // hits
+  for (const hh of D.hits) {
+    const tt = hh.tv ?? hh.tg; if (tt < a - 0.3 || tt > b + 0.3) continue;
+    const r = G.indexOf(hh.g) + 1, y = rowY(r);
+    if (hh.tv != null && hh.tg != null) {
+      const ad = Math.abs(hh.d), col = ad <= 0.06 ? "#3ddc84" : ad <= 0.12 ? "#ffa53c" : "#ff4d4d";
+      ctx.strokeStyle = col; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(X(hh.tv), y + 4); ctx.lineTo(X(hh.tg), y + rh - 4); ctx.stroke();
+    }
+    if (hh.tv != null) { ctx.fillStyle = hh.tg == null ? "#ff6b6b" : "#e8eef5"; tri(ctx, X(hh.tv), y + 1, 5, 1); if (hh.tg == null) { ctx.fillStyle = "#ff6b6b"; ctx.fillText("✕", X(hh.tv) - 4, y + rh / 2); } }
+    if (hh.tg != null) { ctx.fillStyle = hh.tv == null ? "#f06292" : "#ffc93c"; tri(ctx, X(hh.tg), y + rh - 1, 5, -1); }
+  }
+  // lag curves
+  const ly = rowY(G.length + 1), lh = rh, LY = v => ly + lh / 2 - Math.max(-1, Math.min(1, v / 0.3)) * lh * 0.45;
+  ctx.strokeStyle = "#ffffff25"; ctx.beginPath(); ctx.moveTo(LABW, LY(0)); ctx.lineTo(W, LY(0)); ctx.stroke();
+  G.forEach((g, k) => {
+    const rows = D.lags[g]; if (!rows || !rows.length) return;
+    ctx.strokeStyle = k < 2 ? "#4fc3f7" : k < 4 ? "#80deea" : k < 6 ? "#aed581" : "#ce93d8"; ctx.lineWidth = 1.5; ctx.beginPath(); let st = false, last = -9;
+    for (const [tt, l] of rows) { if (tt < a - 2 || tt > b + 2) continue; if (tt - last > 0.6) st = false; st ? ctx.lineTo(X(tt), LY(l)) : ctx.moveTo(X(tt), LY(l)); st = true; last = tt; }
+    ctx.stroke();
+  });
+  ctx.fillStyle = "#9aa3ad"; ctx.fillText("+300 늦음", W - 64, ly + 7); ctx.fillText("-300 빠름", W - 64, ly + lh - 7);
+  // amount of movement (log ratio)
+  const my = rowY(G.length + 2), MY = v => my + rh / 2 - Math.max(-1, Math.min(1, Math.log2(v) / 2)) * rh * 0.45;
+  ctx.strokeStyle = "#ffffff25"; ctx.beginPath(); ctx.moveTo(LABW, MY(1)); ctx.lineTo(W, MY(1)); ctx.stroke();
+  ["왼팔", "오른팔", "왼다리", "몸통"].forEach((g, k) => {
+    const A = D.amount[g]; ctx.strokeStyle = ["#4fc3f7", "#80deea", "#aed581", "#ce93d8"][k]; ctx.lineWidth = 1.2; ctx.beginPath(); let st = false;
+    for (let i = i0; i <= i1; i++) { const v = A[i]; if (v == null || v <= 0) { st = false; continue; } st ? ctx.lineTo(X(F.t[i]), MY(v)) : ctx.moveTo(X(F.t[i]), MY(v)); st = true; }
+    ctx.stroke();
+  });
+  ctx.fillStyle = "#9aa3ad"; ctx.fillText("×4 과함", W - 54, my + 7); ctx.fillText("×¼ 작음", W - 54, my + rh - 7);
+  // bounce: video vs game, the detrended hip height
+  const by = rowY(G.length + 3), gr = D.grooves["무릎 바운스"];
+  let mx = 0.02; for (let i = i0; i <= i1; i++) { if (gr.v[i] != null) mx = Math.max(mx, Math.abs(gr.v[i])); if (gr.g[i] != null) mx = Math.max(mx, Math.abs(gr.g[i])); }
+  for (const [arr, col] of [[gr.v, "#e8eef5"], [gr.g, "#ffc93c"]]) {
+    ctx.strokeStyle = col; ctx.lineWidth = 1.4; ctx.beginPath(); let st = false;
+    for (let i = i0; i <= i1; i++) { const v = arr[i]; if (v == null) { st = false; continue; } const yy = by + rh / 2 - v / mx * rh * 0.45; st ? ctx.lineTo(X(F.t[i]), yy) : ctx.moveTo(X(F.t[i]), yy); st = true; }
+    ctx.stroke();
+  }
+  // loop + playhead
+  if (loop) { ctx.fillStyle = "#ffffff10"; ctx.fillRect(X(loop[0]), 0, X(loop[1]) - X(loop[0]), H); }
+  ctx.strokeStyle = "#fff"; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.moveTo(X(t), 0); ctx.lineTo(X(t), H); ctx.stroke();
+  ctx.fillStyle = "#fff"; ctx.fillText(ft(t), Math.min(W - 60, X(t) + 4), 9);
+  // second ticks
+  ctx.fillStyle = "#6b7480"; for (let s = Math.max(0, Math.ceil(a)); s <= b; s++) ctx.fillText(ft1(s).replace(/\.0$/, ""), X(s) + 2, H - 6);
+  tlz._map = {a, b, X};
+}
+function tri(ctx, x, y, s, dir) { ctx.beginPath(); ctx.moveTo(x, y + (dir > 0 ? 0 : 0)); ctx.lineTo(x - s, y - dir * -s * 1.4); ctx.lineTo(x + s, y - dir * -s * 1.4); ctx.closePath(); ctx.fill(); }
+let ovCache = null;
+function drawOverview(t) {
+  const d = fit(tlo), ctx = tlo.getContext("2d"), W = tlo.width / d, H = tlo.height / d;
+  ctx.setTransform(d, 0, 0, d, 0, 0);
+  const X = s => 6 + (s - T0) / (T1 - T0) * (W - 12);
+  if (!ovCache || ovCache.w !== tlo.width) {
+    ctx.clearRect(0, 0, W, H);
+    const rh = (H - 22) / G.length, cols = Math.floor(W - 12), per = N / cols;
+    for (let c = 0; c < cols; c++) {
+      const i0 = Math.floor(c * per), i1 = Math.min(N, Math.floor((c + 1) * per) + 1);
+      G.forEach((g, k) => { let m = null; for (let i = i0; i < i1; i++) { const v = F.e[i][k]; if (v != null && (m == null || v > m)) m = v; } ctx.fillStyle = heat(m, THR[k]); ctx.fillRect(6 + c, 2 + k * rh, 1.2, rh - 0.5); });
+    }
+    for (const x of D.issues) { ctx.fillStyle = KIND[x.kind]; ctx.fillRect(X(x.t0), H - 18, Math.max(1.5, X(x.t1) - X(x.t0)), 6); }
+    ctx.fillStyle = "#6b7480"; ctx.font = "10px sans-serif"; for (let s = Math.ceil(T0 / 15) * 15; s < T1; s += 15) ctx.fillText(ft1(s).replace(/\.0$/, ""), X(s) + 2, H - 3);
+    ovCache = {w: tlo.width, img: ctx.getImageData(0, 0, tlo.width, tlo.height)};
+  } else ctx.putImageData(ovCache.img, 0, 0);
+  ctx.setTransform(d, 0, 0, d, 0, 0);
+  ctx.strokeStyle = "#fff"; ctx.lineWidth = 1; ctx.strokeRect(X(t - zoomSpan / 2), 1, X(t + zoomSpan / 2) - X(t - zoomSpan / 2), H - 22);
+  ctx.beginPath(); ctx.moveTo(X(t), 0); ctx.lineTo(X(t), H); ctx.stroke();
+  tlo._X = X;
+}
+tlz.addEventListener("click", e => { const m = tlz._map; if (!m) return; const r = tlz.getBoundingClientRect(), x = e.clientX - r.left; if (x < LABW) return; seek(m.a + (x - LABW) / (r.width - LABW - 6) * (m.b - m.a)); });
+tlz.addEventListener("wheel", e => { e.preventDefault(); zoomSpan = Math.max(1.5, Math.min(60, zoomSpan * (e.deltaY > 0 ? 1.2 : 1 / 1.2))); }, {passive: false});
+tlo.addEventListener("click", e => { const r = tlo.getBoundingClientRect(); seek(T0 + (e.clientX - r.left - 6) / (r.width - 12) * (T1 - T0)); });
+window.addEventListener("resize", () => ovCache = null);
+
+// ---------- keys
+document.addEventListener("keydown", e => {
+  if (e.target.tagName === "SELECT" || e.target.tagName === "INPUT") return;
+  if (e.code === "Space") { e.preventDefault(); play(!playing()); }
+  else if (e.key === "ArrowLeft" || e.key === "ArrowRight") { e.preventDefault(); play(false); seek(now() + (e.key === "ArrowLeft" ? -1 : 1) * (e.shiftKey ? 1 : 1 / 30)); }
+  else if (e.key === "[" || e.key === "]") { const R = [0.1, 0.25, 0.5, 1]; let k = R.indexOf(rate); k = Math.max(0, Math.min(3, k + (e.key === "]" ? 1 : -1))); setRate(R[k]); }
+  else if (e.key === "l" || e.key === "L") $("#bloop").click();
+  else if (e.key === "z" || e.key === "Z") $("#cZoom").click();
+  else if (e.key === "n" || e.key === "N" || e.key === "p" || e.key === "P") {
+    const L = shown(); if (!L.length) return; let k = L.findIndex(x => x.id === curIssue);
+    k = k < 0 ? 0 : (k + ((e.key === "n" || e.key === "N") ? 1 : -1) + L.length) % L.length; goIssue(L[k].id);
+  }
+});
+
+// ---------- loop
+function frame(ts) {
+  if (!haveVideo && timerPlay) { timerT += (ts - timerLast) / 1000 * rate; timerLast = ts; if (timerT >= T1) { timerT = T1; play(false); } }
+  let t = now();
+  if (loop && playing() && t > loop[1]) { seek(loop[0]); t = loop[0]; }
+  const i = idxAt(t);
+  $("#clock").textContent = ft(t);
+  drawOverlay(i); drawViews(i); drawNow(i, t); drawTimeline(t); drawOverview(t);
+  requestAnimationFrame(frame);
+}
+buildFilters(); buildList();
+if (!D.video) { haveVideo = false; }
+requestAnimationFrame(ts => { timerLast = ts; frame(ts); });
+</script>
+</body>
+</html>
