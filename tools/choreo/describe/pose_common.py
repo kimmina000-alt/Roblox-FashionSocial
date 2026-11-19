@@ -79,8 +79,10 @@ def features(s):
     f["side"] = math.degrees(math.atan2(dot(up, X), dot(up, U)))   # + = leaning to the dancer's left
     f["tilt"] = angle(up, U)                                        # how far the torso is off upright, any way
     f["fwd"] = dot(up, F) / torso                                   # + = that way is forward
-    f["shoy"] = (shoc[1] - hipc[1]) / torso
-    f["shotilt"] = (P["lsho"][1] - P["rsho"][1]) / torso
+    # (raw heights: analyse() divides them by the take's usual torso length. Divided by this sample's own torso they
+    # stay near 1 whatever the shoulders do, because a shrug lengthens that torso too, D-1921)
+    f["_shoy"] = shoc[1] - hipc[1]
+    f["_shotilt"] = P["lsho"][1] - P["rsho"][1]
     f["chest"] = dot(up, F) / torso
     # head
     if all(n in P for n in ("nose", "lear", "rear")):
@@ -348,10 +350,18 @@ def smooth(samples):
 
 def analyse(samples):
     """Features for every sample plus the take's own baselines."""
-    F = [features(s) for s in smooth(samples)]
+    # (only the video jitters: the game's joints are exact, and smoothing them took the size out of beat-fast moves
+    # such as a shrug every half beat, D-1921)
+    video = any("img" in s for s in samples)
+    F = [features(s) for s in (smooth(samples) if video else samples)]
     good = [f for f in F if f]
     if not good:
         return F
+    ts = sorted(f["torso"] for f in good)
+    tmed = ts[len(ts) // 2]
+    for f in good:
+        f["shoy"] = f["_shoy"] / tmed
+        f["shotilt"] = f["_shotilt"] / tmed
     ps = sorted(f["hpitch"] for f in good if "hpitch" in f)
     pmed = ps[len(ps) // 2] if ps else 0
     hips = sorted(f["h"].get("hip") for f in good if f["h"].get("hip") is not None)
@@ -376,6 +386,12 @@ def label(ch):
     return (SIDE[ch[0]] + ch[1:]) if ch[0] in SIDE else ch
 
 
+def typical_step(ts):
+    """The usual gap between samples (a slow Studio frame can bunch two samples, so not the first gap, D-1921)."""
+    d = sorted(b - a for a, b in zip(ts, ts[1:]) if b > a)
+    return d[len(d) // 2] if d else 0.05
+
+
 def runs(ts, vals, min_len):
     """[(t0, t1, value)] runs; runs shorter than min_len are given to the neighbour (no flicker)."""
     out = []
@@ -384,7 +400,7 @@ def runs(ts, vals, min_len):
             out[-1][1] = t
         else:
             out.append([t, t, v])
-    step = (ts[1] - ts[0]) if len(ts) > 1 else 0.05
+    step = typical_step(ts)
     changed = True
     while changed and len(out) > 1:
         changed = False
@@ -456,7 +472,7 @@ def events(ts, F):
     """Moves over time: turns, jumps, arm / wrist circles, palm flips, waves, shoulder bounces, chest pops,
     claps, walking. [(t0, t1, text)]"""
     n = len(ts)
-    step = (ts[1] - ts[0]) if n > 1 else 0.05
+    step = typical_step(ts)
     ev = []
     # turns: yaw speed over 100°/s, summed
     yaw = unwrap([f["yaw"] if f else None for f in F])
@@ -546,13 +562,16 @@ def events(ts, F):
                 fast = c / max(t1 - t0, 0.3) > 4
                 out.append((t0, t1, "%s손 %s %s" % (side, word, "털기" if fast else "흔들기")))
     # shoulders up and down
-    for key, word, amp in (("shoy", "어깨 들썩들썩", 0.05), ("shotilt", "어깨 한쪽씩 위아래", 0.09), ("chest", "가슴 튕기기", 0.09)):
+    # (shoulders: 1.2 s windows, so a shrug on top of a bend still shows 3 turns: Boogie Woogie 0:17, D-1921)
+    for key, word, amp, wsec in (("shoy", "어깨 들썩들썩", 0.06, 1.2), ("shotilt", "어깨 한쪽씩 위아래", 0.09, 1.0), ("chest", "가슴 튕기기", 0.09, 1.0)):
         xs = [f[key] if f else None for f in F]
+        w = max(3, round(wsec / step))
         evs = []
-        for s0 in range(0, n - win):
-            if swings(xs[s0:s0 + win], amp) >= 3:
-                evs.append([ts[s0], ts[min(n - 1, s0 + win)], key])
-        for t0, t1, _ in merge(evs, 0.1):
+        for s0 in range(0, n - w):
+            c = swings(xs[s0:s0 + w], amp)
+            if c >= 3:
+                evs.append([ts[s0], ts[min(n - 1, s0 + w)], key, c])
+        for t0, t1, _, c in merge(evs, 0.1):
             out.append((t0, t1, word))
     # claps: the wrists meet and part again and again
     d = [norm(sub(mul(f["Lwri"], 1), f["Rwri"])) if f and f.get("Lwri") and f.get("Rwri") else None for f in F]

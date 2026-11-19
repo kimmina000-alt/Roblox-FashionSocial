@@ -64,7 +64,9 @@ local function points(ch)
 	end
 	local P = {
 		nose = at("Head", 0, -0.05, -0.5), lear = at("Head", -0.5, 0, 0), rear = at("Head", 0.5, 0, 0),
-		lsho = att("UpperTorso", "LeftShoulderRigAttachment"), rsho = att("UpperTorso", "RightShoulderRigAttachment"),
+		-- (the arm's own shoulder point: a shrug moves the upper arms, not the torso's attachment, D-1921)
+		lsho = att("LeftUpperArm", "LeftShoulderRigAttachment") or att("UpperTorso", "LeftShoulderRigAttachment"),
+		rsho = att("RightUpperArm", "RightShoulderRigAttachment") or att("UpperTorso", "RightShoulderRigAttachment"),
 		lelb = att("LeftUpperArm", "LeftElbowRigAttachment"), relb = att("RightUpperArm", "RightElbowRigAttachment"),
 		lwri = att("LeftLowerArm", "LeftWristRigAttachment"), rwri = att("RightLowerArm", "RightWristRigAttachment"),
 		lhand = at("LeftHand", 0, -0.25, 0), rhand = at("RightHand", 0, -0.25, 0),

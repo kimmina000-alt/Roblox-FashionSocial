@@ -6511,3 +6511,9 @@ Studio only (no script yet).
 ## D-1883 (2026-11-19) 범퍼카 왼쪽 ◀ ▶ 방향 버튼
 - User: "범퍼카 오른쪽에 악셀 넣었으면 왼쪽에 방향키 넣어 줘 방향 못 잡겠음". BumperCarController: ◀ ▶ buttons (BumperPedal.SteerLeft / SteerRight, 84 on phones, 70 otherwise) at the bottom left, bottoms level with the pedal. Held, they turn the car's wheel all the way to the car's own left / right (not the camera's); let go, the wheel comes back. The stick still works elsewhere on the screen (and still backs up, D-1828); a held button wins over it for turning. Unlike D-1564/D-1666 (removed then), the pedal is now on the right, so the left thumb is free for these.
 - Play (phone view): with the pedal down and ◀ held, the car turned about 180° in 1.5 s while moving 14.5 studs; without ◀ it drove straight.
+
+## D-1921 포즈 글 비교 도구: 어깨 들썩임(위팔 들썩)도 잡기 (2026-11-20)
+- 사용자: "도구가 위팔 들썩임도 잡도록 고쳐". 부기우기에 넣은 어깨 들썩임 3곳(0:10 · 0:17 · 0:47, D-1851 `shrug` = 위팔 `move` 0.22스터드)을 도구가 못 잡고 다른 8곳을 잡았음.
+- 원인 3가지: ① 어깨 높이를 그 샘플의 몸통 길이로 나눠서 늘 1 근처(들썩이면 몸통도 같이 길어짐) → 곡 전체 몸통 길이 중앙값으로 나눔. ② 게임 기록도 0.25초 평활화해서 반 박자마다 오르내리는 들썩임이 지워짐 → 평활화는 원본 영상에만. ③ 창 크기를 첫 두 샘플 간격으로 잡아, Studio가 느려 샘플이 몰리면 1초 창이 몇 초가 됨 → 간격 중앙값(typical_step).
+- 게임 기록기는 어깨점을 위팔의 어깨 관절점(LeftUpperArm.LeftShoulderRigAttachment)에서 읽음(위팔 move가 보이게).
+- 들썩임 기준: 1.2초 안에 어깨 높이가 몸통의 6 % 이상으로 3번 넘게 꺾임. 부기우기 새 녹화: 10곳 중 넣은 3곳 모두 잡힘(0:09.6-0:11.6, 0:17.3-0:19.2, 0:47.5-0:48.8), 0:01 · 0:21 · 1:08 · 1:16-1:18 · 1:25는 원본에서도 같은 시간에 잡힘(몸 튕기기). TWS compare도 정상.
