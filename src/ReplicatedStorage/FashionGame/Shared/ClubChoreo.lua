@@ -2843,6 +2843,40 @@ do
 		addBend(U2, "LeftUpperLeg", thigh)
 		addBend(U2, "LeftLowerLeg", shin)
 	end
+	-- (D-1900, 안무 포즈 설명 자동화 session's Play recording) Unbelievable slides with both feet on the floor: 0:09.8-0:10.05
+	-- (2 at 6.02: the hips and feet go 1.3 studs together) and 1:58.55-1:58.85 (15 at 114.87: 1.9 studs; the step after is a
+	-- real walk): the body held in place there
+	addList(82151831370082, "still", { from = 3.5, to = 4.1 })
+	-- (D-1901, user via the main session: "원본처럼") 0:09.8 the centre really walks forward there (about 1.2 torso lengths,
+	-- stepping): instead of the still, the capture's travel is spread evenly over 9.07-10.37 (`glide`) and the legs step,
+	-- a knee lifting between the beats and the foot landing on the beat (9.49 / 9.95 / 10.40; right, left, right)
+	addList(132406634119258, "glide", { from = 3.05, to = 4.35 })
+	-- (Play: 1.5 studs with the glide alone; the video's 1.2 torso lengths are about 2.5) one more stud forward
+	addList(132406634119258, "walk", { from = 3.05, to = 4.35, dist = 1.0 })
+	do
+		local function stepKeys(t: number): any
+			return { { t - 0.2, 0, 0, 0 }, { t, 32, 0, 0 }, { t + 0.2, 0, 0, 0 } }
+		end
+		local function shinKeys(t: number): any
+			return { { t - 0.2, 0, 0, 0 }, { t, -50, 0, 0 }, { t + 0.2, 0, 0, 0 } }
+		end
+		local f = fx(132406634119258)
+		f.bend = if f.bend then table.clone(f.bend) else {}
+		for i, t in ipairs({ 3.25, 3.70, 4.16 }) do
+			local side = if i % 2 == 1 then "Right" else "Left"
+			table.insert(f.bend, { part = side .. "UpperLeg", keys = stepKeys(t) })
+			table.insert(f.bend, { part = side .. "LowerLeg", keys = shinKeys(t) })
+		end
+	end
+	-- (D-1901, user via the main session: "원본처럼 고개 젖힘, 상체 움직임도 원본만큼") 갑자기 0:09.2-0:10.1 the head goes back
+	-- (chin up about 40°) and the upper body leans back with it (the capture: head 6-8°, chest 5-7°, 15 % of it); at 10.2-10.5
+	-- the head swings forward and the body is upright by 10.7. Piece 140529283375287 at 8.5
+	addList(140529283375287, "pose", { from = 0.5, to = 2.3, ease = 0.05, keys = {
+		{ t = 0.55, add = { Head = { 0, 0, 0 }, UpperTorso = { 0, 0, 0 }, LowerTorso = { 0, 0, 0 } } },
+		{ t = 0.8, add = { Head = { 20, 0, 0 }, UpperTorso = { 12, 0, -8 }, LowerTorso = { 6, 0, 0 } } },
+		{ t = 1.6, add = { Head = { 20, 0, 0 }, UpperTorso = { 12, 0, -8 }, LowerTorso = { 6, 0, 0 } } },
+		{ t = 1.85, curve = "out", add = { Head = { -12, 0, 0 }, UpperTorso = { 2, 0, 0 }, LowerTorso = { 0, 0, 0 } } },
+		{ t = 2.2, add = { Head = { 0, 0, 0 }, UpperTorso = { 0, 0, 0 }, LowerTorso = { 0, 0, 0 } } } } })
 end
 
 -- (D-1853, user 2026-11-19: "언빌리버블 손만 떠는 게 아니고 전체를 다 떨어 사시나무처럼 … 안무 동작 정확하고 크게 보정해") Play:
