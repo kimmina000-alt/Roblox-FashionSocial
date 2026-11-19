@@ -964,3 +964,4 @@
 - 2026-11-19: 발 고정 IK 기능(ChoreoFeet) (D-1905).
 - 2026-11-19: BANG 안무 박자(fileSpeed) (D-1906).
 - 2026-11-19: 발 고정 튐 정리 (D-1907).
+- BANG-After School / Magic-Secret lab 값 (D-1864).
