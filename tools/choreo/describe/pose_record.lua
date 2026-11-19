@@ -48,7 +48,7 @@ local function findSong(q)
 end
 
 local NAMES = { "nose", "lear", "rear", "lsho", "rsho", "lelb", "relb", "lwri", "rwri", "lhand", "rhand",
-	"lhip", "rhip", "lkne", "rkne", "lank", "rank", "ltoe", "rtoe" }
+	"lhip", "rhip", "lkne", "rkne", "lank", "rank", "ltoe", "rtoe", "lheel", "rheel" }
 
 local waistCache = setmetatable({}, { __mode = "k" })
 local function points(ch)
@@ -75,6 +75,7 @@ local function points(ch)
 		lkne = att("LeftUpperLeg", "LeftKneeRigAttachment"), rkne = att("RightUpperLeg", "RightKneeRigAttachment"),
 		lank = att("LeftLowerLeg", "LeftAnkleRigAttachment"), rank = att("RightLowerLeg", "RightAnkleRigAttachment"),
 		ltoe = at("LeftFoot", 0, -0.5, -0.5), rtoe = at("RightFoot", 0, -0.5, -0.5),
+		lheel = at("LeftFoot", 0, -0.5, 0.5), rheel = at("RightFoot", 0, -0.5, 0.5), -- (D-1951: heel raises)
 	}
 	local lh, rh = ch:FindFirstChild("LeftHand"), ch:FindFirstChild("RightHand")
 	local V = {

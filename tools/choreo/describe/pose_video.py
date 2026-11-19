@@ -27,7 +27,8 @@ for d in CC_DIRS:
 MODEL_DIRS = [os.path.join(d, "models") for d in CC_DIRS]
 
 MPI = {"nose": 0, "lear": 7, "rear": 8, "lsho": 11, "rsho": 12, "lelb": 13, "relb": 14, "lwri": 15, "rwri": 16,
-       "lhip": 23, "rhip": 24, "lkne": 25, "rkne": 26, "lank": 27, "rank": 28, "ltoe": 31, "rtoe": 32}
+       "lhip": 23, "rhip": 24, "lkne": 25, "rkne": 26, "lank": 27, "rank": 28, "ltoe": 31, "rtoe": 32,
+       "lheel": 29, "rheel": 30}
 HEEL = {"l": 29, "r": 30}
 PINKY, INDEX = {"l": 17, "r": 18}, {"l": 19, "r": 20}
 
@@ -136,6 +137,7 @@ def floor_and_travel(samples, step, frame_h):
             for l in ("l", "r"):
                 h[l + "ank"] = round((ground - max(im[l + "ank"][1], im[l + "heel"][1], im[l + "toe"][1])) / unit_px, 3)
                 h[l + "toe"] = round((ground - im[l + "toe"][1]) / unit_px, 3)
+                h[l + "heel"] = round((ground - im[l + "heel"][1]) / unit_px, 3)
             h["hip"] = round((ground - (im["lhip"][1] + im["rhip"][1]) / 2) / unit_px, 3)
             r["h"] = h
         hx = (im["lhip"][0] + im["rhip"][0]) / 2

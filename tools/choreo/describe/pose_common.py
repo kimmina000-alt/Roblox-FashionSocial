@@ -91,6 +91,9 @@ def features(s):
         f["_headfwd"] = dot(sub(P["nose"], hipc), F)
     if s.get("waist"):
         f["waistfwd"] = s["waist"][0]
+    for l in ("l", "r"):
+        if P.get(l + "toe") is not None:
+            f["_" + l + "toexz"] = (P[l + "toe"][0], P[l + "toe"][2])
     # head
     if all(n in P for n in ("nose", "lear", "rear")):
         ec = mid(P["lear"], P["rear"])
@@ -370,6 +373,10 @@ def analyse(samples):
         f["shoy"] = f["_shoy"] / tmed
         f["shotilt"] = f["_shotilt"] / tmed
         f["chestfwd"] = f["_chestfwd"] / tmed
+        for l in ("l", "r"):
+            # (the toe on the floor in the world, torso lengths: hip travel + toe off the hips)
+            if "_" + l + "toexz" in f and f.get("tr"):
+                f[l + "toew"] = (f["tr"][0] + f["_" + l + "toexz"][0] / tmed, f["tr"][1] + f["_" + l + "toexz"][1] / tmed)
         if "_headfwd" in f:
             f["headfwd"] = f["_headfwd"] / tmed
     ps = sorted(f["hpitch"] for f in good if "hpitch" in f)
@@ -584,6 +591,7 @@ def events(ts, F):
         for t0, t1, _, c in merge(evs, 0.1):
             out.append((t0, t1, word))
     out += chest_pops(ts, F)
+    out += heel_raises(ts, F)
     # claps: the wrists meet and part again and again
     d = [norm(sub(mul(f["Lwri"], 1), f["Rwri"])) if f and f.get("Lwri") and f.get("Rwri") else None for f in F]
     evs = []
@@ -683,7 +691,72 @@ def chest_pops(ts, F):
         cur.append(t)
     if cur:
         out.append(cur)
-    return [(c[0] - 0.1, c[-1] + 0.3, "가슴 튕기기 %d번 (%s)" % (len(c), ", ".join(ftime(t) for t in c))) for c in out]
+    # (in a video it is only a candidate: hair tosses, head bangs, a new centre member read alike; check the sheet)
+    word = "가슴 튕기기" if game else "가슴 튕기기 후보"
+    return [(c[0] - 0.1, c[-1] + 0.3, "%s %d번 (%s)" % (word, len(c), ", ".join(ftime(t) for t in c))) for c in out]
+
+
+def heel_raises(ts, F, rise=0.15, toe_down=0.15, toe_still=0.6):
+    """(D-1951) 발꿈치 들었다 내리기 in place: the heel's height over the toe peaks 0.15 torso or more above its lowest
+    in the 0.5 s before and after (it goes up and comes down again), the toe on the floor (0.15 or lower) and where
+    it was (0.6 torso or less in the world over that second: turning on the spot sweeps the toe a little; a walking
+    step goes a torso or more): a walking step lifts the heel too, but then the whole
+    foot leaves and lands elsewhere. A foot is rarely quite flat (the lift rests near 0.1), hence peaks, not a level.
+    Each raise counts once; series = 1.2 s or less apart, per foot. Needs heel heights (recordings from D-1951)."""
+    out = []
+    for l, side in (("l", "왼"), ("r", "오른")):
+        rows = []
+        for t, f in zip(ts, F):
+            if not f:
+                continue
+            H = f["h"]
+            if H.get(l + "heel") is None or H.get(l + "toe") is None:
+                continue
+            rows.append((t, H[l + "heel"] - H[l + "toe"], H[l + "toe"], f.get(l + "toew")))
+        up_at = []
+        for i in range(1, len(rows) - 1):
+            t, d, toe, tw = rows[i]
+            if d < rows[i - 1][1] or d < rows[i + 1][1] or toe > toe_down:
+                continue
+            near = [r for r in rows if abs(r[0] - t) <= 0.5]
+            before = [r[1] for r in near if r[0] < t]
+            after = [r[1] for r in near if r[0] > t]
+            if not before or not after or d - min(before) < rise or d - min(after) < rise:
+                continue
+            if any(r[2] > toe_down for r in near if abs(r[0] - t) <= 0.2):
+                continue
+            ws = [r[3] for r in near if r[3]]
+            if tw and ws and max(math.dist(tw, w) for w in ws) > toe_still:
+                continue
+            if up_at and t - up_at[-1] < 0.25:
+                continue
+            up_at.append(t)
+        groups, cur = [], []
+        for t in up_at:
+            if cur and t - cur[-1] > 1.2:
+                groups.append(cur)
+                cur = []
+            cur.append(t)
+        if cur:
+            groups.append(cur)
+        # (one raise alone looks like a step: only repeated raises are written)
+        for c in groups:
+            if len(c) >= 2:
+                out.append((c[0] - 0.1, c[-1] + 0.4, "%s 발꿈치 들었다 내리기 %d번 (%s)" % (side, len(c), ", ".join(ftime(t) for t in c))))
+        # the heel held up (0.25 torso over the toe, the toe down) for 0.4 s or more: 발꿈치 든 채 서기
+        held = [r[1] >= 0.25 and r[2] <= 0.1 for r in rows]
+        k = 0
+        while k < len(rows):
+            if held[k]:
+                m = k
+                while m + 1 < len(rows) and held[m + 1]:
+                    m += 1
+                if rows[m][0] - rows[k][0] >= 0.4:
+                    out.append((rows[k][0], rows[m][0], "%s 발꿈치 든 채 (%.1f초)" % (side, rows[m][0] - rows[k][0])))
+                k = m + 1
+            else:
+                k += 1
+    return out
 
 
 def ftime(t):
