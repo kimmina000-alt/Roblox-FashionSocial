@@ -2848,17 +2848,18 @@ do
 	-- a knee lifting between the beats and the foot landing on the beat (9.49 / 9.95 / 10.40; right, left, right)
 	addList(132406634119258, "glide", { from = 3.05, to = 4.35 })
 	-- (Play: 1.5 studs with the glide alone; the video's 1.2 torso lengths are about 2.5) one more stud forward
-	addList(132406634119258, "walk", { from = 3.05, to = 4.35, dist = 1.0 })
+	-- (D-1902, 2nd review: the walk was 0.70 torso lengths against the video's 1.15 straight / 1.45 path; steps at 9.65 / 9.9 / 10.2)
+	addList(132406634119258, "walk", { from = 3.05, to = 4.35, dist = 2.0 })
 	do
 		local function stepKeys(t: number): any
-			return { { t - 0.2, 0, 0, 0 }, { t, 32, 0, 0 }, { t + 0.2, 0, 0, 0 } }
+			return { { t - 0.14, 0, 0, 0 }, { t, 40, 0, 0 }, { t + 0.14, 0, 0, 0 } }
 		end
 		local function shinKeys(t: number): any
-			return { { t - 0.2, 0, 0, 0 }, { t, -50, 0, 0 }, { t + 0.2, 0, 0, 0 } }
+			return { { t - 0.14, 0, 0, 0 }, { t, -60, 0, 0 }, { t + 0.14, 0, 0, 0 } }
 		end
 		local f = fx(132406634119258)
 		f.bend = if f.bend then table.clone(f.bend) else {}
-		for i, t in ipairs({ 3.25, 3.70, 4.16 }) do
+		for i, t in ipairs({ 3.60, 3.88, 4.18 }) do
 			local side = if i % 2 == 1 then "Right" else "Left"
 			table.insert(f.bend, { part = side .. "UpperLeg", keys = stepKeys(t) })
 			table.insert(f.bend, { part = side .. "LowerLeg", keys = shinKeys(t) })
