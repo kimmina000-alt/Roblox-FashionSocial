@@ -1006,7 +1006,8 @@ RunService.PreSimulation:Connect(function(dt)
 				-- (D-1905) a ChoreoFixes `plant` window: a foot on the floor keeps its spot while the body moves on
 				do
 					local cached = floorCache[character]
-					ChoreoFeet.apply(character, bodyJoints(character), ChoreoFeet.active(choreo, ChoreoSmooth.fixes), cached and cached.y, dt)
+					local on, contact = ChoreoFeet.active(choreo, ChoreoSmooth.fixes)
+					ChoreoFeet.apply(character, bodyJoints(character), on, cached and cached.y, dt, contact)
 				end
 				-- (D-1186) the mouth sings along in the song's sung stretches (ChoreoMouth)
 				do

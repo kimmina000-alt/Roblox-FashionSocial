@@ -2945,6 +2945,47 @@ do
 				table.insert(f.bend, { part = side .. "UpperLeg", keys = { { t - h - 6.02, 0, 0, 0 }, { t - 6.02, 30, 0, 0 }, { t + h - 6.02, 0, 0, 0 } } })
 				table.insert(f.bend, { part = side .. "LowerLeg", keys = { { t - h - 6.02, 0, 0, 0 }, { t - 6.02, -50, 0, 0 }, { t + h - 6.02, 0, 0, 0 } } })
 			end
+		-- (D-1909, user 2026-11-19: "내 이름을 불러 줘 난리 남. 안무 원본 영상에서 안무 동선 중 하나로 움직이는 거 아니면 최대한 자기 자리에서
+		-- 추도록") 내 이름을 불러줘: the body stays where it is except in the video's formation moves. Formation moves = the followed
+		-- centre (tracks.json) going 0.6+ body heights in 1.5 s: 0:01-0:04, 0:12-0:17, 0:30-0:32, 0:34-0:37, 0:49-0:52, 0:57-1:00,
+		-- 1:05-1:06, 1:23-1:27, 1:30-1:31, 1:55-1:56, 2:16-2:19, 2:20-2:25, 2:27-2:29, 2:31-2:37 (each 0.2 s wider); everything
+		-- else of each piece is `still` (piece seconds)
+		for id, wins in {
+			[84847937406843] = { { 1.25, 2.30 }, { 5.70, 13.30 } },
+			[88993457159273] = { { 5.69, 9.98 } },
+			[74885576782093] = { { 0.00, 9.56 } },
+			[132355350514600] = { { 0.00, 0.55 }, { 2.95, 3.80 } },
+			[83828094822862] = { { 3.20, 8.51 } },
+			[107391937407645] = { { 0.00, 7.79 } },
+			[120616516576434] = { { 1.46, 6.31 } },
+			[90921923486342] = { { 2.71, 7.06 }, { 8.96, 10.01 } },
+			[73429358232249] = { { 0.00, 5.01 } },
+			[88595092254451] = { { 0.00, 4.00 } },
+			[133275108218481] = { { 0.00, 5.00 } },
+			[107243018629607] = { { 0.00, 5.01 } },
+			[76545761433830] = { { 0.00, 1.28 }, { 5.18, 6.97 } },
+			[137670042338904] = { { 0.00, 2.06 }, { 3.96, 13.78 } },
+			[81624243507898] = { { 0.00, 14.28 } },
+			[128327230683798] = { { 1.93, 2.96 } },
+			[107246799142521] = { { 0.00, 9.01 } },
+			[100667532281425] = { { 0.00, 11.06 } },
+			[122207092339520] = { { 3.90, 5.25 }, { 9.90, 11.75 } },
+			[96319765244846] = { { 0.95, 2.55 }, { 8.45, 21.00 } },
+		} do
+			for _, w in ipairs(wins) do addList(id, "still", { from = w[1], to = w[2] }) end
+		end
+		-- (D-1909, user: "부기우기도 적용해. 허리만 숙이고 있는 동작인데 발이 미끄러지는 부분 있어") Boogie Woogie, Play recording (feet on the
+		-- floor, bent 25-70°): 0:37.1-0:40.6 the left foot slid 1.7 torso lengths (bent over, hands on the knees: the video stays
+		-- put), 1:18.4-1:19.1 the right 1.1, 2:52.8-2:53.3 the left 2.2: body held (still) at 0:37-0:41 and the feet planted in all three
+		addList(97814419171643, "still", { from = 9.39, to = 13.45 })
+		addList(92946970770352, "still", { from = 0, to = 0.64 })
+		-- (Play: with the body held the capture's left foot still spread 1.5 torso lengths 0:37-0:41, hovering 0.3-0.4 studs up,
+		-- so the plant did not take it: the legs are held at the pose the bend starts with, and the feet count as down up to 0.45)
+		addList(97814419171643, "freeze", { from = 9.55, to = 13.45, ease = 0.3, except = UPPER })
+		addList(97814419171643, "plant", { from = 9.39, to = 13.45, contact = 0.45 })
+		addList(92946970770352, "plant", { from = 0, to = 0.64, contact = 0.45 })
+		addList(70911274448112, "plant", { from = 7.3, to = 9.1, contact = 0.45 })
+		addList(79114246750826, "plant", { from = 1.25, to = 2.4, contact = 0.45 })
 		end
 		-- (Play with the plant: the right foot never lifted 8.5-9.3 in the capture, so it was held until it was 1.2 studs
 		-- behind and jumped: one right step at 8.95 before the walk, one more at 10.64 after it)
