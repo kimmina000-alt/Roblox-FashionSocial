@@ -19,6 +19,7 @@ local ChoreoSmooth = require(script.Parent:WaitForChild("ChoreoSmooth"))
 local ChoreoBodyGuard = require(script.Parent:WaitForChild("ChoreoBodyGuard")) -- (D-1168) arms not through the body / each other
 local ChoreoMouth = require(script.Parent:WaitForChild("ChoreoMouth")) -- (D-1186) singing along
 local ChoreoChair = require(script.Parent:WaitForChild("ChoreoChair")) -- (D-1321) 백화요란's chair
+local ChoreoFeet = require(script.Parent:WaitForChild("ChoreoFeet")) -- (D-1905) planted feet stay put
 local danceRemote = FashionGame:WaitForChild("Remotes"):WaitForChild("Dance") :: RemoteEvent
 local player = Players.LocalPlayer
 
@@ -421,7 +422,12 @@ local function moveAlong(character: Model, joint: Motor6D | AnimationConstraint,
 			local before = lastWalk[t]
 			lastWalk[t] = done
 			if before and done > before and done - before < 0.5 then
-				local look = joint.Transform.LookVector
+				-- (D-1903) `dir` = degrees from the hips' facing, + to the dancer's left (180 = backward)
+				local turn = 0
+				for _, w in ipairs(if walk.from then { walk } else walk) do
+					if tp >= w.from and tp <= w.to then turn = w.dir or 0 end
+				end
+				local look = (joint.Transform * CFrame.Angles(0, math.rad(turn), 0)).LookVector
 				local flat = Vector3.new(look.X, 0, look.Z)
 				if flat.Magnitude > 0.1 then move += flat.Unit * (done - before) / math.max(travelScale, 0.3) end
 			end
@@ -997,6 +1003,11 @@ RunService.PreSimulation:Connect(function(dt)
 				end
 				-- (D-1321) on the chair the hips rest on the seat, not through it
 				ChoreoChair.sit(character)
+				-- (D-1905) a ChoreoFixes `plant` window: a foot on the floor keeps its spot while the body moves on
+				do
+					local cached = floorCache[character]
+					ChoreoFeet.apply(character, bodyJoints(character), ChoreoFeet.active(choreo, ChoreoSmooth.fixes), cached and cached.y, dt)
+				end
 				-- (D-1186) the mouth sings along in the song's sung stretches (ChoreoMouth)
 				do
 					local tr = playingTrack()
