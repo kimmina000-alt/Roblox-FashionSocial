@@ -723,7 +723,7 @@ M.Playlist = {
 		-- 10 / 3 s windows, steady to 3:05; the rest is the fade-out), `at` = clip start - 3.85 (clip 1 `from = 3.85`); clips 4 / 9 re-sent 2026-11-18 (D-1671; at first 4 had no upload and
 		-- 9 122000535432976 was a copy of 8); clip 25 starts after the song end
 		choreo = {
-			{ id = 74991796424913, at = 0.00, from = 3.85 }, { id = 72899900258037, at = 3.62, blend = 0.89 }, { id = 98798684410312, at = 11.33, blend = 0.76 }, { id = 136974262670764, at = 17.64, blend = 1 },
+			{ id = 74991796424913, at = 0.00, from = 3.85 }, { id = 72899900258037, at = 3.62, blend = 0.89 }, { id = 98798684410312, at = 11.33, blend = 0.76 }, { id = 136974262670764, at = 17.64, blend = 0.4 }, -- (D-1891: 4 blend 1 -> 0.4, the video is down at 17.8)
 			{ id = 97814419171643, at = 27.51, blend = 0.59 }, { id = 92946970770352, at = 40.96, blend = 0.8 }, { id = 93564912800713, at = 51.37 },
 			{ id = 118999861690635, at = 62.68, blend = 0.52 }, { id = 70911274448112, at = 70.42, blend = 0.97 }, { id = 72126724441612, at = 79.67, blend = 0.92 }, { id = 103506023234554, at = 88.54, blend = 1 },
 			{ id = 137817236071281, at = 97.65, blend = 0.46 }, { id = 138409186362070, at = 105.09, blend = 0.7 }, { id = 98549161772624, at = 112.83, blend = 0.57 },
