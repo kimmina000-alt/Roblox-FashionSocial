@@ -14,11 +14,23 @@ local LET_GO = 0.12 -- seconds to ease back to the animation after the foot lift
 local STRETCH = 1.2 -- studs from its spot: let go
 -- (D-1932) a held foot the dance moves this far along the floor steps there instead (lifted, not slid)
 local STEP = 0.35
-local STEP_TIME = 0.2
+local STEP_TIME = 0.3 -- (D-1939: was 0.2; the sideways move now takes only its middle half)
 -- (D-1937: was 0.6 on top of the dance's own foot height, which folded the knee 30-60 degrees; D-1938: the sole clears
 -- the floor by this much at the top of a step, nothing added where the dance already lifts it that high)
 local STEP_LIFT = 0.3
 local KNEE_MORE = 20 -- (D-1937) degrees the hold may bend the knee past the dance's own
+
+-- (D-1939, 2nd review of D-1938: BANG 1:48.3 the foot went 0.6 studs sideways with the heel 0.1 above the floor, at the
+-- start and the end of a step, where a sine lift is still low) a step / a carried foot goes up first (the first quarter),
+-- moves sideways only in the middle half, at full height, and comes down last
+local function liftShape(u: number): number
+	local a = math.clamp(math.min(u, 1 - u) / 0.25, 0, 1)
+	return a * a * (3 - 2 * a)
+end
+local function midMove(u: number): number
+	local h = math.clamp((u - 0.25) / 0.5, 0, 1)
+	return h * h * (3 - 2 * h)
+end
 
 type Joint = Motor6D | AnimationConstraint
 type FootState = { spot: Vector3?, w: number, letGo: number?, lifted: boolean?, stepFrom: Vector3?, stepT: number?, stepLift: number?, arc: number? }
@@ -132,26 +144,30 @@ function ChoreoFeet.apply(character: Model, joints: {[string]: Joint}, active: b
 		end
 		if not st.spot then continue end
 		anyHeld = true
-		local e = st.w * st.w * (3 - 2 * st.w)
+		local e = if st.letGo then 1 - midMove(1 - st.w) else st.w * st.w * (3 - 2 * st.w)
 		-- only the floor position is held; the height follows the dance
 		local T = Vector3.new(A.X + (st.spot.X - A.X) * e, A.Y, A.Z + (st.spot.Z - A.Z) * e)
 		-- (D-1933, Lemonade 0:31.4: a foot the dance only just lifted slid 0.86 studs back to it, under 0.2 high) a lifted foot
 		-- being let go is carried over in the air, 0.4 up at the middle
 		-- (D-1937) only as far up as the dance does not already have it: 0.25 above the floor at most
-		if st.letGo and st.lifted then
-			st.arc = st.arc or math.max(0, 0.25 - sole)
-			T += Vector3.new(0, math.sin((1 - st.w) * math.pi) * (st.arc :: number), 0)
+		-- (D-1939) and so is a foot let go because it was pulled away or the window ended, when it has 0.2+ studs to go
+		if st.letGo then
+			if not st.arc then
+				local gap = Vector2.new(st.spot.X - A.X, st.spot.Z - A.Z).Magnitude
+				st.arc = if st.lifted or gap > 0.2 then math.max(0, STEP_LIFT - math.max(sole, 0)) else 0
+			end
+			T += Vector3.new(0, liftShape(1 - st.w) * (st.arc :: number), 0)
 		end
 		if st.stepFrom then
 			-- (D-1932) a step: from the old spot to where the dance has the foot now, lifted on the way
 			st.stepT = (st.stepT or 0) + dt / STEP_TIME
 			local u = math.min(st.stepT :: number, 1)
-			local k = u * u * (3 - 2 * u)
+			local k = midMove(u)
 			local from = st.stepFrom :: Vector3
 			-- (D-1938, 2nd review of D-1937: half the step's length less the dance's own lift barely lifted it, 26 steps
 			-- dragged along the floor) the sole goes STEP_LIFT above the floor at the top, less what the dance already lifts it
 			st.stepLift = st.stepLift or math.max(0, STEP_LIFT - math.max(sole, 0))
-			T = Vector3.new(from.X + (A.X - from.X) * k, A.Y + math.sin(u * math.pi) * (st.stepLift :: number), from.Z + (A.Z - from.Z) * k)
+			T = Vector3.new(from.X + (A.X - from.X) * k, A.Y + liftShape(u) * (st.stepLift :: number), from.Z + (A.Z - from.Z) * k)
 			if u >= 1 then st.spot, st.stepFrom, st.stepT, st.stepLift = A, nil, nil, nil end
 		end
 		local l1, l2 = (K - H).Magnitude, (A - K).Magnitude
