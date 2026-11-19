@@ -2,7 +2,8 @@
 -- 사용자 사진 11장(docs/04_ART/references/hanok_village_ref_01..11.webp): 북촌 골목(판석 · 돌담 · 초롱), 일각문, 꽃담.
 -- Studio Edit 모드, hanok_wall_kit.lua 를 먼저 실행(_G.HanokWallKit). 여러 번 돌려도 결과가 같다.
 -- Workspace.HanokVillage (체인 밖, place 전용). 담을 자른 원본은 ServerStorage.ParkedHanokBlocks.<이름>_1119 에 보관.
--- 에셋: ServerStorage.ArtAssets.HanokVillageAssets.Lantern (AI 청사초롱).
+-- 에셋(AI generate_mesh, place 전용): ServerStorage.ArtAssets.HanokVillageAssets.{Lantern, Onggi, OnggiSmall, PavilionRoof6, StoneBridge,
+--   PersimmonAutumn, RoseBush, Topiary, Mountains}; 정원 · 카페 에셋도 씀(HanokGardenAssets, HanokCafeAssets).
 local K = _G.HanokWallKit
 assert(K, "run tools/graybox/hanok_wall_kit.lua first")
 local box = K.box
@@ -610,6 +611,27 @@ do
 	end
 end
 
+-- 9 6단계 (D-1915): 마을 뒤(남쪽, 맵 밖 z 810..850) 산 능선 배경 (사진 4, 북한산). AI Mountains 메시 3개를 크게, 색 차분하게,
+-- 대기(Atmosphere density 0.3) 때문에 너무 멀면 안 보여서 경계(z 665) 바로 뒤. 스트리밍과 상관없이 보이게 Persistent.
+do
+	local m = folder("MountainBackdrop")
+	m.ModelStreamingMode = Enum.ModelStreamingMode.Persistent
+	local src = VA and VA:FindFirstChild("Mountains")
+	if src then
+		for _, d in ipairs({ { 140, 820, 520, 190, 240, 0.2 }, { 440, 850, 600, 240, 280, -0.15 }, { 740, 810, 480, 170, 220, 0.35 } }) do
+			local c = src:Clone()
+			local mp = c:FindFirstChildWhichIsA("MeshPart", true)
+			if mp then
+				mp.Size = Vector3.new(d[3], d[4], d[5])
+				mp.CFrame = CFrame.new(d[1], d[4] / 2 - 14, d[2]) * CFrame.Angles(0, d[6], 0)
+				local sa = mp:FindFirstChildOfClass("SurfaceAppearance") or Instance.new("SurfaceAppearance")
+				sa.ColorMap = mp.TextureID sa.Color = Color3.fromRGB(120, 140, 130) sa.Parent = mp
+				mp.Anchored = true mp.CanCollide = false mp.CastShadow = false mp.CanQuery = false mp.CanTouch = false
+			end
+			c.Parent = m
+		end
+	end
+end
 root.Parent = workspace
 local n = 0
 for _, d in ipairs(root:GetDescendants()) do if d:IsA("BasePart") then n += 1 end end

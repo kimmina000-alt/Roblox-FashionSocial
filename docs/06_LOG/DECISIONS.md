@@ -6415,3 +6415,6 @@ Studio only (no script yet).
 - 사진 6(육각정 + 무지개 돌다리) · 사진 7(연잎 연못) · 향원정. 북쪽 빈 땅(연못 원판 (255,288,16) (285,290,16) (270,298,8)): 지형에 직접 씀 — 물(수면 약 0.9) + 둘레 9 잔디 둑(바깥으로 낮아짐), 검은 연못 바닥, 연잎 40(정원 LotusFlat / LotusTall), 무지개 돌다리(AI StoneBridge, 26 × 5.5 × 8, 남북, 투명 경사로 2), 다리 북쪽 끝 육각정(돌 기단 · 나무 마루 · 붉은 기둥 6 · 난간(다리 쪽 칸은 출입) · 초록 단청 띠 · AI 육각 지붕 PavilionRoof6 26 × 11, 앉기 3), 연못 가 바위 · 풀.
 - Edit 화면 캡처에는 AI 메시 크기를 바꾼 다리 · 지붕이 안 보였고 Play 에서는 보임.
 - 사진: docs/06_LOG/images/2026-11-19/hanok_village_courtyard.jpg · _pond.jpg.
+## D-1915 한옥 마을 6단계: 마을 뒤 산 능선 배경 (2026-11-19)
+- 사진 4(한옥 지붕 너머 바위 봉우리 산) · 은평한옥마을 북한산. AI 메시 HanokVillageAssets.Mountains 3개를 520~600 × 190~240 로 키워 남쪽 맵 밖(경계 z 665 뒤, z 810..850)에, SurfaceAppearance 로 색 차분하게(120,140,130), 충돌 · 그림자 · 레이캐스트 끔, MountainBackdrop 모델 Persistent(스트리밍과 상관없이 보임). 대기 density 0.3 이라 z 1000 쯤은 안개에 묻혀 안 보였음. 만화풍이 남아 있어 빼려면 HanokVillage.MountainBackdrop 을 지우면 됨.
+- 한옥 마을 전체: HanokVillage 부품 약 1,374 (카페 · 정원 별도). 사진: docs/06_LOG/images/2026-11-19/hanok_village_overview.jpg.
