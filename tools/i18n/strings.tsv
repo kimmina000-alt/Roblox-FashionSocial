@@ -261,7 +261,7 @@ e41bc2	exact	오후네컷 사진관에서 친구랑 네 컷을 찍어요. 화면
 c31e2d	exact	알바는 어떻게 해요?	1	src/ReplicatedStorage/FashionGame/Shared/GuideConfig.lua:66
 730441	exact	비치 카페 카운터 안쪽 작업대에서 '알바 시작'을 눌러요. 주문 목록에서 [만들기] → 손님에게 [서빙하기]를 하면 코인을 받아요.	1	src/ReplicatedStorage/FashionGame/Shared/GuideConfig.lua:66
 2875b9	exact	음식은 어디서 먹어요?	1	src/ReplicatedStorage/FashionGame/Shared/GuideConfig.lua:67
-02d495	exact	국밥집·카페에서 사요(OH24 편의점은 오픈 준비 중이에요). 손에 든 음식을 누르면 한 입씩 먹고, 케이크·수육은 테이블에 놓고 다 같이 나눠 먹어요.	1	src/ReplicatedStorage/FashionGame/Shared/GuideConfig.lua:67
+c46525	exact	국밥집·카페·OH24 편의점·놀이공원 간식 가게에서 사요. 사 먹으면 경험치(XP)도 올라요. 손에 든 음식을 누르면 한 입씩 먹고, 케이크·수육은 테이블에 놓고 다 같이 나눠 먹어요.	1	src/ReplicatedStorage/FashionGame/Shared/GuideConfig.lua:67
 ce8eb8	exact	옷은 어떻게 갈아입어요?	1	src/ReplicatedStorage/FashionGame/Shared/GuideConfig.lua:68
 0fa805	exact	오른쪽 위 옷걸이 버튼으로 카탈로그를 열어 입어 보고, ⚙ 아바타 편집에서 장신구 위치·크기도 바꿀 수 있어요.	1	src/ReplicatedStorage/FashionGame/Shared/GuideConfig.lua:68
 fceaa5	exact	멀리 빨리 가려면요?	1	src/ReplicatedStorage/FashionGame/Shared/GuideConfig.lua:69
@@ -271,7 +271,7 @@ fceaa5	exact	멀리 빨리 가려면요?	1	src/ReplicatedStorage/FashionGame/Sha
 ca05f4	exact	놀이공원은 어디 있어요?	1	src/ReplicatedStorage/FashionGame/Shared/GuideConfig.lua:71
 6b1648	exact	계단 위 OHU LAND가 문을 열었어요! 바이킹, 회전컵, 관람차, 범퍼카를 탈 수 있어요.	1	src/ReplicatedStorage/FashionGame/Shared/GuideConfig.lua:71
 ca2596	exact	경험치(XP)는 어떻게 올려요?	1	src/ReplicatedStorage/FashionGame/Shared/GuideConfig.lua:73
-d0f99d	exact	음식을 먹으면 경험치가 올라요. 한 입 먹을 때마다 조금씩 오르고, 다 먹으면 그 음식의 경험치를 모두 받아요. 내 경험치는 이름 아래 ⭐ XP로 보여요.	1	src/ReplicatedStorage/FashionGame/Shared/GuideConfig.lua:73
+f6a2c8	exact	코인이나 로벅스로 산 음식·음료를 먹으면 경험치가 올라요. 한 입 먹을 때마다 조금씩 오르고, 다 먹으면 그 음식의 경험치를 모두 받아요(무료 음식은 경험치가 없고, 하루에 오를 수 있는 양은 정해져 있어요). 내 경험치는 이름 아래 ⭐ XP로 보여요.	1	src/ReplicatedStorage/FashionGame/Shared/GuideConfig.lua:73
 2babe6	exact	국밥을 테이블에 놓으면 남도 먹어요?	1	src/ReplicatedStorage/FashionGame/Shared/GuideConfig.lua:74
 6d2b11	exact	아니요, 테이블에 놓은 국밥은 놓은 사람만 떠먹어요. 수육 한 접시와 케이크는 테이블에 놓으면 모두 한 조각씩 가져가 먹어요.	1	src/ReplicatedStorage/FashionGame/Shared/GuideConfig.lua:74
 2e3393	exact	🗺 동네 둘러보기 다시 보기	1	src/ReplicatedStorage/FashionGame/Shared/GuideConfig.lua:76
@@ -544,7 +544,7 @@ f26b2f	exact	전주비빔 삼각김밥	1	src/ReplicatedStorage/FashionGame/Share
 baaecf	exact	참깨라멘	1	src/ReplicatedStorage/FashionGame/Shared/SnackConfig.lua:183
 ed3bb8	exact	용암꼬꼬면	1	src/ReplicatedStorage/FashionGame/Shared/SnackConfig.lua:184
 630075	exact	육개그	1	src/ReplicatedStorage/FashionGame/Shared/SnackConfig.lua:185
-1889b1	exact	뚝배기를 들고 자리에 앉아서 드세요. 공깃밥·김치는 무료예요.	1	src/ReplicatedStorage/FashionGame/Shared/SnackConfig.lua:193
+0d2914	exact	뚝배기를 들고 자리에 앉아서 드세요. 공깃밥·김치는 무료예요. 사 먹으면 XP가 올라요 ⭐	1	src/ReplicatedStorage/FashionGame/Shared/SnackConfig.lua:193
 85428b	exact	공깃밥	1	src/ReplicatedStorage/FashionGame/Shared/SnackConfig.lua:196
 90cb6a	exact	돼지국밥	1	src/ReplicatedStorage/FashionGame/Shared/SnackConfig.lua:197
 54fe98	exact	순대국밥	1	src/ReplicatedStorage/FashionGame/Shared/SnackConfig.lua:198
@@ -1722,7 +1722,7 @@ e6984d	exact	준비 중…	2	src/StarterPlayer/StarterPlayerScripts/FashionGame/
 2c72da	exact	[Studio 테스트] 구매했어요.	2	src/StarterPlayer/StarterPlayerScripts/FashionGame/SnackController.client.lua:127
 18ad07	exact	구매하지 못했어요.	2	src/StarterPlayer/StarterPlayerScripts/FashionGame/SnackController.client.lua:127
 d9a494	exact	준비 중인 상품이에요.	2	src/StarterPlayer/StarterPlayerScripts/FashionGame/SnackController.client.lua:131
-664b66	exact	메뉴를 고르면 손에 들려 줘요. 자리에 앉아서 드세요!	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/SnackController.client.lua:151
+81ad50	exact	메뉴를 고르면 손에 들려 줘요. 자리에 앉아서 드세요! 사 먹으면 XP가 올라요 ⭐	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/SnackController.client.lua:151
 2b7c2d	exact	☕ 알바생 근무 중! 주문하면 만들어서 자리로 가져다 줘요.	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/SnackController.client.lua:155
 1965be	exact	💰 코인 또는 R$ 버튼을 눌러 주세요.	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/SnackController.client.lua:287
 e3c00f	exact	어느 정류장으로 가시겠습니까?	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/SubwayController.client.lua:104
@@ -1743,9 +1743,9 @@ a9b73f	exact	아니, 괜찮아!	2	src/StarterPlayer/StarterPlayerScripts/Fashion
 c1653f	exact	짜잔! 놀이공원이 문을 열었어! 바이킹, 회전컵, 관람차, 범퍼카를 타면서 놀자. 개장 기념으로 무료 풍선을 주고 있대.	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/TourController.client.lua:54
 809b51	exact	🏖 해변	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/TourController.client.lua:56
 a56b2f	exact	파도 소리 듣고 싶을 때 오는 해변이야. 날이 좋을 때는 튜브 타면서 물놀이도 하고 비치볼도 던지면서 놀아.	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/TourController.client.lua:56
-d81362	exact	옆에는 바다가 한눈에 보이는 카페가 있어. 달달한 디저트와 카페인 수혈이 필요할 때마다 오는 곳이야. 카페에서 일하면 코인도 벌 수 있어.	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/TourController.client.lua:58
+83619a	exact	옆에는 바다가 한눈에 보이는 카페가 있어. 달달한 디저트와 카페인 수혈이 필요할 때마다 오는 곳이야. 카페에서 일하면 코인도 벌 수 있어. 사 먹은 음식과 음료는 경험치(XP)도 올려 줘!	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/TourController.client.lua:58
 ec507e	exact	🏪 OH24 편의점	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/TourController.client.lua:61
-d97416	exact	물놀이 후에는 역시 컵라면이지. 편의점에서는 과자, 아이스크림, 컵라면, 삼각김밥을 팔고 있어. 친구바는 친구랑 반씩 나눠 먹을 수도 있어~	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/TourController.client.lua:61
+d0f791	exact	물놀이 후에는 역시 컵라면이지. 편의점에서는 과자, 아이스크림, 컵라면, 삼각김밥을 팔고 있어. 친구바는 친구랑 반씩 나눠 먹을 수도 있어~ 먹을수록 경험치(XP)도 쑥쑥!	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/TourController.client.lua:61
 e9ed5b	exact	🏯 광화문	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/TourController.client.lua:63
 fe29ba	exact	이곳은 야경이 예쁜 광화문이야. 개장을 기다리고 있지. 두근두근.	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/TourController.client.lua:63
 2602c5	exact	내가 사는 동네 소개는 여기까지! 화면 버튼에 대한 설명도 들을래?	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/TourController.client.lua:66
