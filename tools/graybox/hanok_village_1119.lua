@@ -386,6 +386,230 @@ do
 	place(VA and VA:FindFirstChild("OnggiSmall"), m, Vector3.new(264.5, 2.9, 404), 0.4, 0)
 end
 
+-- 7 4단계 (D-1913): 남서 필지 현대 한옥 중정 (사진 9): 유리 미닫이 집 + 흰 자갈 + 네모 디딤돌 + 나무 평상 + 나무 · 풀
+do
+	local m = folder("CourtyardHanok")
+	local pk = park:FindFirstChild("Part_168_504")
+	if not pk then
+		for _, p in ipairs(workspace:GetChildren()) do
+			if p:IsA("BasePart") and p.Name == "Part" and (Vector3.new(p.Position.X, 0, p.Position.Z) - Vector3.new(168, 0, 504)).Magnitude < 3 then pk = p end
+		end
+		if pk then pk.Name = "Part_168_504" pk.Parent = park end
+	end
+	local cf, s = pk.CFrame, pk.Size
+	local hx = math.abs(cf.RightVector.X) > 0.5
+	local SX, SZ = hx and s.X or s.Z, hx and s.Z or s.X
+	local b = { X0 = cf.X - SX / 2, X1 = cf.X + SX / 2, Z0 = cf.Z - SZ / 2, Z1 = cf.Z + SZ / 2, TOP = cf.Y + s.Y / 2, cx = cf.X, cz = cf.Z }
+	yard(m, 81, 205, 455, 548)
+	local FY = 2
+	mat(bx(m, "Gidan", b.X0 - 3, b.X1 + 3, 0, FY, b.Z0 - 3, b.Z1 + 3, "stone"), Enum.Material.Slate, STN).MaterialVariant = "OHU_HanokPlinth"
+	local H = b.TOP - FY
+	local function v(x, z) return Vector3.new(x, FY, z) end
+	local G, GO = "GlassSlide", { "GlassSlide", open = true }
+	K.face(m, v(b.X0, b.Z0), v(b.X1, b.Z0), Vector3.new(0, 0, -1), { G, GO }, H)
+	K.face(m, v(b.X1, b.Z0), v(b.X1, b.Z1), Vector3.new(1, 0, 0), { "Wall", "WallWindow", "WallWindow", "Wall" }, H)
+	K.face(m, v(b.X1, b.Z1), v(b.X0, b.Z1), Vector3.new(0, 0, 1), { "Wall", "WallWindow" }, H)
+	K.face(m, v(b.X0, b.Z1), v(b.X0, b.Z0), Vector3.new(-1, 0, 0), { G, GO, G, G }, H)
+	local fl = bx(m, "Floor", b.X0, b.X1, FY, FY + 0.2, b.Z0, b.Z1, "woodH")
+	fl.Color = Color3.fromRGB(250, 236, 214)
+	bx(m, "Ceiling", b.X0, b.X1, b.TOP - 0.6, b.TOP, b.Z0, b.Z1, "woodH")
+	local CA = SS.ArtAssets:FindFirstChild("HanokCafeAssets")
+	-- 실내: 식탁 + 의자 4 + 종이 펜던트 + 화분 (사진 9 안쪽)
+	local tz = b.Z0 + 20
+	dark(bx(m, "DiningTop", b.cx - 6, b.cx + 6, FY + 4, FY + 4.4, tz - 3, tz + 3, nil), true)
+	dark(bx(m, "DiningLeg", b.cx - 0.4, b.cx + 0.4, FY + 0.2, FY + 4, tz - 0.4, tz + 0.4, nil))
+	for _, c in ipairs({ { -3, -4.4, 1 }, { 3, -4.4, 1 }, { -3, 4.4, -1 }, { 3, 4.4, -1 } }) do
+		local look = Vector3.new(0, 0, c[3])
+		local cm, cs = place(CA and CA:FindFirstChild("PlyChair"), m, Vector3.new(b.cx + c[1], FY + 0.2, tz + c[2]), 1, math.atan2(-look.X, -look.Z))
+		if cm then seat(m, Vector3.new(b.cx + c[1], FY + 0.2 + cs.Y * 0.48, tz + c[2]), look) end
+	end
+	local lamp = box(m, "PaperLamp", Vector3.new(3.2, 3.2, 3.2), Vector3.new(b.cx, b.TOP - 9, tz), nil, { collide = false, shadow = false })
+	lamp.Shape = Enum.PartType.Ball
+	mat(lamp, Enum.Material.Neon, Color3.fromRGB(255, 236, 206))
+	local pl = Instance.new("PointLight") pl.Color = Color3.fromRGB(255, 214, 160) pl.Range = 20 pl.Brightness = 0.9 pl.Parent = lamp
+	box(m, "LampCord", Vector3.new(0.08, 6.4, 0.08), Vector3.new(b.cx, b.TOP - 4.2, tz), "iron", { collide = false, shadow = false })
+	place(CA and CA:FindFirstChild("Monstera"), m, Vector3.new(b.X0 + 3, FY + 0.2, b.Z0 + 4), 1.2, 0.5)
+	place(CA and CA:FindFirstChild("PotTree"), m, Vector3.new(b.X1 - 4, FY + 0.2, b.Z0 + 34), 1.1, 1)
+	-- 마당: 흰 자갈 판 + 네모 디딤돌(대문 → 집 계단) + 나무 평상(방석 · 쟁반) + 가는 나무 + 풀 화단
+	local gx0, gx1, gz0, gz1 = 92, b.X0 - 5, 462, 540
+	mat(bx(m, "Pebbles", gx0, gx1, 0, 0.3, gz0, gz1, nil, { shadow = false }), Enum.Material.Pebble, Color3.fromRGB(226, 220, 210))
+	for _, e in ipairs({ { gx0 - 0.6, gx0, gz0, gz1 }, { gx1, gx1 + 0.6, gz0, gz1 }, { gx0, gx1, gz0 - 0.6, gz0 }, { gx0, gx1, gz1, gz1 + 0.6 } }) do
+		mat(bx(m, "PebbleEdge", e[1], e[2], 0, 0.55, e[3], e[4], nil, { shadow = false }), Enum.Material.SmoothPlastic, Color3.fromRGB(236, 232, 224))
+	end
+	local path = {}
+	for z = 458, 498, 4.6 do table.insert(path, { 126, z }) end
+	for x = 130.6, gx1 + 3, 4.6 do table.insert(path, { x, 502 }) end
+	for _, p in ipairs(path) do
+		mat(bx(m, "SteppingStone", p[1] - 1.7, p[1] + 1.7, 0, 0.45, p[2] - 1.7, p[2] + 1.7, nil, { shadow = false }), Enum.Material.Concrete, Color3.fromRGB(236, 234, 228))
+	end
+	bx(m, "Step", b.X0 - 5, b.X0 - 3, 0, 1, 494, 510, "stone").Color = STN
+	-- 평상 (사진 9 앞)
+	local px0, px1, pz0, pz1 = 96, 116, 512, 526
+	mat(bx(m, "PyeongsangTop", px0, px1, 2.2, 2.9, pz0, pz1, "woodH"), Enum.Material.Wood, Color3.fromRGB(236, 200, 150))
+	for _, lx in ipairs({ px0 + 1, px1 - 1 }) do
+		for _, lz in ipairs({ pz0 + 1, pz1 - 1 }) do
+			bx(m, "PyeongsangLeg", lx - 0.5, lx + 0.5, 0.3, 2.2, lz - 0.5, lz + 0.5, "woodV")
+		end
+	end
+	local cush = bx(m, "Mat", px0 + 1, px1 - 1, 2.9, 3.4, pz0 + 1, pz1 - 1, nil, { shadow = false })
+	mat(cush, Enum.Material.Fabric, Color3.fromRGB(246, 244, 238))
+	for _, x in ipairs({ px0 + 3, px0 + 7 }) do
+		local pil = bx(m, "Pillow", x - 1.6, x + 1.6, 3.4, 4.6, pz1 - 2.6, pz1 - 1.6, nil)
+		mat(pil, Enum.Material.Fabric, Color3.fromRGB(240, 238, 232))
+	end
+	for _, x in ipairs({ px0 + 4, px0 + 10, px0 + 16 }) do seat(m, Vector3.new(x, 3.5, (pz0 + pz1) / 2), Vector3.new(0, 0, -1)) end
+	local tray = bx(m, "Tray", px1 - 7, px1 - 3, 3.4, 3.6, pz0 + 4, pz0 + 7, nil, { collide = false })
+	dark(tray, true)
+	-- 가는 나무 (중정 한가운데) · 풀 화단
+	place(GA and GA:FindFirstChild("Persimmon"), m, Vector3.new(104, 0.3, 478), 0.75, 1.2)
+	for i, p in ipairs({ { 86, 466 }, { 86, 490 }, { 86, 514 }, { 86, 536 }, { 140, 540 }, { 98, 542 } }) do
+		place(GA and GA:FindFirstChild("Fern"), m, Vector3.new(p[1], 0.14, p[2]), 1 + (i % 3) * 0.15, i)
+	end
+end
+
+-- 8 5단계 (D-1914): 북쪽 빈 땅 연못 정원 (사진 6 육각정 + 무지개 돌다리, 사진 7 연잎 연못, 향원정)
+do
+	local m = folder("PondPavilion")
+	local DISCS = { { 255, 288, 16 }, { 285, 290, 16 }, { 270, 298, 8 } }
+	local BANK = 9
+	local function nearest(x, z)
+		local best = 1e9
+		for _, c in ipairs(DISCS) do
+			local d = math.sqrt((x - c[1]) ^ 2 + (z - c[2]) ^ 2) - c[3]
+			if d < best then best = d end
+		end
+		return best -- <0 물 안
+	end
+	-- 지형: 둑(잔디, 윗면 약 1.2) + 물(수면 약 0.9)
+	local T = workspace.Terrain
+	local reg = Region3.new(Vector3.new(224, -4, 258), Vector3.new(320, 4, 322)):ExpandToGrid(4)
+	local mats, occ = T:ReadVoxels(reg, 4)
+	local sz = mats.Size
+	local ox, oz = reg.CFrame.X - reg.Size.X / 2, reg.CFrame.Z - reg.Size.Z / 2
+	for i = 1, sz.X do
+		for k = 1, sz.Z do
+			local x, z = ox + (i - 0.5) * 4, oz + (k - 0.5) * 4
+			local d = nearest(x, z)
+			if d < 1 then
+				mats[i][1][k], occ[i][1][k] = Enum.Material.Water, 1
+				mats[i][2][k], occ[i][2][k] = Enum.Material.Water, 0.24
+			elseif d < BANK then
+				mats[i][1][k], occ[i][1][k] = Enum.Material.Grass, 1
+				mats[i][2][k], occ[i][2][k] = Enum.Material.Grass, math.clamp(0.32 - (d / BANK) * 0.3, 0.02, 0.32)
+			end
+		end
+	end
+	T:WriteVoxels(reg, 4, mats, occ)
+	for _, c in ipairs(DISCS) do
+		local bed = box(m, "PondBed", Vector3.new(0.1, 2 * c[3], 2 * c[3]), Vector3.zero, nil, { collide = false, shadow = false })
+		bed.Shape = Enum.PartType.Cylinder
+		bed.CFrame = CFrame.new(c[1], 0.05, c[2]) * CFrame.Angles(0, 0, math.pi / 2)
+		mat(bed, Enum.Material.SmoothPlastic, Color3.fromRGB(14, 20, 14))
+	end
+	-- 연잎
+	local rng = Random.new(1914)
+	for _ = 1, 40 do
+		local c = DISCS[rng:NextInteger(1, 2)]
+		local a, d = rng:NextNumber(0, 6.28), rng:NextNumber(2, c[3] - 2)
+		local x, z = c[1] + math.cos(a) * d, c[2] + math.sin(a) * d
+		if math.abs(x - 270) > 5 then
+			local tall = rng:NextNumber() < 0.25
+			local src = GA and GA:FindFirstChild(tall and "LotusTall" or "LotusFlat")
+			if src then
+				local lm = src:Clone()
+				lm:ScaleTo(lm:GetScale() * rng:NextNumber(0.8, 1.3))
+				lm:PivotTo(CFrame.new(lm:GetPivot().Position) * CFrame.Angles(0, rng:NextNumber(0, 6.28), 0))
+				local cf, s = lm:GetBoundingBox()
+				lm:PivotTo(lm:GetPivot() + (Vector3.new(x, tall and (0.1 + s.Y / 2) or 0.95, z) - cf.Position))
+				lm.Parent = m
+			end
+		end
+	end
+	-- 무지개 돌다리 (남북, 연못 허리 x 270)
+	local bsrc = VA and VA:FindFirstChild("StoneBridge")
+	if bsrc then
+		local br = bsrc:Clone()
+		local mp = br:FindFirstChildWhichIsA("MeshPart", true)
+		if mp then
+			mp.Size = Vector3.new(26, 5.5, 8)
+			mp.CFrame = CFrame.new(270, 0.5 + 2.75, 290) * CFrame.Angles(0, math.pi / 2, 0)
+			mp.Anchored = true
+			mp.CanCollide = false
+		end
+		br.Parent = m
+		-- 걷는 경사로 (투명): 양쪽에서 가운데로 오르는 쐐기 두 개
+		for _, sgn in ipairs({ -1, 1 }) do
+			local w = Instance.new("WedgePart") w.Name = "BridgeWalk" w.Anchored = true w.Transparency = 1 w.CastShadow = false
+			w.Size = Vector3.new(5, 3.2, 12)
+			local p = Vector3.new(270, 0.5 + 1.6, 290 + sgn * 6.5)
+			w.CFrame = CFrame.lookAt(p, p + Vector3.new(0, 0, sgn))
+			w.Parent = m
+		end
+	end
+	-- 육각정 (다리 북쪽 끝): 돌 기단 · 나무 마루 · 기둥 6 · 난간 · AI 육각 지붕
+	local C = Vector3.new(270, 0, 262)
+	local R = 8.5
+	local function hexSlab(name, r, y0, y1, kind, color)
+		for k = 0, 2 do
+			local p = box(m, name, Vector3.new(r * 2 / math.sqrt(3) * 1.0, y1 - y0, r * 2), Vector3.zero, kind)
+			p.CFrame = CFrame.new(C.X, (y0 + y1) / 2, C.Z) * CFrame.Angles(0, math.rad(k * 60), 0)
+			if color then p.Color = color end
+		end
+	end
+	hexSlab("PavilionBase", R + 2.5, 0, 2, "stone", STN)
+	hexSlab("PavilionFloor", R + 0.6, 2, 2.6, "woodH")
+	local PH = 13
+	local postTop = 2.6 + PH
+	for k = 0, 5 do
+		local a = math.rad(30 + k * 60)
+		local p = Vector3.new(C.X + math.cos(a) * R, 0, C.Z + math.sin(a) * R)
+		local post = box(m, "PavilionPost", Vector3.new(1.2, PH, 1.2), Vector3.new(p.X, 2.6 + PH / 2, p.Z), "woodV")
+		post.Material = Enum.Material.Wood post.MaterialVariant = "" post.Color = Color3.fromRGB(150, 66, 50)
+		local a2 = math.rad(30 + (k + 1) * 60)
+		local q = Vector3.new(C.X + math.cos(a2) * R, 0, C.Z + math.sin(a2) * R)
+		local mid = (p + q) / 2
+		local len = (q - p).Magnitude
+		local dir = (q - p).Unit
+		-- 남쪽 칸(다리 쪽)은 난간 없이 드나들기
+		local isEntry = (mid.Z > C.Z + 3) and math.abs(mid.X - C.X) < 3
+		if not isEntry then
+			for _, h in ipairs({ 4.2, 5.4 }) do
+				local rail = box(m, "PavilionRail", Vector3.new(len, 0.35, 0.35), Vector3.zero, "woodH")
+				rail.CFrame = CFrame.fromMatrix(mid + Vector3.new(0, h, 0), dir, Vector3.yAxis)
+				rail.Material = Enum.Material.Wood rail.MaterialVariant = "" rail.Color = Color3.fromRGB(150, 66, 50)
+			end
+		end
+		local beam = box(m, "PavilionBeam", Vector3.new(len + 1, 1.1, 0.9), Vector3.zero, "woodH")
+		beam.CFrame = CFrame.fromMatrix(mid + Vector3.new(0, postTop - 0.5, 0), dir, Vector3.yAxis)
+		-- 단청 띠 (초록)
+		local band = box(m, "Dancheong", Vector3.new(len + 1, 0.5, 0.95), Vector3.zero, nil, { shadow = false })
+		band.CFrame = beam.CFrame * CFrame.new(0, -0.8, 0)
+		mat(band, Enum.Material.SmoothPlastic, Color3.fromRGB(60, 140, 120))
+	end
+	local rsrc = VA and VA:FindFirstChild("PavilionRoof6")
+	if rsrc then
+		local rf = rsrc:Clone()
+		local mp = rf:FindFirstChildWhichIsA("MeshPart", true)
+		if mp then
+			mp.Size = Vector3.new(26, 11, 26)
+			mp.CFrame = CFrame.new(C.X, postTop + 5.2, C.Z)
+			mp.Anchored = true mp.CanCollide = false
+		end
+		rf.Parent = m
+	end
+	bx(m, "PavilionStep", C.X - 3, C.X + 3, 0, 1, C.Z + R + 2.5, C.Z + R + 4.5, "stone").Color = STN
+	for _, a in ipairs({ 0, 2, 4 }) do seat(m, Vector3.new(C.X + math.cos(a) * 4, 2.9, C.Z + math.sin(a) * 4), Vector3.new(-math.cos(a), 0, -math.sin(a))) end
+	-- 연못 가 바위 · 풀
+	for i = 1, 16 do
+		local c = DISCS[(i % 2) + 1]
+		local a = i * 0.83
+		local x, z = c[1] + math.cos(a) * (c[3] + 1.5), c[2] + math.sin(a) * (c[3] + 1.5)
+		if math.abs(x - 270) > 6 then
+			place(GA and GA:FindFirstChild(i % 3 == 0 and "Fern" or "RockC"), m, Vector3.new(x, 0.8, z), i % 3 == 0 and 1.2 or 0.9 + (i % 4) * 0.2, i)
+		end
+	end
+end
+
 root.Parent = workspace
 local n = 0
 for _, d in ipairs(root:GetDescendants()) do if d:IsA("BasePart") then n += 1 end end
