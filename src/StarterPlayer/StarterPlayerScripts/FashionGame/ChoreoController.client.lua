@@ -19,6 +19,7 @@ local ChoreoSmooth = require(script.Parent:WaitForChild("ChoreoSmooth"))
 local ChoreoBodyGuard = require(script.Parent:WaitForChild("ChoreoBodyGuard")) -- (D-1168) arms not through the body / each other
 local ChoreoMouth = require(script.Parent:WaitForChild("ChoreoMouth")) -- (D-1186) singing along
 local ChoreoChair = require(script.Parent:WaitForChild("ChoreoChair")) -- (D-1321) 백화요란's chair
+local ChoreoFeet = require(script.Parent:WaitForChild("ChoreoFeet")) -- (D-1905) planted feet stay put
 local danceRemote = FashionGame:WaitForChild("Remotes"):WaitForChild("Dance") :: RemoteEvent
 local player = Players.LocalPlayer
 
@@ -1002,6 +1003,11 @@ RunService.PreSimulation:Connect(function(dt)
 				end
 				-- (D-1321) on the chair the hips rest on the seat, not through it
 				ChoreoChair.sit(character)
+				-- (D-1905) a ChoreoFixes `plant` window: a foot on the floor keeps its spot while the body moves on
+				do
+					local cached = floorCache[character]
+					ChoreoFeet.apply(character, bodyJoints(character), ChoreoFeet.active(choreo, ChoreoSmooth.fixes), cached and cached.y, dt)
+				end
 				-- (D-1186) the mouth sings along in the song's sung stretches (ChoreoMouth)
 				do
 					local tr = playingTrack()

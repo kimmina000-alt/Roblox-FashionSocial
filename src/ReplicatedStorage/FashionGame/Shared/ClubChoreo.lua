@@ -2867,7 +2867,7 @@ do
 			local u = math.clamp((t - A0) / (A1 - A0), 0, 1)
 			return u * u * (3 - 2 * u)
 		end
-		local lands = { { 9.36, "Right" }, { 9.58, "Left" }, { 9.80, "Right" }, { 10.02, "Left" }, { 10.24, "Right" }, { 10.42, "Left" } }
+		local lands = { { 9.36, "Right" }, { 9.58, "Left" }, { 9.80, "Right" }, { 10.02, "Left" }, { 10.24, "Right" }, { 10.42, "Left" }, { 10.64, "Right" } }
 		local SWING = 0.16
 		-- (the capture's own legs swing a lot here, so the legs are set, not added: thighs spread 8° like the capture's stance)
 		local track = {}
@@ -2931,6 +2931,17 @@ do
 			t += 0.04
 		end
 		addList(132406634119258, "pose", { from = A0 + 0.05 - 6.02, to = A1 + 0.45 - 6.02, ease = 0.12, keys = keys })
+		-- (D-1905, user: "발 고정(IK) 기능 만들기") what the leg turns above leave (0.17-0.35 torso lengths, Play; before the
+		-- walk the capture's own slide 8.6-9.2) is held by ChoreoFeet: the planted foot keeps its floor spot 8.6-10.8
+		addList(132406634119258, "plant", { from = 2.58, to = 5.2 })
+		-- (Play with the plant: the right foot never lifted 8.5-9.3 in the capture, so it was held until it was 1.2 studs
+		-- behind and jumped: one right step at 8.95 before the walk, one more at 10.64 after it)
+		do
+			local f = fx(132406634119258)
+			f.bend = if f.bend then table.clone(f.bend) else {}
+			table.insert(f.bend, { part = "RightUpperLeg", keys = { { 8.79 - 6.02, 0, 0, 0 }, { 8.95 - 6.02, 30, 0, 0 }, { 9.11 - 6.02, 0, 0, 0 } } })
+			table.insert(f.bend, { part = "RightLowerLeg", keys = { { 8.79 - 6.02, 0, 0, 0 }, { 8.95 - 6.02, -50, 0, 0 }, { 9.11 - 6.02, 0, 0, 0 } } })
+		end
 	end
 	-- (D-1901, user via the main session: "원본처럼 고개 젖힘, 상체 움직임도 원본만큼") 갑자기 0:09.2-0:10.1 the head goes back
 	-- (chin up about 40°) and the upper body leans back with it (the capture: head 6-8°, chest 5-7°, 15 % of it); at 10.2-10.5
