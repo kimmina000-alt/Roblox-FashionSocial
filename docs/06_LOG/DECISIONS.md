@@ -6497,3 +6497,6 @@ Studio only (no script yet).
 - Magic-Secret 124810692241835: boost2 5 → 2, boost3 4 → 2, EQ 0/0/0 → 0/0/-10.
 - Magic-Secret fileSpeed 1.0504 → 1.0502: 음원 테스트 세션의 지금 값이고 Studio도 1.0502(1.0504는 11-13 값).
 - Play로 들어 보지는 않음.
+
+## D-1882 (2026-11-19) 놀이공원 츄러스 · 콜팝 간판 색
+- User: "놀이공원 콜팝 츄러스 상점 간판 색 넣기 적절한 색으로". The sign letters (each snack bar's one untextured MeshPart) were the gate booths' white (D-1497). Now each takes a colour from its own booth texture (D-1519): 츄러스 (SnackBar1 / SnackBar1B, yellow roof, red stripes) = red 222,38,42; 콜팝 (SnackBar2B, teal roof, orange stripes) = orange 255,122,24. The balloon shop keeps the white. tools/graybox/park_shops_1116.lua (SIGN_OF); in the place the two signs were recoloured directly (no chain run).
