@@ -6259,3 +6259,7 @@ Studio only (no script yet).
 - 사용자: "페달 위치 왼쪽이 나을까 중앙이 나을까 편의성 생각해 봐" → 왼쪽은 조이스틱(왼손 엄지)과 겹치고 가운데는 오른손을 뻗어야 해서 오른쪽 아래 추천 → "응 오른쪽으로 옮겨".
 - 휴대폰: 점프 버튼 왼쪽 28 떨어진 자리, 아래쪽 높이를 점프 버튼과 맞춤(점프 = 차에서 내리기라 붙이지 않음), 터치 전용 기기에서는 86×116으로 조금 크게. PC: 오른쪽 아래(키보드 W/↑가 페달).
 - 확인(Studio Play, 폰 화면): 페달 x 538..612, 점프 버튼 640..710, 아래 끝 같음.
+
+## D-1883 (2026-11-19) 범퍼카 왼쪽 ◀ ▶ 방향 버튼
+- User: "범퍼카 오른쪽에 악셀 넣었으면 왼쪽에 방향키 넣어 줘 방향 못 잡겠음". BumperCarController: ◀ ▶ buttons (BumperPedal.SteerLeft / SteerRight, 84 on phones, 70 otherwise) at the bottom left, bottoms level with the pedal. Held, they turn the car's wheel all the way to the car's own left / right (not the camera's); let go, the wheel comes back. The stick still works elsewhere on the screen (and still backs up, D-1828); a held button wins over it for turning. Unlike D-1564/D-1666 (removed then), the pedal is now on the right, so the left thumb is free for these.
+- Play (phone view): with the pedal down and ◀ held, the car turned about 180° in 1.5 s while moving 14.5 studs; without ◀ it drove straight.
