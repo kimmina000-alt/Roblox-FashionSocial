@@ -424,7 +424,10 @@ def analyse(dv, dg, mirror_mode="auto", t_from=None, t_to=None, video_path=None)
         return d
     SV, SG = speeds(UVs), speeds(UGs)
     GSV = {g: np.nansum(SV[:, GSEG[g]], axis=1) * np.where(np.all(np.isnan(SV[:, GSEG[g]]), 1), np.nan, 1) for g in GROUPS}
-    GSG = {g: np.nansum(SG[:, GSEG[g]], axis=1) for g in GROUPS}
+    GSG = {g: np.nansum(SG[:, GSEG[g]], axis=1) * np.where(np.all(np.isnan(SG[:, GSEG[g]]), 1), np.nan, 1) for g in GROUPS}
+    # holes in the game recording (a dropped log stretch): unknown, never "the game stopped" (D-1893, Boogie 0:17.05 +0.7 s)
+    gvalid = ~np.isnan(BG[:, AI["SHO"], 0])
+    game_gaps = [(round(float(ts[a]), 2), round(float(ts[min(b, len(ts) - 1)]), 2)) for a, b in runs(~gvalid, int(0.1 / DT))]
 
     issues = []
 
@@ -466,6 +469,8 @@ def analyse(dv, dg, mirror_mode="auto", t_from=None, t_to=None, video_path=None)
     VV = np.nan_to_num(VV)
     VG = np.nan_to_num(VG)
     VV[~valid] = 0
+    VV[~gvalid] = 0
+    VG[~gvalid] = 0
     win, hopn, maxlag = int(2.0 / DT), int(0.5 / DT), int(0.4 / DT)
     lags = {}
     for g in GROUPS:
@@ -485,7 +490,7 @@ def analyse(dv, dg, mirror_mode="auto", t_from=None, t_to=None, video_path=None)
         rows = []
         for s0 in range(0, n - win, hopn):
             s1 = s0 + win
-            if valid[s0:s1].mean() < 0.7:
+            if (valid[s0:s1] & gvalid[s0:s1]).mean() < 0.7:
                 continue
             mv = np.nanmean(GSV[g][s0:s1])
             if not (mv >= MOVE[g] * 1.3):
@@ -543,7 +548,7 @@ def analyse(dv, dg, mirror_mode="auto", t_from=None, t_to=None, video_path=None)
         gv = valid & ~np.isnan(UV[:, GSEG[g]]).any(axis=(1, 2)) & (np.nan_to_num(sv) < 1800 * len(GSEG[g]))
         gv = np.convolve(~gv, np.ones(int(0.2 / DT) * 2 + 1), "same") == 0
         hv = find_hits(sv, ts, HIT_PEAK[g], gv)
-        hg = find_hits(sg, ts, HIT_PEAK[g] * 0.8, np.ones(len(ts), bool))
+        hg = find_hits(sg, ts, HIT_PEAK[g] * 0.8, gvalid)
         tg = np.array([h[0] for h in hg])
         used = set()
         hit_stats["video"] += len(hv)
@@ -564,6 +569,8 @@ def analyse(dv, dg, mirror_mode="auto", t_from=None, t_to=None, video_path=None)
             else:
                 # the game has no stop here: is it moving smoothly through, or not moving at all?
                 i = int(np.searchsorted(ts, t))
+                if not gvalid[max(0, i - int(0.25 / DT)):i + int(0.25 / DT)].all():
+                    continue
                 lo, hi = max(0, i - int(0.25 / DT)), min(len(ts), i + int(0.25 / DT))
                 gpk = float(np.nanmax(sg[lo:hi])) if hi > lo else 0
                 hits.append({"g": g, "tv": round(t, 3), "tg": None, "d": None, "bv": None if bv is None else round(bv, 3),
@@ -703,7 +710,7 @@ def analyse(dv, dg, mirror_mode="auto", t_from=None, t_to=None, video_path=None)
 
     # ---- summary numbers
     summary = {"mirror": use_m, "arm_plain": round(s_plain, 2), "arm_mirror": round(s_mir, 2), "seen": round(seen, 3),
-               "t0": float(ts[0]), "t1": float(ts[-1]), "cam_yaw": round(cam, 1), "lag_overall": lag_overall,
+               "t0": float(ts[0]), "t1": float(ts[-1]), "cam_yaw": round(cam, 1), "lag_overall": lag_overall, "game_gaps": game_gaps,
                "groups": {}, "hits": {}}
     for g in GROUPS:
         e = GE[g][valid]
@@ -739,29 +746,58 @@ def analyse(dv, dg, mirror_mode="auto", t_from=None, t_to=None, video_path=None)
     for i, it in enumerate(merged):
         it["id"] = i + 1
 
-    ctx = dict(ts=ts, valid=valid, BV=BV, BG=BG, yawV=yawV, yawG=yawG, cam=cam, GE=GE, lags=lags, hits=hits,
+    trv = None
+    TRg = [(x["t"], x.get("tr")) for x in dg["samples"] if x.get("p") and x.get("tr")]
+    if len(TRg) > 10:
+        tt = np.array([q[0] for q in TRg])
+        rr = np.array([q[1] for q in TRg], float)
+        r2_ = np.stack([np.interp(ts, tt, rr[:, 0]), np.interp(ts, tt, rr[:, 1])], 1)
+        k = int(0.3 / DT)
+        trv = np.zeros(len(ts))
+        trv[k:-k] = np.linalg.norm(r2_[2 * k:] - r2_[:-2 * k], axis=1) / (2 * k * DT)
+    ctx = dict(trv=trv, GSG=GSG, ts=ts, valid=valid, BV=BV, BG=BG, yawV=yawV, yawG=yawG, cam=cam, GE=GE, lags=lags, hits=hits,
                beats=beat_info, amount=amount, grooves=grooves, use_m=use_m, off=off, TV=TV, imgV=imgV, vtV=vtV, dys=dys)
     return merged, summary, ctx
 
 
 def edit_spans(ctx, bctx):
-    """Where the edit changed the game (the two recordings differ 12°+ for 0.2 s+; untouched parts of two
-    recordings differ about 3°, TWS 2026-11-19), and for each the error against the video before -> after."""
+    """Where the edit changed the game, and for each the error against the video before -> after.
+    Changed = the two recordings differ: bones 12°+ (mean of all; untouched parts of two recordings differ about 3°,
+    TWS 2026-11-19), or facing 25°+, or the body's travel 0.25 torso/s+ (slides), or the hips 0.12 torso up / down,
+    or the amount of motion (a twitch taken out) — for 0.2 s+ (D-1893)."""
     ts = ctx["ts"]
     UA, _ = seg_units(ctx["BG"])
     UB, _ = seg_units(bctx["BG"])
     d = movavg(np.nanmean(ang_between(UA, UB), axis=1), 7)
+    dyaw = movavg(np.abs(wrapd(ctx["yawG"] - bctx["yawG"])), 7)
+    hh = lambda B: -np.fmin(B[:, AI["lank"], 1], B[:, AI["rank"], 1])
+    dh = movavg(np.abs(hh(ctx["BG"]) - hh(bctx["BG"])), 7)
+    tv = lambda c_: c_.get("trv")
+    dtr = movavg(np.abs(tv(ctx) - tv(bctx)), 7) if tv(ctx) is not None and tv(bctx) is not None else np.zeros(len(ts))
+    sa = sum(np.nan_to_num(movavg(ctx["GSG"][g], 15)) for g in GROUPS)
+    sb = sum(np.nan_to_num(movavg(bctx["GSG"][g], 15)) for g in GROUPS)
+    dm = np.abs(sa - sb) / (np.maximum(sa, sb) + 150)
+    why = [(np.nan_to_num(d) > 12, "자세"), (np.nan_to_num(dyaw) > 25, "방향"), (np.nan_to_num(dtr) > 0.25, "이동"),
+           (np.nan_to_num(dh) > 0.12, "높이"), (np.nan_to_num(dm) > 0.45, "움직임 양")]
+    flag = np.zeros(len(ts), bool)
+    for f, _ in why:
+        flag |= f
     spans = []
-    for a, b in runs(np.nan_to_num(d) > 12, int(0.2 / DT), int(0.3 / DT)):
+    for a, b in runs(flag, int(0.2 / DT), int(0.3 / DT)):
+        trig = [w for f, w in why if f[a:b].any()]
+        if trig == ["움직임 양"] and abs(np.mean(sa[a:b]) - np.mean(sb[a:b])) < 0.25 * max(np.mean(sa[a:b]), np.mean(sb[a:b]), 1):
+            continue  # a moment's flicker, not a changed move
         ea = np.nanmean([np.nanmean(ctx["GE"][g][a:b]) for g in GROUPS])
         eb = np.nanmean([np.nanmean(bctx["GE"][g][a:b]) for g in GROUPS])
         spans.append({"t0": round(float(ts[a]), 2), "t1": round(float(ts[min(b, len(ts) - 1)]), 2),
-                      "change": round(float(np.nanmax(d[a:b])), 1),
+                      "change": round(float(np.nanmax(d[a:b])), 1), "what": [w for f, w in why if f[a:b].any()],
+                      "move": [round(float(np.mean(sb[a:b])), 0), round(float(np.mean(sa[a:b])), 0)],
+                      "trv": [round(float(np.nanmax(tv(bctx)[a:b])), 2), round(float(np.nanmax(tv(ctx)[a:b])), 2)] if tv(ctx) is not None else None,
                       "before": None if np.isnan(eb) else round(float(eb), 1), "after": None if np.isnan(ea) else round(float(ea), 1)})
     return spans
 
 
-def tag_before(issues, before, spans):
+def tag_before(issues, before, spans, gaps=()):
     """Each issue: new = not there before (same kind and part, overlapping) AND inside a place the edit changed;
     elsewhere a 'new' issue is only the threshold flickering between two recordings. Before-issues no longer
     found inside an edited place: gone (fixed)."""
@@ -774,7 +810,8 @@ def tag_before(issues, before, spans):
     for x in issues:
         x["new"] = (not any(same(x, y) for y in before)) and edited(x)
     for y in before:
-        y["gone"] = (not any(same(x, y) for x in issues)) and edited(y)
+        hole = any(y["t0"] < b + 0.3 and a - 0.3 < y["t1"] for a, b in gaps)  # unseen in the new recording: not "fixed"
+        y["gone"] = (not any(same(x, y) for x in issues)) and edited(y) and not hole
 
 
 # ---------------------------------------------------------------- outputs
@@ -786,6 +823,9 @@ def write_report(path, title, issues, summary, top):
              (ft(s["t0"]), ft(s["t1"]), round(100 * s["seen"]), "거울로 비교" if s["mirror"] else "그대로 비교",
               s["arm_plain"], s["arm_mirror"], round(s["cam_yaw"])))
     L.append("시간 = 곡 초(재생바). + = 게임이 늦음.")
+    if s.get("game_gaps"):
+        L.append("⚠ 게임 녹화가 빈 곳 %d: %s — 이 구간은 판정 못 함, 다시 녹화 필요" % (
+            len(s["game_gaps"]), ", ".join("%s-%s" % (ft(a), ft(b)) for a, b in s["game_gaps"][:8])))
     L.append("")
     L.append("## 한눈에")
     h = s["hits"]
@@ -823,12 +863,17 @@ def write_report(path, title, issues, summary, top):
         gone = s["before"]["gone"]
         sp = s["before"].get("spans", [])
         L.append("")
-        L.append("편집으로 게임이 바뀐 곳 %d (두 녹화가 12°↑ 다름; 안 건드린 곳은 보통 3° 안팎)" % len(sp))
+        L.append("편집으로 게임이 바뀐 곳 %d (두 녹화의 자세 12°↑ · 방향 25°↑ · 이동 · 높이 · 움직임 양이 다름; 안 건드린 곳은 자세 3° 안팎)" % len(sp))
         for x in sp:
             verdict = "-" if x["before"] is None or x["after"] is None else (
                 "좋아짐" if x["after"] < x["before"] - 3 else ("나빠짐 ✗" if x["after"] > x["before"] + 3 else "비슷"))
-            L.append("   %s-%s  게임 변화 최대 %d°, 원본과의 평균 오차 %s° → %s°  %s" % (
-                ft(x["t0"]), ft(x["t1"]), round(x["change"]), x["before"], x["after"], verdict))
+            extra = ""
+            if "이동" in x.get("what", []) and x.get("trv"):
+                extra += ", 이동 속도 %.2f → %.2f 몸통/초" % tuple(x["trv"])
+            if "움직임 양" in x.get("what", []):
+                extra += ", 움직임 %d → %d°/s" % tuple(x["move"])
+            L.append("   %s-%s  [%s] 자세 변화 최대 %d°%s, 원본과의 평균 오차 %s° → %s°  %s" % (
+                ft(x["t0"]), ft(x["t1"]), "·".join(x.get("what", [])), round(x["change"]), extra, x["before"], x["after"], verdict))
         L.append("바뀐 곳에서 새로 생긴 항목 %d (아래 ★새), 없어진 항목 %d" % (len(new), len(gone)))
         for x in sorted(gone, key=lambda q: -q["sev"])[:15]:
             L.append("   고쳐짐: %s-%s [%s] %s" % (ft(x["t0"]), ft(x["t1"]), x["kind"], x["text"]))
@@ -926,11 +971,21 @@ def main():
     video = a.video or dv.get("video")
     title = a.title or dg.get("tag") or os.path.splitext(os.path.basename(a.video_json))[0]
     os.makedirs(a.out, exist_ok=True)
-    issues, summary, ctx = analyse(dv, dg, a.mirror, a.t0, a.t1, video)
-    if a.before:
-        b_issues, b_summary, bctx = analyse(dv, load(a.before), a.mirror, a.t0, a.t1, video)
+    t0, t1 = a.t0, a.t1
+    db = load(a.before) if a.before else None
+    if db:
+        # both runs on the same time grid: the part the two recordings share (D-1893)
+        def span(d):
+            ts_ = [x["t"] for x in d["samples"] if x.get("p")]
+            return min(ts_), max(ts_)
+        (ga, gb), (ba, bb), (va, vb) = span(dg), span(db), span(dv)
+        t0 = round(max(ga, ba, va, t0 if t0 is not None else -1e9) + 0.01, 2)
+        t1 = round(min(gb, bb, vb, t1 if t1 is not None else 1e9) - 0.01, 2)
+    issues, summary, ctx = analyse(dv, dg, a.mirror, t0, t1, video)
+    if db:
+        b_issues, b_summary, bctx = analyse(dv, db, a.mirror, t0, t1, video)
         spans = edit_spans(ctx, bctx)
-        tag_before(issues, b_issues, spans)
+        tag_before(issues, b_issues, spans, summary.get("game_gaps") or [])
         summary["before"] = {"summary": b_summary, "gone": [x for x in b_issues if x.get("gone")], "spans": spans}
     write_report(os.path.join(a.out, "검토_리포트.txt"), title, issues, summary, a.top)
     data = viewer_data(title, os.path.abspath(video) if video else None, issues, summary, ctx)
