@@ -6,7 +6,7 @@
 -- (x, z) it touched: the leg is bent to it with a two-bone IK (hip -> knee -> ankle, the knee kept
 -- on the side it points to), the foot keeps its own turn. A foot that lifts lets go over 0.12 s;
 -- a foot pulled more than 1.2 studs from its spot (a real slide in the dance, a long stride)
--- lets go too. Runs last in ChoreoController's PreSimulation, on the joints the frame ends with.
+-- lets go over 0.3 s, and at the window's end over 0.5 s (D-1907). Runs last in ChoreoController's PreSimulation, on the joints the frame ends with.
 local ChoreoFeet = {}
 
 local CONTACT = 0.18 -- sole within this of the floor = on the floor
@@ -14,7 +14,7 @@ local LET_GO = 0.12 -- seconds to ease back to the animation after the foot lift
 local STRETCH = 1.2 -- studs from its spot: let go
 
 type Joint = Motor6D | AnimationConstraint
-type FootState = { spot: Vector3?, w: number }
+type FootState = { spot: Vector3?, w: number, letGo: number?, lifted: boolean? }
 local states: {[Model]: {[string]: FootState}} = setmetatable({}, { __mode = "k" }) :: any
 
 -- the child part's frame from its parent's frame and the joint
@@ -97,13 +97,21 @@ function ChoreoFeet.apply(character: Model, joints: {[string]: Joint}, active: b
 		local half = math.abs(footCF.RightVector.Y) * size.X / 2 + math.abs(footCF.UpVector.Y) * size.Y / 2 + math.abs(footCF.LookVector.Y) * size.Z / 2
 		local onFloor = footCF.Position.Y - half < floorY + CONTACT
 		local st = mine[side]
-		if not st then st = { spot = nil, w = 0 } mine[side] = st end
-		if active and onFloor then
+		if not st then st = { spot = nil, w = 0, letGo = nil } mine[side] = st end
+		-- a foot that lifted and is down again is held at once where it landed (only a pulled foot waits to be let go)
+		if active and onFloor and st.letGo and st.lifted then st.spot, st.w, st.letGo, st.lifted = A, 1, nil, nil end
+		if active and onFloor and not st.letGo then
 			if not st.spot or st.w < 1 then st.spot, st.w = A, 1 end
-			if Vector2.new(st.spot.X - A.X, st.spot.Z - A.Z).Magnitude > STRETCH then st.spot, st.w = A, 1 end
-		elseif st.spot then
-			st.w -= dt / LET_GO
-			if st.w <= 0 then st.spot, st.w = nil, 0 end
+			-- (D-1907) pulled too far: eased off over 0.3 s, then held again where it is (it jumped 1.2 studs in a frame)
+			if Vector2.new(st.spot.X - A.X, st.spot.Z - A.Z).Magnitude > STRETCH then st.letGo = 0.3 end
+		elseif st.spot and not st.letGo then
+			-- lifted: LET_GO; the window over: 0.5 s (the body has gone on, the foot catches up slowly)
+			st.letGo = if active then LET_GO else 0.5
+			st.lifted = active
+		end
+		if st.spot and st.letGo then
+			st.w -= dt / st.letGo
+			if st.w <= 0 then st.spot, st.w, st.letGo, st.lifted = nil, 0, nil, nil end
 		end
 		if not st.spot then continue end
 		anyHeld = true
