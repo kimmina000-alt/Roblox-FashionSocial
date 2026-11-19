@@ -112,7 +112,13 @@ local function showNext()
 		line = string.format("✨ %s님의 콜드 스파크!", tostring(data.name))
 	end
 	Sfx.play("success")
-	BottomNotice.show(line, BottomNotice.RED, if data.kind == "support" then GIFT_SECONDS else SPARK_SECONDS)
+	if data.kind == "support" then
+		BottomNotice.show(line, BottomNotice.RED, GIFT_SECONDS)
+	else
+		-- (D-1812, user 2026-11-19: "콜드 스파크는 상단에 띄우고 깜빡깜빡 거리게 하자 글자 1.5배 키우고") cold
+		-- sparks (and the DJ's spark show) under the top bar, blinking, 20 px (13 x 1.5)
+		BottomNotice.show(line, BottomNotice.RED, SPARK_SECONDS, { top = true, blink = true, size = 20 })
+	end
 	showNext()
 end
 
