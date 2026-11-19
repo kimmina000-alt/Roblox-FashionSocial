@@ -84,6 +84,13 @@ def features(s):
     f["_shoy"] = shoc[1] - hipc[1]
     f["_shotilt"] = P["lsho"][1] - P["rsho"][1]
     f["chest"] = dot(up, F) / torso
+    # (D-1950) chest pops: the chest's and the head's way forward of the hips (raw: analyse() scales them), and in
+    # the game the waist joint's own push (a pop moves that joint; the dancing only turns it)
+    f["_chestfwd"] = dot(up, F)
+    if "nose" in P:
+        f["_headfwd"] = dot(sub(P["nose"], hipc), F)
+    if s.get("waist"):
+        f["waistfwd"] = s["waist"][0]
     # head
     if all(n in P for n in ("nose", "lear", "rear")):
         ec = mid(P["lear"], P["rear"])
@@ -362,6 +369,9 @@ def analyse(samples):
     for f in good:
         f["shoy"] = f["_shoy"] / tmed
         f["shotilt"] = f["_shotilt"] / tmed
+        f["chestfwd"] = f["_chestfwd"] / tmed
+        if "_headfwd" in f:
+            f["headfwd"] = f["_headfwd"] / tmed
     ps = sorted(f["hpitch"] for f in good if "hpitch" in f)
     pmed = ps[len(ps) // 2] if ps else 0
     hips = sorted(f["h"].get("hip") for f in good if f["h"].get("hip") is not None)
@@ -563,7 +573,7 @@ def events(ts, F):
                 out.append((t0, t1, "%s손 %s %s" % (side, word, "털기" if fast else "흔들기")))
     # shoulders up and down
     # (shoulders: 1.2 s windows, so a shrug on top of a bend still shows 3 turns: Boogie Woogie 0:17, D-1921)
-    for key, word, amp, wsec in (("shoy", "어깨 들썩들썩", 0.06, 1.2), ("shotilt", "어깨 한쪽씩 위아래", 0.09, 1.0), ("chest", "가슴 튕기기", 0.09, 1.0)):
+    for key, word, amp, wsec in (("shoy", "어깨 들썩들썩", 0.06, 1.2), ("shotilt", "어깨 한쪽씩 위아래", 0.09, 1.0), ):
         xs = [f[key] if f else None for f in F]
         w = max(3, round(wsec / step))
         evs = []
@@ -573,6 +583,7 @@ def events(ts, F):
                 evs.append([ts[s0], ts[min(n - 1, s0 + w)], key, c])
         for t0, t1, _, c in merge(evs, 0.1):
             out.append((t0, t1, word))
+    out += chest_pops(ts, F)
     # claps: the wrists meet and part again and again
     d = [norm(sub(mul(f["Lwri"], 1), f["Rwri"])) if f and f.get("Lwri") and f.get("Rwri") else None for f in F]
     evs = []
@@ -618,6 +629,61 @@ def events(ts, F):
     for t0, t1, word in merge(evs, 0.1):
         out.append((t0, t1, word))
     return sorted(out)
+
+
+def chest_pops(ts, F):
+    """(D-1950) 가슴 튕기기: each pop's time, grouped into series (pops 1.2 s or less apart).
+    Game (a waist joint move was recorded): the waist pushed 0.05 torso or more forward, at its peak.
+    Video: the chest goes 0.08 torso forward of the hips within 0.25 s and back 0.06 within 0.35 s while the head
+    lags behind it (the chest arches: the head-to-chest gap shrinks), so a whole-body bob is not a pop."""
+    idx = [i for i, f in enumerate(F) if f]
+    if not idx:
+        return []
+    game = any("waistfwd" in F[i] for i in idx)
+    pops = []
+    for n_, i in enumerate(idx):
+        f = F[i]
+        if game:
+            x = f.get("waistfwd")
+            if x is None or x < 0.05:
+                continue
+            prev = F[idx[n_ - 1]].get("waistfwd", 0) if n_ > 0 else 0
+            nxt = F[idx[n_ + 1]].get("waistfwd", 0) if n_ + 1 < len(idx) else 0
+            if x >= prev and x >= nxt:
+                pops.append((ts[i], x))
+            continue
+        x = f.get("chestfwd")
+        if x is None or "headfwd" not in f:
+            continue
+        before = [j for j in idx if 0 < ts[i] - ts[j] <= 0.25 and F[j].get("chestfwd") is not None]
+        after = [j for j in idx if 0 < ts[j] - ts[i] <= 0.35 and F[j].get("chestfwd") is not None]
+        if not before or not after:
+            continue
+        lo = min(before, key=lambda j: F[j]["chestfwd"])
+        if x - F[lo]["chestfwd"] < 0.08 or x - min(F[j]["chestfwd"] for j in after) < 0.06:
+            continue
+        if any(F[j]["chestfwd"] > x for j in before + after if abs(ts[j] - ts[i]) <= 0.1):
+            continue
+        gap0 = F[lo].get("headfwd", 0) - F[lo]["chestfwd"]
+        gap1 = f["headfwd"] - x
+        if gap1 <= gap0 - 0.015:
+            pops.append((ts[i], x - F[lo]["chestfwd"]))
+    merged = []
+    for t, x in pops:
+        if merged and t - merged[-1][0] < 0.2:
+            if x > merged[-1][1]:
+                merged[-1] = (t, x)
+        else:
+            merged.append((t, x))
+    out, cur = [], []
+    for t, x in merged:
+        if cur and t - cur[-1] > 1.2:
+            out.append(cur)
+            cur = []
+        cur.append(t)
+    if cur:
+        out.append(cur)
+    return [(c[0] - 0.1, c[-1] + 0.3, "가슴 튕기기 %d번 (%s)" % (len(c), ", ".join(ftime(t) for t in c))) for c in out]
 
 
 def ftime(t):

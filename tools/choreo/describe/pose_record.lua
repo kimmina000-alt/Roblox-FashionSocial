@@ -50,6 +50,7 @@ end
 local NAMES = { "nose", "lear", "rear", "lsho", "rsho", "lelb", "relb", "lwri", "rwri", "lhand", "rhand",
 	"lhip", "rhip", "lkne", "rkne", "lank", "rank", "ltoe", "rtoe" }
 
+local waistCache = setmetatable({}, { __mode = "k" })
 local function points(ch)
 	local function att(part, name)
 		local p = ch:FindFirstChild(part)
@@ -89,7 +90,23 @@ local function points(ch)
 		end end end
 		return m
 	end
-	return P, V, low("LeftFoot"), low("RightFoot")
+	-- (D-1950) the waist joint's own move: a chest pop (ChoreoSmooth.pop) pushes the chest forward / up there and
+	-- arches it; an animation's own dancing only turns that joint
+	-- (the joint is a Motor6D on older rigs, an AnimationConstraint on newer ones, as in play_record.lua)
+	local ut = ch:FindFirstChild("UpperTorso")
+	local waist = waistCache[ch]
+	if waist == nil and ut then
+		waist = false
+		for _, d in ipairs(ch:GetDescendants()) do
+			if (d:IsA("Motor6D") and d.Part1 == ut) or (d:IsA("AnimationConstraint") and d.Attachment1 and d.Attachment1.Parent == ut) then
+				waist = d
+				break
+			end
+		end
+		waistCache[ch] = waist
+	end
+	local W = waist and waist.Transform
+	return P, V, low("LeftFoot"), low("RightFoot"), W
 end
 
 local function run(o)
@@ -139,11 +156,15 @@ local function run(o)
 				if s >= nextT then
 					ch = game.Players.LocalPlayer.Character
 					if ch then
-						local P, V, lf, rf = points(ch)
+						local P, V, lf, rf, W = points(ch)
 						local parts = {}
 						for _, nm in ipairs(NAMES) do table.insert(parts, v3(P[nm], true)) end
 						for _, nm in ipairs({ "lhd", "rhd", "lpn", "rpn" }) do table.insert(parts, v3(V[nm], false)) end
 						table.insert(parts, string.format("%.2f,%.2f", (lf or 0) - origin.Y, (rf or 0) - origin.Y))
+						if W then
+							local rx = W:ToEulerAnglesXYZ()
+							table.insert(parts, string.format("%.3f,%.3f,%.3f,%.1f", W.Position.X, W.Position.Y, W.Position.Z, math.deg(rx)))
+						end
 						print(string.format("POSEREC|%s|%.3f|%s", tag, s, table.concat(parts, ";")))
 						n += 1
 					end

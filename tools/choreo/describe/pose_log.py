@@ -50,19 +50,20 @@ def main():
         k = len(names)
         V = {"lhd": num(groups[k]), "rhd": num(groups[k + 1]), "lpn": num(groups[k + 2]), "rpn": num(groups[k + 3])}
         lf, rf = num(groups[k + 4])
-        raw.append((float(t), P, V, lf, rf))
+        wst = num(groups[k + 5]) if len(groups) > k + 5 else None  # (D-1950: waist joint move x, y, z + arch degrees)
+        raw.append((float(t), P, V, lf, rf, wst))
     if not raw:
         raise SystemExit("recording '%s' has no samples yet" % a.tag)
     if not ended:
         print("(still recording: %d samples so far)" % len(raw), file=sys.stderr)
     mid = lambda p, q: [(p[i] + q[i]) / 2 for i in range(3)]
-    torsos = sorted(math.dist(mid(P["lsho"], P["rsho"]), mid(P["lhip"], P["rhip"])) for _, P, _, _, _ in raw)
+    torsos = sorted(math.dist(mid(P["lsho"], P["rsho"]), mid(P["lhip"], P["rhip"])) for _, P, _, _, _, _ in raw)
     torso = torsos[len(torsos) // 2]
     ts = [r[0] for r in raw]
     feet = [min(r[3], r[4]) for r in raw]
     samples = []
     h0 = None
-    for i, (t, P, V, lf, rf) in enumerate(raw):
+    for i, (t, P, V, lf, rf, wst) in enumerate(raw):
         seg = [feet[j] for j in range(len(raw)) if abs(ts[j] - t) <= 2.0]
         floor = min(seg)
         hc = mid(P["lhip"], P["rhip"])
@@ -80,6 +81,9 @@ def main():
             "hd": {"L": V["lhd"], "R": V["rhd"]},
             "pn": {"L": V["lpn"], "R": V["rpn"]},
         })
+        if wst:
+            # forward (the joint's -z) and up in torso lengths, arch in degrees (+ = chest tipped back)
+            samples[-1]["waist"] = [round(-wst[2] / torso, 3), round(wst[1] / torso, 3), wst[3]]
     json.dump({"source": "game", "tag": a.tag, "log": path, "samples": samples}, open(a.out, "w", encoding="utf-8"))
     print("wrote %s: %d samples, %.2f-%.2f s (torso %.2f studs)" % (a.out, len(samples), ts[0], ts[-1], torso))
 
