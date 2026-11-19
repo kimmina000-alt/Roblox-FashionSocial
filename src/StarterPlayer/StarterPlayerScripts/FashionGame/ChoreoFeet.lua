@@ -18,6 +18,7 @@ local STEP_TIME = 0.3 -- (D-1939: was 0.2; the sideways move now takes only its 
 -- (D-1937: was 0.6 on top of the dance's own foot height, which folded the knee 30-60 degrees; D-1938: the sole clears
 -- the floor by this much at the top of a step, nothing added where the dance already lifts it that high)
 local STEP_LIFT = 0.3
+local KNEE_LIFT = 45 -- (D-1942) degrees a step's lift may bend the knee past the dance's own (25: feet dragged 145 places, 35: 76, 45: 39)
 local KNEE_MORE = 15 -- (D-1937) degrees the hold may bend the knee past the dance's own (D-1941: was 20, BANG legs 4 degrees off)
 
 -- (D-1939, 2nd review of D-1938: BANG 1:48.3 the foot went 0.6 studs sideways with the heel 0.1 above the floor, at the
@@ -177,14 +178,25 @@ function ChoreoFeet.apply(character: Model, joints: {[string]: Joint}, active: b
 			if u >= 1 then st.spot, st.stepFrom, st.stepT, st.stepLift = A, nil, nil, nil end
 		end
 		local l1, l2 = (K - H).Magnitude, (A - K).Magnitude
+		local function kneeAt(d: number): number
+			return math.deg(math.acos(math.clamp((l1 * l1 + l2 * l2 - d * d) / (2 * l1 * l2), -1, 1)))
+		end
+		-- (D-1942, 2nd review of D-1941: BANG 1:08.5 / 2:13.8 / 2:25.9 / 2:58 knees 40-60 degrees more bent than without
+		-- the hold for 0.3-0.5 s: steps where the capture has the foot under the floor lifted it 0.4-0.5 studs) a lift that
+		-- bends the knee more than KNEE_LIFT past the dance's own is lowered until it does not (or 4 tries)
+		if T.Y > A.Y + 0.01 then
+			local lift = T.Y - A.Y
+			for _ = 1, 4 do
+				if kneeAt((A - H).Magnitude) - kneeAt((T - H).Magnitude) <= KNEE_LIFT then break end
+				lift *= 0.6
+				T = Vector3.new(T.X, A.Y + lift, T.Z)
+			end
+		end
 		-- (D-1937, 2nd review of BANG D-1936: knees 20-45 degrees more bent than the video in 12 places; holding the
 		-- foot while the hips go down or the body moves on folded the leg) the knee angle the hold needs against the
 		-- dance's own: KNEE_MORE degrees more bent and the held foot steps to where the dance has it (or, noStep, lets go)
 		if not st.stepFrom and not st.letGo then
-			local function knee(d: number): number
-				return math.deg(math.acos(math.clamp((l1 * l1 + l2 * l2 - d * d) / (2 * l1 * l2), -1, 1)))
-			end
-			if knee((A - H).Magnitude) - knee((T - H).Magnitude) > KNEE_MORE then
+			if kneeAt((A - H).Magnitude) - kneeAt((T - H).Magnitude) > KNEE_MORE then
 				if noStep then st.letGo, st.lifted = 0.3, nil else st.stepFrom, st.stepT = st.spot, 0 end
 				continue
 			end
