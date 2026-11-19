@@ -2839,6 +2839,11 @@ do
 		addBend(U2, "LeftUpperLeg", thigh)
 		addBend(U2, "LeftLowerLeg", shin)
 	end
+	-- (D-1900, 안무 포즈 설명 자동화 session's Play recording) Unbelievable slides with both feet on the floor: 0:09.8-0:10.05
+	-- (2 at 6.02: the hips and feet go 1.3 studs together) and 1:58.55-1:58.85 (15 at 114.87: 1.9 studs; the step after is a
+	-- real walk): the body held in place there
+	addList(132406634119258, "still", { from = 3.6, to = 4.2 })
+	addList(82151831370082, "still", { from = 3.5, to = 4.1 })
 end
 
 -- (D-1853, user 2026-11-19: "언빌리버블 손만 떠는 게 아니고 전체를 다 떨어 사시나무처럼 … 안무 동작 정확하고 크게 보정해") Play:
