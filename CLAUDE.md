@@ -89,8 +89,6 @@ Read `AGENTS.md` first (catalog UI rules). The user writes in Korean; report in 
 
 - 2026-11-20 (2): `fix/pose-shrug-1120` merged into `catalog-ui-redesign` (user asked: 머지해; tools / docs only, tools/choreo/describe): D-1921 the pose-text compare catches upper-arm shoulder shrugs (Boogie 0:10 / 0:17 / 0:47 found), D-1950 it counts chest pops (Boogie 1:26.1 / 1:26.6, no false hits). Pose-description session D-numbers: 1950-1959. New work: branch off catalog-ui-redesign.
 
-- 2026-11-20 (3): the rest of `fix/pose-shrug-1120` merged into `catalog-ui-redesign` by the pose-description session (user asked there: 머지해; tools only): D-1951 the pose compare catches heel raises / standing on the toes (Boogie 2:19 twice); 언빌리버블 has no chest pops or shrugs in either the game or the original. New work: branch off catalog-ui-redesign.
-
 ## Key docs
 - `docs/00_PROJECT/PLAYER_FEEDBACK.md`: real player reactions by date + improvement ideas. Add new reactions there (user, 2026-11-10).
 - `docs/00_PROJECT/DEVELOPMENT_ORDER.md`: build order.
