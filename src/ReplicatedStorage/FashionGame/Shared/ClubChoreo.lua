@@ -3081,6 +3081,16 @@ do
 		} :: any)[id] or {}) do
 			addList(id, "plant", { from = w[1], to = w[2], contact = 0.45, noStep = true })
 		end
+		-- (D-1943, 2nd review of D-1942: 2:29.7 / 2:35.4 / 1:49.2 a step set the foot down while the dance still carried it,
+		-- 0.55-0.70 studs along the floor) here a step picks its landing spot at 85 % and puts the foot down there (`landHold`);
+		-- the capture sinks the foot 0.2-0.27 under the floor there, so the step may bend the knee to lift it 0.3 (`kneeLift`)
+		for _, w in ipairs(({
+			[76195346888656] = { { 3.30, 6.10 } },
+			[116980798181063] = { { 4.00, 5.20 } },
+			[107439323698577] = { { 7.80, 8.38 } },
+		} :: any)[id] or {}) do
+			addList(id, "plant", { from = w[1], to = w[2], contact = 0.45, landHold = true, kneeLift = 90 })
+		end
 		-- (not on 17, 2:18-2:26: the floor routine, lying with the legs stretched out; the video sweeps the legs on the floor)
 		if id ~= 132337331292488 then addList(id, "plant", { from = 0, to = 99, contact = 0.45 }) end
 	end

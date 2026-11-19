@@ -36,7 +36,7 @@ local function midMove(u: number): number
 end
 
 type Joint = Motor6D | AnimationConstraint
-type FootState = { spot: Vector3?, w: number, letGo: number?, lifted: boolean?, stepFrom: Vector3?, stepT: number?, stepLift: number?, arc: number? }
+type FootState = { spot: Vector3?, w: number, letGo: number?, lifted: boolean?, stepFrom: Vector3?, stepT: number?, stepLift: number?, arc: number?, landAt: Vector3? }
 local states: {[Model]: {[string]: FootState}} = setmetatable({}, { __mode = "k" }) :: any
 
 -- the child part's frame from its parent's frame and the joint
@@ -87,19 +87,20 @@ end
 
 -- is any playing piece inside its `plant` window (weight over half)? and that window's `contact`
 -- (D-1909: studs above the floor that still count as on it; a bent-over capture hovers its feet 0.3-0.4 up)
-function ChoreoFeet.active(choreo: {AnimationTrack}, fixesOf: (string) -> any): (boolean, number?, boolean?)
+function ChoreoFeet.active(choreo: {AnimationTrack}, fixesOf: (string) -> any): (boolean, number?, boolean?, boolean?, number?)
 	for _, t in ipairs(choreo) do
 		if t.WeightCurrent > 0.5 and t.Animation then
 			local fx = fixesOf(t.Animation.AnimationId)
 			local w = fx and fx.plant and inWindow(fx.plant, t.TimePosition)
-			if w then return true, w.contact, w.noStep end
+			if w then return true, w.contact, w.noStep, w.landHold, w.kneeLift end
 		end
 	end
-	return false, nil, nil
+	return false, nil, nil, nil, nil
 end
 
 -- `noStep` (D-1932): the video keeps the foot where it is, so a held foot is never stepped, only let go when pulled 2 studs
-function ChoreoFeet.apply(character: Model, joints: {[string]: Joint}, active: boolean, floorY: number?, dt: number, contact: number?, noStep: boolean?)
+-- `landHold` (D-1943): a step picks its landing spot at 85 % and sets the foot down there, not where the dance has it by then
+function ChoreoFeet.apply(character: Model, joints: {[string]: Joint}, active: boolean, floorY: number?, dt: number, contact: number?, noStep: boolean?, landHold: boolean?, kneeLift: number?)
 	local root = character:FindFirstChild("HumanoidRootPart") :: BasePart?
 	local hips = joints.LowerTorso
 	if not root or not hips or not floorY or floorY == -math.huge then states[character] = nil return end
@@ -168,14 +169,16 @@ function ChoreoFeet.apply(character: Model, joints: {[string]: Joint}, active: b
 			local u = math.min(st.stepT :: number, 1)
 			local k = midMove(u)
 			local from = st.stepFrom :: Vector3
+			if landHold and u >= 0.85 and not st.landAt then st.landAt = A end
+			local to = if landHold and st.landAt then st.landAt else A
 			-- (D-1938, 2nd review of D-1937: half the step's length less the dance's own lift barely lifted it, 26 steps
 			-- dragged along the floor) the sole goes STEP_LIFT above the floor at the top, less what the dance already lifts it
 			-- (D-1940, 2nd review of D-1939: Lemonade 1:40.7 / BANG 2:52.6 the lift was worked out once, at the start, and the
 			-- dance lowered the foot during the step, so it still crossed 1.8 studs 0.1 above the floor) worked out every frame
 			-- from the real sole height: the capture often has the foot 0.1-0.26 below the floor (the lift ended 0.05 up)
 			st.stepLift = math.max(0, STEP_LIFT - sole)
-			T = Vector3.new(from.X + (A.X - from.X) * k, A.Y + liftShape(u) * (st.stepLift :: number), from.Z + (A.Z - from.Z) * k)
-			if u >= 1 then st.spot, st.stepFrom, st.stepT, st.stepLift = A, nil, nil, nil end
+			T = Vector3.new(from.X + (to.X - from.X) * k, A.Y + liftShape(u) * (st.stepLift :: number), from.Z + (to.Z - from.Z) * k)
+			if u >= 1 then st.spot, st.stepFrom, st.stepT, st.stepLift, st.landAt = to, nil, nil, nil, nil end
 		end
 		local l1, l2 = (K - H).Magnitude, (A - K).Magnitude
 		local function kneeAt(d: number): number
@@ -187,7 +190,7 @@ function ChoreoFeet.apply(character: Model, joints: {[string]: Joint}, active: b
 		if T.Y > A.Y + 0.01 then
 			local lift = T.Y - A.Y
 			for _ = 1, 4 do
-				if kneeAt((A - H).Magnitude) - kneeAt((T - H).Magnitude) <= KNEE_LIFT then break end
+				if kneeAt((A - H).Magnitude) - kneeAt((T - H).Magnitude) <= (kneeLift or KNEE_LIFT) then break end
 				lift *= 0.6
 				T = Vector3.new(T.X, A.Y + lift, T.Z)
 			end
