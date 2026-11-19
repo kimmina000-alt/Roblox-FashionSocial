@@ -6395,3 +6395,8 @@ Studio only (no script yet).
 - 포즈 글 비교(D-1863)로 부기우기 · 언빌리버블을 원본과 비교해 허리 · 멈춤 후보 15곳을 숫자 + 그림으로 확인: 진짜는 부기우기 0:17.8-0:19.0 한 곳(나머지는 카메라 쪽 숙임을 얕게 읽음, 무대 컷, 사용자 요청으로 고친 자리). 목록: tools/choreo/describe_out/boogie · unbel/확정_수정목록.txt(저장소 밖 메모).
 - 원본은 0:17.8에 바로 무릎 굽히고 45° 숙인 채 어깨를 들썩임. 게임은 4번 조각(136974262670764, at 17.64)이 blend 1로 1초 동안 섞여 0:18.6에야 33° → 사용자: "고쳐" → blend 0.4.
 - Play(어깨-골반 기울기): 18.0 25° · 18.2 32°(전: 18.2 21° · 18.6 33°), 16.8-20.3 SNAP · SPIN · JUMP 없음. 깊이는 캡처 자체가 34° 정도(원본 약 45°).
+
+## D-1920 쓰레기통에 진짜 아이템 (2026-11-19)
+- User: "쓰레기통 주기적으로 아이템 채워주기" → 쓰레기 말고 진짜 아이템 (사용자 선택).
+- TrashConfig.Treasure*: 15분마다(TreasureEvery 900) 쓰레기통마다 30%(TreasureChance) 확률로, 게임이 넣은 진짜 아이템이 없는 통(TreasureMax 1)에 하나. 고르는 곳: BeachCafe · HanokCafe · IceCream의 코인 가격 단품(cup / bread / cone, Robux 상품·나눠 먹는 케이크·접시 제외), SnackService.MakeTool로 산 것과 똑같이 만듦.
+- TrashService: 넣은 아이템은 TrashTreasure 속성(꺼내면 지움), 다른 버린 물건처럼 KeepSeconds(24시간) 동안 있다가 사라짐; 꺼내면 가방으로, 전체 알림은 그대로.

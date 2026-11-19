@@ -29,6 +29,17 @@ TrashConfig.JunkStart = { 1, 3 } -- how many at the start, at random
 TrashConfig.JunkMax = 3 -- junk in a can at most (thrown-in items do not count)
 TrashConfig.JunkEvery = 600 -- seconds: now and then one more, while under JunkMax
 
+-- (D-1920, user 2026-11-19: "쓰레기통 주기적으로 아이템 채워주기" → real items) now and then a real
+-- item turns up in a can, a little find: a coin-priced single drink / ice cream / bread from these
+-- shops (no Robux items, no shared cakes or plates), made like a bought one (SnackService.MakeTool).
+-- Every TreasureEvery seconds each can without one gets one with TreasureChance; it stays like any
+-- thrown-in item (KeepSeconds) until someone takes it.
+TrashConfig.TreasureShops = { "BeachCafe", "HanokCafe", "IceCream" }
+TrashConfig.TreasureKinds = { cup = true, bread = true, cone = true }
+TrashConfig.TreasureEvery = 900 -- seconds (15 min)
+TrashConfig.TreasureChance = 0.3
+TrashConfig.TreasureMax = 1 -- real items put in by the game, per can at most
+
 -- what may go in: bought / found things you carry, not passes or tools of a job
 -- (a 야광봉 of the Glowstick pass, the guard's handcuffs, a photo of the album...)
 function TrashConfig.canThrow(tool: Instance): boolean

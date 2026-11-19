@@ -122,6 +122,45 @@ local function addJunk(folder: Folder)
 	tool.Parent = folder
 end
 
+-- (D-1920) the real items a can may get (TrashConfig.Treasure*), read once from SnackConfig
+local treasurePool: {any}? = nil
+local function treasures(): {any}
+	if treasurePool then return treasurePool end
+	local pool = {}
+	local ok, SnackConfig = pcall(function() return require(FashionGame.Shared:WaitForChild("SnackConfig")) end)
+	if ok and SnackConfig and SnackConfig.Shops then
+		for _, shopKey in ipairs(TrashConfig.TreasureShops) do
+			local shop = SnackConfig.Shops[shopKey]
+			for _, item in ipairs(shop and shop.items or {}) do
+				if TrashConfig.TreasureKinds[item.kind] and not item.product and not item.share
+					and typeof(item.coins) == "number" and item.coins > 0 then
+					table.insert(pool, item)
+				end
+			end
+		end
+	end
+	treasurePool = pool
+	return pool
+end
+local function treasureIn(folder: Folder): number
+	local n = 0
+	for _, item in ipairs(folder:GetChildren()) do if item:GetAttribute("TrashTreasure") then n += 1 end end
+	return n
+end
+local function addTreasure(folder: Folder): boolean
+	local pool = treasures()
+	if #pool == 0 then return false end
+	local ok, tool = pcall(function()
+		local SnackService = require(script.Parent:WaitForChild("SnackService"))
+		return SnackService.MakeTool(pool[math.random(1, #pool)])
+	end)
+	if not ok or typeof(tool) ~= "Instance" then return false end
+	tool:SetAttribute("TrashTreasure", true)
+	tool:SetAttribute("TrashedAt", os.time())
+	tool.Parent = folder
+	return true
+end
+
 local count = 0
 local function addCan(inst: Instance)
 	if inst.Name ~= TrashConfig.Name or not inst:IsDescendantOf(workspace) then return end
@@ -197,6 +236,7 @@ local function take(player: Player, canValue: any, item: any): (boolean, string?
 	if not backpack then return false, nil end
 	item:SetAttribute("TrashedAt", nil)
 	item:SetAttribute("TrashedBy", nil)
+	item:SetAttribute("TrashTreasure", nil) -- (D-1920)
 	item.Parent = backpack
 	-- (D-1739, user 2026-11-18: "쓰레기통에서 주운 쓰레기 인벤토리에 들어가게 해") not into the hand any more: into the
 	-- 🎒 bag (the Hotbar keeps junk out of the bar, Hotbar.adopt)
@@ -243,6 +283,17 @@ function TrashService.Start()
 				if part.Parent and junkIn(folder) < TrashConfig.JunkMax and math.random() < 0.5 then
 					addJunk(folder)
 					bump(part)
+				end
+			end
+		end
+	end)
+	-- (D-1920) now and then a real item (a drink, an ice cream, a bread) in a can without one
+	task.spawn(function()
+		while true do
+			task.wait(TrashConfig.TreasureEvery)
+			for part, folder in pairs(cans) do
+				if part.Parent and treasureIn(folder) < TrashConfig.TreasureMax and math.random() < TrashConfig.TreasureChance then
+					if addTreasure(folder) then bump(part) end
 				end
 			end
 		end
