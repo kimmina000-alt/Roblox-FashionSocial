@@ -641,13 +641,15 @@ M.Playlist = {
 		lab = { speed = 1, tempo = 0.951, volume = 10, boost = 10, boost2 = 5, boost3 = 4, octave = 1, low = 0, mid = 0, high = 0, engine = "sound" } },
 	{ channel = "K-POP", title = "Hurricane Venus-BoA", soundId = 91581305396096, length = 181.558, fileSpeed = 1.0515,
 		lab = { speed = 1, tempo = 0.951, volume = 10, boost = 10, boost2 = 5, boost3 = 4, octave = 1, low = 0, mid = 0, high = 0, engine = "sound" } },
-	{ channel = "K-POP", title = "Magic-Secret", soundId = 124810692241835, length = 194.251, fileSpeed = 1.0504,
-		lab = { speed = 1, tempo = 0.952, volume = 10, boost = 10, boost2 = 5, boost3 = 4, octave = 1, low = 0, mid = 0, high = 0, engine = "sound" } },
+	-- (D-1864, user 2026-11-19 via 음원 테스트: lab values, boost2 / boost3 2, EQ; fileSpeed 1.0502 = the 음원 테스트 value, was 1.0504 from 11-13)
+	{ channel = "K-POP", title = "Magic-Secret", soundId = 124810692241835, length = 194.251, fileSpeed = 1.0502,
+		lab = { speed = 1, tempo = 0.952, volume = 10, boost = 10, boost2 = 2, boost3 = 2, octave = 1, low = 0, mid = 0, high = -10, engine = "sound" } },
 	-- (D-1906, user 2026-11-19: "뱅 안무 음원이랑 박자 맞추기") the upload's loudness in Play against the practice video's sound, 20 s
 	-- windows every 10 s: video = song - 0.90 at 0:10 drifting to - 1.15 at 3:00 (35 clear windows, -0.142 % of song time): the
 	-- song clock ran 0.14 % fast, the dance late by up to 0.25 s at the end. fileSpeed 1.0515 -> 1.0500
+	-- (D-1864, user 2026-11-19 via 음원 테스트: lab values, boost2 / boost3 2, EQ)
 	{ channel = "K-POP", title = "BANG-After School", soundId = 136570075901439, length = 189.252, fileSpeed = 1.0500,
-		lab = { speed = 1, tempo = 0.951, volume = 10, boost = 10, boost2 = 5, boost3 = 4, octave = 1, low = 0, mid = 0, high = 0, engine = "sound" },
+		lab = { speed = 1, tempo = 0.951, volume = 10, boost = 10, boost2 = 2, boost3 = 2, octave = 1, low = -3.5, mid = -2, high = -22, engine = "sound" },
 		-- (D-1394, user 2026-11-13: "애프터스쿨 BANG 안무 추가" + 16 ids) practice video Sk8ByISqgwc: song = video + 0.85 s (its sound against the
 		-- original mp3 in 10 s windows, 0.99-1.00 all through), `at` = clip start + 0.85; 7 / 11 / 16 re-uploaded 2026-11-14 (D-1399: the first ones were copies of 6 / 10 / 15)
 		choreo = {
