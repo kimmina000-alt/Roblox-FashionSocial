@@ -55,25 +55,28 @@ local function turnAbout(cf: CFrame, r: CFrame, p: Vector3): CFrame
 	return CFrame.new(p) * r * CFrame.new(-p) * cf
 end
 
-local function inWindow(windows: any, t: number): boolean
+-- the window at t (nil outside)
+local function inWindow(windows: any, t: number): any
 	for _, w in ipairs(if windows.from then { windows } else windows) do
-		if t >= w.from and t < w.to then return true end
+		if t >= w.from and t < w.to then return w end
 	end
-	return false
+	return nil
 end
 
--- is any playing piece inside its `plant` window (weight over half)?
-function ChoreoFeet.active(choreo: {AnimationTrack}, fixesOf: (string) -> any): boolean
+-- is any playing piece inside its `plant` window (weight over half)? and that window's `contact`
+-- (D-1909: studs above the floor that still count as on it; a bent-over capture hovers its feet 0.3-0.4 up)
+function ChoreoFeet.active(choreo: {AnimationTrack}, fixesOf: (string) -> any): (boolean, number?)
 	for _, t in ipairs(choreo) do
 		if t.WeightCurrent > 0.5 and t.Animation then
 			local fx = fixesOf(t.Animation.AnimationId)
-			if fx and fx.plant and inWindow(fx.plant, t.TimePosition) then return true end
+			local w = fx and fx.plant and inWindow(fx.plant, t.TimePosition)
+			if w then return true, w.contact end
 		end
 	end
-	return false
+	return false, nil
 end
 
-function ChoreoFeet.apply(character: Model, joints: {[string]: Joint}, active: boolean, floorY: number?, dt: number)
+function ChoreoFeet.apply(character: Model, joints: {[string]: Joint}, active: boolean, floorY: number?, dt: number, contact: number?)
 	local root = character:FindFirstChild("HumanoidRootPart") :: BasePart?
 	local hips = joints.LowerTorso
 	if not root or not hips or not floorY or floorY == -math.huge then states[character] = nil return end
@@ -95,7 +98,7 @@ function ChoreoFeet.apply(character: Model, joints: {[string]: Joint}, active: b
 		-- the sole: the lowest corner of the foot box
 		local size = footPart.Size
 		local half = math.abs(footCF.RightVector.Y) * size.X / 2 + math.abs(footCF.UpVector.Y) * size.Y / 2 + math.abs(footCF.LookVector.Y) * size.Z / 2
-		local onFloor = footCF.Position.Y - half < floorY + CONTACT
+		local onFloor = footCF.Position.Y - half < floorY + (contact or CONTACT)
 		local st = mine[side]
 		if not st then st = { spot = nil, w = 0, letGo = nil } mine[side] = st end
 		-- a foot that lifted and is down again is held at once where it landed (only a pulled foot waits to be let go)

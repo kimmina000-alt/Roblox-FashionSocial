@@ -6500,3 +6500,10 @@ Studio only (no script yet).
 
 ## D-1882 (2026-11-19) 놀이공원 츄러스 · 콜팝 간판 색
 - User: "놀이공원 콜팝 츄러스 상점 간판 색 넣기 적절한 색으로". The sign letters (each snack bar's one untextured MeshPart) were the gate booths' white (D-1497). Now each takes a colour from its own booth texture (D-1519): 츄러스 (SnackBar1 / SnackBar1B, yellow roof, red stripes) = red 222,38,42; 콜팝 (SnackBar2B, teal roof, orange stripes) = orange 255,122,24. The balloon shop keeps the white. tools/graybox/park_shops_1116.lua (SIGN_OF); in the place the two signs were recoloured directly (no chain run).
+
+## D-1909 내 이름을 불러줘 제자리 / 부기우기 숙일 때 발 (2026-11-19)
+- 사용자: "내 이름을 불러 줘 난리 남. 원본 영상에서 안무 동선 중 하나로 움직이는 거 아니면 최대한 자기 자리에서 추도록 / 부기우기도 적용해. 허리만 숙이고 있는 동작인데 발이 미끄러지는 부분 있어".
+- 내 이름을 불러줘: 원본 센터(tracks.json)가 1.5초에 키 0.6배 넘게 가는 곳만 동선(0:01-0:04, 0:12-0:17, 0:30-0:32, 0:34-0:37, 0:49-0:52, 0:57-1:00, 1:05-1:06, 1:23-1:27, 1:30-1:31, 1:55-1:56, 2:16-2:19, 2:20-2:25, 2:27-2:29, 2:31-2:37), 나머지는 조각마다 `still`. 전곡 녹화: 동선 밖 이동 67.6 → 6.9 몸통, 동선 안 51.6 → 34.1.
+- 부기우기: 숙인 채 발 밀림 0:37-0:41(왼 1.7 몸통), 1:18-1:19, 2:52-2:53. 0:37-0:41 몸 `still` + 다리 freeze(숙이기 시작 자세) + plant; 세 곳 모두 plant(`contact` 0.45: 숙인 캡처는 발이 0.3-0.4 떠 있어 기본 0.18로는 안 잡힘). ChoreoFeet `plant` 창에 `contact`(스터드) 추가.
+- Play(발 월드 이동 최대): 0:37.1-0:40.9 왼 0.03 · 오른 0.10스터드(전 1.7 · 1.1 몸통), 2:52.6-2:53.5 왼 0.51 · 오른 0.16, 1:17.9-1:19.4 왼 0.94 · 오른 1.13(발을 드는 스텝이 섞여 있어 원본 확인 필요).
+- 녹화: describe_out/TWS/편집후_전곡/tws_after2_g.json, boogie/편집후_전곡/boogie_after2_g.json(다리 freeze · contact 전).
