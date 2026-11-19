@@ -81,6 +81,8 @@ Read `AGENTS.md` first (catalog UI rules). The user writes in Korean; report in 
 
 - 2026-11-19 (11): `fix/choreo-review-gaps-1119` merged into `catalog-ui-redesign` by the choreo-analysis session (user asked there: 머지해; tools / docs only): D-1893 review tool gap handling; the second review of the 5 songs edited on fix/trembles-1119 passed (Boogie re-recorded 0:16-0:19 / 2:48-2:51). User 2026-11-19 on the two held spots: "원본처럼" (언빌리버블 0:09.8 walks like the original, 갑자기 0:10 head tilt like the original) → choreo edit session, D-1901~. New work: branch off catalog-ui-redesign.
 
+- 2026-11-19 (12): `fix/trembles-1119` (new commits) merged into `catalog-ui-redesign` (user's 2P windows; server and both clients without script errors; Studio ClubChoreo = git but for the final newline): D-1900 언빌리버블 slide held still, D-1901 the user's "원본처럼": 언빌리버블 0:09.8 walks forward (glide + walk + steps), 갑자기 0:10 head and upper body tilt back (10° → 26°); both songs re-recorded for the analysis session. Choreo edit session D-numbers: D-1902~1909. New work: branch off catalog-ui-redesign.
+
 ## Key docs
 - `docs/00_PROJECT/PLAYER_FEEDBACK.md`: real player reactions by date + improvement ideas. Add new reactions there (user, 2026-11-10).
 - `docs/00_PROJECT/DEVELOPMENT_ORDER.md`: build order.
