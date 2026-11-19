@@ -605,25 +605,28 @@ def analyse(dv, dg, mirror_mode="auto", t_from=None, t_to=None, video_path=None)
             a = int(np.searchsorted(ts, h["tg"] - 0.25))
             b = int(np.searchsorted(ts, h["tg"] + 0.25))
             add("게임만 hit", g, a, b, 0.6, "%s: 원본은 부드럽게 가는데 게임만 %s에 툭 끊김/튐" % (g, ft(h["tg"])))
-    # off-beat hits: the game hit is 70 ms+ further from the beat than the video's, 3+ within 3 s
+    # off-beat hits: the game hit is 70 ms+ further from the beat than the video's, 3+ within 3 s, all the same
+    # way (late or early, after the song-wide lag is taken off): mixed signs are hit-matching noise (D-1892, TWS)
+    base = lag_overall or 0.0
     if BEATS is not None:
-        bad = [h for h in hits if h["tg"] is not None and h["tv"] is not None and h["bv"] is not None and h["bg"] is not None
-               and abs(h["bg"]) - abs(h["bv"]) >= 0.07 and abs(h["d"]) >= 0.06]
-        cl = []
-        for h in bad:
-            if cl and h["tv"] - cl[-1][-1]["tv"] < 3:
-                cl[-1].append(h)
-            else:
-                cl.append([h])
-        for grp in cl:
-            if len(grp) < 3:
-                continue
-            md = float(np.median([h["d"] for h in grp]))
-            a = int(np.searchsorted(ts, grp[0]["tv"] - 0.2))
-            b = int(np.searchsorted(ts, grp[-1]["tv"] + 0.2))
-            add("늦음" if md > 0 else "빠름", ",".join(sorted({h["g"] for h in grp})), a, b, len(grp) * 0.7,
-                "박에 딱 떨어지는 동작 %d개가 게임에서 박을 벗어남: 평균 %+d ms (%s)" %
-                (len(grp), round(md * 1000), ", ".join("%s %+dms" % (ft(h["tv"]), round(h["d"] * 1000)) for h in grp[:5])))
+        for sign in (1, -1):
+            bad = [h for h in hits if h["tg"] is not None and h["tv"] is not None and h["bv"] is not None and h["bg"] is not None
+                   and abs(h["bg"]) - abs(h["bv"]) >= 0.07 and (h["d"] - base) * sign >= 0.06]
+            cl = []
+            for h in bad:
+                if cl and h["tv"] - cl[-1][-1]["tv"] < 3:
+                    cl[-1].append(h)
+                else:
+                    cl.append([h])
+            for grp in cl:
+                if len(grp) < 3:
+                    continue
+                md = float(np.median([h["d"] for h in grp]))
+                a = int(np.searchsorted(ts, grp[0]["tv"] - 0.2))
+                b = int(np.searchsorted(ts, grp[-1]["tv"] + 0.2))
+                add("늦음" if sign > 0 else "빠름", ",".join(sorted({h["g"] for h in grp})), a, b, len(grp) * 0.7,
+                    "박에 딱 떨어지는 동작 %d개가 게임에서 박을 벗어남: 평균 %+d ms (%s)" %
+                    (len(grp), round(md * 1000), ", ".join("%s %+dms" % (ft(h["tv"]), round(h["d"] * 1000)) for h in grp[:5])))
 
     # ---- 4. amount of movement, bounce, nod, shoulder
     w = int(1.0 / DT)
@@ -669,12 +672,32 @@ def analyse(dv, dg, mirror_mode="auto", t_from=None, t_to=None, video_path=None)
         cr = movavg(dv_ * dg_, wv) / (av * ag + 1e-9)
         grooves[name] = {"v": dv_, "g": dg_}
         has = np.nan_to_num(av) >= amp_min
+
+        def beat_like(a, b):
+            """The video's up-down repeats with the beat (one or two beats a cycle): else it is landmark shake (D-1892)."""
+            if not beat_info:
+                return True
+            lo, hi = max(0, a - int(0.75 / DT)), min(len(ts), b + int(0.75 / DT))
+            x = np.nan_to_num(dv_[lo:hi])
+            x = x - x.mean()
+            n = float(np.dot(x, x))
+            best = -1
+            for m in (1, 2):
+                L = int(round(m * beat_info["period"] / DT))
+                if n > 0 and L < len(x) - 10:
+                    best = max(best, float(np.dot(x[:-L], x[L:])) / n)
+            return best >= 0.3
+
         for a, b in runs(has & (np.nan_to_num(ag) < 0.45 * np.nan_to_num(av)), int(1.0 / DT), int(0.2 / DT)):
+            if not beat_like(a, b):
+                continue
             add("바운스", name, a, b, (b - a) * DT, "%s: 원본은 박마다 하는데 게임은 %s (원본 크기의 %d%%)" %
                 (name, "거의 없음" if np.nanmean(ag[a:b]) < 0.2 * np.nanmean(av[a:b]) else "작음",
                  round(100 * float(np.nanmean(ag[a:b]) / np.nanmean(av[a:b])))))
         both = has & (np.nan_to_num(ag) >= 0.45 * np.nan_to_num(av))
         for a, b in runs(both & (np.nan_to_num(cr) < -0.35), int(1.0 / DT), int(0.2 / DT)):
+            if not beat_like(a, b):
+                continue
             add("바운스", name, a, b, (b - a) * DT * 1.2, "%s 박이 반대: 원본이 내려갈 때 게임은 올라감 (상관 %.2f)" %
                 (name, float(np.nanmean(cr[a:b]))))
 
@@ -721,15 +744,37 @@ def analyse(dv, dg, mirror_mode="auto", t_from=None, t_to=None, video_path=None)
     return merged, summary, ctx
 
 
-def tag_before(issues, before):
-    """Each issue: was it there before the edit (same kind and part, overlapping)? Before-issues no longer found: gone."""
+def edit_spans(ctx, bctx):
+    """Where the edit changed the game (the two recordings differ 12°+ for 0.2 s+; untouched parts of two
+    recordings differ about 3°, TWS 2026-11-19), and for each the error against the video before -> after."""
+    ts = ctx["ts"]
+    UA, _ = seg_units(ctx["BG"])
+    UB, _ = seg_units(bctx["BG"])
+    d = movavg(np.nanmean(ang_between(UA, UB), axis=1), 7)
+    spans = []
+    for a, b in runs(np.nan_to_num(d) > 12, int(0.2 / DT), int(0.3 / DT)):
+        ea = np.nanmean([np.nanmean(ctx["GE"][g][a:b]) for g in GROUPS])
+        eb = np.nanmean([np.nanmean(bctx["GE"][g][a:b]) for g in GROUPS])
+        spans.append({"t0": round(float(ts[a]), 2), "t1": round(float(ts[min(b, len(ts) - 1)]), 2),
+                      "change": round(float(np.nanmax(d[a:b])), 1),
+                      "before": None if np.isnan(eb) else round(float(eb), 1), "after": None if np.isnan(ea) else round(float(ea), 1)})
+    return spans
+
+
+def tag_before(issues, before, spans):
+    """Each issue: new = not there before (same kind and part, overlapping) AND inside a place the edit changed;
+    elsewhere a 'new' issue is only the threshold flickering between two recordings. Before-issues no longer
+    found inside an edited place: gone (fixed)."""
     def same(x, y):
         px, py = set(x["part"].split(",")), set(y["part"].split(","))
         return x["kind"] == y["kind"] and px & py and x["t0"] < y["t1"] + 0.2 and y["t0"] < x["t1"] + 0.2
+
+    def edited(x):
+        return any(x["t0"] < sp["t1"] + 0.3 and sp["t0"] - 0.3 < x["t1"] for sp in spans)
     for x in issues:
-        x["new"] = not any(same(x, y) for y in before)
+        x["new"] = (not any(same(x, y) for y in before)) and edited(x)
     for y in before:
-        y["gone"] = not any(same(x, y) for x in issues)
+        y["gone"] = (not any(same(x, y) for x in issues)) and edited(y)
 
 
 # ---------------------------------------------------------------- outputs
@@ -776,7 +821,15 @@ def write_report(path, title, issues, summary, top):
             L.append("hit ±60ms 안 %d%% → %d%%, 크게 빠진 hit %d → %d" % (round(100 * bh["within60"]), round(100 * h["within60"]), bh["missing"], h["missing"]))
         new = [x for x in issues if x.get("new")]
         gone = s["before"]["gone"]
-        L.append("새로 생긴 항목 %d (아래 ★새), 없어진 항목 %d" % (len(new), len(gone)))
+        sp = s["before"].get("spans", [])
+        L.append("")
+        L.append("편집으로 게임이 바뀐 곳 %d (두 녹화가 12°↑ 다름; 안 건드린 곳은 보통 3° 안팎)" % len(sp))
+        for x in sp:
+            verdict = "-" if x["before"] is None or x["after"] is None else (
+                "좋아짐" if x["after"] < x["before"] - 3 else ("나빠짐 ✗" if x["after"] > x["before"] + 3 else "비슷"))
+            L.append("   %s-%s  게임 변화 최대 %d°, 원본과의 평균 오차 %s° → %s°  %s" % (
+                ft(x["t0"]), ft(x["t1"]), round(x["change"]), x["before"], x["after"], verdict))
+        L.append("바뀐 곳에서 새로 생긴 항목 %d (아래 ★새), 없어진 항목 %d" % (len(new), len(gone)))
         for x in sorted(gone, key=lambda q: -q["sev"])[:15]:
             L.append("   고쳐짐: %s-%s [%s] %s" % (ft(x["t0"]), ft(x["t1"]), x["kind"], x["text"]))
     L.append("")
@@ -875,9 +928,10 @@ def main():
     os.makedirs(a.out, exist_ok=True)
     issues, summary, ctx = analyse(dv, dg, a.mirror, a.t0, a.t1, video)
     if a.before:
-        b_issues, b_summary, _ = analyse(dv, load(a.before), a.mirror, a.t0, a.t1, video)
-        tag_before(issues, b_issues)
-        summary["before"] = {"summary": b_summary, "gone": [x for x in b_issues if x.get("gone")]}
+        b_issues, b_summary, bctx = analyse(dv, load(a.before), a.mirror, a.t0, a.t1, video)
+        spans = edit_spans(ctx, bctx)
+        tag_before(issues, b_issues, spans)
+        summary["before"] = {"summary": b_summary, "gone": [x for x in b_issues if x.get("gone")], "spans": spans}
     write_report(os.path.join(a.out, "검토_리포트.txt"), title, issues, summary, a.top)
     data = viewer_data(title, os.path.abspath(video) if video else None, issues, summary, ctx)
     with open(os.path.join(HERE, "viewer.html"), encoding="utf-8") as f:
