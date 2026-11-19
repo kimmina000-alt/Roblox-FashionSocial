@@ -72,6 +72,9 @@ def main():
         h = {n: round((P[n][1] - floor) / torso, 3) for n in ("lwri", "rwri", "lkne", "rkne") if P.get(n)}
         h["lank"], h["rank"] = round((lf - floor) / torso, 3), round((rf - floor) / torso, 3)
         h["ltoe"], h["rtoe"] = round((P["ltoe"][1] - floor) / torso, 3), round((P["rtoe"][1] - floor) / torso, 3)
+        for n in ("lheel", "rheel"):
+            if P.get(n):
+                h[n] = round((P[n][1] - floor) / torso, 3)
         h["hip"] = round((hc[1] - floor) / torso, 3)
         samples.append({
             "t": round(t, 3),
