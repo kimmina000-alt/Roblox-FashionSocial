@@ -173,9 +173,9 @@ M.ChoreoFixes = {
 	-- (D-1933, 2nd review: before the hands go to the hips the video brings a hand to the mouth (96.7) and both hands up by the
 	-- face (97.1), on the hips at 97.5) the face hands 96.4-97.2, the hips from 97.45 (was 96.36)
 	[91956738526101] = { pose = { from = 6.3, to = 9.7, ease = 0.3, keys = {
-		{ t = 6.7, set = { LeftUpperArm = { 40, 0, -10 }, LeftLowerArm = { 115, 0, 0 } } },
-		{ t = 7.05, set = { LeftUpperArm = { 40, 0, -10 }, LeftLowerArm = { 115, 0, 0 }, RightUpperArm = { 40, 0, 10 }, RightLowerArm = { 115, 0, 0 } } },
-		{ t = 7.25, set = { LeftUpperArm = { 40, 0, -10 }, LeftLowerArm = { 115, 0, 0 }, RightUpperArm = { 40, 0, 10 }, RightLowerArm = { 115, 0, 0 } } },
+		{ t = 6.7, set = { LeftUpperArm = { 25, 0, -10 }, LeftLowerArm = { 115, 0, 0 } } },
+		{ t = 7.05, set = { LeftUpperArm = { 25, 0, -10 }, LeftLowerArm = { 115, 0, 0 }, RightUpperArm = { 25, 0, 10 }, RightLowerArm = { 115, 0, 0 } } },
+		{ t = 7.25, set = { LeftUpperArm = { 25, 0, -10 }, LeftLowerArm = { 115, 0, 0 }, RightUpperArm = { 25, 0, 10 }, RightLowerArm = { 115, 0, 0 } } },
 		{ t = 7.6, set = { RightUpperArm = { -90, 40, 60 }, RightLowerArm = { 90, 0, 0 }, LeftUpperArm = { -90, -40, -60 }, LeftLowerArm = { 90, 0, 0 } } } } } },
 	-- (D-1400 2nd, user + clip 9: "왼쪽팔 들고 흔드는 안무가 안 들어감") at song 104.0-105.4 (clip 4.4-5.8) the right hand stays on
 	-- the hip and the left arm goes up beside the head and waves (the capture holds it in front of the face): left arm keys
@@ -183,7 +183,7 @@ M.ChoreoFixes = {
 	-- (D-1933, 2nd review: at 1:41.3-1:41.9 the video's left hand goes up beside the head and back to the hip)
 	[71518245203286] = { pose = { { from = 0, to = 3.3, ease = 0.3, keys = {
 		{ t = 0, set = { RightUpperArm = { -90, 40, 60 }, RightLowerArm = { 90, 0, 0 }, LeftUpperArm = { -90, -40, -60 }, LeftLowerArm = { 90, 0, 0 } } },
-		{ t = 1.6, set = { RightUpperArm = { -90, 40, 60 }, RightLowerArm = { 90, 0, 0 }, LeftUpperArm = { -90, -40, -60 }, LeftLowerArm = { 90, 0, 0 } } }, { t = 1.9, set = { RightUpperArm = { -90, 40, 60 }, RightLowerArm = { 90, 0, 0 }, LeftUpperArm = { 75, -35, -70 }, LeftLowerArm = { 80, 0, 0 } } }, { t = 2.05, set = { RightUpperArm = { -90, 40, 60 }, RightLowerArm = { 90, 0, 0 }, LeftUpperArm = { 75, -35, -70 }, LeftLowerArm = { 80, 0, 0 } } },
+		{ t = 1.6, set = { RightUpperArm = { -90, 40, 60 }, RightLowerArm = { 90, 0, 0 }, LeftUpperArm = { -90, -40, -60 }, LeftLowerArm = { 90, 0, 0 } } }, { t = 1.9, set = { RightUpperArm = { -90, 40, 60 }, RightLowerArm = { 90, 0, 0 }, LeftUpperArm = { 55, -35, -70 }, LeftLowerArm = { 105, 0, 0 } } }, { t = 2.05, set = { RightUpperArm = { -90, 40, 60 }, RightLowerArm = { 90, 0, 0 }, LeftUpperArm = { 55, -35, -70 }, LeftLowerArm = { 105, 0, 0 } } },
 		{ t = 2.35, set = { RightUpperArm = { -90, 40, 60 }, RightLowerArm = { 90, 0, 0 }, LeftUpperArm = { -90, -40, -60 }, LeftLowerArm = { 90, 0, 0 } } } } },
 		{ from = 4.0, to = 5.95, ease = 0.45, keys = {
 			{ t = 4.45, set = { LeftUpperArm = { 75, -35, -70 }, LeftLowerArm = { 80, 0, 0 } } },
@@ -3098,6 +3098,14 @@ do
 		M.ChoreoFixes[b[1]] = f
 		f.bend = if f.bend then table.clone(f.bend) else {}
 		table.insert(f.bend, { part = "Head", keys = toss(b[2]) })
+	end
+	-- (2nd review of D-1933: the head turned left 52-65° from the chest there against the video's 15-38°; a turn added on each
+	-- toss only grew with the tilt) the head turned back YAW° through the lunge 122.0-124.1
+	local YAW = -25
+	for _, w in ipairs({ { 88337047994676, 112.85, 122.0, 123.51 }, { 122763589970816, 123.51, 123.51, 124.1 } }) do
+		local f = M.ChoreoFixes[w[1]] :: any
+		local a, b = w[3] - w[2], w[4] - w[2]
+		table.insert(f.bend, { part = "Head", keys = { { a - 0.2, 0, 0, 0 }, { a, 0, YAW, 0 }, { b, 0, YAW, 0 }, { b + 0.2, 0, 0, 0 } } })
 	end
 end
 
