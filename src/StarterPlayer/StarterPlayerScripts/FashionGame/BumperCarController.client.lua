@@ -136,7 +136,8 @@ local function kick(root: BasePart, at: Vector3, n: Vector3, speed: number, noBu
 	w.vr += -nl.Z * k * C.WobbleFreq
 	w.vh += math.min(speed, 14) * C.WobbleHop * C.WobbleFreq
 	playThud(root, speed)
-	if not noBurst then burst(at, speed) end
+	-- (the contact is worked out on the floor plane: the burst at the car's own height, D-1880)
+	if not noBurst then burst(Vector3.new(at.X, root.Position.Y, at.Z), speed) end
 end
 
 local function stepWobble(w: Wobble, dt: number)
