@@ -253,7 +253,8 @@ M.Playlist = {
 		-- Clip 1 = mirror cover b3C-M5lDRHE (video = song + 1.45 s, `from = 1.45`); clips 2..22 = practice video NJx2IGeS8CQ (video = song + 1.08 s, `at` = clip start - 1.08)
 		-- (D-1338, user 2026-11-13: "레모네이드 안무 숨겨") the choreography is kept as `hiddenChoreo`: the game reads only `choreo`,
 		-- so this song now plays the default dance (no 🎵, no auto follow); rename it back to `choreo` to bring it back
-		hiddenChoreo = { { id = 107871857436267, from = 1.45 }, { id = 85687535459003, at = 6.92, blend = 0.46 }, { id = 74096523961866, at = 15.92, blend = 0.4 },
+		-- (D-1930, user 2026-11-20: "레모네이드 안무 잠궈 놓은 거 풀고 지금까지 만든 프로그램이랑 규칙으로 보정해 봐") back to `choreo`
+		choreo = { { id = 107871857436267, from = 1.45 }, { id = 85687535459003, at = 6.92, blend = 0.46 }, { id = 74096523961866, at = 15.92, blend = 0.4 },
 		{ id = 123559029471758, at = 22.84 }, { id = 139260290712979, at = 31.92, blend = 1 }, { id = 131526768823490, at = 39.2 },
 		-- (D-1062, user: 0:55 "훅 내려가는 걸 없애": 8 from 0.9 s at 56.82 (its deep bow at 0.1-0.85 skipped), 7 holds its
 		-- last pose up to it; was 7 stop 55.75 → 55.92 slowed (D-1058), 8 at 55.92 slowIn { 0.35, 0.17 };

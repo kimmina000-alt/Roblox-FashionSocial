@@ -41,6 +41,7 @@ docs/01_SYSTEMS/CHOREOGRAPHY.md §9~§20 + CHOREO_REVIEW.md 1-3 검사를 모두
 | 3 | 모든 조각 `at` = 클립 시작 − 차이 | choreo_timing_check.lua | NO_AT · GAP · OVERLAP 0 |
 | 4 | 이음새(방향 · 높이 · 자세) | choreo_check.lua → `blend` / `turn` / `spin fromPrev` | `!!` 모두 처리 |
 | 5 | 미끄러짐 · 영상 서 있기 | choreo_slide_check.lua → ChoreoSlideStill, still_from_video.py | 다시 돌리면 0 |
+| 5b | **제자리 · 디딘 발 고정(가장 중요, D-1909)** | 원본 동선 구간 = centercut tracks.json 센터가 1.5초에 키 0.6배↑ 이동한 곳만, 그 밖은 조각마다 `still`; Play 전곡 녹화(describe/pose_record → pose_log)로 바닥에 닿은 발(발목 0.25 몸통 아래)의 월드 밀림 → `plant`(ChoreoFeet IK, 발이 떠 있으면 `contact` 0.45) / 다리 `freeze`(상체 제외) / 진짜 걸음은 번갈아 스텝 + plant | 동선 밖 이동 거의 0, 디딘 발 밀림 0.15 몸통 아래 |
 | 6 | 떨림(정리 뒤 남은 것) | ChoreoShake 셈 + play_record `_G.scan` | 0.5초 8번↑ 거의 0 |
 | 7 | 회전 | choreo_motion_scan(LURCH · BACK · SEAM) + flagSong SPIN | 한 방향, 600°/s 아래 |
 | 8 | 끊김 · 순간이동 · 바닥 | flagSong SNAP · TELEPORT · JITTER · JUMP, 바닥 아래 0.15 넘는 프레임 | ok |
@@ -109,6 +110,9 @@ docs/01_SYSTEMS/CHOREOGRAPHY.md §9~§20 + CHOREO_REVIEW.md 1-3 검사를 모두
 | 걸음이 멈췄다 몰아서 감(갑자기 2:22, 7 stud/s) | 캡처가 끊어서 이동 + 자동 still이 걸음을 막음 | `glide`, 그 조각 자동 still 뺌 | 눈 |
 | 곡 동안 30스터드 쏠림 | 동선이 쌓임 | 처음 자리로 천천히 되돌림(ChoreoHome) | 자동 |
 | 조각 끝에 몸을 엉덩이 위치로 옮기면 카메라 · 몸이 돎 | (D-798 방식) | 제자리 + 동선(moveAlong) | 자동 |
+| **원본은 제자리인데 게임은 돌아다님(내 이름을 불러줘 "난리 남", D-1909)** | 캡처의 엉덩이 이동이 동선이 아닌 곳에도 있음 | 원본 동선 구간(센터 1.5초에 키 0.6배↑)만 이동, 나머지 `still` (사용자: "동선 아니면 최대한 자기 자리에서") | 매번 검사(1-3 5b) |
+| **허리만 숙이는데 발이 밀림(부기우기 0:37, D-1909)** | 캡처가 숙인 채 다리를 조금씩 벌리고 발이 0.3-0.4 떠 있음 | 몸 `still` + 다리 `freeze`(except 상체) + `plant`(`contact` 0.45) | 매번 검사(1-3 5b) |
+| 걸을 때 디딘 발이 끌림(언빌리버블 0:09, D-1904..1908) | 몸은 고르게 가는데 발은 한 번만 듦 | 원본 박자에 번갈아 스텝 + ChoreoFeet `plant`(디딘 발 IK) | Play 녹화로 확인 |
 
 ### 2-4. 떨림 · 끊김 (사용자가 가장 많이 말한 것)
 

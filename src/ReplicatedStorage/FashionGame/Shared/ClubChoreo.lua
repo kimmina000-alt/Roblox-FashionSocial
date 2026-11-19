@@ -3026,4 +3026,48 @@ do
 	end
 end
 
+-- (D-1931, user 2026-11-20: "레모네이드 안무 잠궈 놓은 거 풀고 지금까지 만든 프로그램이랑 규칙으로 보정해 봐"; rule "동선 아니면 최대한 자기 자리에서",
+-- "디딘 발 미끄러지면 안 됨", memory choreo-stay-in-place) Lemonade-aespa: Play recording of the unlocked dance: travel outside the
+-- video's formation moves 50.6 torso lengths (inside 7.3), 171 planted-foot slides. Formation moves (the followed centre going
+-- 0.6+ body heights in 1.5 s): 0:29.5-0:31.8, 0:32.5-0:34, 1:32.5-1:34.3, 1:38.8-1:40.8, 2:12-2:17.8; everything else `still`
+-- (piece seconds, 0.2 s margins), and every piece keeps its planted feet (`plant`, contact 0.45: at 0.3, 24 slides of 0.2-1.5 torso
+-- lengths were left, the feet gliding just over the floor)
+do
+	local function addList(id: number, key: string, item: any)
+		local f = (M.ChoreoFixes[id] or {}) :: any
+		M.ChoreoFixes[id] = f
+		local list = if f[key] == nil then {} elseif f[key].from then { f[key] } else table.clone(f[key])
+		table.insert(list, item)
+		f[key] = list
+	end
+	for id, wins in {
+			[107871857436267] = { { 0.45, 9.37 } },
+			[85687535459003] = { { 0.00, 10.00 } },
+			[74096523961866] = { { 0.00, 7.92 } },
+			[123559029471758] = { { 0.00, 6.46 }, { 9.11, 9.46 } },
+			[139260290712979] = { { 0.03, 0.38 }, { 2.28, 8.28 } },
+			[131526768823490] = { { 0.00, 9.29 } },
+			[99422937735141] = { { 0.00, 10.33 } },
+			[99169381541568] = { { 0.00, 12.13 } },
+			[100397079318559] = { { 0.00, 10.30 } },
+			[135759185323713] = { { 0.00, 10.57 } },
+			[83846438884132] = { { 0.00, 6.38 }, { 8.53, 9.47 } },
+			[138502286160157] = { { 0.06, 4.16 }, { 6.56, 7.53 } },
+			[107439323698577] = { { 0.03, 11.47 } },
+			[138612452549442] = { { 0.00, 4.53 } },
+			[118124487485279] = { { 0.00, 13.73 } },
+			[82680550952125] = { { 0.00, 4.15 }, { 10.30, 11.27 } },
+			[132337331292488] = { { 0.03, 9.00 } },
+			[76195346888656] = { { 0.00, 6.00 } },
+			[116980798181063] = { { 0.00, 11.00 } },
+			[118071176218932] = { { 0.00, 8.50 } },
+			[76826604804095] = { { 0.00, 10.07 } },
+			[89070118321317] = { { 0.00, 21.00 } },
+	} do
+		for _, w in ipairs(wins) do addList(id, "still", { from = w[1], to = w[2] }) end
+		-- (not on 17, 2:18-2:26: the floor routine, lying with the legs stretched out)
+		if id ~= 132337331292488 then addList(id, "plant", { from = 0, to = 99, contact = 0.45 }) end
+	end
+end
+
 return M
