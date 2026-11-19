@@ -6400,3 +6400,4 @@ Studio only (no script yet).
 - 사용자: "콜드 스파크는 상단에 띄우고 깜빡깜빡 거리게 하자 글자 1.5배 키우고" (D-1811 다음).
 - BottomNotice.show(text, color, seconds, options): options { top = true } = 상단 바 아래(TopBar.bottom() + 8)의 두 번째 줄 쌓기(TopNoticeGui), { blink = true } = 0.45초 켜짐 / 0.3초 흐림을 사라질 때까지 반복, { size = n } = 글자 크기.
 - BannerController: 콜드 스파크 · 한마디 있는 불꽃 · DJ 불꽃 쇼 = 상단, 깜빡임, 20 px(13 × 1.5), 빨강, 30초. 후원은 그대로 아래 쓰레기 알림 줄에 13 px 빨강 15초.
+- 확인(Studio Play, 1인): 콜드 스파크 2줄(한마디 없음 / 있음)이 상단 바 아래 20 px 빨강으로 쌓이고 깜빡임(투명도 0.2 ↔ 0.9 번갈아), 후원 · 쓰레기 알림은 아래 13 px 그대로. 오류 0. 사진 docs/06_LOG/images/2026-11-19/coldspark_top_a.jpg, _b.jpg.
