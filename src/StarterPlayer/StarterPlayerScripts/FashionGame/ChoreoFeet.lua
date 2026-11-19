@@ -12,9 +12,13 @@ local ChoreoFeet = {}
 local CONTACT = 0.18 -- sole within this of the floor = on the floor
 local LET_GO = 0.12 -- seconds to ease back to the animation after the foot lifts
 local STRETCH = 1.2 -- studs from its spot: let go
+-- (D-1932) a held foot the dance moves this far along the floor steps there instead (lifted, not slid)
+local STEP = 0.35
+local STEP_TIME = 0.2
+local STEP_LIFT = 0.6
 
 type Joint = Motor6D | AnimationConstraint
-type FootState = { spot: Vector3?, w: number, letGo: number?, lifted: boolean? }
+type FootState = { spot: Vector3?, w: number, letGo: number?, lifted: boolean?, stepFrom: Vector3?, stepT: number? }
 local states: {[Model]: {[string]: FootState}} = setmetatable({}, { __mode = "k" }) :: any
 
 -- the child part's frame from its parent's frame and the joint
@@ -65,18 +69,19 @@ end
 
 -- is any playing piece inside its `plant` window (weight over half)? and that window's `contact`
 -- (D-1909: studs above the floor that still count as on it; a bent-over capture hovers its feet 0.3-0.4 up)
-function ChoreoFeet.active(choreo: {AnimationTrack}, fixesOf: (string) -> any): (boolean, number?)
+function ChoreoFeet.active(choreo: {AnimationTrack}, fixesOf: (string) -> any): (boolean, number?, boolean?)
 	for _, t in ipairs(choreo) do
 		if t.WeightCurrent > 0.5 and t.Animation then
 			local fx = fixesOf(t.Animation.AnimationId)
 			local w = fx and fx.plant and inWindow(fx.plant, t.TimePosition)
-			if w then return true, w.contact end
+			if w then return true, w.contact, w.noStep end
 		end
 	end
-	return false, nil
+	return false, nil, nil
 end
 
-function ChoreoFeet.apply(character: Model, joints: {[string]: Joint}, active: boolean, floorY: number?, dt: number, contact: number?)
+-- `noStep` (D-1932): the video keeps the foot where it is, so a held foot is never stepped, only let go when pulled 2 studs
+function ChoreoFeet.apply(character: Model, joints: {[string]: Joint}, active: boolean, floorY: number?, dt: number, contact: number?, noStep: boolean?)
 	local root = character:FindFirstChild("HumanoidRootPart") :: BasePart?
 	local hips = joints.LowerTorso
 	if not root or not hips or not floorY or floorY == -math.huge then states[character] = nil return end
@@ -105,8 +110,13 @@ function ChoreoFeet.apply(character: Model, joints: {[string]: Joint}, active: b
 		if active and onFloor and st.letGo and st.lifted then st.spot, st.w, st.letGo, st.lifted = A, 1, nil, nil end
 		if active and onFloor and not st.letGo then
 			if not st.spot or st.w < 1 then st.spot, st.w = A, 1 end
+			-- (D-1932, 2nd review of Lemonade D-1931: 27 places where the video lifts the foot and puts it down elsewhere slid
+			-- along the floor in the game) the dance carrying a held foot STEP studs off its spot = a step: the foot is lifted
+			-- and carried to the new spot over STEP_TIME (planted again there), instead of sliding or being dragged
+			local away = Vector2.new(st.spot.X - A.X, st.spot.Z - A.Z).Magnitude
+			if not noStep and not st.stepFrom and away > STEP then st.stepFrom, st.stepT = st.spot, 0 end
 			-- (D-1907) pulled too far: eased off over 0.3 s, then held again where it is (it jumped 1.2 studs in a frame)
-			if Vector2.new(st.spot.X - A.X, st.spot.Z - A.Z).Magnitude > STRETCH then st.letGo = 0.3 end
+			if not st.stepFrom and away > (if noStep then 2 else STRETCH) then st.letGo = 0.3 end
 		elseif st.spot and not st.letGo then
 			-- lifted: LET_GO; the window over: 0.5 s (the body has gone on, the foot catches up slowly)
 			st.letGo = if active then LET_GO else 0.5
@@ -114,13 +124,22 @@ function ChoreoFeet.apply(character: Model, joints: {[string]: Joint}, active: b
 		end
 		if st.spot and st.letGo then
 			st.w -= dt / st.letGo
-			if st.w <= 0 then st.spot, st.w, st.letGo, st.lifted = nil, 0, nil, nil end
+			if st.w <= 0 then st.spot, st.w, st.letGo, st.lifted, st.stepFrom, st.stepT = nil, 0, nil, nil, nil, nil end
 		end
 		if not st.spot then continue end
 		anyHeld = true
 		local e = st.w * st.w * (3 - 2 * st.w)
 		-- only the floor position is held; the height follows the dance
 		local T = Vector3.new(A.X + (st.spot.X - A.X) * e, A.Y, A.Z + (st.spot.Z - A.Z) * e)
+		if st.stepFrom then
+			-- (D-1932) a step: from the old spot to where the dance has the foot now, lifted on the way
+			st.stepT = (st.stepT or 0) + dt / STEP_TIME
+			local u = math.min(st.stepT :: number, 1)
+			local k = u * u * (3 - 2 * u)
+			local from = st.stepFrom :: Vector3
+			T = Vector3.new(from.X + (A.X - from.X) * k, A.Y + math.sin(u * math.pi) * STEP_LIFT, from.Z + (A.Z - from.Z) * k)
+			if u >= 1 then st.spot, st.stepFrom, st.stepT = A, nil, nil end
+		end
 		if (T - A).Magnitude < 0.005 then continue end
 		local l1, l2 = (K - H).Magnitude, (A - K).Magnitude
 		local d = math.clamp((T - H).Magnitude, math.abs(l1 - l2) + 1e-3, l1 + l2 - 1e-3)

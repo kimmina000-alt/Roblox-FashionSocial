@@ -3065,7 +3065,16 @@ do
 			[89070118321317] = { { 0.00, 21.00 } },
 	} do
 		for _, w in ipairs(wins) do addList(id, "still", { from = w[1], to = w[2] }) end
-		-- (not on 17, 2:18-2:26: the floor routine, lying with the legs stretched out)
+		-- (D-1932, 2nd review: in the video the foot stays put at 0:16.4-0:16.8, 0:20.7-0:20.9, 0:26.2-0:26.4, 0:31.0-0:31.2,
+		-- 1:49.4-1:50.0; elsewhere a foot the dance carries off is stepped (ChoreoFeet STEP). The first window that matches counts)
+		for _, w in ipairs(({
+			[74096523961866] = { { 0.38, 0.98 }, { 4.68, 5.08 } },
+			[123559029471758] = { { 3.26, 3.66 }, { 8.06, 8.46 } },
+			[107439323698577] = { { 8.38, 9.18 } },
+		} :: any)[id] or {}) do
+			addList(id, "plant", { from = w[1], to = w[2], contact = 0.45, noStep = true })
+		end
+		-- (not on 17, 2:18-2:26: the floor routine, lying with the legs stretched out; the video sweeps the legs on the floor)
 		if id ~= 132337331292488 then addList(id, "plant", { from = 0, to = 99, contact = 0.45 }) end
 	end
 end
