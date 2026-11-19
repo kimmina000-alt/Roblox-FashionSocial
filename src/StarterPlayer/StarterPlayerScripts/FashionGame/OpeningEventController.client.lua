@@ -16,6 +16,7 @@ local Config = require(FashionGame:WaitForChild("Shared"):WaitForChild("OpeningE
 local TopBar = require(script.Parent:WaitForChild("TopBar"))
 local Popups = require(script.Parent:WaitForChild("Popups"))
 local Sfx = require(script.Parent:WaitForChild("Sfx")) -- (D-1695)
+local RewardReveal = require(script.Parent:WaitForChild("RewardReveal")) -- (D-1870)
 
 local player = Players.LocalPlayer
 local playerGui = player:WaitForChild("PlayerGui")
@@ -223,7 +224,13 @@ for n, c in ipairs(cards) do
 		claiming = true
 		c.status.Text = "..."
 		local ok, done = pcall(function() return (claimRemote :: RemoteFunction):InvokeServer("Claim") end)
-		if ok and done then pcall(function() Sfx.play("coin") end) end -- (D-1695: the reward's coin sound)
+		local reward = Config.Rewards[n]
+		if ok and done and reward and (reward.frame or reward.title) then
+			-- (D-1870) the limited frame / title come out of the shaking black box, 짜잔
+			task.spawn(RewardReveal.show, if reward.frame then "frame" else "title")
+		elseif ok and done then
+			pcall(function() Sfx.play("coin") end) -- (D-1695: the reward's coin sound)
+		end
 		claiming = false
 		refresh()
 	end)

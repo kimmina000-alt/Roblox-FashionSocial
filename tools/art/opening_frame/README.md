@@ -15,3 +15,5 @@ opening event frame `opening2026` (PhotoConfig.Frames, style "art").
 3. Upload both (Studio logged in as Vantablack_Dev) and put the ids + rectangles in PhotoConfig.
 
 Uploaded 2026-11-14: 1x4 rbxassetid://98572338696618, 2x2 rbxassetid://126371730378535.
+
+Re-cut 2026-11-19 (D-1871): smoother edges (4x blur-threshold, area downsample), the background's pink fringe eaten and inpainted, exact rounded photo holes at the game's cells, per-row x warp + divider crossfade (no seam in the 1x4). Uploaded: 1x4 rbxassetid://85072257228927, 2x2 rbxassetid://130617292038177.

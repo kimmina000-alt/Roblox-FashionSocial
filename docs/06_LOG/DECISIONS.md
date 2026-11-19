@@ -6350,3 +6350,16 @@ Studio only (no script yet).
 - 사용자: "후진 넣을까 범퍼카에 후진 있나?" → 세 안 중 2번(실제 방식) 고름.
 - 조이스틱이 차 뒤쪽을 가리키면(차 앞에서 120° 넘게 벗어나면, 60° 안으로 돌아올 때까지 유지) 페달을 밟을 때 뒤로 감: 속도 ReverseFactor(0.55, 앞의 약 절반), 차 꼬리가 스틱 방향으로 돌도록 핸들. 버튼은 늘지 않음. PC는 S / ↓도 페달(뒤로).
 - 확인(Studio Play): 앞(+X)을 보는 차에서 S 1.5초 → 뒤로 28칸 곧게(속도 약 17), 방향 그대로; S+A 1.2초 → 뒤로 가며 꼬리가 왼쪽 뒤로 돎(앞이 +X+Z 쪽). 오류 없음.
+
+## D-1870 Opening event: the day-7 / day-14 reward comes out of a shaking black box (2026-11-19)
+- User (with a shot of the attendance window): "7일차 14일차 선물 받으면 화면 중앙에 검은 상자에서 흔들리면서 프레임 짜잔하거 등장시키면서 보여주고 오후네컷에 가서 확인해 보세요 안내".
+- New client module `RewardReveal.lua` (`RewardReveal.show("frame" | "title")`), called by OpeningEventController after a successful 받기 whose reward is the frame or the title (coin days keep the coin sound only). Screen middle: the black ? box (as on the day-7 card) pops in, shakes harder for 1.6 s, swells and fades with a white flash and sparkles, then the card "짜잔! 🎉" pops up: the frame drawn by PhotoRender (2x2, pink cells) + "오픈 기념 한정 프레임 획득!" + "오후네컷에 가서 확인해 보세요 📸", or the FOUNDING MEMBER plate + "한정 칭호 FOUNDING MEMBER 획득!" + "모두에게 보이는 내 이름 위에 칭호가 생겼어요 👑". 확인 (or a tap outside after 0.8 s) closes it; the attendance window stays behind. Scaled to the screen height (phones).
+- New Korean texts for the translation pass: 짜잔! 🎉 / 오픈 기념 한정 프레임 획득! / 오후네컷에 가서 확인해 보세요 📸 / 한정 칭호 FOUNDING MEMBER 획득! / 모두에게 보이는 내 이름 위에 칭호가 생겼어요 👑 / 확인.
+
+## D-1871 Opening frame cut out again, finer (2026-11-19)
+- User: "프레임 누끼 더 정교하게 딸 것."
+- tools/art/opening_frame cut.py / warp.py: specks inside the frame filled, the background's pink fringe eaten (1 px) and the edge colours inpainted from the frame (no pink halo on dark photos), smooth anti-aliased outline (4x blur + threshold, area downsample), photo holes cut as exact rounded rectangles at the game's cells (the frame right around them solid), the 1x4's x warp per row and a crossfade over the divider where rows 3-4 of the drawing are skipped (the seam is gone). Re-uploaded: 1x4 rbxassetid://85072257228927, 2x2 rbxassetid://130617292038177 (PhotoConfig `opening2026` art rectangles updated).
+
+## D-1872 Opening frame first in 오후네컷 특별한 (2026-11-19)
+- User: "프레임은 오후네컷 스페셜 가장 앞에 진열".
+- PhotoConfig.Frames: `opening2026` moved to the front of the 특별한 entries (the frame picker orders cards by list index).
