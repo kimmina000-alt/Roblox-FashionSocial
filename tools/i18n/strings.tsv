@@ -270,12 +270,14 @@ fceaa5	exact	멀리 빨리 가려면요?	1	src/ReplicatedStorage/FashionGame/Sha
 633d83	exact	서쪽 해변에서 튜브를 타고 바다에 들어가요.	1	src/ReplicatedStorage/FashionGame/Shared/GuideConfig.lua:70
 ca05f4	exact	놀이공원은 어디 있어요?	1	src/ReplicatedStorage/FashionGame/Shared/GuideConfig.lua:71
 6b1648	exact	계단 위 OHU LAND가 문을 열었어요! 바이킹, 회전컵, 관람차, 범퍼카를 탈 수 있어요.	1	src/ReplicatedStorage/FashionGame/Shared/GuideConfig.lua:71
-2babe6	exact	국밥을 테이블에 놓으면 남도 먹어요?	1	src/ReplicatedStorage/FashionGame/Shared/GuideConfig.lua:72
-6d2b11	exact	아니요, 테이블에 놓은 국밥은 놓은 사람만 떠먹어요. 수육 한 접시와 케이크는 테이블에 놓으면 모두 한 조각씩 가져가 먹어요.	1	src/ReplicatedStorage/FashionGame/Shared/GuideConfig.lua:72
-2e3393	exact	🗺 동네 둘러보기 다시 보기	1	src/ReplicatedStorage/FashionGame/Shared/GuideConfig.lua:74
-13fc94	exact	카메라가 동네를 한 바퀴 돌며 장소와 화면 버튼을 알려 줘요.	1	src/ReplicatedStorage/FashionGame/Shared/GuideConfig.lua:74
-835698	exact	💬 불편한 점·바라는 점 보내기	1	src/ReplicatedStorage/FashionGame/Shared/GuideConfig.lua:76
-c77597	exact	버그, 불편한 점, 있었으면 하는 것 무엇이든 알려 주세요! 개발자가 하나하나 직접 읽어요. 화면 오른쪽 위 💬 버튼으로도 보낼 수 있어요.	1	src/ReplicatedStorage/FashionGame/Shared/GuideConfig.lua:76
+ca2596	exact	경험치(XP)는 어떻게 올려요?	1	src/ReplicatedStorage/FashionGame/Shared/GuideConfig.lua:73
+d0f99d	exact	음식을 먹으면 경험치가 올라요. 한 입 먹을 때마다 조금씩 오르고, 다 먹으면 그 음식의 경험치를 모두 받아요. 내 경험치는 이름 아래 ⭐ XP로 보여요.	1	src/ReplicatedStorage/FashionGame/Shared/GuideConfig.lua:73
+2babe6	exact	국밥을 테이블에 놓으면 남도 먹어요?	1	src/ReplicatedStorage/FashionGame/Shared/GuideConfig.lua:74
+6d2b11	exact	아니요, 테이블에 놓은 국밥은 놓은 사람만 떠먹어요. 수육 한 접시와 케이크는 테이블에 놓으면 모두 한 조각씩 가져가 먹어요.	1	src/ReplicatedStorage/FashionGame/Shared/GuideConfig.lua:74
+2e3393	exact	🗺 동네 둘러보기 다시 보기	1	src/ReplicatedStorage/FashionGame/Shared/GuideConfig.lua:76
+13fc94	exact	카메라가 동네를 한 바퀴 돌며 장소와 화면 버튼을 알려 줘요.	1	src/ReplicatedStorage/FashionGame/Shared/GuideConfig.lua:76
+835698	exact	💬 불편한 점·바라는 점 보내기	1	src/ReplicatedStorage/FashionGame/Shared/GuideConfig.lua:78
+c77597	exact	버그, 불편한 점, 있었으면 하는 것 무엇이든 알려 주세요! 개발자가 하나하나 직접 읽어요. 화면 오른쪽 위 💬 버튼으로도 보낼 수 있어요.	1	src/ReplicatedStorage/FashionGame/Shared/GuideConfig.lua:78
 be2f38	exact	클럽 바 에너지 드링크 블루 윙(6잔).	1	src/ReplicatedStorage/FashionGame/Shared/MonetizationConfig.lua:101
 d3305e	exact	프리미엄 음료 스택 하이드로(6잔).	1	src/ReplicatedStorage/FashionGame/Shared/MonetizationConfig.lua:104
 7bac6c	exact	스택 하이드로 (VIP가)	1	src/ReplicatedStorage/FashionGame/Shared/MonetizationConfig.lua:105
@@ -1039,14 +1041,14 @@ e9bc3e	tmpl	{1}을 골라 주세요.	1	src/ServerScriptService/FashionGame/Servi
 b11418	exact	발판 위에서 골라 주세요.	1	src/ServerScriptService/FashionGame/Services/SubwayService.lua:86
 deede5	tmpl	없는 {1}이에요.	1	src/ServerScriptService/FashionGame/Services/SubwayService.lua:89
 cfffdf	exact	지금 여기 있어요.	1	src/ServerScriptService/FashionGame/Services/SubwayService.lua:90
-5ce7f7	exact	열기	1	src/ServerScriptService/FashionGame/Services/TrashService.lua:139
-1e57da	exact	쓰레기통	1	src/ServerScriptService/FashionGame/Services/TrashService.lua:140
-c04759	exact	쓰레기통을 찾을 수 없어요.	2	src/ServerScriptService/FashionGame/Services/TrashService.lua:165
-8b5ba7	exact	쓰레기통 가까이에서 버려요.	1	src/ServerScriptService/FashionGame/Services/TrashService.lua:166
-1c0a4f	exact	이건 버릴 수 없어요.	1	src/ServerScriptService/FashionGame/Services/TrashService.lua:170
-ac7dfb	exact	🗑 버렸어요.	1	src/ServerScriptService/FashionGame/Services/TrashService.lua:186
-572819	exact	쓰레기통 가까이에서 꺼내요.	1	src/ServerScriptService/FashionGame/Services/TrashService.lua:192
-018d06	exact	이미 누가 가져갔어요.	1	src/ServerScriptService/FashionGame/Services/TrashService.lua:194
+5ce7f7	exact	열기	1	src/ServerScriptService/FashionGame/Services/TrashService.lua:178
+1e57da	exact	쓰레기통	1	src/ServerScriptService/FashionGame/Services/TrashService.lua:179
+c04759	exact	쓰레기통을 찾을 수 없어요.	2	src/ServerScriptService/FashionGame/Services/TrashService.lua:204
+8b5ba7	exact	쓰레기통 가까이에서 버려요.	1	src/ServerScriptService/FashionGame/Services/TrashService.lua:205
+1c0a4f	exact	이건 버릴 수 없어요.	1	src/ServerScriptService/FashionGame/Services/TrashService.lua:209
+ac7dfb	exact	🗑 버렸어요.	1	src/ServerScriptService/FashionGame/Services/TrashService.lua:225
+572819	exact	쓰레기통 가까이에서 꺼내요.	1	src/ServerScriptService/FashionGame/Services/TrashService.lua:231
+018d06	exact	이미 누가 가져갔어요.	1	src/ServerScriptService/FashionGame/Services/TrashService.lua:233
 749fdf	exact	바다(물)를 눌러 튜브를 띄워요.	2	src/ServerScriptService/FashionGame/Services/TubeRentService.lua:161
 b578b8	exact	튜브 들기	2	src/ServerScriptService/FashionGame/Services/TubeRentService.lua:178
 4fa9bf	exact	튜브	2	src/ServerScriptService/FashionGame/Services/TubeRentService.lua:179
@@ -1115,12 +1117,12 @@ fb0e00	tmpl	{1}님이 {2} R$ 기부하셨습니다.	1	src/StarterPlayer/StarterP
 cd2dea	exact	 💝 후원 감사합니다	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/BannerController.client.lua:106
 6a44df	tmpl	🎆 DJ {1}님의 불꽃 쇼!	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/BannerController.client.lua:110
 c9f15f	tmpl	✨ {1}님의 콜드 스파크!	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/BannerController.client.lua:112
-d289af	tmpl	🎆 {1}초 뒤에 내 불꽃이 터져요!	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/BannerController.client.lua:147
-391b34	exact	💝 게임 후원	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/BannerController.client.lua:171
-1697f7	exact	후원하면 모두의 화면에 이름과 한마디가 떠요. 받는 아이템은 없어요.	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/BannerController.client.lua:181
-c5528b	exact	☑ 순위에 내 이름 숨기는 중 (누르면 다시 보이기)	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/BannerController.client.lua:217
-2be1d8	exact	☐ 순위(기부·레벨)에 내 이름 숨기기	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/BannerController.client.lua:218
-0f6cde	tmpl	💝 {1} R$ 후원	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/BannerController.client.lua:264
+d289af	tmpl	🎆 {1}초 뒤에 내 불꽃이 터져요!	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/BannerController.client.lua:154
+391b34	exact	💝 게임 후원	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/BannerController.client.lua:178
+1697f7	exact	후원하면 모두의 화면에 이름과 한마디가 떠요. 받는 아이템은 없어요.	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/BannerController.client.lua:188
+c5528b	exact	☑ 순위에 내 이름 숨기는 중 (누르면 다시 보이기)	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/BannerController.client.lua:224
+2be1d8	exact	☐ 순위(기부·레벨)에 내 이름 숨기기	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/BannerController.client.lua:225
+0f6cde	tmpl	💝 {1} R$ 후원	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/BannerController.client.lua:271
 1f0bbb	exact	최대!	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/BeachBallController.client.lua:272
 eb686c	tmpl	힘 {1}%	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/BeachBallController.client.lua:272
 038d67	exact	힘	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/BeachBallController.client.lua:89
@@ -1216,9 +1218,9 @@ e8db56	exact	하의	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/Catalog
 234695	exact	아이템을 더 불러오지 못했습니다. 잠시 후 다시 스크롤하세요.	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/CatalogController.client.lua:3591
 25a2b8	exact	다른 아바타 변경이 진행 중입니다.	2	src/StarterPlayer/StarterPlayerScripts/FashionGame/CatalogController.client.lua:3768
 3ec90d	exact	← 애니메이션 팩	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/CatalogController.client.lua:936
-110f7e	exact	⏹ 그만 추기	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/ChoreoController.client.lua:1198
-ce10a3	exact	💃 안무 따라하기	3	src/StarterPlayer/StarterPlayerScripts/FashionGame/ChoreoController.client.lua:40
-7a7a59	exact	🧪 테스트: Bubble Pop 틀기	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/ChoreoController.client.lua:63
+110f7e	exact	⏹ 그만 추기	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/ChoreoController.client.lua:1210
+ce10a3	exact	💃 안무 따라하기	3	src/StarterPlayer/StarterPlayerScripts/FashionGame/ChoreoController.client.lua:41
+7a7a59	exact	🧪 테스트: Bubble Pop 틀기	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/ChoreoController.client.lua:64
 f2f56e	tmpl	🌙 클럽은 밤에 열려요\n오픈까지 약 {1}분	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/ClubDoorSignController.client.lua:102
 ef46c3	exact	다음 곡	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/ClubMusicController.client.lua:1010
 65c685	exact	다음 곡: 자동 재생	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/ClubMusicController.client.lua:1010
@@ -1737,7 +1739,7 @@ a9b73f	exact	아니, 괜찮아!	2	src/StarterPlayer/StarterPlayerScripts/Fashion
 78fb46	exact	여기는 친구랑 네 컷 사진을 찍는 오후네컷이야. 예쁜 촬영 부스 세 곳과 볼풀이 있어. 찍은 사진은 벽에 붙여서 모두한테 자랑할 수도 있어!	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/TourController.client.lua:43
 9980f7	exact	오후 클럽은 밤(18:00~6:00)에만 문을 열어. 함께 춤추고 놀 수 있는 핫플레이스야. 각종 케이팝 안무를 따라 추고, DJ가 되면 플레이리스트와 조명을 내 마음대로 운영할 수 있어.	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/TourController.client.lua:49
 437659	exact	🍲 오후 돼지국밥	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/TourController.client.lua:51
-267a5c	exact	열심히 춤추고 놀아서 출출해지면 오는 국밥집이야. 맛있는 국밥과 수육을 팔아. 국밥 좋아하니?	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/TourController.client.lua:51
+05d70a	exact	열심히 춤추고 놀아서 출출해지면 오는 국밥집이야. 맛있는 국밥과 수육을 팔아. 음식을 먹으면 경험치(XP)도 올라! 국밥 좋아하니?	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/TourController.client.lua:51
 c1653f	exact	짜잔! 놀이공원이 문을 열었어! 바이킹, 회전컵, 관람차, 범퍼카를 타면서 놀자. 개장 기념으로 무료 풍선을 주고 있대.	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/TourController.client.lua:54
 809b51	exact	🏖 해변	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/TourController.client.lua:56
 a56b2f	exact	파도 소리 듣고 싶을 때 오는 해변이야. 날이 좋을 때는 튜브 타면서 물놀이도 하고 비치볼도 던지면서 놀아.	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/TourController.client.lua:56
