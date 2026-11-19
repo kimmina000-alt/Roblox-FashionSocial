@@ -71,6 +71,8 @@ Read `AGENTS.md` first (catalog UI rules). The user writes in Korean; report in 
 
 - 2026-11-19 (6): merged into `catalog-ui-redesign` (user's 2P windows; no script errors; Studio = git for the changed files): `feat/event-reveal-1119` (event session: D-1870 the 7th / 14th attendance rewards come out of a shaking black box, 짜잔 card with the frame / FOUNDING MEMBER plate + 오후네컷 hint (RewardReveal.lua; checked both in 2P), D-1871 opening frame cut out again (1x4 85072257228927 / 2x2 130617292038177), D-1872 opening frame first in 특별한) and `feat/bumper-pedal-track-1119` (D-1829 crash sparks and light, empty cars back after 3 min, cones off the track lines; D-1880 sparks at car height; D-1881 the pedal at the bottom right next to the jump button). D-number ranges: event 1870-1879, park 1880-1889. New Korean strings of D-1870 (6) need translating. New work: branch off catalog-ui-redesign.
 
+- 2026-11-19 (7): merged into `catalog-ui-redesign` (user asked: 머지해): `feat/i18n-1119c` (D-1841: attendance reveal lines, the red notices, the donation banner template "{1}님이 {2} R$ 기부하셨습니다.{3}", English look name "Girl in White"; Studio I18n = git) and `feat/pose-fix-boogie-unbel-1119` (D-1863, tools only: pose_video centercut defaults). Still not merged on purpose: lab/turntable-1106. New work: branch off catalog-ui-redesign.
+
 ## Key docs
 - `docs/00_PROJECT/PLAYER_FEEDBACK.md`: real player reactions by date + improvement ideas. Add new reactions there (user, 2026-11-10).
 - `docs/00_PROJECT/DEVELOPMENT_ORDER.md`: build order.
