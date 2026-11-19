@@ -2824,7 +2824,7 @@ do
 		local fwd = { RightUpperArm = { 90, 0, 0 }, RightLowerArm = { 0, 0, 0 }, LeftUpperArm = { 90, 0, 0 }, LeftLowerArm = { 0, 0, 0 } }
 		local half = { RightUpperArm = { 45, 0, 5 }, RightLowerArm = { 5, 0, 0 }, LeftUpperArm = { 45, 0, -5 }, LeftLowerArm = { 5, 0, 0 } }
 		local hang = { RightUpperArm = { 0, 0, 8 }, RightLowerArm = { 10, 0, 0 }, LeftUpperArm = { 0, 0, -8 }, LeftLowerArm = { 10, 0, 0 } }
-		addList(U2, "pose", { from = 0.85, to = 3.35, ease = 0.25, keys = {
+		addList(U2, "pose", { from = 0.85, to = 3.1, ease = 0.25, keys = {
 			{ t = 1.1, set = fwd, add = { Head = { 0, 0, 22 } } }, { t = 1.4, set = fwd, add = { Head = { 0, 0, -22 } } }, { t = 1.7, set = fwd, add = { Head = { 0, 0, 0 } } },
 			{ t = 2.15, set = fwd }, { t = 2.6, set = half }, { t = 3.05, set = hang } } })
 		addList(U2, "guardOff", { from = 0.85, to = 3.35 })
@@ -2854,19 +2854,83 @@ do
 	-- 0.40 = 0.95 stud, 152° from the hips' facing toward the left)
 	addList(132406634119258, "walk", { from = 3.05, to = 4.35, dist = 0.95, dir = 152 })
 	do
-		local function stepKeys(t: number): any
-			return { { t - 0.14, 0, 0, 0 }, { t, 40, 0, 0 }, { t + 0.14, 0, 0, 0 } }
+		-- (D-1904, 2nd review of D-1903: the planted foot slid 0.55-0.62 torso lengths while the body travelled; the video steps
+		-- both feet in turn every 0.2 s) six steps, right / left in turn (landing 9.36 / 9.58 / 9.80 / 10.02 / 10.24 / 10.42),
+		-- each foot lifted for 0.16 s before it lands. A planted foot stays where it is: its thigh turns as the body goes on
+		-- (the body moves left 2.07 / back 0.94 studs over 9.07-10.37, eased in and out like the glide and walk), and a
+		-- lifted foot swings ahead to land half a stance in the direction of travel. Leg length 4.2 studs (hip to foot, Play; 2 moved the
+		-- planted foot twice as far the other way); thigh x + = foot
+		-- forward, z + = foot to the dancer's right
+		local A0, A1, L = 9.07, 10.37, 4.2
+		local DX, DZ = -2.07, 0.94 -- body travel (x right, z back)
+		local function e(t: number): number
+			local u = math.clamp((t - A0) / (A1 - A0), 0, 1)
+			return u * u * (3 - 2 * u)
 		end
-		local function shinKeys(t: number): any
-			return { { t - 0.14, 0, 0, 0 }, { t, -60, 0, 0 }, { t + 0.14, 0, 0, 0 } }
+		local lands = { { 9.36, "Right" }, { 9.58, "Left" }, { 9.80, "Right" }, { 10.02, "Left" }, { 10.24, "Right" }, { 10.42, "Left" } }
+		local SWING = 0.16
+		-- (the capture's own legs swing a lot here, so the legs are set, not added: thighs spread 8° like the capture's stance)
+		local track = {}
+		for _, side in ipairs({ "Right", "Left" }) do
+			local mine = {}
+			for _, l in ipairs(lands) do if l[2] == side then table.insert(mine, l[1]) end end
+			local samples = {} -- { t, x, z, lift }
+			local t, rx, rz, lastE = A0, 0, 0, e(A0)
+			for k, tl in ipairs(mine) do
+				local tu = tl - SWING
+				while t < tu do
+					local de = e(t) - lastE
+					rx, rz, lastE = rx - de * DX, rz - de * DZ, e(t)
+					table.insert(samples, { t, rx, rz, 0 })
+					t += 0.04
+				end
+				local de = e(tu) - lastE
+				rx, rz, lastE = rx - de * DX, rz - de * DZ, e(tu)
+				table.insert(samples, { tu, rx, rz, 0 })
+				local nextUp = if mine[k + 1] then mine[k + 1] - SWING else A1 + 0.1
+				local d = e(nextUp) - e(tl)
+				local nx, nz = d * DX / 2, d * DZ / 2
+				for q = 1, 4 do
+					local u = q / 4
+					table.insert(samples, { tu + SWING * u, rx + (nx - rx) * u, rz + (nz - rz) * u, math.sin(u * math.pi) })
+				end
+				rx, rz, lastE, t = nx, nz, e(tl), tl + 0.04
+			end
+			while t <= A1 + 0.3 do
+				local de = e(t) - lastE
+				rx, rz, lastE = rx - de * DX, rz - de * DZ, e(t)
+				table.insert(samples, { t, rx, rz, 0 })
+				t += 0.04
+			end
+			track[side] = samples
 		end
-		local f = fx(132406634119258)
-		f.bend = if f.bend then table.clone(f.bend) else {}
-		for i, t in ipairs({ 3.60, 3.88, 4.18 }) do
-			local side = if i % 2 == 1 then "Right" else "Left"
-			table.insert(f.bend, { part = side .. "UpperLeg", keys = stepKeys(t) })
-			table.insert(f.bend, { part = side .. "LowerLeg", keys = shinKeys(t) })
+		local function at(samples: any, t: number): (number, number, number)
+			if t <= samples[1][1] then return samples[1][2], samples[1][3], samples[1][4] end
+			for q = 1, #samples - 1 do
+				local a, b = samples[q], samples[q + 1]
+				if t <= b[1] then
+					local u = if b[1] > a[1] then (t - a[1]) / (b[1] - a[1]) else 0
+					return a[2] + (b[2] - a[2]) * u, a[3] + (b[3] - a[3]) * u, a[4] + (b[4] - a[4]) * u
+				end
+			end
+			local z = samples[#samples]
+			return z[2], z[3], z[4]
 		end
+		local keys = {}
+		local t = A0 + 0.05
+		while t <= A1 + 0.3 do
+			local set = {}
+			for _, side in ipairs({ "Right", "Left" }) do
+				local x, z, lift = at(track[side], t)
+				local spread = if side == "Right" then 8 else -8
+				set[side .. "UpperLeg"] = { math.deg(math.atan(-z / L)) + 30 * lift, 0, math.deg(math.atan(x / L)) + spread }
+				set[side .. "LowerLeg"] = { -50 * lift, 0, 0 }
+				set[side .. "Foot"] = { 20 * lift, 0, 0 }
+			end
+			table.insert(keys, { t = t - 6.02, curve = "linear", set = set })
+			t += 0.04
+		end
+		addList(132406634119258, "pose", { from = A0 + 0.05 - 6.02, to = A1 + 0.45 - 6.02, ease = 0.12, keys = keys })
 	end
 	-- (D-1901, user via the main session: "원본처럼 고개 젖힘, 상체 움직임도 원본만큼") 갑자기 0:09.2-0:10.1 the head goes back
 	-- (chin up about 40°) and the upper body leans back with it (the capture: head 6-8°, chest 5-7°, 15 % of it); at 10.2-10.5
