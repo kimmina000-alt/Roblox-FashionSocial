@@ -21,7 +21,7 @@ return {
 	[" 내려놓기"] = " Poser",
 	[" 님 촬영 중"] = " prend des photos",
 	[" 보유"] = " (déjà)",
-	[" 💝 후원 감사합니다"] = "  💝 Merci pour le soutien ",
+	[" 💝 후원 감사합니다"] = " 💝 Merci pour le soutien",
 	["\" 검색 결과가 없습니다."] = "\" — aucun résultat.",
 	["\"{1}\" 검색 결과가 없습니다."] = "Aucun résultat pour « {1} ».",
 	["\"{1}\" 일부 복원: 아이템 {2}개는 더 이상 착용할 수 없어 제외했습니다. 저장된 코디는 그대로 유지됩니다."] = "« {1} » restaurée en partie : {2} objets ne sont plus portables et ont été retirés. La tenue enregistrée reste inchangée.",
