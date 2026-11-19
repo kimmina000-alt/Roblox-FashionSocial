@@ -131,6 +131,9 @@ function ChoreoFeet.apply(character: Model, joints: {[string]: Joint}, active: b
 		local e = st.w * st.w * (3 - 2 * st.w)
 		-- only the floor position is held; the height follows the dance
 		local T = Vector3.new(A.X + (st.spot.X - A.X) * e, A.Y, A.Z + (st.spot.Z - A.Z) * e)
+		-- (D-1933, Lemonade 0:31.4: a foot the dance only just lifted slid 0.86 studs back to it, under 0.2 high) a lifted foot
+		-- being let go is carried over in the air, 0.4 up at the middle
+		if st.letGo and st.lifted then T += Vector3.new(0, math.sin((1 - st.w) * math.pi) * 0.4, 0) end
 		if st.stepFrom then
 			-- (D-1932) a step: from the old spot to where the dance has the foot now, lifted on the way
 			st.stepT = (st.stepT or 0) + dt / STEP_TIME
