@@ -15,7 +15,9 @@ local STRETCH = 1.2 -- studs from its spot: let go
 -- (D-1932) a held foot the dance moves this far along the floor steps there instead (lifted, not slid)
 local STEP = 0.35
 local STEP_TIME = 0.2
-local STEP_LIFT = 0.3 -- (D-1937: was 0.6 on top of the dance's own foot height; it folded the knee 30-60 degrees)
+-- (D-1937: was 0.6 on top of the dance's own foot height, which folded the knee 30-60 degrees; D-1938: the sole clears
+-- the floor by this much at the top of a step, nothing added where the dance already lifts it that high)
+local STEP_LIFT = 0.3
 local KNEE_MORE = 20 -- (D-1937) degrees the hold may bend the knee past the dance's own
 
 type Joint = Motor6D | AnimationConstraint
@@ -146,8 +148,9 @@ function ChoreoFeet.apply(character: Model, joints: {[string]: Joint}, active: b
 			local u = math.min(st.stepT :: number, 1)
 			local k = u * u * (3 - 2 * u)
 			local from = st.stepFrom :: Vector3
-			-- (D-1937) lifted half the step's length, STEP_LIFT at most, less what the dance already lifts it
-			st.stepLift = st.stepLift or math.max(0, math.min(STEP_LIFT, 0.5 * Vector2.new(A.X - from.X, A.Z - from.Z).Magnitude) - math.max(sole, 0))
+			-- (D-1938, 2nd review of D-1937: half the step's length less the dance's own lift barely lifted it, 26 steps
+			-- dragged along the floor) the sole goes STEP_LIFT above the floor at the top, less what the dance already lifts it
+			st.stepLift = st.stepLift or math.max(0, STEP_LIFT - math.max(sole, 0))
 			T = Vector3.new(from.X + (A.X - from.X) * k, A.Y + math.sin(u * math.pi) * (st.stepLift :: number), from.Z + (A.Z - from.Z) * k)
 			if u >= 1 then st.spot, st.stepFrom, st.stepT, st.stepLift = A, nil, nil, nil end
 		end
