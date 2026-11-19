@@ -6317,4 +6317,5 @@ Studio only (no script yet).
 - 사용자 요청(음원 테스트 세션 → 매니저 세션 전달): lab 줄만 바꿈, soundId · length · fileSpeed 그대로(BANG fileSpeed 1.0500 = D-1906).
 - BANG-After School 136570075901439: boost2 5 → 2, boost3 4 → 2, EQ 0/0/0 → -3.5/-2/-22.
 - Magic-Secret 124810692241835: boost2 5 → 2, boost3 4 → 2, EQ 0/0/0 → 0/0/-10.
+- Magic-Secret fileSpeed 1.0504 → 1.0502: 음원 테스트 세션의 지금 값이고 Studio도 1.0502(1.0504는 11-13 값).
 - Play로 들어 보지는 않음.
