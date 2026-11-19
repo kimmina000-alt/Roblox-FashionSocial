@@ -215,15 +215,14 @@ M.ChoreoFixes = {
 			{ t = 1.3, set = { LeftUpperArm = { 75, -35, -70 }, LeftLowerArm = { 80, 0, 0 }, RightUpperArm = { 0, 0, 8 }, RightLowerArm = { 10, 0, 0 } } },
 			{ t = 1.6, set = { LeftUpperArm = { 60, -60, -90 }, LeftLowerArm = { 60, 0, 0 }, RightUpperArm = { 0, 0, 8 }, RightLowerArm = { 10, 0, 0 } } },
 			{ t = 1.9, set = { LeftUpperArm = { 75, -25, -65 }, LeftLowerArm = { 80, 0, 0 }, RightUpperArm = { 0, 0, 8 }, RightLowerArm = { 10, 0, 0 } } },
-			{ t = 2.3, set = { LeftUpperArm = { 65, 10, -55 }, LeftLowerArm = { 90, 0, 0 }, RightUpperArm = { 65, -10, 55 }, RightLowerArm = { 90, 0, 0 } } },
-			{ t = 2.6, set = { LeftUpperArm = { 0, 25, -65 }, LeftLowerArm = { 100, 0, 0 }, RightUpperArm = { 0, -25, 65 }, RightLowerArm = { 100, 0, 0 } } },
-			{ t = 2.9, set = { LeftUpperArm = { 65, 10, -55 }, LeftLowerArm = { 90, 0, 0 }, RightUpperArm = { 65, -10, 55 }, RightLowerArm = { 90, 0, 0 } } },
-			{ t = 3.15, set = { LeftUpperArm = { 0, 25, -65 }, LeftLowerArm = { 100, 0, 0 }, RightUpperArm = { 0, -25, 65 }, RightLowerArm = { 100, 0, 0 } } } } },
+			-- (D-1935, user 2026-11-20 via the 2nd review: "원본처럼 내려") 2:16.4-2:17.6 both arms down at the sides, walking (was the
+			-- D-1400 wave out at the sides)
+			{ t = 2.2, set = { LeftUpperArm = { 0, 0, -8 }, LeftLowerArm = { 10, 0, 0 }, RightUpperArm = { 0, 0, 8 }, RightLowerArm = { 10, 0, 0 } } },
+			{ t = 3.3, set = { LeftUpperArm = { 0, 0, -8 }, LeftLowerArm = { 10, 0, 0 }, RightUpperArm = { 0, 0, 8 }, RightLowerArm = { 10, 0, 0 } } } } },
 		{ from = 8.3, to = 11.0, ease = 0.8, keys = {
 			{ t = 8.5, set = { RightUpperArm = { -10, 90, 40 }, RightLowerArm = { 80, 0, 0 }, LeftUpperArm = { 80, -90, 50 }, LeftLowerArm = { 70, 0, 0 } } } } } },
 		bend = { { part = "LeftHand", keys = { { 1.0, 0, 0, 0 }, { 1.3, 0, 0, -25 }, { 1.6, 0, 0, 15 }, { 1.9, 0, 0, -25 }, { 2.3, 0, 0, 0 } } },
-			{ part = "LeftHand", keys = { { 2.3, 0, 0, 0 }, { 2.6, 0, 0, 30 }, { 2.9, 0, 0, -20 }, { 3.15, 0, 0, 30 }, { 3.4, 0, 0, 0 } } },
-			{ part = "RightHand", keys = { { 2.3, 0, 0, 0 }, { 2.6, 0, 0, -30 }, { 2.9, 0, 0, 20 }, { 3.15, 0, 0, -30 }, { 3.4, 0, 0, 0 } } } } },
+		} },
 	-- (D-1394) BANG-After School, Play scan: 5 turns a full lap at 1:04.6-1:06.0 with one frame of 1033°/s → spread evenly;
 	-- 13 swings back 86° in one keyframe at 3:00.7 (663°/s) → eased
 	[102971667388731] = { spin = { from = 4.2, to = 5.6, ease = "both" } }, -- BANG 5
