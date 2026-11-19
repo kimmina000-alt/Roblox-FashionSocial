@@ -3286,4 +3286,28 @@ do
 	addPose(80718941616155, { from = 4.7, to = 5.5, ease = 0.2, keys = { { t = 4.95, set = swap }, { t = 5.3, set = swap } } })
 end
 
+-- (D-1946, 2nd review of D-1944: feet still dragged 0.6-1.2 studs at Lemon Tang 0:19.0 / 0:25.7 / 1:35.5 and I SPY 0:43.4 /
+-- 0:49.5 / 3:03.6) as Lemonade D-1943: a step there picks its landing spot at 85 % and may bend the knee to clear the floor
+-- (`landHold`, `kneeLift`); put before each piece's whole-piece window (the first window that matches counts)
+do
+	local function plantFirst(id: number, item: any)
+		local f = (M.ChoreoFixes[id] or {}) :: any
+		M.ChoreoFixes[id] = f
+		local list = if f.plant == nil then {} elseif f.plant.from then { f.plant } else table.clone(f.plant)
+		table.insert(list, 1, item)
+		f.plant = list
+	end
+	for id, w in {
+		[79127181604364] = { 1.80, 2.90 }, -- Lemon Tang 0:19.0 (at 16.65)
+		[101333518191621] = { 0.80, 1.90 }, -- Lemon Tang 0:25.7 (at 24.37)
+		[98655639854740] = { 3.00, 4.10 }, -- Lemon Tang 1:35.5 (at 92.0)
+		[98654918637507] = { 7.85, 8.90 }, -- I SPY 0:43.4 (at 35.03)
+		[140084544726244] = { 1.30, 1.90 }, -- I SPY 0:49.5 (at 47.37, into the next piece)
+		[100757574150030] = { 0.00, 0.90 }, -- I SPY 0:49.5 (at 49.27)
+		[112388068192596] = { 2.50, 3.60 }, -- I SPY 3:03.6 (at 180.55)
+	} do
+		plantFirst(id, { from = w[1], to = w[2], contact = 0.45, landHold = true, kneeLift = 90 })
+	end
+end
+
 return M
