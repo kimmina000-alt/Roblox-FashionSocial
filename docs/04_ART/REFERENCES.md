@@ -77,4 +77,5 @@ hongdae_v1_temp.lua 다음에 실행(MODE apply / revert). 결과: `street_dress
 | `hanok_stone_granite.webp`, `hanok_wood_oak.png`, `hanok_wood_dark.png` | 한옥 재질 | 2026-11-17 D-1743: 화강암(기단 · 주춧돌 · 판석), 밝은 나뭇결(한옥 벽 나무), 어두운 나무(가구). 텍스처로 사용. |
 | `hanok_stone_plinth.png`, `hanok_stone_yard.webp` | 한옥 재질 | 2026-11-17 D-1744: 밝은 돌(벽 아래 기단 · 주춧돌 · 계단), 거친 회색 돌(마당 바닥). |
 | `hanok_cafe_ref_1..5.jpg` | 한옥 카페 | 2026-11-18 D-1746: 나무 판벽 커피 바 · 펜던트 · 러그, 창가 바 북카페, 책장 카페, 레코드 카페, 나뭇가지 퍼걸러 자갈 마당 라운지. |
+| `hanok_village_ref_01..11.webp` | 한옥 마을 | 2026-11-19 D-1910: 2층 한옥 + 꽃담 + 나무 대문, 골목(초롱 · 사괴석 담), 다실 창, 마을 전경과 산, 장독대, 육각정 + 무지개 돌다리, 연잎 나무다리, 북촌 계단 골목, 현대 한옥 중정, 감나무, 벚꽃 일각문. 더 찾은 자료(링크만): [향원정](https://www.atlasobscura.com/places/hyangwonjeong-pavilion), [은평한옥마을 북한산 전망](https://mediahub.seoul.go.kr/archives/2019517), [청사초롱](https://wiki.riteme.site/wiki/Cheongsachorong). |
 | `candidates_beach_mat_icebox.png` | 해변 | 2026-10-30 돗자리(M1~M6)·아이스박스(B1~B10) Creator Store 후보, 사용자 선택 대기. |

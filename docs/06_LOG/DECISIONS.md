@@ -6395,3 +6395,11 @@ Studio only (no script yet).
 - 포즈 글 비교(D-1863)로 부기우기 · 언빌리버블을 원본과 비교해 허리 · 멈춤 후보 15곳을 숫자 + 그림으로 확인: 진짜는 부기우기 0:17.8-0:19.0 한 곳(나머지는 카메라 쪽 숙임을 얕게 읽음, 무대 컷, 사용자 요청으로 고친 자리). 목록: tools/choreo/describe_out/boogie · unbel/확정_수정목록.txt(저장소 밖 메모).
 - 원본은 0:17.8에 바로 무릎 굽히고 45° 숙인 채 어깨를 들썩임. 게임은 4번 조각(136974262670764, at 17.64)이 blend 1로 1초 동안 섞여 0:18.6에야 33° → 사용자: "고쳐" → blend 0.4.
 - Play(어깨-골반 기울기): 18.0 25° · 18.2 32°(전: 18.2 21° · 18.6 33°), 16.8-20.3 SNAP · SPIN · JUMP 없음. 깊이는 캡처 자체가 34° 정도(원본 약 45°).
+## D-1910 한옥 마을 1단계: 골목 판석 · 청사초롱 · 필지 대문 (2026-11-19)
+- 사용자(사진 11장 docs/04_ART/references/hanok_village_ref_01..11.webp): "사진들 참고해서 한옥마을 3d 제작해서 구현해. 부족한 자료 니가 더 찾아". 더 찾은 자료: 향원정(연못 섬의 육각 정자 + 나무다리), 은평한옥마을(2층 한옥 · 누마루 · 북한산 전망), 청사초롱(위 빨강 · 아래 파랑 비단) — 링크는 REFERENCES.md.
+- 계획(사용자에게 보고): 1 골목 · 대문 → 2 북서 필지 2층 한옥 → 3 북동 필지 찻집 + 장독대 + 감나무 → 4 남서 필지 현대 한옥 중정 → 5 북쪽 잔디 연못 육각정 · 돌다리 · 연잎 나무다리 → 6 북쪽 산 배경.
+- tools/graybox/hanok_village_1119.lua (hanok_wall_kit 다음, 체인 밖, 여러 번 돌려도 같음) → Workspace.HanokVillage:
+  - 골목 6곳에 판석(hv_slabs 125458671038389, tools/art/hanok_village_textures.py), 골목을 덮은 지형 잔디는 비움.
+  - 대문(일각문) 3: 북서 필지 남쪽 담(x 150..162), 북동 필지 서쪽 담(z 378..390), 남서 필지 북쪽 담(x 120..132). 담은 잘라 두 조각, 원본은 ParkedHanokBlocks.GateA/B/C_1119, 문 위 기와 2.6 올림, 기둥 · 인방 · 열린 문 두 짝 · 늘린 담 기와 지붕.
+  - 청사초롱 74개(AI 메시 HanokVillageAssets.Lantern): 골목 담 위 나무 팔에 22 간격으로 양쪽 번갈아, 둘에 하나 빛.
+- AI 메시(ServerStorage.ArtAssets.HanokVillageAssets): Lantern, Onggi, OnggiSmall, PavilionRoof6, StoneBridge, PersimmonAutumn(납작하게 나와 다시 만들 예정).
