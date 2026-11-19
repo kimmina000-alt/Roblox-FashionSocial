@@ -6344,3 +6344,17 @@ Studio only (no script yet).
 - 0:48: 원본은 48.6에 가장 깊고 48.8에 이미 서서 양팔을 듦. D-1855 `plantBend`는 숙인 채 49.2까지 잡고 49.4에 일어남 → `plantBend`에 `poseTo`(상체 숙임만 먼저 놓음)를 더해 숙임 48.31-48.56, 48.86에 끝. 다리 고정(freeze)은 49.56까지 그대로(캡처의 한 바퀴 회전을 막는 자리).
 - 1:45: D-1850 `floorTouch(P15, 3.85)`(104.4-105.7 숙여 손 바닥)를 뺌. 원본은 이때 서서 105.2-105.6에 양팔을 머리 위로 올리고, 바닥 짚기는 106.0-106.4 한 번뿐(캡처에 있음).
 - Play 녹화(pose_record, 44-110초): 0:48 숙임 40°가 48.2-48.6, 48.9에 10°까지 일어남(원본 48.8). 1:44.6-1:45.4 허리 7-12°, 105.2-105.4 손 높이 1.3-1.4(원본 1.5), 106.2-106.4 바닥 짚기 그대로. play_record 46.5-51.5 · 103-108: SNAP · SPIN · TELEPORT · JITTER 없음.
+
+
+## D-1870 Opening event: the day-7 / day-14 reward comes out of a shaking black box (2026-11-19)
+- User (with a shot of the attendance window): "7일차 14일차 선물 받으면 화면 중앙에 검은 상자에서 흔들리면서 프레임 짜잔하거 등장시키면서 보여주고 오후네컷에 가서 확인해 보세요 안내".
+- New client module `RewardReveal.lua` (`RewardReveal.show("frame" | "title")`), called by OpeningEventController after a successful 받기 whose reward is the frame or the title (coin days keep the coin sound only). Screen middle: the black ? box (as on the day-7 card) pops in, shakes harder for 1.6 s, swells and fades with a white flash and sparkles, then the card "짜잔! 🎉" pops up: the frame drawn by PhotoRender (2x2, pink cells) + "오픈 기념 한정 프레임 획득!" + "오후네컷에 가서 확인해 보세요 📸", or the FOUNDING MEMBER plate + "한정 칭호 FOUNDING MEMBER 획득!" + "모두에게 보이는 내 이름 위에 칭호가 생겼어요 👑". 확인 (or a tap outside after 0.8 s) closes it; the attendance window stays behind. Scaled to the screen height (phones).
+- New Korean texts for the translation pass: 짜잔! 🎉 / 오픈 기념 한정 프레임 획득! / 오후네컷에 가서 확인해 보세요 📸 / 한정 칭호 FOUNDING MEMBER 획득! / 모두에게 보이는 내 이름 위에 칭호가 생겼어요 👑 / 확인.
+
+## D-1871 Opening frame cut out again, finer (2026-11-19)
+- User: "프레임 누끼 더 정교하게 딸 것."
+- tools/art/opening_frame cut.py / warp.py: specks inside the frame filled, the background's pink fringe eaten (1 px) and the edge colours inpainted from the frame (no pink halo on dark photos), smooth anti-aliased outline (4x blur + threshold, area downsample), photo holes cut as exact rounded rectangles at the game's cells (the frame right around them solid), the 1x4's x warp per row and a crossfade over the divider where rows 3-4 of the drawing are skipped (the seam is gone). Re-uploaded: 1x4 rbxassetid://85072257228927, 2x2 rbxassetid://130617292038177 (PhotoConfig `opening2026` art rectangles updated).
+
+## D-1872 Opening frame first in 오후네컷 특별한 (2026-11-19)
+- User: "프레임은 오후네컷 스페셜 가장 앞에 진열".
+- PhotoConfig.Frames: `opening2026` moved to the front of the 특별한 entries (the frame picker orders cards by list index).

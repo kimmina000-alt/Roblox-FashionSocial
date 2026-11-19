@@ -106,6 +106,19 @@ PhotoConfig.Frames = {
 	{ key = "sage", name = "세이지", color = Color3.fromRGB(185, 215, 175), text = Color3.fromRGB(50, 70, 45), tab = "파스텔", price = "coins", coins = 100, style = "solid" },
 	{ key = "aqua", name = "아쿠아", color = Color3.fromRGB(160, 228, 235), text = Color3.fromRGB(30, 70, 80), tab = "파스텔", price = "coins", coins = 100, style = "solid" },
 	{ key = "cream", name = "크림", color = Color3.fromRGB(248, 236, 210), text = Color3.fromRGB(110, 90, 60), tab = "파스텔", price = "coins", coins = 100, style = "solid" },
+	-- (D-1366) the opening event's limited frame: the 7th attendance gives it (price "event",
+	-- never sold). (D-1412, user 2026-11-14: "출석 이벤트 프레임 이거 누끼 따서 사용하자") the user's
+	-- drawing (pink lace frame, ribbon, bears, OHU), cut out and fitted to each layout's cells
+	-- (tools/art/opening_frame; the 1x4 uses rows 1, 2, 5, 6 of the drawing's six): art[layout]
+	-- = the image and its rectangle in strip fractions (it reaches past the strip's edges)
+	-- (D-1871, user 2026-11-19: "프레임 누끼 더 정교하게 딸 것") cut again: smooth anti-aliased edges, no
+	-- pink halo, exact rounded photo holes, no seam in the 1x4 (images re-uploaded)
+	-- (D-1872, user 2026-11-19: "프레임은 오후네컷 스페셜 가장 앞에 진열") first card of 특별한
+	{ key = "opening2026", name = "오픈 기념", color = Color3.fromRGB(255, 196, 222), text = Color3.fromRGB(150, 70, 140), tab = "특별한", price = "event", style = "art",
+		art = {
+			["1x4"] = { image = "rbxassetid://85072257228927", x = -0.4443, y = -0.0509, w = 1.7949, h = 1.0317 },
+			["2x2"] = { image = "rbxassetid://130617292038177", x = -0.0776, y = -0.1560, w = 1.1635, h = 1.1068 },
+		} },
 	{ key = "neon_black", name = "블랙 네온", color = Color3.fromRGB(14, 12, 18), text = Color3.fromRGB(255, 120, 220), tab = "특별한", price = "pass", style = "solid", neon = Color3.fromRGB(255, 70, 200) }, -- (black with a neon outline, user 2026-10-30)
 	{ key = "neon", name = "글로시 네온", color = Color3.fromRGB(40, 10, 60), text = Color3.fromRGB(255, 80, 200), tab = "특별한", price = "pass", style = "gloss" },
 	{ key = "gloss_pink", name = "글로시 핑크", color = Color3.fromRGB(255, 110, 175), text = Color3.new(1, 1, 1), tab = "특별한", price = "pass", style = "gloss" },
@@ -118,16 +131,6 @@ PhotoConfig.Frames = {
 	{ key = "stars", name = "별", color = Color3.fromRGB(180, 200, 255), text = Color3.new(1, 1, 1), tab = "특별한", price = "pass", style = "sticker", stickers = { "⭐", "🌟", "✨" } },
 	{ key = "flowers", name = "꽃", color = Color3.fromRGB(214, 240, 200), text = Color3.fromRGB(70, 110, 60), tab = "특별한", price = "pass", style = "sticker", stickers = { "🌸", "🌼", "🌷" } },
 	{ key = "mongi", name = "몽이", color = Color3.fromRGB(255, 226, 234), text = Color3.fromRGB(150, 80, 110), tab = "특별한", price = "pass", style = "sticker", stickers = { "rbxassetid://139448598693468", "rbxassetid://102428635231665", "💗" } }, -- (the shop's own mascot, user 2026-10-30; docs/04_ART/textures/mascot_mongi*.png)
-	-- (D-1366) the opening event's limited frame: the 7th attendance gives it (price "event",
-	-- never sold). (D-1412, user 2026-11-14: "출석 이벤트 프레임 이거 누끼 따서 사용하자") the user's
-	-- drawing (pink lace frame, ribbon, bears, OHU), cut out and fitted to each layout's cells
-	-- (tools/art/opening_frame; the 1x4 uses rows 1, 2, 5, 6 of the drawing's six): art[layout]
-	-- = the image and its rectangle in strip fractions (it reaches past the strip's edges)
-	{ key = "opening2026", name = "오픈 기념", color = Color3.fromRGB(255, 196, 222), text = Color3.fromRGB(150, 70, 140), tab = "특별한", price = "event", style = "art",
-		art = {
-			["1x4"] = { image = "rbxassetid://98572338696618", x = -0.4519, y = -0.0533, w = 1.8100, h = 1.0364 },
-			["2x2"] = { image = "rbxassetid://126371730378535", x = -0.0802, y = -0.1587, w = 1.1686, h = 1.1122 },
-		} },
 	{ key = "hamster", name = "햄찌·토끼", color = Color3.fromRGB(255, 236, 200), text = Color3.fromRGB(130, 90, 50), tab = "특별한", price = "pass", style = "sticker", stickers = { "🐹", "🐰", "🍙" } },
 } :: {Frame}
 
