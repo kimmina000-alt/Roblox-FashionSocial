@@ -6400,3 +6400,27 @@ Studio only (no script yet).
 - User: "쓰레기통 주기적으로 아이템 채워주기" → 쓰레기 말고 진짜 아이템 (사용자 선택).
 - TrashConfig.Treasure*: 15분마다(TreasureEvery 900) 쓰레기통마다 30%(TreasureChance) 확률로, 게임이 넣은 진짜 아이템이 없는 통(TreasureMax 1)에 하나. 고르는 곳: BeachCafe · HanokCafe · IceCream의 코인 가격 단품(cup / bread / cone, Robux 상품·나눠 먹는 케이크·접시 제외), SnackService.MakeTool로 산 것과 똑같이 만듦.
 - TrashService: 넣은 아이템은 TrashTreasure 속성(꺼내면 지움), 다른 버린 물건처럼 KeepSeconds(24시간) 동안 있다가 사라짐; 꺼내면 가방으로, 전체 알림은 그대로.
+
+## D-1910 한옥 마을 1단계: 골목 판석 · 청사초롱 · 필지 대문 (2026-11-19)
+- 사용자(사진 11장 docs/04_ART/references/hanok_village_ref_01..11.webp): "사진들 참고해서 한옥마을 3d 제작해서 구현해. 부족한 자료 니가 더 찾아". 더 찾은 자료: 향원정(연못 섬의 육각 정자 + 나무다리), 은평한옥마을(2층 한옥 · 누마루 · 북한산 전망), 청사초롱(위 빨강 · 아래 파랑 비단) — 링크는 REFERENCES.md.
+- 계획(사용자에게 보고): 1 골목 · 대문 → 2 북서 필지 2층 한옥 → 3 북동 필지 찻집 + 장독대 + 감나무 → 4 남서 필지 현대 한옥 중정 → 5 북쪽 잔디 연못 육각정 · 돌다리 · 연잎 나무다리 → 6 북쪽 산 배경.
+- tools/graybox/hanok_village_1119.lua (hanok_wall_kit 다음, 체인 밖, 여러 번 돌려도 같음) → Workspace.HanokVillage:
+  - 골목 6곳에 판석(hv_slabs 125458671038389, tools/art/hanok_village_textures.py), 골목을 덮은 지형 잔디는 비움.
+  - 대문(일각문) 3: 북서 필지 남쪽 담(x 150..162), 북동 필지 서쪽 담(z 378..390), 남서 필지 북쪽 담(x 120..132). 담은 잘라 두 조각, 원본은 ParkedHanokBlocks.GateA/B/C_1119, 문 위 기와 2.6 올림, 기둥 · 인방 · 열린 문 두 짝 · 늘린 담 기와 지붕.
+  - 청사초롱 74개(AI 메시 HanokVillageAssets.Lantern): 골목 담 위 나무 팔에 22 간격으로 양쪽 번갈아, 둘에 하나 빛.
+- AI 메시(ServerStorage.ArtAssets.HanokVillageAssets): Lantern, Onggi, OnggiSmall, PavilionRoof6, StoneBridge, PersimmonAutumn(납작하게 나와 다시 만들 예정).
+## D-1911 한옥 마을 2단계: 북서 필지 2층 한옥 (2026-11-19)
+- 사진 1(2층 한옥 + 아래 기와 처마 + 꽃담 + 나무 대문) · 은평한옥마을 2층 한옥. hanok_village_1119.lua TwoStoryHanok: 블록(138,374)은 그대로, 기단 3 + 남쪽 계단, 벽 키트 1층(높이 17, 남쪽 띠살문 2칸) · 아래 처마(네 면 24° 기와 경사판 hv_giwa 101329134095096 + 막새 줄 + 띠, 바깥 7) · 2층(창 칸들), 지붕(HanokRoof)은 그대로. 마당 돌 바닥(지형 잔디 비움), 대문 옆 회양목 2(AI Topiary), 담 위 붉은 장미(AI RoseBush).
+## D-1912 한옥 마을 3단계: 북동 필지 찻집 · 장독대 · 감나무 (2026-11-19)
+- 사진 3(들어열개 창 너머 경치를 보는 좌식 찻상) · 사진 5(장독대) · 사진 10(감나무 아래 의자). hanok_village_1119.lua TeaHouse: 블록(315,385)을 ParkedHanokBlocks.Part_315_385 로(지붕 그대로), 기단 + 서쪽 계단 · 경사로, 마당 쪽 가운데 두 칸 개방 + 들쇠에 걸어 올린 문짝 4, 나머지 회벽 · 빗살창, 실내 어두운 나무 바닥 · 서까래, 좌식 찻상 + 정원 다도세트 메시(주전자 · 잔) + 방석 3(앉기). 마당: 장독대 돌단(x 230..262, z 338..356) 위 옹기 26(AI Onggi / OnggiSmall), 감나무(AI PersimmonAutumn, 다시 만든 입체판) + 합판 의자 2(앉기) + 작은 탁자.
+- 마당 · 골목의 지형 잔디는 아래 칸(y -4..)까지 비워야 장식 풀이 판석 위로 안 솟음.
+- 사진: docs/06_LOG/images/2026-11-19/hanok_village_*.jpg. 감나무는 열매가 크고 만화풍이라 더 사실적인 것으로 바꿀 수 있음.
+## D-1913 한옥 마을 4단계: 남서 필지 현대 한옥 중정 (2026-11-19)
+- 사진 9(통유리 한옥, 흰 자갈 · 네모 디딤돌, 나무 평상). hanok_village_1119.lua CourtyardHanok: 블록(168,504)을 ParkedHanokBlocks.Part_168_504 로(지붕 그대로), 기단 2 + 벽 키트(마당 쪽 유리 미닫이 · 일부 열림, 뒤 회벽 · 창), 실내 식탁 + 합판 의자 4(앉기) · 종이 등 · 화분. 마당(x 81..205, z 455..548): 흰 자갈 판 + 테두리, 대문 → 집 계단 네모 디딤돌 길, 나무 평상(매트 · 베개 · 쟁반, 앉기 3), 가운데 나무, 풀숲.
+## D-1914 한옥 마을 5단계: 북쪽 연못 · 육각정 · 무지개 돌다리 (2026-11-19)
+- 사진 6(육각정 + 무지개 돌다리) · 사진 7(연잎 연못) · 향원정. 북쪽 빈 땅(연못 원판 (255,288,16) (285,290,16) (270,298,8)): 지형에 직접 씀 — 물(수면 약 0.9) + 둘레 9 잔디 둑(바깥으로 낮아짐), 검은 연못 바닥, 연잎 40(정원 LotusFlat / LotusTall), 무지개 돌다리(AI StoneBridge, 26 × 5.5 × 8, 남북, 투명 경사로 2), 다리 북쪽 끝 육각정(돌 기단 · 나무 마루 · 붉은 기둥 6 · 난간(다리 쪽 칸은 출입) · 초록 단청 띠 · AI 육각 지붕 PavilionRoof6 26 × 11, 앉기 3), 연못 가 바위 · 풀.
+- Edit 화면 캡처에는 AI 메시 크기를 바꾼 다리 · 지붕이 안 보였고 Play 에서는 보임.
+- 사진: docs/06_LOG/images/2026-11-19/hanok_village_courtyard.jpg · _pond.jpg.
+## D-1915 한옥 마을 6단계: 마을 뒤 산 능선 배경 (2026-11-19)
+- 사진 4(한옥 지붕 너머 바위 봉우리 산) · 은평한옥마을 북한산. AI 메시 HanokVillageAssets.Mountains 3개를 520~600 × 190~240 로 키워 남쪽 맵 밖(경계 z 665 뒤, z 810..850)에, SurfaceAppearance 로 색 차분하게(120,140,130), 충돌 · 그림자 · 레이캐스트 끔, MountainBackdrop 모델 Persistent(스트리밍과 상관없이 보임). 대기 density 0.3 이라 z 1000 쯤은 안개에 묻혀 안 보였음. 만화풍이 남아 있어 빼려면 HanokVillage.MountainBackdrop 을 지우면 됨.
+- 한옥 마을 전체: HanokVillage 부품 약 1,374 (카페 · 정원 별도). 사진: docs/06_LOG/images/2026-11-19/hanok_village_overview.jpg.

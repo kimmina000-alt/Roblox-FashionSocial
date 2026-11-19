@@ -119,3 +119,4 @@
 - `hanok_wall_kit.lua`: 한 칸씩 조립하는 벽 모듈(ServerStorage.ArtAssets.HanokWallKit, `_G.HanokWallKit.make / face`).
 - `hanok_garden_1117.lua`: kit 다음에 실행. Workspace.HanokGarden(남동쪽 필지 집 · 연못 · 정자 · 대문). 체인 스크립트와 상관없음(Workspace 최상위), 다시 돌려도 결과가 같다.
 - `hanok_cafe_1118.lua` (D-1746): kit 다음에 실행. Workspace.HanokCafe(가장 동쪽 담장 필지 카페 · 퍼걸러 · 대문). 체인 밖, 다시 돌려도 결과가 같다.
+- `hanok_village_1119.lua` (D-1910~): kit 다음에 실행. Workspace.HanokVillage(골목 판석 · 청사초롱 · 필지 대문, 이후 단계의 필지 꾸밈). 체인 밖.
