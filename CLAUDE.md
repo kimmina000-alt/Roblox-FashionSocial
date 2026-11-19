@@ -73,6 +73,8 @@ Read `AGENTS.md` first (catalog UI rules). The user writes in Korean; report in 
 
 - 2026-11-19 (7): merged into `catalog-ui-redesign` (user asked: 머지해): `feat/i18n-1119c` (D-1841: attendance reveal lines, the red notices, the donation banner template "{1}님이 {2} R$ 기부하셨습니다.{3}", English look name "Girl in White"; Studio I18n = git) and `feat/pose-fix-boogie-unbel-1119` (D-1863, tools only: pose_video centercut defaults). Still not merged on purpose: lab/turntable-1106. New work: branch off catalog-ui-redesign.
 
+- 2026-11-19 (8): `feat/choreo-review-1119` merged into `catalog-ui-redesign` by the choreo-analysis session (user asked there: 머지해; tools only, no Studio change): D-1890 second-pass choreo review tool, tools/choreo/review/choreo_review.py + viewer.html (per-part angles vs the original video, beat timing in ms, hits, bounce, 4-view overlay, --before for before/after). D-number range of that session: 1890-1899. New work: branch off catalog-ui-redesign.
+
 ## Key docs
 - `docs/00_PROJECT/PLAYER_FEEDBACK.md`: real player reactions by date + improvement ideas. Add new reactions there (user, 2026-11-10).
 - `docs/00_PROJECT/DEVELOPMENT_ORDER.md`: build order.
