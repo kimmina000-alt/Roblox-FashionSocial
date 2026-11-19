@@ -170,13 +170,21 @@ M.ChoreoFixes = {
 	-- (others pass close behind her, so the capture lost it: hands in front of the chest, one inside the body, then up at the
 	-- face at 98.0-98.6 and 99.4-100.2); both arms set to hands on the hips (angles solved on the avatar's own joints: hand at
 	-- the waist side, elbow out wide)
-	[91956738526101] = { pose = { from = 6.0, to = 9.7, ease = 0.5, keys = {
-		{ t = 6.5, set = { RightUpperArm = { -90, 40, 60 }, RightLowerArm = { 90, 0, 0 }, LeftUpperArm = { -90, -40, -60 }, LeftLowerArm = { 90, 0, 0 } } } } } },
+	-- (D-1933, 2nd review: before the hands go to the hips the video brings a hand to the mouth (96.7) and both hands up by the
+	-- face (97.1), on the hips at 97.5) the face hands 96.4-97.2, the hips from 97.45 (was 96.36)
+	[91956738526101] = { pose = { from = 6.3, to = 9.7, ease = 0.3, keys = {
+		{ t = 6.7, set = { LeftUpperArm = { 25, 0, -10 }, LeftLowerArm = { 115, 0, 0 } } },
+		{ t = 7.05, set = { LeftUpperArm = { 25, 0, -10 }, LeftLowerArm = { 115, 0, 0 }, RightUpperArm = { 25, 0, 10 }, RightLowerArm = { 115, 0, 0 } } },
+		{ t = 7.25, set = { LeftUpperArm = { 25, 0, -10 }, LeftLowerArm = { 115, 0, 0 }, RightUpperArm = { 25, 0, 10 }, RightLowerArm = { 115, 0, 0 } } },
+		{ t = 7.6, set = { RightUpperArm = { -90, 40, 60 }, RightLowerArm = { 90, 0, 0 }, LeftUpperArm = { -90, -40, -60 }, LeftLowerArm = { 90, 0, 0 } } } } } },
 	-- (D-1400 2nd, user + clip 9: "왼쪽팔 들고 흔드는 안무가 안 들어감") at song 104.0-105.4 (clip 4.4-5.8) the right hand stays on
 	-- the hip and the left arm goes up beside the head and waves (the capture holds it in front of the face): left arm keys
 	-- solved like the hips (beside the head / out a little), the wrist flicking with each
+	-- (D-1933, 2nd review: at 1:41.3-1:41.9 the video's left hand goes up beside the head and back to the hip)
 	[71518245203286] = { pose = { { from = 0, to = 3.3, ease = 0.3, keys = {
-		{ t = 0, set = { RightUpperArm = { -90, 40, 60 }, RightLowerArm = { 90, 0, 0 }, LeftUpperArm = { -90, -40, -60 }, LeftLowerArm = { 90, 0, 0 } } } } },
+		{ t = 0, set = { RightUpperArm = { -90, 40, 60 }, RightLowerArm = { 90, 0, 0 }, LeftUpperArm = { -90, -40, -60 }, LeftLowerArm = { 90, 0, 0 } } },
+		{ t = 1.6, set = { RightUpperArm = { -90, 40, 60 }, RightLowerArm = { 90, 0, 0 }, LeftUpperArm = { -90, -40, -60 }, LeftLowerArm = { 90, 0, 0 } } }, { t = 1.9, set = { RightUpperArm = { -90, 40, 60 }, RightLowerArm = { 90, 0, 0 }, LeftUpperArm = { 55, -35, -70 }, LeftLowerArm = { 105, 0, 0 } } }, { t = 2.05, set = { RightUpperArm = { -90, 40, 60 }, RightLowerArm = { 90, 0, 0 }, LeftUpperArm = { 55, -35, -70 }, LeftLowerArm = { 105, 0, 0 } } },
+		{ t = 2.35, set = { RightUpperArm = { -90, 40, 60 }, RightLowerArm = { 90, 0, 0 }, LeftUpperArm = { -90, -40, -60 }, LeftLowerArm = { 90, 0, 0 } } } } },
 		{ from = 4.0, to = 5.95, ease = 0.45, keys = {
 			{ t = 4.45, set = { LeftUpperArm = { 75, -35, -70 }, LeftLowerArm = { 80, 0, 0 } } },
 			{ t = 4.7, set = { LeftUpperArm = { 75, -25, -65 }, LeftLowerArm = { 80, 0, 0 } } },
@@ -207,15 +215,14 @@ M.ChoreoFixes = {
 			{ t = 1.3, set = { LeftUpperArm = { 75, -35, -70 }, LeftLowerArm = { 80, 0, 0 }, RightUpperArm = { 0, 0, 8 }, RightLowerArm = { 10, 0, 0 } } },
 			{ t = 1.6, set = { LeftUpperArm = { 60, -60, -90 }, LeftLowerArm = { 60, 0, 0 }, RightUpperArm = { 0, 0, 8 }, RightLowerArm = { 10, 0, 0 } } },
 			{ t = 1.9, set = { LeftUpperArm = { 75, -25, -65 }, LeftLowerArm = { 80, 0, 0 }, RightUpperArm = { 0, 0, 8 }, RightLowerArm = { 10, 0, 0 } } },
-			{ t = 2.3, set = { LeftUpperArm = { 65, 10, -55 }, LeftLowerArm = { 90, 0, 0 }, RightUpperArm = { 65, -10, 55 }, RightLowerArm = { 90, 0, 0 } } },
-			{ t = 2.6, set = { LeftUpperArm = { 0, 25, -65 }, LeftLowerArm = { 100, 0, 0 }, RightUpperArm = { 0, -25, 65 }, RightLowerArm = { 100, 0, 0 } } },
-			{ t = 2.9, set = { LeftUpperArm = { 65, 10, -55 }, LeftLowerArm = { 90, 0, 0 }, RightUpperArm = { 65, -10, 55 }, RightLowerArm = { 90, 0, 0 } } },
-			{ t = 3.15, set = { LeftUpperArm = { 0, 25, -65 }, LeftLowerArm = { 100, 0, 0 }, RightUpperArm = { 0, -25, 65 }, RightLowerArm = { 100, 0, 0 } } } } },
+			-- (D-1935, user 2026-11-20 via the 2nd review: "원본처럼 내려") 2:16.4-2:17.6 both arms down at the sides, walking (was the
+			-- D-1400 wave out at the sides)
+			{ t = 2.2, set = { LeftUpperArm = { 0, 0, -8 }, LeftLowerArm = { 10, 0, 0 }, RightUpperArm = { 0, 0, 8 }, RightLowerArm = { 10, 0, 0 } } },
+			{ t = 3.3, set = { LeftUpperArm = { 0, 0, -8 }, LeftLowerArm = { 10, 0, 0 }, RightUpperArm = { 0, 0, 8 }, RightLowerArm = { 10, 0, 0 } } } } },
 		{ from = 8.3, to = 11.0, ease = 0.8, keys = {
 			{ t = 8.5, set = { RightUpperArm = { -10, 90, 40 }, RightLowerArm = { 80, 0, 0 }, LeftUpperArm = { 80, -90, 50 }, LeftLowerArm = { 70, 0, 0 } } } } } },
 		bend = { { part = "LeftHand", keys = { { 1.0, 0, 0, 0 }, { 1.3, 0, 0, -25 }, { 1.6, 0, 0, 15 }, { 1.9, 0, 0, -25 }, { 2.3, 0, 0, 0 } } },
-			{ part = "LeftHand", keys = { { 2.3, 0, 0, 0 }, { 2.6, 0, 0, 30 }, { 2.9, 0, 0, -20 }, { 3.15, 0, 0, 30 }, { 3.4, 0, 0, 0 } } },
-			{ part = "RightHand", keys = { { 2.3, 0, 0, 0 }, { 2.6, 0, 0, -30 }, { 2.9, 0, 0, 20 }, { 3.15, 0, 0, -30 }, { 3.4, 0, 0, 0 } } } } },
+		} },
 	-- (D-1394) BANG-After School, Play scan: 5 turns a full lap at 1:04.6-1:06.0 with one frame of 1033°/s → spread evenly;
 	-- 13 swings back 86° in one keyframe at 3:00.7 (663°/s) → eased
 	[102971667388731] = { spin = { from = 4.2, to = 5.6, ease = "both" } }, -- BANG 5
@@ -3023,6 +3030,126 @@ do
 		f.dejitter = 0.07
 		f.calm = true
 		f.smoothDetail = true -- (the hands and feet shook most: 70-80 turn-backs in 20 s, and D-998 kept them out of the clean-ups)
+	end
+end
+
+-- (D-1931, user 2026-11-20: "레모네이드 안무 잠궈 놓은 거 풀고 지금까지 만든 프로그램이랑 규칙으로 보정해 봐"; rule "동선 아니면 최대한 자기 자리에서",
+-- "디딘 발 미끄러지면 안 됨", memory choreo-stay-in-place) Lemonade-aespa: Play recording of the unlocked dance: travel outside the
+-- video's formation moves 50.6 torso lengths (inside 7.3), 171 planted-foot slides. Formation moves (the followed centre going
+-- 0.6+ body heights in 1.5 s): 0:29.5-0:31.8, 0:32.5-0:34, 1:32.5-1:34.3, 1:38.8-1:40.8, 2:12-2:17.8; everything else `still`
+-- (piece seconds, 0.2 s margins), and every piece keeps its planted feet (`plant`, contact 0.45: at 0.3, 24 slides of 0.2-1.5 torso
+-- lengths were left, the feet gliding just over the floor)
+do
+	local function addList(id: number, key: string, item: any)
+		local f = (M.ChoreoFixes[id] or {}) :: any
+		M.ChoreoFixes[id] = f
+		local list = if f[key] == nil then {} elseif f[key].from then { f[key] } else table.clone(f[key])
+		table.insert(list, item)
+		f[key] = list
+	end
+	for id, wins in {
+			[107871857436267] = { { 0.45, 9.37 } },
+			[85687535459003] = { { 0.00, 10.00 } },
+			[74096523961866] = { { 0.00, 7.92 } },
+			[123559029471758] = { { 0.00, 6.46 }, { 9.11, 9.46 } },
+			[139260290712979] = { { 0.03, 0.38 }, { 2.28, 8.28 } },
+			[131526768823490] = { { 0.00, 9.29 } },
+			[99422937735141] = { { 0.00, 10.33 } },
+			[99169381541568] = { { 0.00, 12.13 } },
+			[100397079318559] = { { 0.00, 10.30 } },
+			[135759185323713] = { { 0.00, 10.57 } },
+			[83846438884132] = { { 0.00, 6.38 }, { 8.53, 9.47 } },
+			[138502286160157] = { { 0.06, 4.16 }, { 6.56, 7.53 } },
+			[107439323698577] = { { 0.03, 11.47 } },
+			[138612452549442] = { { 0.00, 4.53 } },
+			[118124487485279] = { { 0.00, 13.73 } },
+			[82680550952125] = { { 0.00, 4.15 }, { 10.30, 11.27 } },
+			[132337331292488] = { { 0.03, 9.00 } },
+			[76195346888656] = { { 0.00, 6.00 } },
+			[116980798181063] = { { 0.00, 11.00 } },
+			[118071176218932] = { { 0.00, 8.50 } },
+			[76826604804095] = { { 0.00, 10.07 } },
+			[89070118321317] = { { 0.00, 21.00 } },
+	} do
+		for _, w in ipairs(wins) do addList(id, "still", { from = w[1], to = w[2] }) end
+		-- (D-1932, 2nd review: in the video the foot stays put at 0:16.4-0:16.8, 0:20.7-0:20.9, 0:26.2-0:26.4, 0:31.0-0:31.2,
+		-- 1:49.4-1:50.0; elsewhere a foot the dance carries off is stepped (ChoreoFeet STEP). The first window that matches counts)
+		for _, w in ipairs(({
+			[74096523961866] = { { 0.38, 0.98 }, { 4.68, 5.08 } },
+			[123559029471758] = { { 3.26, 3.66 }, { 8.06, 8.46 } },
+			[107439323698577] = { { 8.38, 9.18 } },
+		} :: any)[id] or {}) do
+			addList(id, "plant", { from = w[1], to = w[2], contact = 0.45, noStep = true })
+		end
+		-- (D-1943, 2nd review of D-1942: 2:29.7 / 2:35.4 / 1:49.2 a step set the foot down while the dance still carried it,
+		-- 0.55-0.70 studs along the floor) here a step picks its landing spot at 85 % and puts the foot down there (`landHold`);
+		-- the capture sinks the foot 0.2-0.27 under the floor there, so the step may bend the knee to lift it 0.3 (`kneeLift`)
+		for _, w in ipairs(({
+			[76195346888656] = { { 3.30, 6.10 } },
+			[116980798181063] = { { 4.00, 5.20 } },
+			[107439323698577] = { { 7.80, 8.38 } },
+		} :: any)[id] or {}) do
+			addList(id, "plant", { from = w[1], to = w[2], contact = 0.45, landHold = true, kneeLift = 90 })
+		end
+		-- (not on 17, 2:18-2:26: the floor routine, lying with the legs stretched out; the video sweeps the legs on the floor)
+		if id ~= 132337331292488 then addList(id, "plant", { from = 0, to = 99, contact = 0.45 }) end
+	end
+end
+
+-- (D-1933, BANG 2nd review: 2:02.0-2:04.2 in the lunge the video throws the head back on 2:02.4 / 2:03.0 / 2:03.8, the game's
+-- head hardly moved (17 %)) 12 at 112.85 / 13 at 123.51: head back 28° and down again on each
+do
+	local function toss(t: number): any
+		return { { t - 0.18, 0, 0, 0 }, { t, 28, 0, 0 }, { t + 0.28, 0, 0, 0 } }
+	end
+	for _, b in ipairs({ { 88337047994676, 122.4 - 112.85 }, { 88337047994676, 123.0 - 112.85 }, { 122763589970816, 123.8 - 123.51 } }) do
+		local f = (M.ChoreoFixes[b[1]] or {}) :: any
+		M.ChoreoFixes[b[1]] = f
+		f.bend = if f.bend then table.clone(f.bend) else {}
+		table.insert(f.bend, { part = "Head", keys = toss(b[2]) })
+	end
+	-- (2nd review of D-1933: the head turned left 52-65° from the chest there against the video's 15-38°; a turn added on each
+	-- toss only grew with the tilt) the head turned back YAW° through the lunge 122.0-124.1
+	local YAW = -25
+	for _, w in ipairs({ { 88337047994676, 112.85, 122.0, 123.51 }, { 122763589970816, 123.51, 123.51, 124.1 } }) do
+		local f = M.ChoreoFixes[w[1]] :: any
+		local a, b = w[3] - w[2], w[4] - w[2]
+		table.insert(f.bend, { part = "Head", keys = { { a - 0.2, 0, 0, 0 }, { a, 0, YAW, 0 }, { b, 0, YAW, 0 }, { b + 0.2, 0, 0, 0 } } })
+	end
+end
+
+-- (D-1936, 2nd review of D-1935: BANG feet slid 1.4-1.5 studs at 2:14-2:17, the video steps there; rule "동선 아니면 자기 자리,
+-- 디딘 발 미끄러지면 안 됨" for the whole song) formation moves (the followed centre 0.6+ body heights in 1.5 s): 0:06.5-0:09.3,
+-- 0:30.5-0:33.3, 0:35-0:37.5, 0:50.8-0:52.3, 1:18-1:19.8, 2:07.3-2:12.5, 2:14-2:16.5, 2:40-2:41.5, 2:46-2:47.5, 2:50.3-2:52.5,
+-- 2:58.8-3:00.8; everything else `still`, every piece `plant` (contact 0.45; a foot the dance carries off is stepped)
+do
+	local function addList(id: number, key: string, item: any)
+		local f = (M.ChoreoFixes[id] or {}) :: any
+		M.ChoreoFixes[id] = f
+		local list = if f[key] == nil then {} elseif f[key].from then { f[key] } else table.clone(f[key])
+		table.insert(list, item)
+		f[key] = list
+	end
+	for id, wins in {
+		[84153374890352] = { { 1.81, 15.00 } },
+		[137056236927761] = { { 0.00, 8.66 }, { 11.81, 13.16 } },
+		[105204020323017] = { { 0.00, 0.75 }, { 3.65, 14.80 } },
+		[120933576855785] = { { 0.00, 2.70 }, { 4.60, 13.99 } },
+		[102971667388731] = { { 0.00, 7.88 } },
+		[103181529138741] = { { 0.00, 10.08 } },
+		[117412778868520] = { { 1.27, 12.18 } },
+		[91956738526101] = { { 0.00, 10.74 } },
+		[71518245203286] = { { 0.00, 14.25 } },
+		[88337047994676] = { { 0.00, 11.66 } },
+		[122763589970816] = { { 0.00, 3.54 }, { 9.19, 10.29 } },
+		[114991184702089] = { { 2.47, 14.62 } },
+		[133693971779949] = { { 0.00, 11.95 }, { 13.85, 14.99 } },
+		[129925869461594] = { { 0.00, 3.96 }, { 5.86, 8.21 }, { 10.86, 14.13 } },
+		[73991603786553] = { { 0.00, 3.58 }, { 5.98, 12.88 } },
+		[73314859778019] = { { 0.00, 21.00 } },
+	} do
+		for _, w in ipairs(wins) do addList(id, "still", { from = w[1], to = w[2] }) end
+		addList(id, "plant", { from = 0, to = 99, contact = 0.45 })
 	end
 end
 

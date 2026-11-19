@@ -1006,8 +1006,8 @@ RunService.PreSimulation:Connect(function(dt)
 				-- (D-1905) a ChoreoFixes `plant` window: a foot on the floor keeps its spot while the body moves on
 				do
 					local cached = floorCache[character]
-					local on, contact = ChoreoFeet.active(choreo, ChoreoSmooth.fixes)
-					ChoreoFeet.apply(character, bodyJoints(character), on, cached and cached.y, dt, contact)
+					local on, contact, noStep, landHold, kneeLift = ChoreoFeet.active(choreo, ChoreoSmooth.fixes)
+					ChoreoFeet.apply(character, bodyJoints(character), on, cached and cached.y, dt, contact, noStep, landHold, kneeLift)
 				end
 				-- (D-1186) the mouth sings along in the song's sung stretches (ChoreoMouth)
 				do
@@ -1408,6 +1408,9 @@ RunService.PreAnimation:Connect(function()
 		local nextAt = following.starts[i + 1]
 		if nextAt and following.slowIns[i + 1] then nextAt -= following.slowIns[i + 1][2] end
 		local holdEnd = if nextAt and nextAt > segEnd and nextAt - segEnd <= 1.5 and not following.stops[i] then nextAt else segEnd
+		-- (D-1937, BANG 3:17.7: the last piece ended a second before the song and the body walked home on sliding feet)
+		-- the last piece holds its last pose to the end of the song
+		if not nextAt and not following.stops[i] then holdEnd = segEnd + 3 end
 		if songTime >= segStart and songTime < holdEnd then
 			index = i
 			local u = songTime - segStart
