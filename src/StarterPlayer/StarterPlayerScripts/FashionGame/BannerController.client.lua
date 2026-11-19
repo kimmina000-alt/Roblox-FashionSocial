@@ -116,8 +116,9 @@ local function showNext()
 		BottomNotice.show(line, BottomNotice.RED, GIFT_SECONDS)
 	else
 		-- (D-1812, user 2026-11-19: "콜드 스파크는 상단에 띄우고 깜빡깜빡 거리게 하자 글자 1.5배 키우고") cold
-		-- sparks (and the DJ's spark show) under the top bar, blinking, 20 px (13 x 1.5)
-		BottomNotice.show(line, BottomNotice.RED, SPARK_SECONDS, { top = true, blink = true, size = 20 })
+		-- sparks (and the DJ's spark show) under the top bar, blinking, 20 px (13 x 1.5);
+		-- (D-1813, user 2026-11-19: "색 노란색으로 수정") in yellow
+		BottomNotice.show(line, BottomNotice.YELLOW, SPARK_SECONDS, { top = true, blink = true, size = 20 })
 	end
 	showNext()
 end

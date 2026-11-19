@@ -21,6 +21,7 @@ local order = 0
 local font = Font.new("rbxasset://fonts/families/GothamSSm.json", Enum.FontWeight.Bold)
 
 BottomNotice.RED = Color3.fromRGB(255, 40, 60)
+BottomNotice.YELLOW = Color3.fromRGB(255, 220, 40) -- (D-1813: cold sparks)
 
 local function getStack(top: boolean): Frame
 	local key = if top then "top" else "bottom"
