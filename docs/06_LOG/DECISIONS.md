@@ -6456,3 +6456,6 @@ Studio only (no script yet).
 - 사용자(메인 세션 경유): "원본처럼". 2차 검토(비교 분석 세션)에서 남은 판단 2곳.
 - 언빌리버블 0:09.8: D-1900의 제자리 still 대신 원본처럼 걸어나옴 — 2번 조각 3.05-4.35(곡 9.07-10.37) `glide`(캡처 이동을 고르게) + `walk` 1스터드 + 박자마다 무릎 들고 디딤(오른 · 왼 · 오른, 9.27 / 9.72 / 10.18 최고점). Play(walk 전): 9.0-10.4에 1.5스터드 고르게 이동, 발이 번갈아 0.7-0.8 들림.
 - 갑자기 0:09.2-0:10.1: 캡처는 고개 6-8° · 가슴 5-7°(원본의 15%) → 조각 140529283375287 0.5-2.3 `pose` add: 고개 뒤로 20°, 가슴 젖힘 12° + 옆 8°, 엉덩이 6°; 10.2-10.5 고개 앞으로, 10.7 바로. Play(첫 값 32 / 14): 고개 60° · 가슴 27°로 너무 커서 줄임.
+
+## D-1882 (2026-11-19) 놀이공원 츄러스 · 콜팝 간판 색
+- User: "놀이공원 콜팝 츄러스 상점 간판 색 넣기 적절한 색으로". The sign letters (each snack bar's one untextured MeshPart) were the gate booths' white (D-1497). Now each takes a colour from its own booth texture (D-1519): 츄러스 (SnackBar1 / SnackBar1B, yellow roof, red stripes) = red 222,38,42; 콜팝 (SnackBar2B, teal roof, orange stripes) = orange 255,122,24. The balloon shop keeps the white. tools/graybox/park_shops_1116.lua (SIGN_OF); in the place the two signs were recoloured directly (no chain run).

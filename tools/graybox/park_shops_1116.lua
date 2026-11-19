@@ -21,6 +21,16 @@ local SHOP_AT = Vector3.new(-70, 16.11, -306)
 local BALLOON_COLORS = { Color3.fromRGB(235, 60, 75), Color3.fromRGB(255, 210, 60), Color3.fromRGB(80, 150, 255), Color3.fromRGB(110, 225, 190) }
 -- (D-1497, user: "상점 세 개 간판 글씨 … 매표소 간판과 색상 동일하게") the gate booths' letter face colour
 local SIGN = Color3.fromRGB(255, 252, 250)
+-- (D-1882, user 2026-11-19: "놀이공원 콜팝 츄러스 상점 간판 색 넣기 적절한 색으로") each snack bar's letters in a
+-- colour from its own booth (D-1519 textures): 츄러스 = the red of its stripes (yellow roof), 콜팝 = the orange
+-- of its stripes (teal roof); the balloon shop stays SIGN
+local SIGN_OF = {
+	SnackBar1Mesh = Color3.fromRGB(222, 38, 42), -- 츄러스 (SnackBar1 / SnackBar1B, D-1527)
+	SnackBar2Mesh = Color3.fromRGB(255, 122, 24), -- 콜팝 (SnackBar2B)
+}
+local function signColor(templateName: string): Color3
+	return SIGN_OF[templateName] or SIGN
+end
 
 local function meshes(m: Instance): {MeshPart}
 	local t = {}
@@ -61,7 +71,7 @@ local function swap(old: Instance?, oldBodyName: string, templateName: string, b
 	local new = lay(template, tb, ob.CFrame, s, newName)
 	for _, p in ipairs(new:GetChildren()) do
 		-- the sign letters: the only untextured piece
-		if p:IsA("MeshPart") and p.TextureID == "" then p.Color, p.Material = SIGN, Enum.Material.SmoothPlastic end
+		if p:IsA("MeshPart") and p.TextureID == "" then p.Color, p.Material = signColor(templateName), Enum.Material.SmoothPlastic end
 	end
 	new.Parent = workspace
 	old:Destroy()
@@ -165,7 +175,7 @@ local function faceWest(name: string, templateName: string, bodyName: string)
 	if not ob or not tb then return nil end
 	local new = lay(template, tb, CFrame.new(ob.Position) * CFrame.Angles(0, math.rad(90), 0), ob.Size.Y / tb.Size.Y, name)
 	for _, p in ipairs(new:GetChildren()) do
-		if p:IsA("MeshPart") and p.TextureID == "" then p.Color, p.Material = SIGN, Enum.Material.SmoothPlastic end
+		if p:IsA("MeshPart") and p.TextureID == "" then p.Color, p.Material = signColor(templateName), Enum.Material.SmoothPlastic end
 	end
 	old:Destroy()
 	new.Parent = workspace
@@ -223,7 +233,7 @@ for _, s2 in ipairs(SECOND) do
 		local sc = scale
 		local new = lay(template, tb, CFrame.new(0, SHOP_AT.Y + tb.Size.Y * sc / 2, 0) * CFrame.Angles(0, math.rad(-90), 0), sc, s2[1])
 		for _, p in ipairs(new:GetChildren()) do
-			if p:IsA("MeshPart") and p.TextureID == "" then p.Color, p.Material = SIGN, Enum.Material.SmoothPlastic end
+			if p:IsA("MeshPart") and p.TextureID == "" then p.Color, p.Material = signColor(s2[2]), Enum.Material.SmoothPlastic end
 		end
 		new.Parent = workspace
 		local lo, hi = bb(new)
