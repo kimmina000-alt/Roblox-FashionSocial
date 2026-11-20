@@ -255,20 +255,22 @@ M.Playlist = {
 		-- (D-1338, user 2026-11-13: "레모네이드 안무 숨겨") the choreography is kept as `hiddenChoreo`: the game reads only `choreo`,
 		-- so this song now plays the default dance (no 🎵, no auto follow); rename it back to `choreo` to bring it back
 		-- (D-1930, user 2026-11-20: "레모네이드 안무 잠궈 놓은 거 풀고 지금까지 만든 프로그램이랑 규칙으로 보정해 봐") back to `choreo`
-		choreo = { { id = 107871857436267, from = 1.45 }, { id = 85687535459003, at = 6.92, blend = 0.46 }, { id = 74096523961866, at = 15.92, blend = 0.4 },
-		{ id = 123559029471758, at = 22.84 }, { id = 139260290712979, at = 31.92, blend = 1 }, { id = 131526768823490, at = 39.2 },
-		-- (D-1062, user: 0:55 "훅 내려가는 걸 없애": 8 from 0.9 s at 56.82 (its deep bow at 0.1-0.85 skipped), 7 holds its
-		-- last pose up to it; was 7 stop 55.75 → 55.92 slowed (D-1058), 8 at 55.92 slowIn { 0.35, 0.17 };
-		-- 11 blends in over 0.5 s, was 1, so its straightened left arm at 86.3-86.9 shows in full)
-		-- (D-1068, user: "0:55 … 내려가자마자 천천히 이어서 다시 올라오는 걸로"): 8 comes in at 56.0, the moment 7
-		-- is down, over 1.0 s and its first 0.6 s played over 1.42 s, so it rises slowly and is back on
-		-- the song from 57.42 (8 at 1.5 s, as before)
-		{ id = 99422937735141, at = 47.49, blend = 0.51 }, { id = 99169381541568, at = 56.82, from = 0.9, blend = 1.0, slowIn = { 0.6, 0.82 } }, { id = 100397079318559, at = 67.05 }, { id = 135759185323713, at = 76.35, slowOut = { 0.4, 0.15 } },
-		{ id = 83846438884132, at = 85.92, blend = 0.5 }, { id = 138502286160157, at = 94.39, blend = 1 }, { id = 107439323698577, at = 100.92, blend = 0.81 },
-		{ id = 138612452549442, at = 111.39, blend = 0.43 }, { id = 118124487485279, at = 114.92, blend = 0.75 }, { id = 82680550952125, at = 127.65, blend = 0.43 },
-		{ id = 132337331292488, at = 137.92, blend = 0.47 }, { id = 76195346888656, at = 145.92, blend = 1 }, { id = 116980798181063, at = 150.92, blend = 0.88 },
-		{ id = 118071176218932, at = 160.92, blend = 0.5 }, { id = 76826604804095, at = 168.42, blend = 0.5 },
-		{ id = 89070118321317, at = 177.49 } }, autoChoreo = true },
+		-- (D-1960, 2026-11-20, 안무 분석 session, user: "전체 다시 만들어 … 잘 안 보이는 거 다른 영상에서 같은 부분 찾아내서"):
+		-- v3 = one dancer (WINTER) through the song, like KOYA CREATIVE's Lemonade: clips 2..20 from three Winter stage fancams
+		-- (MBC 260530 6RuwYynkefE song = video - 0.53, MBC 260606 B8l_qT7j9pQ song = video - 0.58, SBS 260531 TerTVKd7sVQ
+		-- cut version: +0.17 / +9.32 / +12.27 by chroma), mirrored like the old pieces; practice video NJx2IGeS8CQ only where all
+		-- three hide her (87-103 grey cargo solo -> white-cap member, 125.5-135 white-cap member). Each clip overlaps the one
+		-- before by about 2 s and `blend` covers the overlap, so the seam crossfades the same moment of the same dancer.
+		-- Clips + sources: D:\Roblox\영상\aespa_Lemonade_v3_single\clips\메모.txt. Old list (v2, 22 pieces, 12 member changes):
+		-- tools/choreo/backups/lemonade_v2_choreo.lua. Play scan 5-176 s: tremble events 865 -> 213, notable 152 -> 50, snaps 0 / 0.
+		choreo = { { id = 107871857436267, from = 1.45 },
+			{ id = 112046163419694, at = 5, blend = 1.85 }, { id = 77152170951340, at = 10, blend = 2 }, { id = 98395241216132, at = 22.5, blend = 2 },
+			{ id = 105689578186345, at = 35, blend = 2 }, { id = 103313535582707, at = 44.5, blend = 2 }, { id = 136573199349283, at = 57, blend = 2 },
+			{ id = 104433202165131, at = 67.5, blend = 2 }, { id = 121733212551700, at = 80, blend = 2 }, { id = 135684881711516, at = 84.5, blend = 1.7 },
+			{ id = 119706515996739, at = 93.5, blend = 2 }, { id = 102178089107461, at = 101.3, blend = 2 }, { id = 116451294316978, at = 113.5, blend = 2 },
+			{ id = 112521190266317, at = 119.5, blend = 1.8 }, { id = 126596392429323, at = 125.5, blend = 1.5 }, { id = 106681280470448, at = 133.5, blend = 0.5 },
+			{ id = 79654105377858, at = 143.5, blend = 2 }, { id = 108871293297197, at = 149, blend = 2 }, { id = 80738708971610, at = 157.5, blend = 2 },
+			{ id = 102548402613420, at = 169.5, blend = 2 } }, autoChoreo = true },
 	-- (D-779, user 2026-11-03: new uploads "다섯시…분1102"; tempo = x1 length ÷ heard length, boost 3, -3/2/0)
 	-- (D-922, user 2026-11-06: new upload from the lab; was 97511700575810, a 3× file of 73.770 s) the new
 	-- file is the same edit at 1.1000× (3 × 73.770 ÷ 201.19; loudness of both matched, start -0.03 s, no
