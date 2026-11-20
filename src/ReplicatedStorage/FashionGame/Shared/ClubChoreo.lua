@@ -3149,6 +3149,12 @@ do
 			addList(id, "plant", { from = 0, to = 1.0, contact = 0.45, noStep = true })
 			addList(id, "plant", { from = 1.8, to = 8.1, contact = 0.45, noStep = true })
 			addList(id, "plant", { from = 8.7, to = 99, contact = 0.45, noStep = true })
+		elseif id == 123559029471758 then
+			-- (D-1969, "0:24 오른쪽 다리 안쪽으로 꺾임": the hold let the right foot go and took it again, 1.0-1.8 stud in one frame)
+			addList(id, "plant", { from = 0, to = 1.0, contact = 0.45, noStep = true })
+			addList(id, "plant", { from = 3.4, to = 99, contact = 0.45, noStep = true })
+		elseif id == 76195346888656 then
+			addList(id, "plant", { from = 1.5, to = 99, contact = 0.45, noStep = true }) -- (D-1969) not while she stands up (2:25)
 		elseif id == 135759185323713 then
 			addList(id, "plant", { from = 0, to = 6.9, contact = 0.45, noStep = true })
 		elseif id ~= 132337331292488 then
@@ -3901,6 +3907,12 @@ do
 	-- (D-1968) "1:07-1:10 player 1 제자리에": v3 kept on its spot up to the switch at 70.1
 	addList(136573199349283, "still", { from = 9.5, to = 30 })
 	addList(104433202165131, "still", { from = 0, to = 30 })
+	-- (D-1969) "2:19~ 앉는 거 스무스하게": the hips went up 1.1 and down with a bump at 138.7: one even way down from 138.2
+	addList(132337331292488, "level", { from = 0, to = 1.6, ease = 0.2 })
+	-- (D-1969) "2:25 일어날 때 위로 튕기는 거" (with 18's blend 2 in ClubPlaylist, which took the 2.3 stud one-frame pop away):
+	-- the hips follow their slow average while 17 hands over to 18
+	addList(132337331292488, "level", { from = 7.7, to = 9.6, ease = 0.2 })
+	addList(76195346888656, "level", { from = 0, to = 1.4, ease = 0.3 })
 	local f16 = M.ChoreoFixes[82680550952125] :: any
 	f16.spin = { from = 4.8, to = 7.7, ease = "both" }
 end

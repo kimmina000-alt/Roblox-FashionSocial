@@ -263,6 +263,8 @@ M.Playlist = {
 		-- before by about 2 s and `blend` covers the overlap, so the seam crossfades the same moment of the same dancer.
 		-- Clips + sources: D:\Roblox\영상\aespa_Lemonade_v3_single\clips\메모.txt. Old list (v2, 22 pieces, 12 member changes):
 		-- tools/choreo/backups/lemonade_v2_choreo.lua. Play scan 5-176 s: tremble events 865 -> 213, notable 152 -> 50, snaps 0 / 0.
+		-- (D-1969, "2:25 일어날 때 위로 튕기는 거"): 18 blends in over 2 s: over 1 s (0.3 s: 9.6) the kneeling and the standing legs
+		-- crossed the floor half way and the floor lift threw the hips up 2.3 studs for one frame (146.41); with 2 s no spike
 		-- (D-1968, user's 4th list: "0:54-0:58 player 2", "1:07-1:10 player 1 제자리에", "1:56-2:10 player2", "2:14 player1 끊김")
 		-- v2 0-59.75 (8 keeps its slowIn again, as player 2), v3 59.75-70.1, v2 70.1-86, v3 86-116.6, v2 116.6-end (no switch at
 		-- 2:12.45 any more: its cut was the 2:14 끊김); switches at the closest pose
@@ -287,7 +289,7 @@ M.Playlist = {
 			{ id = 104433202165131, at = 67.5, stop = 70.1, blend = 2 }, { id = 100397079318559, at = 70.1, from = 3.05, blend = 0.35 }, { id = 135759185323713, at = 76.35, slowOut = { 0.4, 0.15 } },
 			{ id = 135684881711516, at = 86, from = 1.5, stop = 94.8, blend = 0.35 }, { id = 119706515996739, at = 94.8, from = 1.3, stop = 102.9, blend = 0.4 },
 			{ id = 102178089107461, at = 102.9, from = 1.6, stop = 113.5, blend = 0.35 }, { id = 116451294316978, at = 113.5, stop = 116.6, blend = 2 }, { id = 118124487485279, at = 116.6, from = 1.68, blend = 0.35 },
-			{ id = 82680550952125, at = 127.65, blend = 0.43 }, { id = 132337331292488, at = 137.92, blend = 0.47 }, { id = 76195346888656, at = 145.92, blend = 1 },
+			{ id = 82680550952125, at = 127.65, blend = 0.43 }, { id = 132337331292488, at = 137.92, blend = 0.47 }, { id = 76195346888656, at = 145.92, blend = 2 },
 			{ id = 116980798181063, at = 150.92, blend = 0.88 }, { id = 118071176218932, at = 160.92, blend = 0.5 }, { id = 76826604804095, at = 168.42, blend = 0.5 },
 			{ id = 89070118321317, at = 177.49 } }, autoChoreo = true },
 	-- (D-779, user 2026-11-03: new uploads "다섯시…분1102"; tempo = x1 length ÷ heard length, boost 3, -3/2/0)
