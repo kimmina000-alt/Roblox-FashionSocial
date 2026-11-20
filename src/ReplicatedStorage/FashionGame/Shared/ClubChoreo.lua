@@ -3826,4 +3826,17 @@ do
 	end
 end
 
+-- (D-1950, 2nd review of Lemonade v3final2: 0:24.3-0:26.5 the planted feet slid again, 0:25.1 left foot 3.2 studs; D-1969
+-- took this piece's hold away for 1.0-3.4 because the noStep hold let the right foot go and took it again in one frame) the
+-- video steps from side to side in place here (lifts the foot and puts it down), so this gap gets a hold that steps: the foot
+-- is lifted and set down where the step aimed (`landHold`) instead of being held still or left to slide. Put first: the
+-- first window that matches counts.
+do
+	local f = (M.ChoreoFixes[123559029471758] or {}) :: any
+	M.ChoreoFixes[123559029471758] = f
+	local list = if f.plant == nil then {} elseif f.plant.from then { f.plant } else table.clone(f.plant)
+	table.insert(list, 1, { from = 1.0, to = 3.4, contact = 0.45, landHold = true })
+	f.plant = list
+end
+
 return M
