@@ -263,6 +263,8 @@ M.Playlist = {
 		-- before by about 2 s and `blend` covers the overlap, so the seam crossfades the same moment of the same dancer.
 		-- Clips + sources: D:\Roblox\영상\aespa_Lemonade_v3_single\clips\메모.txt. Old list (v2, 22 pieces, 12 member changes):
 		-- tools/choreo/backups/lemonade_v2_choreo.lua. Play scan 5-176 s: tremble events 865 -> 213, notable 152 -> 50, snaps 0 / 0.
+		-- (D-1969, user after the last 2P comparison: "player1 안무로 쓰자. 정리해.") THE list below is the one in use: v2 pieces 0-59.75,
+		-- 70.1-86, 116.6-end (77 %) and v3 single-dancer pieces 59.75-70.1, 86-116.6 (23 %); the v3-only list is in git history (056442d8)
 		-- (D-1969, "2:25 일어날 때 위로 튕기는 거"): 18 blends in over 2 s: over 1 s (0.3 s: 9.6) the kneeling and the standing legs
 		-- crossed the floor half way and the floor lift threw the hips up 2.3 studs for one frame (146.41); with 2 s no spike
 		-- (D-1968, user's 4th list: "0:54-0:58 player 2", "1:07-1:10 player 1 제자리에", "1:56-2:10 player2", "2:14 player1 끊김")
