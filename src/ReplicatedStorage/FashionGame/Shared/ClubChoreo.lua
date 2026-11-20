@@ -3898,6 +3898,9 @@ do
 	addList(132337331292488, "level", { from = 3.9, to = 4.9, ease = 0.2 })
 	-- "2:13 버벅 (회전 쪼끔 반복)": the hips went 101 -> 121 -> 101 degrees as the held facing let go (song 134.1-134.3): one
 	-- even turn from where the piece comes in (song 132.45) to 135.35
+	-- (D-1968) "1:07-1:10 player 1 제자리에": v3 kept on its spot up to the switch at 70.1
+	addList(136573199349283, "still", { from = 9.5, to = 30 })
+	addList(104433202165131, "still", { from = 0, to = 30 })
 	local f16 = M.ChoreoFixes[82680550952125] :: any
 	f16.spin = { from = 4.8, to = 7.7, ease = "both" }
 end
