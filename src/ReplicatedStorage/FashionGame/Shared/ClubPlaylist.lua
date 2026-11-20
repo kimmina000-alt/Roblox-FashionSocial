@@ -263,6 +263,10 @@ M.Playlist = {
 		-- before by about 2 s and `blend` covers the overlap, so the seam crossfades the same moment of the same dancer.
 		-- Clips + sources: D:\Roblox\영상\aespa_Lemonade_v3_single\clips\메모.txt. Old list (v2, 22 pieces, 12 member changes):
 		-- tools/choreo/backups/lemonade_v2_choreo.lua. Play scan 5-176 s: tremble events 865 -> 213, notable 152 -> 50, snaps 0 / 0.
+		-- (D-1965, user: "0:57 2 손 버벅") 8's slowIn { 0.6, 0.82 } (D-1068) made the hands crawl 57.1-58.2 and then jump to 24 stud/s:
+		-- without it they move on and stop 0.4 s only (Play hand speed per 0.1 s; slowIn 0.35 left 0.6 s)
+		-- (D-1964, user after the 2nd 2P run: "1:08 2 … 1:20까지는 2", "1:49-1:58 2", "2:18- 2") v3 0-22, v2 22-59.75, v3 59.75-68.25,
+		-- v2 68.25-86, v3 86-108, v2 108-132.15, v3 132.15-138.2 (floor entry + 2:16 sit), v2 138.2-end; switches at the closest-pose moment
 		-- (D-1963, user 2026-11-20 after the 2P comparison, 1 = v3 / 2 = v2: "처음 팔 뻗는 안무는 1, 0:23-0:26 2, 0:57 2 손 버벅,
 		-- 1:00 1, 1:12- 1 다리 2 팔, 1:15 2, 1:26 1, 1:56 2, 2:12 1, 2:16 앉는 안무 1, 2:27 1, 2:48 2"; gaps keep the pick before)
 		-- hybrid: v3 0-22, v2 22-59.75, v3 59.75-74.2 (1:12-1:15 arms of v2 by `pose`), v2 74.2-86, v3 86-114.9, v2 114.9-132.15,
@@ -271,13 +275,14 @@ M.Playlist = {
 		-- the next piece comes in at the overlap moment whose poses are closest (joint gap scan), with `from` and a short blend
 		choreo = { { id = 107871857436267, from = 1.45 }, { id = 112046163419694, at = 6.5, from = 1.5, blend = 0.35 }, { id = 77152170951340, at = 10, blend = 2 },
 			{ id = 74096523961866, at = 22, from = 6.08, blend = 0.35 }, { id = 123559029471758, at = 22.84 }, { id = 139260290712979, at = 31.92, blend = 1 },
-			{ id = 131526768823490, at = 39.2 }, { id = 99422937735141, at = 47.49, blend = 0.51 }, { id = 99169381541568, at = 56.82, from = 0.9, blend = 1, slowIn = { 0.6, 0.82 } },
-			{ id = 136573199349283, at = 59.75, from = 2.75, blend = 0.35 }, { id = 104433202165131, at = 67.5, blend = 2 }, { id = 100397079318559, at = 74.2, from = 7.15, blend = 0.35 },
+			{ id = 131526768823490, at = 39.2 }, { id = 99422937735141, at = 47.49, blend = 0.51 }, { id = 99169381541568, at = 56.82, from = 0.9, blend = 1 },
+			{ id = 136573199349283, at = 59.75, from = 2.75, blend = 0.35 }, { id = 104433202165131, at = 67.5, blend = 2 }, { id = 100397079318559, at = 68.25, from = 1.2, blend = 0.35 },
 			{ id = 135759185323713, at = 76.35, slowOut = { 0.4, 0.15 } }, { id = 135684881711516, at = 86, from = 1.5, blend = 0.35 }, { id = 119706515996739, at = 94.8, from = 1.3, blend = 0.4 },
-			{ id = 102178089107461, at = 102.9, from = 1.6, blend = 0.35 }, { id = 116451294316978, at = 113.5, blend = 2 }, { id = 118124487485279, at = 114.92, blend = 0.35 },
-			{ id = 82680550952125, at = 127.65, blend = 0.43 }, { id = 126596392429323, at = 132.15, from = 6.65, blend = 0.35 }, { id = 106681280470448, at = 133.5, blend = 1.5 },
-			{ id = 79654105377858, at = 145, from = 1.5, blend = 0.4 }, { id = 108871293297197, at = 149, blend = 2 }, { id = 80738708971610, at = 157.5, blend = 2 },
-			{ id = 76826604804095, at = 168.42, blend = 0.35 }, { id = 89070118321317, at = 177.49 } }, autoChoreo = true },
+			{ id = 102178089107461, at = 102.9, from = 1.6, blend = 0.35 }, { id = 107439323698577, at = 108, from = 7.08, blend = 0.35 }, { id = 138612452549442, at = 111.39, blend = 0.43 },
+			{ id = 118124487485279, at = 114.92, blend = 0.75 }, { id = 82680550952125, at = 127.65, blend = 0.43 }, { id = 126596392429323, at = 132.15, from = 6.65, blend = 0.35 },
+			{ id = 106681280470448, at = 133.5, blend = 1.5 }, { id = 132337331292488, at = 138.2, from = 0.28, blend = 0.6 }, { id = 76195346888656, at = 145.92, blend = 1 },
+			{ id = 116980798181063, at = 150.92, blend = 0.88 }, { id = 118071176218932, at = 160.92, blend = 0.5 }, { id = 76826604804095, at = 168.42, blend = 0.5 },
+			{ id = 89070118321317, at = 177.49 } }, autoChoreo = true },
 	-- (D-779, user 2026-11-03: new uploads "다섯시…분1102"; tempo = x1 length ÷ heard length, boost 3, -3/2/0)
 	-- (D-922, user 2026-11-06: new upload from the lab; was 97511700575810, a 3× file of 73.770 s) the new
 	-- file is the same edit at 1.1000× (3 × 73.770 ÷ 201.19; loudness of both matched, start -0.03 s, no

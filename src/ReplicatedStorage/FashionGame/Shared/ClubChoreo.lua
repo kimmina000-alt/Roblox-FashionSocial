@@ -142,39 +142,9 @@ local function duckWalk(t0: number, t1: number, step: number, turn: number)
 	return keys
 end
 M.ChoreoFixes = {
-	-- (D-1963) aespa-Lemonade, the user's pick 1:12-1:15 "다리 1 팔 2": legs of v3 piece 8, arms of v2 (100397079318559 at
-	-- song 67.05) as `pose` keys every 0.1 s read from its keyframes (song 71.6-74.6 = this piece 4.1-7.1)
-	[104433202165131] = { pose = { from = 4.1, to = 7.1, ease = 0.4, keys = { { t = 4.10, curve = "linear", set = { LeftUpperArm = { 59.4, -23.6, 4.9 }, LeftLowerArm = { 120.1, -36.8, 40.6 }, LeftHand = { -3.6, -8.5, -36.1 }, RightUpperArm = { -9.6, 28.1, 13.9 }, RightLowerArm = { 62.2, 21.0, -29.9 }, RightHand = { -4.0, 20.9, 5.0 } } },
-		{ t = 4.20, curve = "linear", set = { LeftUpperArm = { 58.0, -31.5, 16.7 }, LeftLowerArm = { 129.0, -31.0, 50.2 }, LeftHand = { -3.2, -11.9, -35.6 }, RightUpperArm = { -9.8, 28.3, 13.5 }, RightLowerArm = { 48.3, 18.1, -32.8 }, RightHand = { -5.7, 24.5, 3.1 } } },
-		{ t = 4.30, curve = "linear", set = { LeftUpperArm = { 57.1, -30.2, 17.8 }, LeftLowerArm = { 129.8, -30.4, 51.6 }, LeftHand = { -2.6, -13.7, -38.5 }, RightUpperArm = { -1.8, 29.3, 7.0 }, RightLowerArm = { 44.3, 18.9, -27.9 }, RightHand = { -8.4, 20.5, 5.3 } } },
-		{ t = 4.40, curve = "linear", set = { LeftUpperArm = { 64.0, -19.9, 5.6 }, LeftLowerArm = { 112.4, -41.7, 31.8 }, LeftHand = { 4.2, -3.2, -39.1 }, RightUpperArm = { -2.7, 21.7, 7.6 }, RightLowerArm = { 64.8, 26.8, -24.9 }, RightHand = { 1.3, 13.2, 10.7 } } },
-		{ t = 4.50, curve = "linear", set = { LeftUpperArm = { 56.0, -2.4, -29.6 }, LeftLowerArm = { 103.4, -39.5, 21.8 }, LeftHand = { 14.8, -1.8, -40.5 }, RightUpperArm = { 19.2, -16.7, 4.0 }, RightLowerArm = { 104.8, 48.1, -32.9 }, RightHand = { 27.6, -7.4, 44.3 } } },
-		{ t = 4.60, curve = "linear", set = { LeftUpperArm = { 38.6, -0.6, -57.1 }, LeftLowerArm = { 112.7, -29.1, 29.1 }, LeftHand = { 7.4, -10.4, -17.3 }, RightUpperArm = { 28.4, -21.0, 21.4 }, RightLowerArm = { 116.8, 35.1, -37.3 }, RightHand = { 17.8, 3.1, 25.5 } } },
-		{ t = 4.70, curve = "linear", set = { LeftUpperArm = { 55.7, -2.7, -43.2 }, LeftLowerArm = { 113.4, -38.7, 27.9 }, LeftHand = { 13.3, 1.0, -29.4 }, RightUpperArm = { 7.4, 14.3, 46.5 }, RightLowerArm = { 109.9, 8.3, -46.3 }, RightHand = { 11.7, 18.3, -15.9 } } },
-		{ t = 4.80, curve = "linear", set = { LeftUpperArm = { 70.6, -2.0, -8.7 }, LeftLowerArm = { 106.1, -54.5, 11.8 }, LeftHand = { 40.3, 19.4, -57.0 }, RightUpperArm = { 28.1, 25.1, 33.9 }, RightLowerArm = { 114.5, 15.6, -41.7 }, RightHand = { 16.5, 12.9, -4.9 } } },
-		{ t = 4.90, curve = "linear", set = { LeftUpperArm = { 51.9, -14.1, -28.1 }, LeftLowerArm = { 115.5, -30.2, 35.5 }, LeftHand = { 19.2, 0.8, -26.2 }, RightUpperArm = { 50.3, 9.2, 8.7 }, RightLowerArm = { 129.5, 30.1, -45.7 }, RightHand = { 13.7, 3.2, 16.7 } } },
-		{ t = 5.00, curve = "linear", set = { LeftUpperArm = { 19.0, -15.1, -59.7 }, LeftLowerArm = { 116.2, -12.2, 42.2 }, LeftHand = { 11.4, -14.7, -1.1 }, RightUpperArm = { 51.4, 2.5, 17.5 }, RightLowerArm = { 133.9, 30.6, -46.1 }, RightHand = { 19.7, 7.2, 20.9 } } },
-		{ t = 5.10, curve = "linear", set = { LeftUpperArm = { 55.9, 0.1, -41.2 }, LeftLowerArm = { 107.8, -39.6, 21.7 }, LeftHand = { 17.1, 4.0, -38.6 }, RightUpperArm = { 34.3, 6.2, 37.9 }, RightLowerArm = { 115.2, 23.5, -36.8 }, RightHand = { 19.6, 7.9, 14.9 } } },
-		{ t = 5.20, curve = "linear", set = { LeftUpperArm = { 62.4, 3.5, -34.2 }, LeftLowerArm = { 93.7, -48.5, 4.5 }, LeftHand = { 26.9, 16.2, -44.2 }, RightUpperArm = { 16.3, 15.5, 47.5 }, RightLowerArm = { 94.5, 15.0, -38.2 }, RightHand = { 10.6, 10.5, -9.8 } } },
-		{ t = 5.30, curve = "linear", set = { LeftUpperArm = { 67.0, -3.6, -24.3 }, LeftLowerArm = { 104.6, -47.8, 13.2 }, LeftHand = { 33.8, 20.1, -43.6 }, RightUpperArm = { 14.5, 19.2, 40.5 }, RightLowerArm = { 104.5, 16.8, -41.3 }, RightHand = { 5.2, 11.7, -6.1 } } },
-		{ t = 5.40, curve = "linear", set = { LeftUpperArm = { 52.1, -6.8, -38.1 }, LeftLowerArm = { 112.5, -31.5, 30.0 }, LeftHand = { 19.4, 3.6, -22.1 }, RightUpperArm = { 28.6, 6.8, 14.6 }, RightLowerArm = { 128.3, 26.8, -47.6 }, RightHand = { 11.1, 3.4, 8.2 } } },
-		{ t = 5.50, curve = "linear", set = { LeftUpperArm = { 10.4, -5.1, -56.7 }, LeftLowerArm = { 102.9, -11.7, 42.8 }, LeftHand = { 3.5, -16.3, 7.6 }, RightUpperArm = { 40.5, -13.3, 10.8 }, RightLowerArm = { 137.7, 36.5, -50.0 }, RightHand = { 13.8, -3.9, 20.5 } } },
-		{ t = 5.60, curve = "linear", set = { LeftUpperArm = { 1.4, -12.9, -49.8 }, LeftLowerArm = { 91.2, -12.6, 46.5 }, LeftHand = { -11.1, -19.6, 7.3 }, RightUpperArm = { 49.7, -15.6, 19.0 }, RightLowerArm = { 136.0, 38.0, -45.9 }, RightHand = { 8.8, -2.6, 28.2 } } },
-		{ t = 5.70, curve = "linear", set = { LeftUpperArm = { 13.6, -16.3, -22.3 }, LeftLowerArm = { 99.5, -22.4, 43.6 }, LeftHand = { -4.3, -15.8, -9.6 }, RightUpperArm = { 61.6, -8.1, 16.7 }, RightLowerArm = { 132.7, 38.4, -41.0 }, RightHand = { 10.4, -2.6, 43.2 } } },
-		{ t = 5.80, curve = "linear", set = { LeftUpperArm = { 54.4, -0.9, 12.6 }, LeftLowerArm = { 135.7, -41.9, 45.1 }, LeftHand = { 33.9, 5.9, -35.9 }, RightUpperArm = { 52.3, 32.0, 42.3 }, RightLowerArm = { 125.3, 9.9, -47.0 }, RightHand = { 27.4, 12.5, -19.9 } } },
-		{ t = 5.90, curve = "linear", set = { LeftUpperArm = { 61.0, -0.1, 10.3 }, LeftLowerArm = { 137.6, -53.1, 36.5 }, LeftHand = { 44.2, 12.9, -42.4 }, RightUpperArm = { 27.6, 43.3, 54.1 }, RightLowerArm = { 117.0, 6.4, -45.1 }, RightHand = { 16.4, 13.4, -36.0 } } },
-		{ t = 6.00, curve = "linear", set = { LeftUpperArm = { 67.7, 1.3, -0.0 }, LeftLowerArm = { 120.9, -62.3, 13.3 }, LeftHand = { 46.2, 18.6, -53.8 }, RightUpperArm = { 11.0, 42.6, 45.3 }, RightLowerArm = { 105.9, 8.1, -44.9 }, RightHand = { 6.1, 17.5, -28.5 } } },
-		{ t = 6.10, curve = "linear", set = { LeftUpperArm = { 69.1, -2.2, -10.8 }, LeftLowerArm = { 114.8, -53.2, 16.6 }, LeftHand = { 30.9, 20.0, -43.6 }, RightUpperArm = { 0.0, 34.8, 31.4 }, RightLowerArm = { 99.1, 13.3, -45.3 }, RightHand = { 2.2, 19.6, -14.1 } } },
-		{ t = 6.20, curve = "linear", set = { LeftUpperArm = { 61.5, -11.1, -29.4 }, LeftLowerArm = { 114.5, -36.1, 29.2 }, LeftHand = { 16.7, 4.3, -28.5 }, RightUpperArm = { 2.6, 12.4, 13.9 }, RightLowerArm = { 108.4, 23.5, -45.9 }, RightHand = { 13.4, 12.5, 3.0 } } },
-		{ t = 6.30, curve = "linear", set = { LeftUpperArm = { 12.0, -6.7, -55.9 }, LeftLowerArm = { 98.7, -14.7, 41.2 }, LeftHand = { 10.5, -16.6, 1.8 }, RightUpperArm = { 44.1, -15.3, 8.2 }, RightLowerArm = { 133.6, 42.3, -44.4 }, RightHand = { 18.9, -0.6, 34.7 } } },
-		{ t = 6.40, curve = "linear", set = { LeftUpperArm = { 1.7, -12.0, -42.5 }, LeftLowerArm = { 99.4, -15.5, 47.1 }, LeftHand = { 1.6, -15.9, -0.0 }, RightUpperArm = { 54.3, -17.2, 24.6 }, RightLowerArm = { 138.6, 36.5, -44.2 }, RightHand = { 18.8, 0.2, 42.8 } } },
-		{ t = 6.50, curve = "linear", set = { LeftUpperArm = { 13.1, -17.6, -12.7 }, LeftLowerArm = { 103.5, -26.8, 42.5 }, LeftHand = { 0.6, -15.3, -18.3 }, RightUpperArm = { 55.8, -14.8, 39.1 }, RightLowerArm = { 135.8, 34.4, -37.9 }, RightHand = { 23.5, 14.1, 56.5 } } },
-		{ t = 6.60, curve = "linear", set = { LeftUpperArm = { 52.2, -6.3, 4.4 }, LeftLowerArm = { 119.4, -39.8, 37.9 }, LeftHand = { 14.8, -5.3, -38.7 }, RightUpperArm = { 63.1, -2.7, 29.8 }, RightLowerArm = { 120.7, 34.0, -32.8 }, RightHand = { 21.0, 9.9, 42.3 } } },
-		{ t = 6.70, curve = "linear", set = { LeftUpperArm = { 70.7, -6.8, -22.4 }, LeftLowerArm = { 90.9, -47.1, 2.3 }, LeftHand = { 28.8, 19.4, -44.5 }, RightUpperArm = { 18.8, 27.5, 43.1 }, RightLowerArm = { 110.1, 13.5, -43.4 }, RightHand = { 12.9, 15.9, -14.4 } } },
-		{ t = 6.80, curve = "linear", set = { LeftUpperArm = { 70.5, -14.4, -49.1 }, LeftLowerArm = { 54.3, -24.9, -17.0 }, LeftHand = { 43.0, 33.1, -52.5 }, RightUpperArm = { 12.1, 37.1, 31.5 }, RightLowerArm = { 96.7, 15.7, -41.5 }, RightHand = { 8.2, 15.7, -10.1 } } },
-		{ t = 6.90, curve = "linear", set = { LeftUpperArm = { 67.7, -17.1, -54.6 }, LeftLowerArm = { 57.8, -23.1, -11.1 }, LeftHand = { 29.9, 24.5, -42.3 }, RightUpperArm = { 23.4, 27.4, 15.5 }, RightLowerArm = { 102.9, 22.5, -40.1 }, RightHand = { 12.5, 10.0, 1.8 } } },
-		{ t = 7.00, curve = "linear", set = { LeftUpperArm = { 59.7, -11.1, -57.3 }, LeftLowerArm = { 88.6, -29.3, 13.6 }, LeftHand = { 21.2, 6.0, -30.3 }, RightUpperArm = { 27.6, 9.3, 2.4 }, RightLowerArm = { 122.2, 30.1, -47.2 }, RightHand = { 22.8, 9.0, 13.2 } } },
-		{ t = 7.10, curve = "linear", set = { LeftUpperArm = { -8.4, -10.7, -36.6 }, LeftLowerArm = { 109.8, -13.0, 55.8 }, LeftHand = { 7.7, -18.4, -7.5 }, RightUpperArm = { 71.8, -0.9, 15.2 }, RightLowerArm = { 125.2, 44.4, -33.0 }, RightHand = { 21.8, -6.7, 42.0 } } } } } },
+	-- (D-1964) aespa-Lemonade 2:14-2:15 "다리 버벅": v3 piece 15 (practice white-cap member) loses her behind the group from its
+	-- 8.0 s (song 133.5) while it fades out into the floor piece: it keeps its 8.0 s pose instead
+	[126596392429323] = { warp = { { from = 8.0, to = 9.6, play = { 8.0, 8.0 } } } },
 	-- (D-1962) aespa-Lemonade v3 piece 16 (SBS clip 15, the floor part): its first 2.0 s follow another dancer bending over
 	-- Winter (every source hides her at song 133.5-135.6), so those seconds show her first floor pose (2.1 s) and the piece
 	-- before fades into it over 1.5 s (ClubPlaylist blend): she goes down to the floor instead of the body jumping 0.5 stud
@@ -3161,13 +3131,16 @@ do
 		-- the capture sinks the foot 0.2-0.27 under the floor there, so the step may bend the knee to lift it 0.3 (`kneeLift`)
 		for _, w in ipairs(({
 			[76195346888656] = { { 3.30, 6.10 } },
-			[116980798181063] = { { 4.00, 5.20 } },
 			[107439323698577] = { { 7.80, 8.38 } },
 		} :: any)[id] or {}) do
 			addList(id, "plant", { from = w[1], to = w[2], contact = 0.45, landHold = true, kneeLift = 90 })
 		end
 		-- (not on 17, 2:18-2:26: the floor routine, lying with the legs stretched out; the video sweeps the legs on the floor)
-		if id ~= 132337331292488 then addList(id, "plant", { from = 0, to = 99, contact = 0.45 }) end
+		-- (D-1965, user after the 2P run: "2:10 극초반 다리 튐", "2:31 다리 버벅", "2:35 다리 걸어가는 모션 깔끔하게",
+		-- "2:36 오른쪽 다리 들썩"): not on 16 (82680550952125) and 19 (116980798181063) either: their feet hopped
+		-- 0.14-0.17 stud (2:10) and 26 times in 2:30-2:37 with the plant / step on, 0 and 7 (at most 0.08) without it,
+		-- and the feet still keep to the floor (sliding at most 0.21 stud in 0.5 s)
+		if id ~= 132337331292488 and id ~= 82680550952125 and id ~= 116980798181063 then addList(id, "plant", { from = 0, to = 99, contact = 0.45 }) end
 	end
 end
 
