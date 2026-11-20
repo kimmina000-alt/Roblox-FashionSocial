@@ -1051,6 +1051,9 @@ M.ChoreoFixes = {
 				local function with(a, b) local s = {} for k, v in pairs(a) do s[k] = v end for k, v in pairs(b) do s[k] = v end return s end
 				return {
 					{ t = 3.9, set = with(kneelL, { RightUpperLeg = { 80, 0, 0 }, RightLowerLeg = { -150, 0, 0 }, RightFoot = { 70, 0, 0 } }), move = { LowerTorso = { 0, -3.0, 0 } } },
+					-- (D-1967, "2:22 엉덩이 들고 자세 고칠 때 위로 튕기는 거": straightening the folded right leg swept the shin down through
+					-- the floor and the floor lift popped the hips 2.2 studs; the thigh lifted on the way: 0.6)
+					{ t = 4.25, set = with(kneelL, { RightUpperLeg = { 150, 0, 0 }, RightLowerLeg = { -30, 0, 0 }, RightFoot = { 20, 0, 0 } }), move = { LowerTorso = { 0, -3.3, 0 } } },
 					{ t = 4.6, set = with(kneelL, { RightUpperLeg = { 85, 0, 0 }, RightLowerLeg = { 0, 0, 0 }, RightFoot = { 0, 0, 0 } }), move = { LowerTorso = { 0, -3.6, 0 } } },
 					{ t = 6.0, set = with(kneelL, { RightUpperLeg = { 85, 0, 0 }, RightLowerLeg = { 0, 0, 0 }, RightFoot = { 0, 0, 0 } }), move = { LowerTorso = { 0, -3.6, 0 } } },
 					{ t = 7.6, set = with(kneelL, { RightUpperLeg = { 20, 0, 75 }, RightLowerLeg = { 0, 0, 0 }, RightFoot = { 0, 0, 0 } }), move = { LowerTorso = { 0, -3.4, 0 } } },
@@ -3124,7 +3127,7 @@ do
 			[123559029471758] = { { 3.26, 3.66 }, { 8.06, 8.46 } },
 			[107439323698577] = { { 8.38, 9.18 } },
 		} :: any)[id] or {}) do
-			addList(id, "plant", { from = w[1], to = w[2], contact = 0.45, noStep = true })
+			-- (D-1967: covered by the noStep plant below)
 		end
 		-- (D-1943, 2nd review of D-1942: 2:29.7 / 2:35.4 / 1:49.2 a step set the foot down while the dance still carried it,
 		-- 0.55-0.70 studs along the floor) here a step picks its landing spot at 85 % and puts the foot down there (`landHold`);
@@ -3133,14 +3136,24 @@ do
 			[76195346888656] = { { 3.30, 6.10 } },
 			[107439323698577] = { { 7.80, 8.38 } },
 		} :: any)[id] or {}) do
-			addList(id, "plant", { from = w[1], to = w[2], contact = 0.45, landHold = true, kneeLift = 90 })
+			-- (D-1967: no landing steps: they hopped the legs)
 		end
 		-- (not on 17, 2:18-2:26: the floor routine, lying with the legs stretched out; the video sweeps the legs on the floor)
 		-- (D-1965, user after the 2P run: "2:10 극초반 다리 튐", "2:31 다리 버벅", "2:35 다리 걸어가는 모션 깔끔하게",
-		-- "2:36 오른쪽 다리 들썩"): not on 16 (82680550952125) and 19 (116980798181063) either: their feet hopped
-		-- 0.14-0.17 stud (2:10) and 26 times in 2:30-2:37 with the plant / step on, 0 and 7 (at most 0.08) without it,
-		-- and the feet still keep to the floor (sliding at most 0.21 stud in 0.5 s)
-		if id ~= 132337331292488 and id ~= 82680550952125 and id ~= 116980798181063 then addList(id, "plant", { from = 0, to = 99, contact = 0.45 }) end
+		-- "2:36 오른쪽 다리 들썩") the steps hopped the legs (2:10 0.14-0.17 stud, 26 hops in 2:30-2:37)
+		-- (D-1967, user's 3rd list) feet held without steps (noStep) on every piece: without any plant the feet slid 2 studs
+		-- (0:38) and a `freeze` was undone by the steps; where the dance itself moves a foot to a new spot (song 8.2-8.5, 15.3:
+		-- the hold let go in one frame, 0.8-1.4 stud) the foot follows the dance; not under 1:23-1:26's frozen legs (the IK
+		-- flicked the knees for single frames)
+		if id == 85687535459003 then
+			addList(id, "plant", { from = 0, to = 1.0, contact = 0.45, noStep = true })
+			addList(id, "plant", { from = 1.8, to = 8.1, contact = 0.45, noStep = true })
+			addList(id, "plant", { from = 8.7, to = 99, contact = 0.45, noStep = true })
+		elseif id == 135759185323713 then
+			addList(id, "plant", { from = 0, to = 6.9, contact = 0.45, noStep = true })
+		elseif id ~= 132337331292488 then
+			addList(id, "plant", { from = 0, to = 99, contact = 0.45, noStep = true })
+		end
 	end
 end
 
@@ -3847,6 +3860,46 @@ do
 		for _, w in ipairs(wins) do addList(id, "still", { from = w[1], to = w[2] }) end
 		addList(id, "plant", { from = 0, to = 99, contact = 0.45 })
 	end
+end
+
+-- (D-1967, user's 3rd 2P list for aespa-Lemonade): legs held where a leg flicked, v3 1:40-2:12 kept in place, 2:13 one even turn
+do
+	local function addList(id: number, key: string, item: any)
+		local f = (M.ChoreoFixes[id] or {}) :: any
+		M.ChoreoFixes[id] = f
+		local list = if f[key] == nil then {} elseif f[key].from then { f[key] } else table.clone(f[key])
+		table.insert(list, item)
+		f[key] = list
+	end
+	local ALL = { "LowerTorso", "UpperTorso", "Head", "LeftUpperArm", "LeftLowerArm", "LeftHand", "RightUpperArm", "RightLowerArm", "RightHand",
+		"LeftUpperLeg", "LeftLowerLeg", "LeftFoot", "RightUpperLeg", "RightLowerLeg", "RightFoot" }
+	local function allBut(keep: {string}): {string}
+		local out = {}
+		for _, n in ipairs(ALL) do if not table.find(keep, n) then table.insert(out, n) end end
+		return out
+	end
+	local RIGHT = allBut({ "RightUpperLeg", "RightLowerLeg", "RightFoot" })
+	local LEGS = allBut({ "LowerTorso", "LeftUpperLeg", "LeftLowerLeg", "LeftFoot", "RightUpperLeg", "RightLowerLeg", "RightFoot" }) -- hips held too: the feet stay put
+	-- "0:01 오른쪽 다리 들썩": the right foot hopped 0.25 stud at song 0.2-0.4 (intro piece 1.65-1.85 s)
+	addList(107871857436267, "freeze", { from = 1.5, to = 2.0, ease = 0.12, except = RIGHT })
+	-- "0:11 오른쪽 다리 꺾이는 거": the right knee 63 -> 27 -> 37 -> 22 degrees at song 11.4-11.8: held, then one ease
+	addList(85687535459003, "freeze", { from = 4.5, to = 4.9, ease = 0.2, except = RIGHT })
+	-- "0:38 발바닥 고정": the right foot tapped off the floor 0-0.5 stud through song 38.0-39.3: hips and legs held from 38.0
+	addList(139260290712979, "freeze", { from = 6.08, to = 7.4, ease = 0.25, except = LEGS })
+	-- "1:23-1:26 왼다리 계속 꺾이는 거 … 가만히 서 있는 걸로 다리 고정": the left foot flicked up 4 times (0.4-0.6 stud)
+	addList(135759185323713, "freeze", { from = 6.95, to = 30, ease = 0.3, except = LEGS })
+	-- "2:01 / 2:03 오른쪽 다리 순간 꺾이는 거": the right foot shot up 1.9 / 0.85 stud for 0.3 s (v3 piece 14)
+	addList(112521190266317, "freeze", { from = 1.75, to = 2.25, ease = 0.15, except = RIGHT })
+	addList(112521190266317, "freeze", { from = 4.1, to = 4.5, ease = 0.15, except = RIGHT })
+	-- "1:40- (제자리 고정)": v3 from song 100 to the switch at 132.45 stays on its spot
+	addList(119706515996739, "still", { from = 6.5, to = 30 })
+	for _, id in ipairs({ 102178089107461, 116451294316978, 112521190266317, 126596392429323 }) do addList(id, "still", { from = 0, to = 30 }) end
+	-- "2:22 엉덩이 들고 자세 고칠 때 위로 튕기는 거" (with the leg key in 17's pose): the hips' height follows its slow average
+	addList(132337331292488, "level", { from = 3.9, to = 4.9, ease = 0.2 })
+	-- "2:13 버벅 (회전 쪼끔 반복)": the hips went 101 -> 121 -> 101 degrees as the held facing let go (song 134.1-134.3): one
+	-- even turn from where the piece comes in (song 132.45) to 135.35
+	local f16 = M.ChoreoFixes[82680550952125] :: any
+	f16.spin = { from = 4.8, to = 7.7, ease = "both" }
 end
 
 return M
