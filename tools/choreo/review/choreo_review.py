@@ -49,6 +49,12 @@ THR = {"왼팔": 38, "오른팔": 38, "왼손": 60, "오른손": 60, "왼다리"
 # hit detection: peak speed (deg/s, summed over the group's segments) a hit needs
 HIT_PEAK = {"왼팔": 260, "오른팔": 260, "왼손": 420, "오른손": 420, "왼다리": 200, "오른다리": 200, "몸통": 110, "고개": 170}
 # movement a window needs before "small / stopped" is judged (deg/s)
+# size bands (user 2026-11-20, D-1895): jumps, big moves and wrist bends bigger than the video, never broken.
+# game / video movement: SMALL under the first, OVER above the second (held a while). Legs follow the video (not enlarged).
+SIZE = {"왼팔": (1.0, 1.8), "오른팔": (1.0, 1.8), "몸통": (1.0, 1.8), "고개": (1.0, 1.8),
+        "왼다리": (0.45, 1.5), "오른다리": (0.45, 1.5)}
+WRIST_OVER, WRIST_BROKEN = 90.0, 105.0   # degrees hand vs forearm in the air; a hand touching the other hand or the body is let off
+JUMP_OVER = 3.5                          # studs the hips rise over standing
 MOVE = {"왼팔": 110, "오른팔": 110, "왼손": 200, "오른손": 200, "왼다리": 80, "오른다리": 80, "몸통": 45, "고개": 70}
 HINT = {
     "모양": "pose / amp (ChoreoFixes), 손목은 bend (§20)",
@@ -59,7 +65,9 @@ HINT = {
     "게임만 hit": "blend 늘리기 / 떨림이면 guard_scan",
     "멈춤": "freeze / still 끝 당기기",
     "작음": "amp 키우기 / 원본 조각 다시",
-    "과함": "amp 줄이기",
+    "과함": "amp 줄이기 / 다리는 원본 크기로(스텝 · plant 확인)",
+    "손목 과함": "bend 줄이기(총 꺾임 90° 아래, 105°↑는 부러져 보임)",
+    "점프 과함": "ChoreoJumps height 낮추기(3.2스터드 아래)",
     "바운스": "ChoreoBounce / 무릎 pose (박 위상)",
 }
 
@@ -649,11 +657,77 @@ def analyse(dv, dg, mirror_mode="auto", t_from=None, t_to=None, video_path=None)
         for a, b in runs(big & (np.nan_to_num(ratio, nan=1) < 0.2), int(0.5 / DT), int(0.15 / DT)):
             add("멈춤", g, a, b, (b - a) * DT * 2, "%s: 원본은 움직이는데 게임은 거의 멈춤 (원본의 %d%%)" %
                 (g, round(100 * float(np.nanmean(ratio[a:b])))))
+        small, over_r = SIZE.get(g, (0.45, 2.2))
         for a, b in runs(big & (np.nan_to_num(ratio, nan=1) >= 0.2) & (np.nan_to_num(ratio, nan=1) < 0.45), int(0.75 / DT), int(0.15 / DT)):
             add("작음", g, a, b, (b - a) * DT, "%s 움직임이 원본의 %d%%밖에 안 됨 (작고 밋밋함)" % (g, round(100 * float(np.nanmean(ratio[a:b])))))
-        over = (np.nan_to_num(mg) >= MOVE[g]) & (np.nan_to_num(ratio, nan=1) > 2.2) & valid
-        for a, b in runs(over, int(0.75 / DT), int(0.15 / DT)):
-            add("과함", g, a, b, (b - a) * DT * 0.8, "%s 움직임이 원본의 %.1f배 (과하거나 떨림)" % (g, float(np.nanmean(ratio[a:b]))))
+        if small > 0.45:
+            # bigger-than-the-video rule: as big as the video (or a bit under) is still small, held 1.5 s+
+            for a, b in runs(big & (np.nan_to_num(ratio, nan=2) >= 0.45) & (np.nan_to_num(ratio, nan=2) < small), int(1.5 / DT), int(0.2 / DT)):
+                add("작음", g, a, b, (b - a) * DT * 0.3, "%s 움직임이 원본의 %d%% — 게임은 원본보다 커야 함(1.0-1.6배)" % (g, round(100 * float(np.nanmean(ratio[a:b])))))
+        over = (np.nan_to_num(mg) >= MOVE[g]) & (np.nan_to_num(ratio, nan=1) > over_r) & valid
+        for a, b in runs(over, int(1.0 / DT), int(0.15 / DT)):
+            add("과함", g, a, b, (b - a) * DT * 0.8, "%s 움직임이 원본의 %.1f배 (기준 %.1f배 넘음)" % (g, float(np.nanmean(ratio[a:b])), over_r))
+        if g in ("왼다리", "오른다리"):
+            # the video's legs stand still but the game's move (steps the video has not)
+            still_v = (np.nan_to_num(mvv, nan=1e9) < MOVE[g] * 0.4) & valid
+            for a, b in runs(still_v & (np.nan_to_num(mg) >= MOVE[g]), int(0.5 / DT), int(0.15 / DT)):
+                add("과함", g, a, b, (b - a) * DT, "%s: 원본 다리는 가만히 있는데 게임만 움직임(원본에 없는 스텝 · 다리 꼬기)" % g)
+
+    # wrists bent past the band, and jumps too high (game only, exact)
+    try:
+        fl = {"L": np.full(len(ts), np.nan), "R": np.full(len(ts), np.nan)}
+        near = np.zeros(len(ts), bool)
+        GS = [x for x in dg["samples"] if x.get("p")]
+        GT = np.array([x["t"] for x in GS])
+        for x in GS:
+            f = pc.features(x)
+            if not f:
+                continue
+            i = int(round((x["t"] - ts[0]) / DT))
+            if 0 <= i < len(ts):
+                for k in "LR":
+                    if f.get(k + "flex") is not None:
+                        fl[k][max(0, i - 1):i + 2] = abs(f[k + "flex"])
+                P = x["p"]
+                # a hand touching the other hand or the body (palms together, hand on shoulder / face / chest, user-asked
+                # poses like TWS 0:07-0:09, 1:29) bends the wrist on purpose: let those off
+                tor = f["torso"]
+                def close(a, b, r):
+                    return a in P and b in P and pc.norm(pc.sub(P[a], P[b])) / tor < r
+                touch = close("lwri", "rwri", 0.45) or close("lhand", "rhand", 0.35)
+                for hnd in ("lhand", "rhand"):
+                    for bp in ("nose", "lear", "rear", "lsho", "rsho"):
+                        touch = touch or close(hnd, bp, 0.35)
+                    if hnd in P and "lsho" in P and "lhip" in P:
+                        chest = pc.mid(pc.mid(P["lsho"], P["rsho"]), pc.mid(pc.mid(P["lsho"], P["rsho"]), pc.mid(P["lhip"], P["rhip"])))
+                        touch = touch or pc.norm(pc.sub(P[hnd], chest)) / tor < 0.35
+                near[max(0, i - 1):i + 2] = touch
+        for k, side in (("L", "왼"), ("R", "오른")):
+            v = fl[k]
+            for lim, txt in ((WRIST_BROKEN, "부러져 보이는 각도"), (WRIST_OVER, "기준 90° 넘음")):
+                mask = (np.nan_to_num(v) > lim) & ~near
+                if lim == WRIST_OVER:
+                    mask &= ~(np.nan_to_num(v) > WRIST_BROKEN)
+                for a, b in runs(mask, int(0.15 / DT), int(0.1 / DT)):
+                    add("손목 과함", side + "손", a, b, (b - a) * DT * 4, "%s손목 %d° 꺾임 (%s)" % (side, round(float(np.nanmax(v[a:b]))), txt))
+        torso_st = float(np.median([pc.norm(pc.sub(pc.mid(x["p"]["lsho"], x["p"]["rsho"]), pc.mid(x["p"]["lhip"], x["p"]["rhip"])))
+                                    for x in GS[:: max(1, len(GS) // 200)] if all(k in x["p"] for k in ("lsho", "rsho", "lhip", "rhip"))]))
+        hh = np.array([x.get("h", {}).get("hip", np.nan) for x in GS], float)
+        if np.isfinite(hh).any():
+            base = np.nanmedian(hh)
+            rise = (hh - base) * torso_st
+            i = 0
+            while i < len(GS):
+                if rise[i] > JUMP_OVER:
+                    j = i
+                    while j < len(GS) and rise[j] > 1.0:
+                        j += 1
+                    a, b = int(np.searchsorted(ts, GT[i])), int(np.searchsorted(ts, GT[min(j, len(GS) - 1)]))
+                    add("점프 과함", "점프", a, max(b, a + 1), 1.5, "점프 %.1f스터드 (기준 %.1f 넘음)" % (float(np.nanmax(rise[i:j])), JUMP_OVER))
+                    i = j
+                i += 1
+    except Exception as e:  # never stop the review for these extras
+        print("손목/점프 크기 검사 건너뜀:", e)
 
     # rhythmic little moves: (name, signal function)
     def hip_h(B):
@@ -719,6 +793,8 @@ def analyse(dv, dg, mirror_mode="auto", t_from=None, t_to=None, video_path=None)
         summary["groups"][g] = {"mean": round(float(e.mean()), 1) if len(e) else None,
                                 "ok": round(float((e <= THR[g]).mean()), 3) if len(e) else None,
                                 "lag": round(float(np.median(lg)), 3) if lg else None, "lag_n": len(lg)}
+    summary["size"] = {g: round(float(np.nanmedian(amount[g][np.isfinite(amount[g])])), 2) if np.isfinite(amount[g]).any() else None
+                       for g in GROUPS if g in SIZE}
     md = hit_stats["matched"]
     summary["hits"] = {"video": hit_stats["video"], "matched": len(md), "missing": hit_stats["missing"], "extra": hit_stats["extra"],
                        "median_ms": round(float(np.median(md)) * 1000) if md else None,
@@ -840,6 +916,12 @@ def write_report(path, title, issues, summary, top):
         L.append("음악 박 %.1f BPM: 박(반박 포함) ±60ms에 떨어지는 hit 원본 %s / 게임 %s" %
                  (b["bpm"], "-" if b["video_on"] is None else "%d%%" % round(100 * b["video_on"]),
                   "-" if b["game_on"] is None else "%d%%" % round(100 * b["game_on"])))
+    if s.get("size"):
+        def band(g, v):
+            lo, hi = SIZE[g]
+            return "작음" if v < lo else ("과함" if v > hi else "좋음")
+        L.append("크기(게임/원본 움직임 중앙값, 기준: 팔·몸통·고개 1.0-1.8배, 다리 0.45-1.5배): " + ", ".join(
+            "%s %.2f %s" % (g, v, band(g, v)) for g, v in s["size"].items() if v is not None))
     L.append("")
     L.append("부위        평균오차  기준안   박자(중앙값)")
     for g, v in s["groups"].items():

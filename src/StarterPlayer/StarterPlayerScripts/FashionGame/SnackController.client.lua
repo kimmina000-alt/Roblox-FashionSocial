@@ -148,7 +148,7 @@ local function show(shopKey: string)
 	local root = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
 	openedAt = if root and root:IsA("BasePart") then root.Position else nil
 	title.Text = shop.title
-	status.Text = shop.hint or "메뉴를 고르면 손에 들려 줘요. 자리에 앉아서 드세요!"
+	status.Text = shop.hint or "메뉴를 고르면 손에 들려 줘요. 자리에 앉아서 드세요! 사 먹으면 XP가 올라요 ⭐" -- (D-1922: XP hint)
 	-- cafe job (D-099): with staff on duty the drink is brought to the customer
 	for _, other in ipairs(Players:GetPlayers()) do
 		if other ~= player and other.Character and other.Character:GetAttribute("CafeJob") == shopKey then

@@ -1772,7 +1772,8 @@ updateCatalogLayout = function()
 		grid.CellSize = if isPhone then UDim2.fromOffset(76, 114) else UDim2.fromOffset(100, 146)
 		cardContentScale = if isPhone then 0.68 else 0.82
 	end
-	grid.CellPadding = UDim2.fromOffset(6, 6)
+	-- (D-1923) 착용 중: a wider gap between the rows for the group lines (WornSections)
+	grid.CellPadding = UDim2.fromOffset(6, if browseMode == "Wearing" then 22 else 6)
 	for _, contentScale in ipairs(cardContentUIScales) do
 		contentScale.Scale = cardContentScale
 		local content = contentScale.Parent
@@ -2934,6 +2935,7 @@ showBundleContents = function(bundleId: number, bundleName: string)
 	wornButtonUpdaters = {}
 	table.clear(cardContentUIScales)
 	clearContainer(resultsFrame)
+	grid.CellPadding = UDim2.fromOffset(6, 6) -- (D-1923: 착용 중 widens the row gap)
 
 	local success, details = pcall(function()
 		return AssetService:GetBundleDetailsAsync(bundleId)
@@ -3071,6 +3073,7 @@ renderLocalMode = function()
 	wornButtonUpdaters = {}
 	table.clear(cardContentUIScales)
 	clearContainer(resultsFrame)
+	grid.CellPadding = UDim2.fromOffset(6, if mode == "Wearing" then 22 else 6) -- (D-1923)
 	resultsFrame.CanvasPosition = Vector2.zero
 	require(script.Parent:WaitForChild("CatalogScrollKeep")).hold(resultsFrame, keepY)
 
@@ -3136,6 +3139,10 @@ renderLocalMode = function()
 	local layerNumber = 0
 	-- (D-1073's four groups in 착용 중 were taken out again, D-1358, user 2026-11-13:
 	-- "착용중에 액세서리 의상 몸 애니메이션 나눈다고 추가한 거 삭제해"): one list as worn
+	-- (D-1923, user 2026-11-20) back in four groups, split by a long line between the rows
+	-- instead of a heading card (WornSections)
+	local WornSections = require(script.Parent:WaitForChild("WornSections"))
+	local wornSections = {}
 	for _, entry in ipairs(entries) do
 		local detail = details[itemKey(entry.itemType, entry.id)]
 		if detail and passesLocalFilters(detail) then
@@ -3150,7 +3157,21 @@ renderLocalMode = function()
 				local handle = card:FindFirstChild("ImageHitArea", true)
 				if handle then wearingDrag:attach(card, handle :: GuiObject) end
 			end
+			if card and mode == "Wearing" then
+				local sec = WornSections.sectionOf(entry.itemType, detail, wornGroup(entry.id) == 1)
+				wornSections[sec] = wornSections[sec] or { section = sec, cards = {} }
+				table.insert(wornSections[sec].cards, card)
+			end
 		end
+	end
+	if mode == "Wearing" and count > 0 then
+		local list = {}
+		for sec = 1, #WornSections.NAMES do
+			if wornSections[sec] then table.insert(list, wornSections[sec]) end
+		end
+		WornSections.show(resultsFrame, grid, list, function(card) return card:GetAttribute("LayerId") ~= nil end)
+	else
+		WornSections.clear()
 	end
 	for _, contentScale in ipairs(cardContentUIScales) do
 		contentScale.Scale = cardContentScale
@@ -3176,6 +3197,7 @@ renderCurrentPage = function()
 
 	wornButtonUpdaters = {}
 	clearContainer(resultsFrame)
+	grid.CellPadding = UDim2.fromOffset(6, 6) -- (D-1923: 착용 중 widens the row gap)
 
 	local success, currentPage = pcall(function()
 		return catalogPages:GetCurrentPage()
@@ -3254,6 +3276,7 @@ searchCatalog = function()
 		wornButtonUpdaters = {}
 		table.clear(cardContentUIScales)
 		clearContainer(resultsFrame)
+		grid.CellPadding = UDim2.fromOffset(6, 6) -- (D-1923: 착용 중 widens the row gap)
 		local details = fetchItemDetails({ { id = typedId, itemType = "Asset" }, { id = typedId, itemType = "Bundle" } })
 		if generation ~= resultsFrame:GetAttribute("SearchGeneration") then return end
 		local n = 0
@@ -3372,6 +3395,7 @@ searchCatalog = function()
 		warn("[CatalogController] Search failed:", pages)
 		statusLabel.Text = "Search failed. Check Output."
 		clearContainer(resultsFrame)
+		grid.CellPadding = UDim2.fromOffset(6, 6) -- (D-1923: 착용 중 widens the row gap)
 		setResultsMessage("검색에 실패했습니다 (Roblox API 오류). 잠시 후 다시 시도하세요.")
 		searchBusy = false
 		return
