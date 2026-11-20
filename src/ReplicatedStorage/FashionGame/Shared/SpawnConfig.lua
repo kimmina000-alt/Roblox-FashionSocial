@@ -1,0 +1,34 @@
+--!strict
+-- 여러 곳에서 시작하기 (D-1982, 2026-11-21: FirstLeave showed 70 % of new players leaving near the one
+-- spawn by the guide (street 36 %, pocket park 35 %); the user decided to drop players in the middle of
+-- something to do). On each join the server picks one spot at random for the game clock (day / night);
+-- a player whose Roblox friend is already on the server appears next to that friend instead
+-- (SpawnService). Respawns after that use the normal SpawnLocation by the guide (D-1696).
+-- The real SpawnLocation part stays where it is (pocket park lot, off the walk areas).
+-- at = the feet on the ground, face = a point the player looks at when they appear.
+
+export type Spot = { key: string, name: string, at: Vector3, face: Vector3 }
+
+local SpawnConfig = {}
+
+-- the spots the user picked from the screenshots (D-1982)
+SpawnConfig.Day = {
+	{ key = "beach", name = "해변", at = Vector3.new(-215, 1, -40), face = Vector3.new(-250, 1, -40) },
+	{ key = "park", name = "놀이공원", at = Vector3.new(-97, 17, -262), face = Vector3.new(-100, 17, -330) },
+	{ key = "photo", name = "오후네컷 앞", at = Vector3.new(44, 3, -50), face = Vector3.new(64, 3, -66) },
+	{ key = "hanok", name = "한옥 마을", at = Vector3.new(178, 2, 230), face = Vector3.new(223, 2, 280) },
+} :: {Spot}
+
+-- no beach at night (players: "밤이 무서워요")
+SpawnConfig.Night = {
+	{ key = "park", name = "놀이공원", at = Vector3.new(-97, 17, -262), face = Vector3.new(-100, 17, -330) },
+	{ key = "club", name = "클럽 입구", at = Vector3.new(34, 3.6, -210), face = Vector3.new(60, 3.6, -210) },
+	{ key = "photo", name = "오후네컷 앞", at = Vector3.new(44, 3, -50), face = Vector3.new(64, 3, -66) },
+} :: {Spot}
+
+-- a friend already here: this far beside them
+SpawnConfig.FriendOffset = 4
+-- false = everyone at the SpawnLocation as before (a switch for the live game)
+SpawnConfig.Enabled = true
+
+return SpawnConfig

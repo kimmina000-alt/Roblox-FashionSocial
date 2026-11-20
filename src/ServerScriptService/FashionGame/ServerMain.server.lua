@@ -78,6 +78,7 @@ ZoneAnalyticsService.Start() -- (minutes per place for the dashboard, D-1096)
 -- (D-1124) onboarding, places entered vs things done, the booth / club funnels, coins
 Analytics.Start(ZoneAnalyticsService.ZoneOf, EconomyService.Balance)
 require(script.Parent.Services.SpectateService).Start(RankingService) -- (the owner's /관전, D-1097)
+require(script.Parent.Services.SpawnService).Start() -- (join spawn at one of several places, D-1982)
 require(script.Parent.Services.ChatCommandService).Start() -- (/re, /sit, D-1107)
 task.defer(require(script.Parent.Services.DoorHeadroomService).Start) -- (room over doorways, D-1111)
 task.defer(require(script.Parent.Services.TrashService).Start) -- (trash cans "Trashcan", D-1133)

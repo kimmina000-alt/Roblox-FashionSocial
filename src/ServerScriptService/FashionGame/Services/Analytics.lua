@@ -32,7 +32,10 @@
 --                                                             activity and place per 5 minutes
 --    FirstAction       action / order 1..6 / time bucket      new players: the first 6 different first things done
 --    FirstInteractSecs (value = seconds)                      new players: join → first interaction
---    FirstSession      3분 | 10분                              new players: stayed that long in the first visit
+--    FirstSession      3분 | 10분 / spawn spot                 new players: stayed that long in the first visit
+--                                                             (field 2 since D-1982: SpawnSpot, "-" before)
+--    SpawnAt           spawn spot / 낮 | 밤 / New | Back      (D-1982) where the player appeared on joining
+--                                                             (SpawnService: beach, park, photo, hanok, club, friend)
 -- 3. Recurring funnels (a session id per run):
 --    PhotoBooth  1 부스 입장 → 2 촬영 시작 → 3 컷·프레임 고름 → 4 저장   (PhotoBoothService, its session id)
 --    ClubVisit   1 입장 → 2 첫 춤                                     (each entry into the club)
@@ -334,6 +337,20 @@ local function onPlayer(player: Player)
 			end
 		end
 	end)
+	-- (D-1982) the join spawn spot (SpawnService): the first move counts from there, and SpawnAt once
+	-- New | Back is known (30 s, as LoadSecs)
+	player:GetAttributeChangedSignal("SpawnSpot"):Connect(function()
+		local st = states[player]
+		if not st then return end
+		if not st.moved then st.spawnAt = nil end
+		local spot = player:GetAttribute("SpawnSpot")
+		local night = player:GetAttribute("SpawnNight") == true
+		task.delay(30, function()
+			if states[player] == st and typeof(spot) == "string" then
+				custom(player, "SpawnAt", 1, fields(spot, if night then "밤" else "낮", visitor(player)))
+			end
+		end)
+	end)
 	-- sitting anywhere (benches, stools, chairs) counts as doing something
 	local function watch(character: Model)
 		local humanoid = character:WaitForChild("Humanoid", 10)
@@ -453,12 +470,12 @@ function Analytics.Start(zoneFn: (Player) -> string?, balanceFn: (Player) -> num
 					local stayed = now - s.joined
 					if not s.dwell3 and stayed >= 180 then
 						s.dwell3 = true
-						custom(player, "FirstSession", 1, fields("3분"))
+						custom(player, "FirstSession", 1, fields("3분", player:GetAttribute("SpawnSpot") or "-"))
 						onboarding(player, 5, "3분 머묾")
 					end
 					if not s.dwell10 and stayed >= 600 then
 						s.dwell10 = true
-						custom(player, "FirstSession", 1, fields("10분"))
+						custom(player, "FirstSession", 1, fields("10분", player:GetAttribute("SpawnSpot") or "-"))
 						onboarding(player, 6, "10분 머묾")
 					end
 				end
