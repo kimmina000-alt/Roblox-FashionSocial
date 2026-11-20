@@ -97,6 +97,8 @@ Read `AGENTS.md` first (catalog UI rules). The user writes in Korean; report in 
 
 - 2026-11-20 (7): `feat/i18n-1120` (with `feat/food-xp-hint-1120`) merged into `catalog-ui-redesign` by the translation session (user asked there: 머지해; no 2P run): D-1922 the XP hint wherever food is offered (tour 국밥 / cafe / OH24 steps, guide Q "경험치(XP)는 어떻게 올려요?" with the exact rule: only coin / Robux food, free food 0, daily cap; guide food answer with OH24 and park snacks, the old "OH24 오픈 준비 중" gone; shop menu line "사 먹으면 XP가 올라요 ⭐"), D-1842 / D-1843 their 16-language translations. Studio = git. New work: branch off catalog-ui-redesign.
 
+- 2026-11-20 (8): `fix/three-songs-feet-1120` merged into `catalog-ui-redesign` (user asked: 2인 테스트하고 머지해; server and both clients without script errors; Studio ClubChoreo = git but for the final newline): D-1944..D-1946 레몬탱 · I SPY · Looks Can Kill stay in place with planted feet + 3 pose fixes (foot drags over 0.5 studs: 226 → 1, 192 → 0, 202 → 1; second review passed). New work: branch off catalog-ui-redesign.
+
 ## Key docs
 - `docs/00_PROJECT/PLAYER_FEEDBACK.md`: real player reactions by date + improvement ideas. Add new reactions there (user, 2026-11-10).
 - `docs/00_PROJECT/DEVELOPMENT_ORDER.md`: build order.
