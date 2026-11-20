@@ -3801,4 +3801,29 @@ do
 	end
 end
 
+-- (D-1949, 2nd review of Lemonade D-1969 (v2 77 % + v3 23 %): the six v3 pieces had no stay-in-place / planted feet, so
+-- 0:59.75-1:10.1 slid 14.9 studs in 9 places and 1:26-1:56.6 51.1 studs in 31 (1:38.7 left foot 6.1); the v3 fancams follow
+-- the dancer with the camera, so their travel cannot be trusted) as the v2 pieces (D-1931): `still` outside Lemonade's
+-- formation moves (1:32.5-1:34.3, 1:38.8-1:40.8, 0.2 s margins), `plant` on every v3 piece (contact 0.45, steps)
+do
+	local function addList(id: number, key: string, item: any)
+		local f = (M.ChoreoFixes[id] or {}) :: any
+		M.ChoreoFixes[id] = f
+		local list = if f[key] == nil then {} elseif f[key].from then { f[key] } else table.clone(f[key])
+		table.insert(list, item)
+		f[key] = list
+	end
+	for id, wins in {
+		[136573199349283] = { { 0.00, 99 } }, -- at 59.75
+		[104433202165131] = { { 0.00, 99 } }, -- at 67.5
+		[135684881711516] = { { 0.00, 6.30 }, { 8.50, 99 } }, -- at 86
+		[119706515996739] = { { 0.00, 3.80 }, { 6.20, 99 } }, -- at 94.8
+		[102178089107461] = { { 0.00, 99 } }, -- at 102.9
+		[116451294316978] = { { 0.00, 99 } }, -- at 113.5
+	} do
+		for _, w in ipairs(wins) do addList(id, "still", { from = w[1], to = w[2] }) end
+		addList(id, "plant", { from = 0, to = 99, contact = 0.45 })
+	end
+end
+
 return M
