@@ -16,7 +16,7 @@ SpawnConfig.Day = {
 	{ key = "beach", name = "해변", at = Vector3.new(-215, 1, -40), face = Vector3.new(-250, 1, -40) },
 	{ key = "park", name = "놀이공원", at = Vector3.new(-97, 17, -262), face = Vector3.new(-100, 17, -330) },
 	{ key = "photo", name = "오후네컷 앞", at = Vector3.new(44, 3, -50), face = Vector3.new(64, 3, -66) },
-	{ key = "hanok", name = "한옥 마을", at = Vector3.new(178, 2, 230), face = Vector3.new(223, 2, 280) },
+	-- (the hanok village inside 광화문 dropped, user 2026-11-21: the village is being removed except 광화문)
 } :: {Spot}
 
 -- no beach at night (players: "밤이 무서워요")

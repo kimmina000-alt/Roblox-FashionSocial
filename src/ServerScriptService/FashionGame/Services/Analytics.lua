@@ -35,7 +35,7 @@
 --    FirstSession      3분 | 10분 / spawn spot                 new players: stayed that long in the first visit
 --                                                             (field 2 since D-1982: SpawnSpot, "-" before)
 --    SpawnAt           spawn spot / 낮 | 밤 / New | Back      (D-1982) where the player appeared on joining
---                                                             (SpawnService: beach, park, photo, hanok, club, friend)
+--                                                             (SpawnService: beach, park, photo, club, friend)
 -- 3. Recurring funnels (a session id per run):
 --    PhotoBooth  1 부스 입장 → 2 촬영 시작 → 3 컷·프레임 고름 → 4 저장   (PhotoBoothService, its session id)
 --    ClubVisit   1 입장 → 2 첫 춤                                     (each entry into the club)
