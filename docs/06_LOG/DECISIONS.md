@@ -6687,3 +6687,7 @@ Studio only (no script yet).
 - Frame `winter2026` (특별한, first): draft art drawn in code, tools/art/winter_frame/draw.py (snow-lace scallops, ice gradient, snowflakes, a snowman with a red scarf at the bottom left, OHU in the footer), uploaded 1x4 rbxassetid://99512009938400, 2x2 rbxassetid://88656478489532. PhotoConfig `showFrom` (hidden before 12/4 05:00 KST) / `hideAfter` (only owners after 2027-01-01 05:00 KST) / `eventButton` / `eventNote` (the booth's 🔒 button and toast per frame). Shots: docs/06_LOG/images/2026-11-21/winter_frame_*.png.
 - Studio test: ReplicatedStorage.FashionGame attribute EventNow (unix) = 1796328060 (12/4 05:01 KST) for the winter window, OpeningStudioCount = true to let a Studio claim count (Studio data only).
 - New Korean texts for the translation pass (13): OHU WINTER EVENT · 오후의 첫눈 / 출석 이벤트 ❄️ / 눈 오는 오후에 놀러 오고, 겨울 선물 받아 가세요! / the ❄️ 한정 칭호 WINTER 2026 line / 겨울 한정 프레임 획득! / 한정 칭호 WINTER 2026 획득! / 겨울 출석 {1}일차 / 겨울 첫눈 / 🎁 겨울 출석 7회 보상 / 🎁 출석 7회 보상 / 겨울 출석 이벤트 '오후의 첫눈'에서 7번 출석하면 받는 한정 프레임이에요. / 출석 이벤트에서 7번 출석하면 받는 한정 프레임이에요. / 출석<br/><font size="22" color="{1}">{2}</font> / {3}.
+
+## D-1844 겨울 출석 이벤트 '오후의 첫눈' 문구 16개 언어 번역 (2026-11-21)
+- 이벤트 세션 요청: feat/event-winter-1121(D-1874)의 새 문구 13개를 tools/i18n/tr/p24_winter1121.tsv에. 이벤트 이름 '오후의 첫눈' = "OHU First Snow"(언어별로 OHU는 그대로), WINTER 2026 / OHU는 번역하지 않음.
+- 출석 칸 템플릿(색이 {1}로 바뀐 것) · "출석 이벤트 ❄️" · 한정 칭호 줄은 오픈 이벤트의 기존 번역에서 이어 만듦(💖→❄️, FOUNDING MEMBER→WINTER 2026). 채팅 명령어는 번역하지 않음.
