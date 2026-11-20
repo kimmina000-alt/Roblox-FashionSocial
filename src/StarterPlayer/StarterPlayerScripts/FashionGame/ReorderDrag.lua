@@ -4,8 +4,8 @@
 -- KOYA "의상 레이어" style: a translucent copy follows the pointer and the other
 -- cards shift to show where the dragged card will land. Mouse drags start after
 -- moving a few pixels; touch drags start after holding 0.3s so a quick swipe still
--- scrolls the list. Only draggable cards take part; they must have the lowest
--- LayoutOrder values (1..n) in the container, other cards come after them.
+-- scrolls the list. Only draggable cards take part; they swap the LayoutOrder values they
+-- already have, so they must sit together (no other card between them).
 
 local UserInputService = game:GetService("UserInputService")
 
@@ -164,17 +164,21 @@ function ReorderDrag:_move(position: Vector3)
 		position.Y - origin.Y - ghost.AbsoluteSize.Y / 2
 	)
 	local others = {}
+	-- (D-1923) the draggable cards share the LayoutOrder values they already have (not always
+	-- 1..n: in 착용 중 the 액세서리 group and its spacers come before the layered clothes)
+	local orders = {}
 	for _, c in ipairs(self:_cards()) do
+		table.insert(orders, c.LayoutOrder)
 		if c ~= drag.card then table.insert(others, c) end
 	end
 	local slot = self:_slotFor(position, others)
-	local order = 1
+	local k = 1
 	for index, c in ipairs(others) do
-		if index == slot then order += 1 end
-		c.LayoutOrder = order
-		order += 1
+		if index == slot then k += 1 end
+		c.LayoutOrder = orders[k]
+		k += 1
 	end
-	drag.card.LayoutOrder = slot
+	drag.card.LayoutOrder = orders[slot]
 end
 
 function ReorderDrag:_onInputChanged(input: InputObject)
