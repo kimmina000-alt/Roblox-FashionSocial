@@ -93,6 +93,8 @@ Read `AGENTS.md` first (catalog UI rules). The user writes in Korean; report in 
 
 - 2026-11-20 (5): `fix/lemonade-unlock-1120` merged into `catalog-ui-redesign` (user asked: git 머지, after the choreo-analysis second review passed; no 2P run this time; Studio = git for ChoreoController / ChoreoFeet, ClubChoreo but for the final newline, ClubPlaylist but for its Studio-only extras): D-1930..D-1943 레모네이드 choreography back on (stays in place, planted feet with lifted steps), BANG second-review fixes (2:16 arm down like the original, whole song in place with planted feet), ChoreoFeet plant / step fixes for every song that plants (knees no longer fold), the last piece's pose held to the song's end. Left: BANG 4 small foot drags (0.33-0.43), 레모네이드 0:30.4 0.46. ChoreoFeet is shared by every choreography: play one or two other songs once to check. New work: branch off catalog-ui-redesign.
 
+- 2026-11-20 (6): `feat/review-size-bands-1120` merged into `catalog-ui-redesign` by the choreo-analysis session (user asked there: 머지해; tools / docs only): D-1895 choreo size bands (user: "이 기준으로 적용") in the second-review tool; the choreo edit and choreo add sessions use them. New work: branch off catalog-ui-redesign.
+
 ## Key docs
 - `docs/00_PROJECT/PLAYER_FEEDBACK.md`: real player reactions by date + improvement ideas. Add new reactions there (user, 2026-11-10).
 - `docs/00_PROJECT/DEVELOPMENT_ORDER.md`: build order.
