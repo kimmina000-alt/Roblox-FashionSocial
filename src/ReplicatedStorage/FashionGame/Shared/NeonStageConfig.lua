@@ -25,6 +25,7 @@ local ClubConfig = require(ReplicatedStorage:WaitForChild("FashionGame"):WaitFor
 local NeonStageConfig = {}
 
 NeonStageConfig.SoundId = 140713297574648 -- NEON-A2O LITE (ClubPlaylist): the song when no other is set
+NeonStageConfig.NeonEvery = { 3, 4 } -- (D-1884) NEON again after this many other songs (random in the range)
 NeonStageConfig.Center = Vector3.new(-96, -1.98, -128) -- (the plaza floor at the stage's middle: the walked face, measured)
 -- (D-1822, user 2026-11-19: "무대 단상 한 단 더 올리기") two steps: the low ring of radius 18 (1.2 high)
 -- and the top of radius 15 on it (2.4 over the plaza floor); the dance is on the top
