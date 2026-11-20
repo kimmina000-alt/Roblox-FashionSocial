@@ -33,6 +33,13 @@ M.ChoreoHome = { settle = 2.5, back = 1.5 } :: any
 M.ChoreoFrontLock = nil :: any
 -- (D-998, user: "손목·발목은 다듬지 않기") parts the automatic tremble clean-ups leave as captured
 M.ChoreoKeepDetail = { "LeftHand", "RightHand", "LeftFoot", "RightFoot" } :: {string}?
+-- (D-1972, user 2026-11-21: "손목과 발목 고개 움직임은 유지하고 그 외 움직임만 … 중간 중간 프레임 삭제해서
+-- 부드럽게 연결", "미세한 움직임이나 … 튀는 프레임, 떨림 없애기") key reduction for every joint but
+-- `keep` (ChoreoSmooth.reduce): spikes over `spike` degrees put back on their neighbours' line,
+-- then only the poses that hold the shape (within `tol` degrees, at least one every `maxGap` s)
+-- stay and the rest are rebuilt on a smooth curve through them. A piece's ChoreoFixes `sharp`
+-- skips it. Studio: FashionGame attribute ChoreoReduceOff = the old clean-ups. nil = off.
+M.ChoreoReduce = { spike = 4, tol = 8, maxGap = 0.6, keep = { "Head", "LeftHand", "RightHand", "LeftFoot", "RightFoot" } } :: any
 M.ChoreoRetarget = true
 
 -- (D-817) a dancer following a choreography walks its dance path (D-813),

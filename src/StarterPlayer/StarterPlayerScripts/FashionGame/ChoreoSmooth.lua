@@ -38,6 +38,7 @@ local paths: {[string]: Path} = {}
 -- (before the upper arm)
 type Retarget = { times: {number}, waist: {CFrame}?, left: {CFrame}?, right: {CFrame}? }
 local retargets: {[string]: Retarget} = {}
+local popCache: {[string]: any} = {} -- (D-1972: declared before clear(), which empties it)
 
 local ChoreoSmooth = {}
 
@@ -260,6 +261,116 @@ local function dejitter(poses: {CFrame}, times: {number}, sigma: number, turnOnl
 	return out
 end
 
+-- (D-1972, user 2026-11-21: "손목과 발목 고개 움직임은 유지하고 그 외 움직임만 … 중간 중간 프레임
+-- 삭제해서 부드럽게 연결 … 미세한 움직임이나 프레임 사이에서 혼자 동작이 달라서 튀는 프레임, 떨림 없애기")
+-- key reduction: a joint's 24-a-second capture keeps measuring noise (one camera
+-- cannot see depth well), so every keyframe wobbles a little. For the joints not in
+-- ClubConfig.ChoreoReduce.keep: (1) a keyframe that alone leaves the line of its two
+-- neighbours (a spike) is put back on it; (2) only the keyframes that carry the shape
+-- of the move stay: the farthest-out pose of each stretch, found again and again until
+-- every dropped keyframe lies within `tol` degrees of the line between the kept ones
+-- (the turning points = the biggest and smallest pose of each move); (3) the dropped
+-- keyframes are rebuilt on a smooth curve through the kept ones (cubic, through each
+-- kept pose; still at the turning points, moving on through the rest, so it neither
+-- stops at every key nor overshoots a peak).
+local function angleOf(a: CFrame, b: CFrame): number
+	local _, ang = (a.Rotation:Inverse() * b.Rotation):ToAxisAngle()
+	return math.deg(math.abs(ang))
+end
+
+local function despike(poses: {CFrame}, minDeg: number): {CFrame}
+	local out = table.clone(poses)
+	for _ = 1, 2 do
+		for k = 2, #out - 1 do
+			local mid = out[k - 1]:Lerp(out[k + 1], 0.5)
+			local off = angleOf(out[k], mid)
+			if off > minDeg and off > 1.5 * angleOf(out[k - 1], out[k + 1]) then
+				out[k] = CFrame.new(out[k].Position) * mid.Rotation
+			end
+		end
+	end
+	return out
+end
+
+local function keyPoints(poses: {CFrame}, times: {number}, tol: number, maxGap: number): {number}
+	local n = #poses
+	local keep: {[number]: boolean} = { [1] = true, [n] = true }
+	local stack = { { 1, n } }
+	while #stack > 0 do
+		local seg = table.remove(stack) :: {number}
+		local a, b = seg[1], seg[2]
+		if b - a < 2 then continue end
+		local worst, wi = 0, (a + b) // 2
+		for i = a + 1, b - 1 do
+			local f = (times[i] - times[a]) / math.max(times[b] - times[a], 1e-6)
+			local d = angleOf(poses[i], poses[a]:Lerp(poses[b], f))
+			if d > worst then worst, wi = d, i end
+		end
+		if worst > tol or times[b] - times[a] > maxGap then
+			keep[wi] = true
+			table.insert(stack, { a, wi })
+			table.insert(stack, { wi, b })
+		end
+	end
+	local list = {}
+	for i = 1, n do if keep[i] then table.insert(list, i) end end
+	return list
+end
+
+-- a turn as a vector (axis × radians) and back
+local function logOf(c: CFrame): Vector3
+	local axis, ang = c:ToAxisAngle()
+	ang = (ang + math.pi) % (2 * math.pi) - math.pi
+	return axis * ang
+end
+local function expOf(v: Vector3): CFrame
+	local m = v.Magnitude
+	return if m < 1e-6 then CFrame.identity else CFrame.fromAxisAngle(v / m, m)
+end
+
+local function reduce(raw: {CFrame}, times: {number}, settings: any): {CFrame}
+	local poses = despike(raw, settings.spike or 3)
+	local keys = keyPoints(poses, times, settings.tol or 4, settings.maxGap or 0.5)
+	local out = table.clone(poses)
+	for s = 1, #keys - 1 do
+		local i1, i2 = keys[s], keys[s + 1]
+		local i0, i3 = keys[s - 1], keys[s + 2]
+		local p1, p2 = poses[i1].Rotation, poses[i2].Rotation
+		local t1, t2 = times[i1], times[i2]
+		local dt = math.max(t2 - t1, 1e-6)
+		local base = p1:Inverse()
+		local u2 = logOf(base * p2)
+		if u2.Magnitude > math.rad(150) then
+			-- (a very fast turn between two kept poses: plain in-between)
+			for k = i1 + 1, i2 - 1 do
+				out[k] = CFrame.new(poses[k].Position) * p1:Lerp(p2, (times[k] - t1) / dt)
+			end
+			continue
+		end
+		local u0 = if i0 then logOf(base * poses[i0].Rotation) else nil
+		local u3 = if i3 then logOf(base * poses[i3].Rotation) else nil
+		-- tangents (per segment length): Catmull-Rom, zero at a turning point
+		local m1 = u2
+		if u0 then
+			local turning = u0.Magnitude > 1e-4 and u2.Magnitude > 1e-4 and u0:Dot(u2) > 0
+			m1 = if turning then Vector3.zero else (u2 - u0) / (t2 - times[i0]) * dt
+		end
+		local m2 = u2
+		if u3 then
+			local back, ahead = -u2, u3 - u2
+			local turning = back.Magnitude > 1e-4 and ahead.Magnitude > 1e-4 and back:Dot(ahead) > 0
+			m2 = if turning then Vector3.zero else u3 / (times[i3] - t1) * dt
+		end
+		for k = i1 + 1, i2 - 1 do
+			local x = (times[k] - t1) / dt
+			local x2, x3 = x * x, x * x * x
+			local v = m1 * (x3 - 2 * x2 + x) + u2 * (-2 * x3 + 3 * x2) + m2 * (x3 - x2)
+			out[k] = CFrame.new(poses[k].Position) * p1 * expOf(v)
+		end
+	end
+	return out
+end
+
 function ChoreoSmooth.load(animationId: string)
 	if cache[animationId] then return end
 	cache[animationId] = {}
@@ -320,7 +431,14 @@ function ChoreoSmooth.load(animationId: string)
 			-- for still does)
 			-- (D-1853) a piece with ChoreoFixes `smoothDetail` has its wrists and ankles cleaned too (a capture shaking all over)
 			local keep = ClubConfig.ChoreoKeepDetail ~= nil and table.find(ClubConfig.ChoreoKeepDetail, part) ~= nil and not (fixes and fixes.smoothDetail)
-			local cleaned = if settings and not keep then clean(s.raw, settings.maxStep, settings.passes) else nil
+			-- (D-1972) key reduction takes the place of the clean-ups below for every joint
+			-- but the ones it keeps (wrists, ankles, head); Studio switch FashionGame
+			-- attribute ChoreoReduceOff compares with the old clean-ups
+			local rd = ClubConfig.ChoreoReduce
+			local reduceOff = game:GetService("RunService"):IsStudio() and ReplicatedStorage.FashionGame:GetAttribute("ChoreoReduceOff")
+			local reduced = rd ~= nil and not reduceOff and not (rd.keep and table.find(rd.keep, part)) and not (fixes and fixes.sharp) and #s.raw >= 4
+			local cleaned = if reduced then reduce(s.raw, s.times, rd) elseif settings and not keep then clean(s.raw, settings.maxStep, settings.passes) else nil
+			if reduced then keep = true end
 			-- (D-851) pieces the user saw tremble: the slower wobble too
 			if fixes and fixes.calm and ClubConfig.ChoreoCalm and part ~= "LowerTorso" and not keep then
 				cleaned = calm(cleaned or s.raw, s.raw, ClubConfig.ChoreoCalm) or cleaned
@@ -443,7 +561,6 @@ end
 -- (D-848) the chest pops a piece is given (ClubConfig.ChoreoFixes pops) at
 -- time t: the waist turn to add after UpperTorso's own and the neck turn
 -- that keeps the head level, or nil away from a pop
-local popCache: {[string]: any} = {}
 function ChoreoSmooth.pop(animationId: string, t: number): (CFrame?, CFrame?)
 	local pops = popCache[animationId]
 	if pops == nil then
@@ -571,5 +688,8 @@ function ChoreoSmooth.hips(animationId: string, t: number): Vector3?
 	local lo, hi, f = around(path.times, t)
 	return path.at[lo]:Lerp(path.at[hi], f)
 end
+
+-- (D-1972) switching the Studio compare attribute reads every piece again
+ReplicatedStorage:WaitForChild("FashionGame"):GetAttributeChangedSignal("ChoreoReduceOff"):Connect(ChoreoSmooth.clear)
 
 return ChoreoSmooth
