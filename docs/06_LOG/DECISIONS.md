@@ -6666,3 +6666,13 @@ Studio only (no script yet).
 - user 2026-11-20: "공터 단상에 네온 노래 더 자주 나오게 해 줘 3~4곡 걸러서 한 번 나오게".
 - NeonStageService.pick(): 서버의 첫 곡은 NEON. 그 뒤 다른 안무 곡을 무작위로 3곡 또는 4곡(NeonStageConfig.NeonEvery = {3, 4}, 매번 새로 뽑음) 틀고 다시 NEON. 그 사이 곡에는 NEON이 안 나오고, 바로 앞 곡도 다시 안 나옴.
 - 안무가 생긴 곡은 따로 등록하지 않아도 단상 목록에 들어감(NeonStageConfig.tracks()가 곡을 고를 때마다 ClubPlaylist를 읽음; 여러 클립을 이은 곡만 빠짐).
+
+
+## D-1873 Opening event ends by itself on 2026-12-04 05:00 KST (2026-11-21)
+- Asked by the progress session for the user (2026-11-21): get the end of the opening event (11/13 ~ 12/3) ready so it ends without a publish on 12/3; the FOUNDING MEMBER title and the opening frame stay with the people who got them.
+- OpeningEventConfig: `EndUnix` (= Start + 21 days = 2026-12-03 20:00 UTC), `ended()`, `now()` (Studio only: ReplicatedStorage.FashionGame attribute `EventNow` = a unix time stands in for the clock, to test the end). `dayNow()` uses `now()`.
+- Opening gift: `EconomyConfig.welcomeGift()` gives `WelcomeCoins` (50) only until the event ends; EconomyService uses it (first visits after the end still set wallet.welcome / FirstVisit, without coins or the toast).
+- 🎁 button: re-checked every 30 s, so it also goes away for someone who stays past 05:00 (an open attendance window closes). The window's own opening needs `OpeningShowWindow`, which the server only sets on an event day.
+- Photo booth: PhotoConfig frame field `hideAfter` (unix); `opening2026` has 2026-12-04 05:00 KST. After it the frame card shows only to its owners (not as 🔒 · 출석 7회 to everyone else).
+- Kept: wallet.opening.title (Title_Founding on the name tag) and wallet.frames ("opening2026") are untouched.
+- Later clean-up (optional, any publish after 12/4): `WelcomeCoins = nil`, and the attendance window code can stay (it never shows again).

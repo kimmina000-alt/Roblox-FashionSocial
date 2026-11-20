@@ -26,6 +26,7 @@ local playerGui = player:WaitForChild("PlayerGui")
 local FashionGame = ReplicatedStorage:WaitForChild("FashionGame")
 local Shared = FashionGame:WaitForChild("Shared")
 local PhotoConfig = require(Shared:WaitForChild("PhotoConfig"))
+local OpeningEventConfig = require(Shared:WaitForChild("OpeningEventConfig")) -- (D-1873)
 local ClubConfig = require(Shared:WaitForChild("ClubConfig"))
 local Remotes = FashionGame:WaitForChild("Remotes")
 local boothRemote = Remotes:WaitForChild("PhotoBooth") :: RemoteFunction
@@ -1435,7 +1436,9 @@ local function renderSwatches()
 	local chosen = {}
 	if shots then for _, index in ipairs(state.picks) do table.insert(chosen, shots.shots[index]) end end
 	for index, info in ipairs(PhotoConfig.Frames) do
-		if info.tab == frameTab then
+		-- (D-1873) an event frame past its end shows only to its owners
+		local gone = info.hideAfter ~= nil and OpeningEventConfig.now() >= info.hideAfter and not ownsFrame(info)
+		if info.tab == frameTab and not gone then
 			local card = button({
 				Name = "Frame_" .. info.key,
 				LayoutOrder = index,

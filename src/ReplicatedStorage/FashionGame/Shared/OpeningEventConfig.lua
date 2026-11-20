@@ -26,9 +26,30 @@ OpeningEventConfig.Rewards = {
 	{ title = true },
 } :: {Reward}
 
+-- (D-1873) "now" for the event: the real clock; in Studio the ReplicatedStorage.FashionGame attribute
+-- EventNow (a unix time, Studio only) stands in for it, to test the last day / after the end
+function OpeningEventConfig.now(): number
+	local RunService = game:GetService("RunService")
+	if RunService:IsStudio() then
+		local fg = game:GetService("ReplicatedStorage"):FindFirstChild("FashionGame")
+		local override = fg and fg:GetAttribute("EventNow")
+		if typeof(override) == "number" then return override end
+	end
+	return DateTime.now().UnixTimestamp
+end
+
+-- (D-1873) the end: day 21 ends 2026-12-04 05:00 KST. After it the 🎁 button and the window go
+-- away by themselves (dayNow = nil), the opening gift stops (EconomyConfig.welcomeGift) and the
+-- frame is no longer shown to people who did not get it (PhotoConfig hideAfter). The title and
+-- the frame stay with the people who got them (wallet.opening.title / wallet.frames).
+OpeningEventConfig.EndUnix = OpeningEventConfig.Start.UnixTimestamp + OpeningEventConfig.Days * 86400
+function OpeningEventConfig.ended(unix: number?): boolean
+	return (unix or OpeningEventConfig.now()) >= OpeningEventConfig.EndUnix
+end
+
 -- the event's day number now (1 = the first day), or nil outside the 21 days
 function OpeningEventConfig.dayNow(unix: number?): number?
-	local now = unix or DateTime.now().UnixTimestamp
+	local now = unix or OpeningEventConfig.now()
 	local d = math.floor((now - OpeningEventConfig.Start.UnixTimestamp) / 86400) + 1
 	if d < 1 or d > OpeningEventConfig.Days then return nil end
 	return d

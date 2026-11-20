@@ -6,7 +6,7 @@ export type Layout = { key: string, name: string, cols: number, rows: number }
 -- price: "free" | "coins" (EconomyConfig coin price, unlocked forever) |
 -- "pass" (Game Pass MonetizationConfig.GamePasses.FramePack).
 -- style: "solid" | "gloss" (shine gradient) | "glitter" (sparkles).
-export type Frame = { key: string, name: string, color: Color3, text: Color3, tab: string, price: string, coins: number?, style: string, stickers: {string}?, neon: Color3?, art: any? }
+export type Frame = { key: string, name: string, color: Color3, text: Color3, tab: string, price: string, coins: number?, style: string, stickers: {string}?, neon: Color3?, art: any?, hideAfter: number? }
 
 local PhotoConfig = {}
 
@@ -115,6 +115,8 @@ PhotoConfig.Frames = {
 	-- pink halo, exact rounded photo holes, no seam in the 1x4 (images re-uploaded)
 	-- (D-1872, user 2026-11-19: "프레임은 오후네컷 스페셜 가장 앞에 진열") first card of 특별한
 	{ key = "opening2026", name = "오픈 기념", color = Color3.fromRGB(255, 196, 222), text = Color3.fromRGB(150, 70, 140), tab = "특별한", price = "event", style = "art",
+		-- (D-1873) after the event (2026-12-04 05:00 KST) only the people who got it see it
+		hideAfter = DateTime.fromUniversalTime(2026, 12, 3, 20, 0, 0).UnixTimestamp,
 		art = {
 			["1x4"] = { image = "rbxassetid://85072257228927", x = -0.4443, y = -0.0509, w = 1.7949, h = 1.0317 },
 			["2x2"] = { image = "rbxassetid://130617292038177", x = -0.0776, y = -0.1560, w = 1.1635, h = 1.1068 },

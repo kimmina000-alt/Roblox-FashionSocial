@@ -245,6 +245,17 @@ corner(button, 999)
 create("UIPadding", { PaddingTop = UDim.new(0.18, 0), PaddingBottom = UDim.new(0.18, 0), PaddingLeft = UDim.new(0.18, 0), PaddingRight = UDim.new(0.18, 0) }, button)
 TopBar.add(button, 6)
 button.Activated:Connect(function() setOpen(not gui.Enabled) end)
+-- (D-1873) the 🎁 goes away by itself when the event ends (also for someone who stays past 05:00)
+task.spawn(function()
+	while true do
+		task.wait(30)
+		local on = Config.dayNow() ~= nil
+		if button.Visible ~= on then
+			button.Visible = on
+			if not on and gui.Enabled then setOpen(false) end
+		end
+	end
+end)
 
 -- today's 받기 waiting: the window once, after the tour and other windows (D-1401)
 task.spawn(function()
