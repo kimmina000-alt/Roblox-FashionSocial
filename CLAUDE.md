@@ -101,6 +101,8 @@ Read `AGENTS.md` first (catalog UI rules). The user writes in Korean; report in 
 
 - 2026-11-20 (9): merged into `catalog-ui-redesign` (user asked: 2인 테스트 후 머지; mobile 2P without game script errors): `feat/worn-sections-1120` (D-1923: catalog 착용 중 in four groups 액세서리 / 복장 / 신체 / 애니메이션, each from a new row with a long line + name in the row gap, WornSections.lua; ReorderDrag swaps the draggable cards' own LayoutOrder values), `feat/neon-often-1120` (D-1884: plaza stage NEON after every 3-4 other songs), `docs/feedback-1120` (player feedback 11-19/20). New work: branch off catalog-ui-redesign.
 
+- 2026-11-20 (10): `fix/three-songs-feet-1120` d282a161 merged into `catalog-ui-redesign` (user asked: 머지해 + 2인 테스트; mobile 2P without script errors, Boogie Woogie played in the club with its choreography): D-1947, the other 19 choreographies dance in place outside the originals' formation moves, planted feet for all 449 pieces. Studio's ClubChoreo = git in behaviour (2 blank lines fewer, one 3-line comment block placed earlier). New work: branch off catalog-ui-redesign.
+
 ## Key docs
 - `docs/00_PROJECT/PLAYER_FEEDBACK.md`: real player reactions by date + improvement ideas. Add new reactions there (user, 2026-11-10).
 - `docs/00_PROJECT/DEVELOPMENT_ORDER.md`: build order.
