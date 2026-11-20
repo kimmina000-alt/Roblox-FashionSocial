@@ -260,6 +260,10 @@ task.spawn(function()
 	if not TEST and player:GetAttribute("OpeningShowWindow") ~= true then return end
 	while playerGui:FindFirstChild("OHULoading") do task.wait(1) end
 	task.wait(4) -- (the first-visit tour starts 1.5 s after the loading screen: it goes first)
+	-- (D-1981, 2026-11-21: fewer windows in the first minute) only after the player's first move (20 studs)
+	-- or first interaction, both told by the server (Analytics: Moved / Interacted)
+	while player:GetAttribute("Moved") ~= true and player:GetAttribute("Interacted") ~= true do task.wait(1) end
+	task.wait(2)
 	while player:GetAttribute("TourActive") or Popups.anyOpen() do task.wait(1) end
 	task.wait(1)
 	setOpen(true) -- (no sound as it opens: user 2026-11-17, "출석 창은 소리 넣지 말자")

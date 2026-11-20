@@ -231,6 +231,11 @@ end
 local DASH, GAP = 0.8, 0.6
 local DASH_W = 0.25
 local DASH_ALPHA = 0.75 -- (D-1698, user 2026-11-17: "안내하는 점선 반투명하게 수정"; 0.1 until then)
+-- (D-1980, 2026-11-21: the first-visit card's way, user picked "낮 흰 점선 / 밤 네온 핑크") the colour of
+-- the way and its sign: set by the first-visit card's tiles (UiBus.ShowWay with a place key) for that way;
+-- the goal and the guide's way keep white at DASH_ALPHA
+local NIGHT_PINK = Color3.fromRGB(255, 92, 205)
+local wayColor, wayAlpha, signColor = WHITE, DASH_ALPHA, BLACK
 local function walkPath(from: Vector3, target: Vector3): {Vector3}?
 	local path = PathfindingService:CreatePath({ AgentRadius = 1.5, AgentHeight = 5, AgentCanJump = true, WaypointSpacing = 4 })
 	local ok = pcall(function() path:ComputeAsync(from, target) end)
@@ -289,7 +294,7 @@ local function drawLine()
 						local p0, p1 = a + dir * at, a + dir * (at + piece)
 						create("Part", {
 							Anchored = true, CanCollide = false, CanQuery = false, CanTouch = false, CastShadow = false,
-							Material = Enum.Material.Neon, Color = WHITE, Transparency = DASH_ALPHA,
+							Material = Enum.Material.Neon, Color = wayColor, Transparency = wayAlpha,
 							Size = Vector3.new(DASH_W, 0.06, piece), CFrame = CFrame.lookAt((p0 + p1) / 2, p1),
 						}, folder)
 						count += 1
@@ -318,7 +323,7 @@ local function lineTo(at: Vector3, name: string)
 		AlwaysOnTop = true, LightInfluence = 0,
 	}, part) -- (no taps needed: on the marker itself, D-1523)
 	local l = create("TextLabel", {
-		Size = UDim2.fromScale(1, 1), BackgroundColor3 = BLACK, BackgroundTransparency = 0.2,
+		Size = UDim2.fromScale(1, 1), BackgroundColor3 = signColor, BackgroundTransparency = 0.2,
 		Font = Enum.Font.GothamBold, TextSize = 15, TextColor3 = WHITE, Text = name,
 	}, b)
 	create("UICorner", { CornerRadius = UDim.new(0, 14) }, l)
@@ -434,7 +439,7 @@ RunService.Heartbeat:Connect(function()
 		local near = d < 12
 		if lineFolder and lineFolder:GetAttribute("Hidden") ~= near then
 			lineFolder:SetAttribute("Hidden", near)
-			for _, part in ipairs(lineFolder:GetChildren()) do (part :: BasePart).Transparency = if near then 1 else DASH_ALPHA end
+			for _, part in ipairs(lineFolder:GetChildren()) do (part :: BasePart).Transparency = if near then 1 else wayAlpha end
 		end
 		if sign then sign.Enabled = not near end
 	end
@@ -510,9 +515,34 @@ end)
 local UiBus = require(script.Parent:WaitForChild("UiBus"))
 local wayTo: (() -> Vector3?)? = nil
 local wayName = ""
-UiBus.ShowWay.Event:Connect(function()
+-- (D-1980) with a place key (the first-visit card's tiles): "club" (door, then the dance floor), "photo"
+-- (오후네컷) or "park" (OHU LAND), white by day and neon pink by night; without one, as before
+local PARK_GATE = Vector3.new(-97, 17, -250) -- (GuideConfig.Places.park.at; checked in Play D-1980)
+UiBus.ShowWay.Event:Connect(function(key: string?)
 	if running then return end -- (the goal already draws its way)
 	local night = ClubConfig.isNightOpen(DayNightConfig.clockNow())
+	if key then
+		wayColor = if night then NIGHT_PINK else WHITE
+		wayAlpha = if night then 0.3 else 0.45
+		signColor = if night then Color3.fromRGB(150, 20, 110) else BLACK
+		if key == "club" then
+			wayTo = function()
+				if player:GetAttribute("InClubLocal") == true then return DANCE_FLOOR end
+				return GuideConfig.Places.club.at
+			end
+			wayName = "🎧 OHU CLUB"
+		elseif key == "park" then
+			local park = GuideConfig.Places.park
+			wayTo = function() return if park then park.at else PARK_GATE end
+			wayName = "🎢 OHU LAND"
+		else
+			wayTo = function() return GuideConfig.Places.photo.at end
+			wayName = "📸 오후네컷"
+		end
+		lineTarget = nil -- (drawn again in the new colour)
+		return
+	end
+	wayColor, wayAlpha, signColor = WHITE, DASH_ALPHA, BLACK
 	if night then
 		wayTo = function()
 			if player:GetAttribute("InClubLocal") == true then return DANCE_FLOOR end

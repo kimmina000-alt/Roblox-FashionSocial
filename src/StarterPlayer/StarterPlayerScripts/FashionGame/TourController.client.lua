@@ -15,7 +15,6 @@
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local TweenService = game:GetService("TweenService")
-local HttpService = game:GetService("HttpService")
 
 local FashionGame = ReplicatedStorage:WaitForChild("FashionGame")
 local remote = FashionGame:WaitForChild("Remotes"):WaitForChild("Guide") :: RemoteFunction
@@ -313,28 +312,8 @@ skip.Activated:Connect(function()
 end)
 if UiBus.StartTour then UiBus.StartTour.Event:Connect(start) end
 
--- (D-1523, user: "첫 접속엔 목표만") the first visit no longer started the tour by itself.
--- (D-1690, user 2026-11-17: "투어 추가해 투어 끝나고 출석 이벤트 보여 주고 목표 안내 순서") it does again:
--- the first visit is ① this tour → ② the opening attendance window (OpeningEventController waits
--- while TourActive) → ③ the first goal (FirstGoalController waits for both). Once: the "tour2" tip;
--- the guide NPC's question still starts it again. (Studio: FirstGoalTest = true shows it every Play.)
-task.spawn(function()
-	local TEST = game:GetService("RunService"):IsStudio() and FashionGame:GetAttribute("FirstGoalTest") == true
-	-- (D-1731, user 2026-11-18: "스튜디오에 튜토리얼이랑 출석 체크 이벤트 띄우지 마 실제로 플레이어들한테는 사용해야 함")
-	-- in Studio the tour starts by itself only with FirstGoalTest on (test players are new every Play);
-	-- live servers are unchanged
-	if game:GetService("RunService"):IsStudio() and not TEST then return end
-	local waited = 0
-	while player:GetAttribute("TipsSeen") == nil and waited < 20 do
-		task.wait(0.5)
-		waited += 0.5
-	end
-	local ok, keys = pcall(function() return HttpService:JSONDecode(player:GetAttribute("TipsSeen") or "[]") end)
-	local seen = ok and typeof(keys) == "table" and table.find(keys, TOUR_KEY) ~= nil
-	if seen and not TEST then return end
-	if not player.Character then player.CharacterAdded:Wait() end
-	local t0 = os.clock()
-	while playerGui:FindFirstChild("OHULoading") and os.clock() - t0 < 90 do task.wait(0.5) end
-	task.wait(1.5)
-	start()
-end)
+-- (D-1523, user: "첫 접속엔 목표만") the first visit no longer started the tour by itself; D-1690 brought
+-- it back as the first thing a newcomer sees.
+-- (D-1980, 2026-11-21: 91 % of new players skipped it in the last 7 days) it no longer starts by itself:
+-- the first visit shows one card with three places instead (FirstCardController). The tour starts only
+-- from the guide rabbit's question (UiBus.StartTour, above).

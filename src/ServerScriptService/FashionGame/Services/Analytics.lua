@@ -23,6 +23,9 @@
 --               how far (로딩 중 | 가만히 | 걷기만 | the last activity done)
 --    LoadSecs   (value = seconds the loading screen was up) New | Back
 --    TourEnd    (value = the tour card reached, 1..18) 끝까지 | 건너뜀 / New | Back
+--    FirstCard  (value = seconds the first-visit card was up; D-1980) 클럽 | 사진 | 놀이공원 | 닫기 |
+--               다른 창 / 낮 | 밤 / New | Back. The card holds three places (FirstCardController);
+--               the tour starts only from the guide NPC since then.
 -- 2. Custom events (field 1 / 2 / 3):
 --    PlaceEnter        place / New|Back / Solo|Friends        each entry (not within 60 s of the last one there)
 --    Interact          activity / place / New·Solo ...        doing something (dance, eat, photo ...), once per
@@ -91,7 +94,7 @@ type State = {
 	lastSaveAt: number?, lastBooth: string?, recheckedBooth: string?, lastAlbum: number,
 	-- (D-1524) onboarding steps reached (sent once `newKnown`), first leave
 	newKnown: boolean, reached: {[number]: string}, loaded: boolean, moved: boolean,
-	spawnAt: Vector3?, lastAction: string?, tourEnded: boolean,
+	spawnAt: Vector3?, lastAction: string?, tourEnded: boolean, cardEnded: boolean,
 }
 local states: {[Player]: State} = {}
 local friends: {[number]: {[number]: boolean}} = {}
@@ -178,6 +181,7 @@ function Analytics.interact(player: Player, activity: string)
 	s.lastAction = activity -- (D-1524: FirstLeave's "how far")
 	if not s.interacted then
 		s.interacted = true
+		player:SetAttribute("Interacted", true) -- (D-1981: the opening attendance window waits for it)
 		onboarding(player, 4, "첫 상호작용") -- (D-1524: was step 2)
 		if s.new then
 			custom(player, "FirstInteractSecs", math.floor(os.clock() - s.joined + 0.5), nil)
@@ -295,7 +299,7 @@ local function onPlayer(player: Player)
 		playtime = 0, dwell3 = false, dwell10 = false,
 		lastSaveAt = nil, lastBooth = nil, recheckedBooth = nil, lastAlbum = -math.huge,
 		newKnown = false, reached = {}, loaded = false, moved = false,
-		spawnAt = nil, lastAction = nil, tourEnded = false,
+		spawnAt = nil, lastAction = nil, tourEnded = false, cardEnded = false,
 	}
 	states[player] = s
 	onboarding(player, 1, "접속")
@@ -386,6 +390,14 @@ function Analytics.Start(zoneFn: (Player) -> string?, balanceFn: (Player) -> num
 				if states[player] == s then custom(player, "LoadSecs", secs, fields(visitor(player))) end
 			end)
 			return
+		elseif step == "FirstCard" then -- (D-1980) the first-visit card: which place, or closed
+			if not s or s.cardEnded or typeof(arg) ~= "table" then return end
+			s.cardEnded = true
+			local CHOICES = { ["클럽"] = true, ["사진"] = true, ["놀이공원"] = true, ["닫기"] = true, ["다른 창"] = true }
+			local choice = if typeof(arg.choice) == "string" and CHOICES[arg.choice] then arg.choice else "닫기"
+			local secs = if typeof(arg.secs) == "number" and arg.secs == arg.secs then math.clamp(math.floor(arg.secs + 0.5), 0, 600) else 0
+			custom(player, "FirstCard", secs, fields(choice, if arg.night == true then "밤" else "낮", visitor(player)))
+			return
 		elseif step == "TourSkip" or step == "TourDone" then
 			if not s or s.tourEnded then return end
 			s.tourEnded = true
@@ -432,6 +444,7 @@ function Analytics.Start(zoneFn: (Player) -> string?, balanceFn: (Player) -> num
 							s.spawnAt = root.Position
 						elseif (root.Position - (s.spawnAt :: Vector3)).Magnitude > 20 then
 							s.moved = true
+							player:SetAttribute("Moved", true) -- (D-1981)
 							onboarding(player, 3, "첫 이동")
 						end
 					end
