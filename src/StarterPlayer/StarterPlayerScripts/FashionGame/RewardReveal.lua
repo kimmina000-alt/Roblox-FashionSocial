@@ -18,8 +18,6 @@ local Sfx = require(script.Parent:WaitForChild("Sfx"))
 
 local RewardReveal = {}
 
-local PINK = Color3.fromRGB(255, 92, 168)
-local INK = Color3.fromRGB(88, 50, 120)
 local WHITE = Color3.new(1, 1, 1)
 local BOLD = Font.new("rbxasset://fonts/families/GothamSSm.json", Enum.FontWeight.Heavy)
 
@@ -40,7 +38,9 @@ end
 
 local showing: ScreenGui? = nil
 
-function RewardReveal.show(kind: string)
+function RewardReveal.show(kind: string, event: any?)
+	-- (D-1874) the event the reward is from (colours, title, frame); the opening event by default
+	local ev: any = event or Config.Opening
 	if showing then showing:Destroy() end
 	local playerGui = Players.LocalPlayer:WaitForChild("PlayerGui")
 	local gui = create("ScreenGui", { Name = "RewardRevealGui", ResetOnSpawn = false, IgnoreGuiInset = true, DisplayOrder = 60 }, playerGui)
@@ -115,13 +115,13 @@ function RewardReveal.show(kind: string)
 	}, stage)
 	corner(card, 22)
 	create("UIStroke", { Color = WHITE, Thickness = 3 }, card)
-	create("UIGradient", { Rotation = 90, Color = ColorSequence.new(Color3.fromRGB(255, 226, 240), Color3.fromRGB(236, 226, 252)) }, card)
+	create("UIGradient", { Rotation = 90, Color = ColorSequence.new(ev.bgTop, ev.bgBottom) }, card)
 	local cardScale = create("UIScale", { Scale = 0.2 }, card)
 	tween(cardScale, 0.45, { Scale = 1 }, Enum.EasingStyle.Back)
 
 	local title = create("TextLabel", {
 		Position = UDim2.fromOffset(0, 12), Size = UDim2.new(1, 0, 0, 40), BackgroundTransparency = 1, FontFace = BOLD, TextSize = 34,
-		TextColor3 = PINK, Text = "짜잔! 🎉", ZIndex = 3,
+		TextColor3 = ev.accent, Text = "짜잔! 🎉", ZIndex = 3,
 	}, card)
 	create("UIStroke", { Color = WHITE, Thickness = 2 }, title)
 
@@ -134,20 +134,20 @@ function RewardReveal.show(kind: string)
 	if kind == "title" then
 		local plate = create("TextLabel", {
 			AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.fromScale(0.5, 0.5), Size = UDim2.fromOffset(280, 54),
-			BackgroundColor3 = Color3.fromRGB(40, 22, 12), BackgroundTransparency = 0.05, FontFace = BOLD, TextSize = 27,
-			TextColor3 = Color3.fromRGB(255, 170, 90), Text = Config.TitleText, ZIndex = 4,
+			BackgroundColor3 = ev.plate, BackgroundTransparency = 0.05, FontFace = BOLD, TextSize = 27,
+			TextColor3 = ev.plateText, Text = ev.TitleText, ZIndex = 4,
 		}, show)
 		corner(plate, 5)
-		create("UIStroke", { ApplyStrokeMode = Enum.ApplyStrokeMode.Border, Color = Color3.fromRGB(255, 150, 60), Thickness = 2 }, plate)
-		name = "한정 칭호 FOUNDING MEMBER 획득!"
+		create("UIStroke", { ApplyStrokeMode = Enum.ApplyStrokeMode.Border, Color = ev.plateEdge, Thickness = 2 }, plate)
+		name = ev.titleName
 		guide = "모두에게 보이는 내 이름 위에 칭호가 생겼어요 👑"
 	else
 		-- the frame as the booth draws it (2x2), with soft pink cells for the photos
 		local holder = create("Frame", { Size = UDim2.fromScale(1, 1), BackgroundTransparency = 1, ZIndex = 3 }, show)
-		local ok, strip = pcall(PhotoRender.newStrip, holder, "2x2", Config.FrameKey, "OHU")
+		local ok, strip = pcall(PhotoRender.newStrip, holder, "2x2", ev.FrameKey, "OHU")
 		if ok and strip then
 			for _, cell in ipairs(strip.cells) do
-				cell.BackgroundColor3 = Color3.fromRGB(255, 236, 244)
+				cell.BackgroundColor3 = ev.accentSoft
 				cell.BackgroundTransparency = 0
 			end
 			for _, d in ipairs(strip.frame:GetDescendants()) do
@@ -155,20 +155,20 @@ function RewardReveal.show(kind: string)
 			end
 			strip.frame.ZIndex += 3
 		end
-		name = "오픈 기념 한정 프레임 획득!"
+		name = ev.frameName
 		guide = "오후네컷에 가서 확인해 보세요 📸"
 	end
 	create("TextLabel", {
 		Position = UDim2.fromOffset(12, 246), Size = UDim2.new(1, -24, 0, 26), BackgroundTransparency = 1, FontFace = BOLD, TextSize = 19,
-		TextColor3 = PINK, Text = name, TextScaled = true, ZIndex = 3,
+		TextColor3 = ev.accent, Text = name, TextScaled = true, ZIndex = 3,
 	}, card)
 	create("TextLabel", {
 		Position = UDim2.fromOffset(12, 274), Size = UDim2.new(1, -24, 0, 22), BackgroundTransparency = 1, FontFace = BOLD, TextSize = 15,
-		TextColor3 = INK, Text = guide, TextScaled = true, ZIndex = 3,
+		TextColor3 = ev.ink, Text = guide, TextScaled = true, ZIndex = 3,
 	}, card)
 	local ok = create("TextButton", {
 		AnchorPoint = Vector2.new(0.5, 1), Position = UDim2.new(0.5, 0, 1, -14), Size = UDim2.fromOffset(150, 40),
-		BackgroundColor3 = PINK, FontFace = BOLD, TextSize = 18, TextColor3 = WHITE, Text = "확인", ZIndex = 3,
+		BackgroundColor3 = ev.accent, FontFace = BOLD, TextSize = 18, TextColor3 = WHITE, Text = "확인", ZIndex = 3,
 	}, card)
 	corner(ok, 20)
 	create("UIStroke", { ApplyStrokeMode = Enum.ApplyStrokeMode.Border, Color = WHITE, Thickness = 2 }, ok)

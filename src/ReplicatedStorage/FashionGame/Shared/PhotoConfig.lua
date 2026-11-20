@@ -6,7 +6,7 @@ export type Layout = { key: string, name: string, cols: number, rows: number }
 -- price: "free" | "coins" (EconomyConfig coin price, unlocked forever) |
 -- "pass" (Game Pass MonetizationConfig.GamePasses.FramePack).
 -- style: "solid" | "gloss" (shine gradient) | "glitter" (sparkles).
-export type Frame = { key: string, name: string, color: Color3, text: Color3, tab: string, price: string, coins: number?, style: string, stickers: {string}?, neon: Color3?, art: any?, hideAfter: number? }
+export type Frame = { key: string, name: string, color: Color3, text: Color3, tab: string, price: string, coins: number?, style: string, stickers: {string}?, neon: Color3?, art: any?, hideAfter: number?, showFrom: number?, eventButton: string?, eventNote: string? }
 
 local PhotoConfig = {}
 
@@ -106,6 +106,19 @@ PhotoConfig.Frames = {
 	{ key = "sage", name = "세이지", color = Color3.fromRGB(185, 215, 175), text = Color3.fromRGB(50, 70, 45), tab = "파스텔", price = "coins", coins = 100, style = "solid" },
 	{ key = "aqua", name = "아쿠아", color = Color3.fromRGB(160, 228, 235), text = Color3.fromRGB(30, 70, 80), tab = "파스텔", price = "coins", coins = 100, style = "solid" },
 	{ key = "cream", name = "크림", color = Color3.fromRGB(248, 236, 210), text = Color3.fromRGB(110, 90, 60), tab = "파스텔", price = "coins", coins = 100, style = "solid" },
+	-- (D-1874) the winter attendance event's limited frame (오후의 첫눈, the 7th attendance): a snow
+	-- lace frame drawn by tools/art/winter_frame (draft art; the user may send their own drawing).
+	-- Shown from the event's start (2026-12-04 05:00 KST); after its end (2027-01-01 05:00 KST) only
+	-- to the people who got it.
+	{ key = "winter2026", name = "겨울 첫눈", color = Color3.fromRGB(214, 232, 252), text = Color3.fromRGB(60, 100, 160), tab = "특별한", price = "event", style = "art",
+		showFrom = DateTime.fromUniversalTime(2026, 12, 3, 20, 0, 0).UnixTimestamp,
+		hideAfter = DateTime.fromUniversalTime(2026, 12, 31, 20, 0, 0).UnixTimestamp,
+		eventButton = "🎁 겨울 출석 7회 보상",
+		eventNote = "겨울 출석 이벤트 '오후의 첫눈'에서 7번 출석하면 받는 한정 프레임이에요.",
+		art = {
+			["1x4"] = { image = "rbxassetid://99512009938400", x = -0.1170, y = -0.0363, w = 1.2340, h = 1.0726 },
+			["2x2"] = { image = "rbxassetid://88656478489532", x = -0.0608, y = -0.0651, w = 1.1215, h = 1.1302 },
+		} },
 	-- (D-1366) the opening event's limited frame: the 7th attendance gives it (price "event",
 	-- never sold). (D-1412, user 2026-11-14: "출석 이벤트 프레임 이거 누끼 따서 사용하자") the user's
 	-- drawing (pink lace frame, ribbon, bears, OHU), cut out and fitted to each layout's cells
@@ -117,6 +130,8 @@ PhotoConfig.Frames = {
 	{ key = "opening2026", name = "오픈 기념", color = Color3.fromRGB(255, 196, 222), text = Color3.fromRGB(150, 70, 140), tab = "특별한", price = "event", style = "art",
 		-- (D-1873) after the event (2026-12-04 05:00 KST) only the people who got it see it
 		hideAfter = DateTime.fromUniversalTime(2026, 12, 3, 20, 0, 0).UnixTimestamp,
+		eventButton = "🎁 오픈 출석 7회 보상",
+		eventNote = "오픈 출석 이벤트에서 7번 출석하면 받는 한정 프레임이에요.",
 		art = {
 			["1x4"] = { image = "rbxassetid://85072257228927", x = -0.4443, y = -0.0509, w = 1.7949, h = 1.0317 },
 			["2x2"] = { image = "rbxassetid://130617292038177", x = -0.0776, y = -0.1560, w = 1.1635, h = 1.1068 },
