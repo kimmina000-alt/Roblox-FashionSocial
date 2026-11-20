@@ -48,17 +48,17 @@ local STEPS: {Step} = {
 		} },
 	{ title = "🎧 OHU CLUB", text = "오후 클럽은 밤(18:00~6:00)에만 문을 열어. 함께 춤추고 놀 수 있는 핫플레이스야. 각종 케이팝 안무를 따라 추고, DJ가 되면 플레이리스트와 조명을 내 마음대로 운영할 수 있어.",
 		eye = Vector3.new(-30, 38, -185), look = Vector3.new(60, 6, -205) },
-	{ title = "🍲 오후 돼지국밥", text = "열심히 춤추고 놀아서 출출해지면 오는 국밥집이야. 맛있는 국밥과 수육을 팔아. 국밥 좋아하니?",
+	{ title = "🍲 오후 돼지국밥", text = "열심히 춤추고 놀아서 출출해지면 오는 국밥집이야. 맛있는 국밥과 수육을 팔아. 음식을 먹으면 경험치(XP)도 올라! 국밥 좋아하니?",
 		eye = Vector3.new(10, 42, -295), look = Vector3.new(88, 14, -334) },
 	-- (D-1547) the park is open
 	{ title = "🎡 OHU LAND", text = "짜잔! 놀이공원이 문을 열었어! 바이킹, 회전컵, 관람차, 범퍼카를 타면서 놀자. 개장 기념으로 무료 풍선을 주고 있대.",
 		eye = Vector3.new(-97, 48, -200), look = Vector3.new(-97, 28, -290) },
 	{ title = "🏖 해변", text = "파도 소리 듣고 싶을 때 오는 해변이야. 날이 좋을 때는 튜브 타면서 물놀이도 하고 비치볼도 던지면서 놀아.",
 		eye = Vector3.new(-350, 13, -14), look = Vector3.new(-250, -5, -36), fov = 32 }, -- (D-1367: from the sea, tubes and parasols together)
-	{ title = "☕ OHU CAFE · Sunset", text = "옆에는 바다가 한눈에 보이는 카페가 있어. 달달한 디저트와 카페인 수혈이 필요할 때마다 오는 곳이야. 카페에서 일하면 코인도 벌 수 있어.",
+	{ title = "☕ OHU CAFE · Sunset", text = "옆에는 바다가 한눈에 보이는 카페가 있어. 달달한 디저트와 카페인 수혈이 필요할 때마다 오는 곳이야. 카페에서 일하면 코인도 벌 수 있어. 사 먹은 음식과 음료는 경험치(XP)도 올려 줘!",
 		eye = Vector3.new(-284, 12, 338), look = Vector3.new(-330, 9, 300),
 		path = { { eye = Vector3.new(-292, 17, 318), look = Vector3.new(-440, 4, 280), t = 3.2 } } }, -- (D-1367: inside, out to the sea through the glass wall)
-	{ title = "🏪 OH24 편의점", text = "물놀이 후에는 역시 컵라면이지. 편의점에서는 과자, 아이스크림, 컵라면, 삼각김밥을 팔고 있어. 친구바는 친구랑 반씩 나눠 먹을 수도 있어~",
+	{ title = "🏪 OH24 편의점", text = "물놀이 후에는 역시 컵라면이지. 편의점에서는 과자, 아이스크림, 컵라면, 삼각김밥을 팔고 있어. 친구바는 친구랑 반씩 나눠 먹을 수도 있어~ 먹을수록 경험치(XP)도 쑥쑥!",
 		eye = Vector3.new(-5, 40, 95), look = Vector3.new(-70, 10, 140) },
 	{ title = "🏯 광화문", text = "이곳은 야경이 예쁜 광화문이야. 개장을 기다리고 있지. 두근두근.",
 		-- (D-1367) from the plaza in front, a little low: the inside (still being built) is not seen

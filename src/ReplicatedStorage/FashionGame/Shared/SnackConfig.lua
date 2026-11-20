@@ -190,7 +190,7 @@ SnackConfig.Shops = {
 		key = "Gukbap",
 		title = "오후 돼지국밥",
 		prompt = "주문하기",
-		hint = "뚝배기를 들고 자리에 앉아서 드세요. 공깃밥·김치는 무료예요.",
+		hint = "뚝배기를 들고 자리에 앉아서 드세요. 공깃밥·김치는 무료예요. 사 먹으면 XP가 올라요 ⭐", -- (D-1922)
 		items = {
 			{ key = "water", name = "물", kind = "cup", color = Color3.fromRGB(205, 230, 245), section = FREE },
 			{ key = "rice", name = "공깃밥", kind = "ricebowl", color = Color3.fromRGB(252, 252, 248), section = FREE },
