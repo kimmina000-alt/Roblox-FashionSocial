@@ -263,13 +263,15 @@ M.Playlist = {
 		-- before by about 2 s and `blend` covers the overlap, so the seam crossfades the same moment of the same dancer.
 		-- Clips + sources: D:\Roblox\영상\aespa_Lemonade_v3_single\clips\메모.txt. Old list (v2, 22 pieces, 12 member changes):
 		-- tools/choreo/backups/lemonade_v2_choreo.lua. Play scan 5-176 s: tremble events 865 -> 213, notable 152 -> 50, snaps 0 / 0.
+		-- (D-1961) where the dancer changes (intro -> 2, 10 -> 11, 11 -> 12, 14 -> 15, 15 -> 16) and the SBS -> MBC floor rise (16 -> 17)
+		-- the next piece comes in at the overlap moment whose poses are closest (joint gap scan), with `from` and a short blend
 		choreo = { { id = 107871857436267, from = 1.45 },
-			{ id = 112046163419694, at = 5, blend = 1.85 }, { id = 77152170951340, at = 10, blend = 2 }, { id = 98395241216132, at = 22.5, blend = 2 },
+			{ id = 112046163419694, at = 6.5, from = 1.5, blend = 0.35 }, { id = 77152170951340, at = 10, blend = 2 }, { id = 98395241216132, at = 22.5, blend = 2 },
 			{ id = 105689578186345, at = 35, blend = 2 }, { id = 103313535582707, at = 44.5, blend = 2 }, { id = 136573199349283, at = 57, blend = 2 },
 			{ id = 104433202165131, at = 67.5, blend = 2 }, { id = 121733212551700, at = 80, blend = 2 }, { id = 135684881711516, at = 84.5, blend = 1.7 },
-			{ id = 119706515996739, at = 93.5, blend = 2 }, { id = 102178089107461, at = 101.3, blend = 2 }, { id = 116451294316978, at = 113.5, blend = 2 },
-			{ id = 112521190266317, at = 119.5, blend = 1.8 }, { id = 126596392429323, at = 125.5, blend = 1.5 }, { id = 106681280470448, at = 133.5, blend = 0.5 },
-			{ id = 79654105377858, at = 143.5, blend = 2 }, { id = 108871293297197, at = 149, blend = 2 }, { id = 80738708971610, at = 157.5, blend = 2 },
+			{ id = 119706515996739, at = 94.8, from = 1.3, blend = 0.4 }, { id = 102178089107461, at = 102.9, from = 1.6, blend = 0.35 }, { id = 116451294316978, at = 113.5, blend = 2 },
+			{ id = 112521190266317, at = 119.5, blend = 1.8 }, { id = 126596392429323, at = 125.9, from = 0.4, blend = 0.35 }, { id = 106681280470448, at = 133.5, blend = 1.5 },
+			{ id = 79654105377858, at = 145, from = 1.5, blend = 0.4 }, { id = 108871293297197, at = 149, blend = 2 }, { id = 80738708971610, at = 157.5, blend = 2 },
 			{ id = 102548402613420, at = 169.5, blend = 2 } }, autoChoreo = true },
 	-- (D-779, user 2026-11-03: new uploads "다섯시…분1102"; tempo = x1 length ÷ heard length, boost 3, -3/2/0)
 	-- (D-922, user 2026-11-06: new upload from the lab; was 97511700575810, a 3× file of 73.770 s) the new
