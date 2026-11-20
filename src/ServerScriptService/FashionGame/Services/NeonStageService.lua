@@ -26,16 +26,33 @@ local function anyoneOnStage(): boolean
 end
 
 -- (D-1820) a random song with a choreography, not the one just played
+-- (D-1884, user 2026-11-20: "공터 단상에 네온 노래 더 자주 나오게 해 줘 3~4곡 걸러서 한 번 나오게") NEON
+-- (NeonStageConfig.SoundId) comes back after 3 or 4 other songs (NeonStageConfig.NeonEvery); the songs
+-- between are drawn at random from the rest. The first song of a server is NEON.
 local lastId: number? = nil
+local othersSinceNeon = math.huge
+local othersGap = 0
 local function pick(): any
 	local list = NeonStageConfig.tracks()
-	if #list == 0 then return NeonStageConfig.trackById(NeonStageConfig.SoundId) end
+	local neon = NeonStageConfig.trackById(NeonStageConfig.SoundId)
+	if #list == 0 then return neon end
+	if neon and othersSinceNeon >= othersGap then
+		othersSinceNeon = 0
+		local every = NeonStageConfig.NeonEvery
+		othersGap = math.random(every[1], every[2])
+		lastId = neon.soundId
+		return neon
+	end
 	local choices = {}
 	for _, t in ipairs(list) do
-		if t.soundId ~= lastId or #list == 1 then table.insert(choices, t) end
+		if t.soundId ~= NeonStageConfig.SoundId and t.soundId ~= lastId then table.insert(choices, t) end
+	end
+	if #choices == 0 then
+		for _, t in ipairs(list) do table.insert(choices, t) end
 	end
 	local t = choices[math.random(1, #choices)]
 	lastId = t.soundId
+	othersSinceNeon += 1
 	return t
 end
 
