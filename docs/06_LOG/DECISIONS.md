@@ -6837,3 +6837,9 @@ Studio only (no script yet).
 ## D-1877 Attendance window clear of Roblox's top buttons (2026-11-21)
 - User (phone shot: the header "한국의 오후 · OHU GRAND OPENING" under Roblox's ☰ / 💬): "고쳐".
 - OpeningEventController: the window is placed between GuiService.TopbarInset's bottom (+6) and the screen's bottom, centred there, at most 680 x 420 (was centred on the whole screen at 86 % height); re-placed when the inset or the viewport changes.
+
+
+## D-1806 카탈로그: 아이템 칸을 누르면 입기, 아래 버튼 = 자세히 (2026-11-20)
+- 계기: 일본 플레이어 의견 "돈 안 내면 옷을 못 갈아입음"(입어보기가 무료인데 못 찾음). 사용자: "카탈로그에 wear 버튼을 아이템 자세히 보기 버튼으로 고치고 아이템 칸 자체를 누르면 아이템 입을 수 있게 수정하고. (현재는 반대임) 카탈로그 버튼 설명할 때 옷 입는 법 설명 추가."
+- CatalogController createItemCard: ImageHitArea가 버튼 위 카드 전체(사진 + 이름 + 가격)를 덮고, 한 번 누르면 0.5초 뒤(두 번 누르기 = ★ 즐겨찾기 창이 지난 뒤) 입기 / 벗기(cardAction = 예전 WEAR 버튼 동작; 번들은 구성 보기, 입을 수 없는 종류는 "이 종류의 아이템은 아직 착용할 수 없습니다." 토스트). 아래 버튼은 늘 "자세히"(ItemDetail 창). 입은 아이템은 보라색 버튼 + 보라색 테두리(UIStroke).
+- 투어의 👗 카탈로그 설명에 입는 법: "아이템 칸을 누르면 바로 입고, 한 번 더 누르면 벗을 수 있어. 아래 자세히 버튼으로 아이템 정보를 볼 수 있어." 16개 언어 + "자세히" 번역 추가.
