@@ -67,8 +67,9 @@ local STEPS: {Step} = {
 	{ title = "🕐 시계", text = "지금이 몇 시인지 알 수 있는 동네 시계야. 클럽에 가고 싶으면 시간을 꼭 확인해야 해.", button = 11, quiet = true },
 	{ title = "₩ 코인", text = "내 지갑이야. 접속만 하고 있어도 1분마다 1코인이 쌓여. 카페 알바를 하면 더 벌 수 있어.", button = 10, quiet = true },
 	{ title = "♥ 후원", text = "동네 발전을 위해 응원하는 후원 창이야. 후원하면 모두의 화면에 내 이름과 메시지가 떠.", button = 5, quiet = true },
-	-- (D-1367, user: many players stay in the default look) the free part first and plainly
-	{ title = "👗 카탈로그", text = "무료로 캐릭터를 꾸밀 수 있는 카탈로그야. 내 마음대로 예쁘게 꾸미고 자랑해 봐. 마음에 드는 착장은 옷장에 저장해 놓고 바꿔 입을 수 있어.", button = 4, quiet = true },
+	-- (D-1367, user: many players stay in the default look) the free part first and plainly;
+	-- (D-1806, user 2026-11-20: "카탈로그 버튼 설명할 때 옷 입는 법 설명 추가") how to put clothes on
+	{ title = "👗 카탈로그", text = "무료로 캐릭터를 꾸밀 수 있는 카탈로그야. 아이템 칸을 누르면 바로 입고, 한 번 더 누르면 벗을 수 있어. 아래 자세히 버튼으로 아이템 정보를 볼 수 있어. 마음에 드는 착장은 옷장에 저장해 놓고 바꿔 입을 수 있어.", button = 4, quiet = true },
 	{ title = "🎒 가방", text = "what's in my bag~! 내 가방이야. 내가 산 아이템들과 찍은 사진을 다시 보고 싶을 때는 여기를 누르면 돼.", button = 3, quiet = true },
 	{ title = "♪ 음악 · 춤", text = "클럽에 들어가지 않아도 클럽에서 재생 중인 노래를 들을 수 있어. 예쁜 야외 배경을 무대 삼아 아이돌처럼 춤출 수 있어.", button = 1, quiet = true },
 	{ title = "💬 의견 보내기", text = "불편한 점이나 바라는 점을 개발자에게 보낼 수 있어.", button = 2, quiet = true },
