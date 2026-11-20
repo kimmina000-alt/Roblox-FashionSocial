@@ -27,7 +27,11 @@ ReplicatedFirst:RemoveDefaultLoadingScreen()
 
 local SCENE_SECONDS = 7 -- each place stays this long
 local FADE = 2.2 -- the dissolve
-local MIN_SECONDS = 8
+-- (D-1553, live LoadSecs: new players ~11 s, returning 8-10 s; 16 % of new players
+-- left during loading) 8 → 3: the screen stayed up 8 s even when the game was
+-- ready in 3. It now closes once the game is loaded, the player's character stands
+-- in the world and at least MIN_SECONDS have passed (so the first scene is seen).
+local MIN_SECONDS = 3
 local MAX_SECONDS = 40 -- never keep a player out longer than this
 local BEAM = "rbxassetid://109650761162030"
 
@@ -363,9 +367,12 @@ connection = RunService.RenderStepped:Connect(function()
 		end
 	end
 	-- progress
-	local loaded = game:IsLoaded()
+	-- (D-1553) ready = loaded and the character stands in the world (not the void)
+	local character = player.Character
+	local charRoot = character and character:FindFirstChild("HumanoidRootPart")
+	local loaded = game:IsLoaded() and charRoot ~= nil and charRoot:IsDescendantOf(workspace)
 	local target = if loaded then 1 else math.clamp(1 - ContentProvider.RequestQueueSize / startQueue, 0.05, 0.92)
-	shown += (target - shown) * 0.06
+	shown += (target - shown) * (if loaded then 0.2 else 0.06) -- (D-1553: the bar fills fast once ready)
 	fill.Size = UDim2.fromScale(math.clamp(shown, 0, 1), 1)
 	status.Text = if loaded and shown > 0.98 then "준비 완료!" else string.format("불러오는 중… %d%%", math.floor(shown * 100))
 	skip.Visible = loaded

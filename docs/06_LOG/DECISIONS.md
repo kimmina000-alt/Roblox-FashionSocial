@@ -6666,3 +6666,7 @@ Studio only (no script yet).
 - user 2026-11-20: "공터 단상에 네온 노래 더 자주 나오게 해 줘 3~4곡 걸러서 한 번 나오게".
 - NeonStageService.pick(): 서버의 첫 곡은 NEON. 그 뒤 다른 안무 곡을 무작위로 3곡 또는 4곡(NeonStageConfig.NeonEvery = {3, 4}, 매번 새로 뽑음) 틀고 다시 NEON. 그 사이 곡에는 NEON이 안 나오고, 바로 앞 곡도 다시 안 나옴.
 - 안무가 생긴 곡은 따로 등록하지 않아도 단상 목록에 들어감(NeonStageConfig.tracks()가 곡을 고를 때마다 ClubPlaylist를 읽음; 여러 클립을 이은 곡만 빠짐).
+
+## D-1553 (2026-11-21) 로딩 화면: 최소 8초 → 3초, 캐릭터가 서면 닫힘
+- Task from the progress session (user approved, 11-21): shorter loading and fewer out-of-memory exits. Dashboard after publishing (11-20..21): LoadSecs about 11 s for new players and 8-10 s for returning ones; onboarding 1 접속 → 2 로딩 끝 84 % (907 new players, 16 %, left during loading); out-of-memory exits on phones / tablets about one per 30 min; client memory 1.35 GB on average.
+- LoadingScreen kept the screen up at least MIN_SECONDS = 8 even when the game was ready sooner, so returning players' 8-10 s was mostly that floor. MIN_SECONDS 8 → 3; "ready" = game:IsLoaded() and the player's HumanoidRootPart in Workspace (no view of the void); the bar fills 0.2 a frame once ready (was 0.06, about 1.4 s at 30 fps). MAX_SECONDS 40 and the 건너뛰기 button are unchanged. The spawn / tour / first-screen code of the main session is not touched.
