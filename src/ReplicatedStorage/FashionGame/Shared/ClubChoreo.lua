@@ -39,7 +39,9 @@ M.ChoreoKeepDetail = { "LeftHand", "RightHand", "LeftFoot", "RightFoot" } :: {st
 -- then only the poses that hold the shape (within `tol` degrees, at least one every `maxGap` s)
 -- stay and the rest are rebuilt on a smooth curve through them. A piece's ChoreoFixes `sharp`
 -- skips it. Studio: FashionGame attribute ChoreoReduceOff = the old clean-ups. nil = off.
-M.ChoreoReduce = { spike = 4, tol = 8, maxGap = 0.6, keep = { "Head", "LeftHand", "RightHand", "LeftFoot", "RightFoot" } } :: any
+-- (D-1972, 2nd pass) post = true: the shake / average clean-ups still run on the reduced curve (reduction alone made
+-- more fast moments in the real playback: NEON +21 %, Lemonade +23 %, measured by 안무 (3) 편집)
+M.ChoreoReduce = { spike = 4, tol = 8, maxGap = 0.6, post = true, keep = { "Head", "LeftHand", "RightHand", "LeftFoot", "RightFoot" } } :: any
 M.ChoreoRetarget = true
 
 -- (D-817) a dancer following a choreography walks its dance path (D-813),

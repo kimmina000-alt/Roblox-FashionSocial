@@ -438,7 +438,7 @@ function ChoreoSmooth.load(animationId: string)
 			local reduceOff = game:GetService("RunService"):IsStudio() and ReplicatedStorage.FashionGame:GetAttribute("ChoreoReduceOff")
 			local reduced = rd ~= nil and not reduceOff and not (rd.keep and table.find(rd.keep, part)) and not (fixes and fixes.sharp) and #s.raw >= 4
 			local cleaned = if reduced then reduce(s.raw, s.times, rd) elseif settings and not keep then clean(s.raw, settings.maxStep, settings.passes) else nil
-			if reduced then keep = true end
+			if reduced and not rd.post then keep = true end -- (`post`: the shake / average clean-ups below still run on the reduced curve)
 			-- (D-851) pieces the user saw tremble: the slower wobble too
 			if fixes and fixes.calm and ClubConfig.ChoreoCalm and part ~= "LowerTorso" and not keep then
 				cleaned = calm(cleaned or s.raw, s.raw, ClubConfig.ChoreoCalm) or cleaned
