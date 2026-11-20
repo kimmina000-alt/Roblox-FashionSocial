@@ -223,7 +223,8 @@ M.Playlist = {
 	-- (D-1060, user 2026-11-09: "레몬탱1 : 122848199967536, 레몬탱 15 : 98655639854740") now they have (8.50 / 4.20 s). The upload
 	-- ends at 161.9 s (the video runs to 169), so clip 28 (168.45) is left out.
 	{ channel = "K-POP", title = "Lemon Tang-Hearts2Hearts", soundId = 97032815457241, length = 54, lab = { speed = 1, tempo = 0.333, volume = 10, boost = 10, boost2 = 10, octave = 0.5, low = -40, mid = -25, high = -40, engine = "sound" }, choreo = {
-		{ id = 122848199967536, at = 0 }, { id = 100331751999626, at = 8.53, blend = 0.5 }, { id = 131067900968920, at = 13.02, blend = 1 }, { id = 79127181604364, at = 16.65, blend = 0.8 },
+		-- (D-1945, 2nd review lt_0m13: the video lifts both hands beside the head at 0:13.4, the game at 0:14.0) piece 3 starts 0.45 s earlier (13.02 → 12.57)
+		{ id = 122848199967536, at = 0 }, { id = 100331751999626, at = 8.53, blend = 0.5 }, { id = 131067900968920, at = 12.57, blend = 1 }, { id = 79127181604364, at = 16.65, blend = 0.8 },
 		{ id = 101333518191621, at = 24.37, blend = 0.8 }, { id = 70997868814427, at = 26.97, blend = 1 }, { id = 94645609133900, at = 40.17, blend = 0.6 },
 		{ id = 124676885767926, at = 49.8, blend = 0.84 }, { id = 72328693870219, at = 56.03, blend = 0.88 }, { id = 115675906513114, at = 60.02, blend = 1 },
 		{ id = 74892270940916, at = 65, blend = 0.94 }, { id = 119643676032061, at = 68, blend = 0.83 }, { id = 110925421163686, at = 73.07, blend = 0.5 },
