@@ -3954,4 +3954,15 @@ do
 	f.plant = list
 end
 
+-- (D-1953, 2nd review of Lemonade final3: 2:36.2-2:37.0 the right foot slid 1.7 studs; the capture lifts it a little over
+-- the 0.45 contact height there, so the noStep hold (D-1967) let it go and it slid near the floor) a higher contact height
+-- for that stretch keeps it held (no steps: D-1967, the user found steps hopping in 2:30-2:37). Put first.
+do
+	local f = (M.ChoreoFixes[116980798181063] or {}) :: any
+	M.ChoreoFixes[116980798181063] = f
+	local list = if f.plant == nil then {} elseif f.plant.from then { f.plant } else table.clone(f.plant)
+	table.insert(list, 1, { from = 5.0, to = 6.3, contact = 0.75, noStep = true })
+	f.plant = list
+end
+
 return M
