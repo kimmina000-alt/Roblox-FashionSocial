@@ -9,6 +9,10 @@
 --     TimePosition): Perfect / Great / Miss, combo;
 --   * the result: grade S / A / B, score, counts, best combo ("Finish": the server checks it).
 -- While playing: no walking (WalkSpeed 0), the phone's stick / jump button and the item hotbar hidden.
+-- (D-1817, step 2) today's song by the day (DanceScoreConfig.todaySong), my best / rank today in the windows,
+-- the top notice "🎵 오늘의 곡에 도전하세요!" (DanceScoreNotice "Announce", every 15 min, only to who
+-- can go now; a tap draws the way to the stage, UiBus.ShowWay "neon"), and the TOP 10 board on the
+-- bus stop's back wall (Workspace part tagged DanceTopBoard; FashionGame attribute DanceTop).
 
 local ContextActionService = game:GetService("ContextActionService")
 local GuiService = game:GetService("GuiService")
@@ -24,6 +28,9 @@ local ClubConfig = require(Shared:WaitForChild("ClubConfig"))
 local NeonStageConfig = require(Shared:WaitForChild("NeonStageConfig"))
 local DanceScoreConfig = require(Shared:WaitForChild("DanceScoreConfig"))
 local TopBar = require(script.Parent:WaitForChild("TopBar"))
+local UiBus = require(script.Parent:WaitForChild("UiBus"))
+local CollectionService = game:GetService("CollectionService")
+local HttpService = game:GetService("HttpService")
 
 local player = Players.LocalPlayer
 local playerGui = player:WaitForChild("PlayerGui")
@@ -75,7 +82,7 @@ local function button(parent: Instance, text: string, fill: Color3?, textColor: 
 end
 
 local function track(): ClubConfig.Track?
-	return NeonStageConfig.trackById(DanceScoreConfig.TodaySong)
+	return NeonStageConfig.trackById(DanceScoreConfig.todaySong())
 end
 local function onStage(): boolean
 	local character = player.Character
@@ -327,7 +334,16 @@ local function showResult(r: Run, serverResult: any)
 	end
 	gradeLabel.Text = grade
 	resultScore.Text = tostring(score)
-	resultNote.Text = if typeof(serverResult) == "table" then "오늘의 순위는 곧 열려요" else "점수를 서버에 남기지 못했어요"
+	if typeof(serverResult) == "table" then
+		local parts = {}
+		if serverResult.newBest then table.insert(parts, "🎉 내 최고 기록!") end
+		if typeof(serverResult.rank) == "number" then table.insert(parts, string.format("오늘 %d위", serverResult.rank)) end
+		if typeof(serverResult.best) == "number" then table.insert(parts, string.format("내 최고 %d점", serverResult.best)) end
+		if typeof(serverResult.coins) == "number" and serverResult.coins > 0 then table.insert(parts, string.format("+%d 코인", serverResult.coins)) end
+		resultNote.Text = table.concat(parts, " · ")
+	else
+		resultNote.Text = "점수를 서버에 남기지 못했어요"
+	end
 	countValues[1].Text = tostring(r.perfect)
 	countValues[2].Text = tostring(r.great)
 	countValues[3].Text = tostring(r.miss)
@@ -455,7 +471,10 @@ entry.Activated:Connect(function()
 	if not t or not info then return end
 	startTitle.Text = info.title
 	startInfo.Text = string.format("%s · 약 %d분 · 표시 %d개", info.artist, math.floor(NeonStageConfig.realLength(t) / 60 + 0.5), #DanceScoreConfig.chart(t))
-	startBest.Text = "오늘의 순위 · 칭호는 곧 열려요"
+	local best = player:GetAttribute("DanceBest")
+	startBest.Text = if typeof(best) == "number" and player:GetAttribute("DancePlayedDay") == DanceScoreConfig.dayKey()
+		then string.format("오늘 내 최고 %d점 · 1~3위는 하루 칭호", best)
+		else "오늘의 TOP 10 · 1~3위는 하루 칭호 · 첫 도전 +" .. DanceScoreConfig.ParticipationCoins .. " 코인"
 	layout()
 	startPanel.Visible = true
 end)
@@ -474,3 +493,107 @@ player.CharacterAdded:Connect(function()
 		setPlayMode(false)
 	end
 end)
+
+--------------------------------------------------------------------------
+-- (D-1817) the top notice: "🎵 오늘의 곡에 도전하세요!" like the cold spark lines (20 px, blinking), a tap
+-- draws the dashed way to the neon stage
+local joinedAt = os.clock()
+local notice = button(gui, "🎵 오늘의 곡에 도전하세요!", nil, YELLOW, BODY, 20)
+notice.Name = "Notice"
+notice.AnchorPoint = Vector2.new(0.5, 0)
+notice.Size = UDim2.fromOffset(340, 34)
+notice.TextStrokeColor3 = Color3.new(0, 0, 0)
+notice.TextStrokeTransparency = 0
+notice.Visible = false
+do local st = notice:FindFirstChildOfClass("UIStroke") if st then st:Destroy() end end
+local noticeId = 0
+local function canNotice(): boolean
+	if run or startPanel.Visible or result.Visible then return false end
+	if os.clock() - joinedAt < DanceScoreConfig.AnnounceMinOnline then return false end
+	if player:GetAttribute("DancePlayedDay") == DanceScoreConfig.dayKey() then return false end
+	local character = player.Character
+	local root = character and character:FindFirstChild("HumanoidRootPart")
+	local humanoid = character and character:FindFirstChildOfClass("Humanoid")
+	if not root or not root:IsA("BasePart") or not humanoid then return false end
+	if humanoid.SeatPart or humanoid.Sit then return false end -- (rides, seats)
+	if character:GetAttribute("PhotoBooth") ~= nil then return false end -- (shooting in 오후네컷)
+	if player:GetAttribute("InClubLocal") == true or ClubConfig.isInClub(root.Position) then return false end
+	local c = NeonStageConfig.Center
+	if Vector3.new(root.Position.X - c.X, 0, root.Position.Z - c.Z).Magnitude < DanceScoreConfig.AnnounceNear then return false end
+	return true
+end
+local noticeRemote = FashionGame:WaitForChild("Remotes"):WaitForChild("DanceScoreNotice", 60) :: RemoteEvent?
+if noticeRemote then
+	noticeRemote.OnClientEvent:Connect(function(kind: any)
+		if kind ~= "Announce" or not canNotice() or not track() then return end
+		noticeId += 1
+		local id = noticeId
+		notice.Position = UDim2.new(0.5, 0, 0, TopBar.bottom() + 8)
+		notice.Visible = true
+		local t0 = os.clock()
+		while notice.Visible and noticeId == id and os.clock() - t0 < DanceScoreConfig.AnnounceSeconds do
+			notice.TextTransparency = if (os.clock() - t0) % 0.75 < 0.45 then 0 else 0.7
+			task.wait(0.05)
+		end
+		if noticeId == id then notice.Visible = false end
+	end)
+end
+notice.Activated:Connect(function()
+	notice.Visible = false
+	noticeId += 1
+	UiBus.ShowWay:Fire("neon")
+end)
+
+--------------------------------------------------------------------------
+-- (D-1817) the TOP 10 board on the bus stop's back wall (A 네온 클럽): drawn on this screen
+-- (SurfaceGui in PlayerGui, Adornee = the tagged part) from FashionGame attribute DanceTop
+local boards: {[BasePart]: { rows: {TextLabel}, title: TextLabel, empty: TextLabel }} = {}
+local function fillBoards()
+	local ok, list = pcall(function() return HttpService:JSONDecode(FashionGame:GetAttribute("DanceTop") or "[]") end)
+	if not ok or typeof(list) ~= "table" then list = {} end
+	local info = DanceScoreConfig.Songs[FashionGame:GetAttribute("DanceTopSong") or DanceScoreConfig.todaySong()]
+	for _, b in pairs(boards) do
+		b.title.Text = if info then (info.title .. " · " .. info.artist) else ""
+		b.empty.Visible = #list == 0
+		for i, row in ipairs(b.rows) do
+			local e = list[i]
+			row.Text = if e then string.format("%2d  %s", i, tostring(e.n)) else ""
+			row.Visible = e ~= nil
+			local score = row:FindFirstChild("Score") :: TextLabel?
+			if score then score.Text = if e then tostring(e.s) else "" end
+			row.TextColor3 = if i == 1 then YELLOW elseif i <= 3 then Color3.fromRGB(255, 160, 210) else Color3.new(1, 1, 1)
+		end
+	end
+end
+local function addBoard(part: Instance)
+	if not part:IsA("BasePart") or boards[part] or not part:IsDescendantOf(workspace) then return end
+	local sg = make("SurfaceGui", { Name = "DanceTopBoardGui", Adornee = part, Face = Enum.NormalId.Right, SizingMode = Enum.SurfaceGuiSizingMode.PixelsPerStud,
+		PixelsPerStud = 50, LightInfluence = 0, Brightness = 1.6, ResetOnSpawn = false, ZIndexBehavior = Enum.ZIndexBehavior.Sibling }, playerGui)
+	local root = make("Frame", { Size = UDim2.fromScale(1, 1), BackgroundColor3 = Color3.fromRGB(11, 7, 20) }, sg)
+	make("UIPadding", { PaddingLeft = UDim.new(0, 24), PaddingRight = UDim.new(0, 24), PaddingTop = UDim.new(0, 22), PaddingBottom = UDim.new(0, 18) }, root)
+	make("UIListLayout", { Padding = UDim.new(0, 6), SortOrder = Enum.SortOrder.LayoutOrder }, root)
+	label(root, "오늘의 TOP 10", 48, Color3.new(1, 1, 1), BIG, { LayoutOrder = 1, Size = UDim2.new(1, 0, 0, 54), TextStrokeColor3 = PINK, TextStrokeTransparency = 0.2 })
+	local title = label(root, "", 24, CYAN, BODY, { LayoutOrder = 2, Size = UDim2.new(1, 0, 0, 30) })
+	local empty = label(root, "아직 기록이 없어요. 첫 1위가 되어 보세요!", 22, SOFT, BODY, { LayoutOrder = 3, Size = UDim2.new(1, 0, 0, 40), Visible = false, TextWrapped = true })
+	local rows = {}
+	for i = 1, 10 do
+		local row = label(root, "", 26, Color3.new(1, 1, 1), BODY, { LayoutOrder = 3 + i, Size = UDim2.new(1, 0, 0, 44),
+			TextXAlignment = Enum.TextXAlignment.Left, BackgroundTransparency = if i <= 3 then 0.75 else 0.9, BackgroundColor3 = if i <= 3 then PINK else CARD })
+		round(row, 8)
+		make("UIPadding", { PaddingLeft = UDim.new(0, 12), PaddingRight = UDim.new(0, 12) }, row)
+		label(row, "", 26, YELLOW, BIG, { Name = "Score", Size = UDim2.fromScale(1, 1), TextXAlignment = Enum.TextXAlignment.Right })
+		rows[i] = row
+	end
+	label(root, "네온 무대에서 🎵 오늘의 곡 도전", 20, SOFT, BODY, { LayoutOrder = 20, Size = UDim2.new(1, 0, 0, 30) })
+	boards[part] = { rows = rows, title = title, empty = empty }
+	part.AncestryChanged:Connect(function()
+		if not part:IsDescendantOf(workspace) then
+			boards[part] = nil
+			sg:Destroy()
+		end
+	end)
+	fillBoards()
+end
+for _, part in ipairs(CollectionService:GetTagged("DanceTopBoard")) do addBoard(part) end
+CollectionService:GetInstanceAddedSignal("DanceTopBoard"):Connect(addBoard)
+FashionGame:GetAttributeChangedSignal("DanceTop"):Connect(fillBoards)

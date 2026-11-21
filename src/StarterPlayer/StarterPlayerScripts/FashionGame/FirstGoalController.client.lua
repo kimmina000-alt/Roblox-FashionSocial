@@ -531,6 +531,10 @@ UiBus.ShowWay.Event:Connect(function(key: string?)
 				return GuideConfig.Places.club.at
 			end
 			wayName = "🎧 OHU CLUB"
+		elseif key == "neon" then -- (D-1817: 오늘의 곡 도전, the neon stage in the pocket park plaza)
+			local NeonStageConfig = require(ReplicatedStorage:WaitForChild("FashionGame"):WaitForChild("Shared"):WaitForChild("NeonStageConfig")) :: any
+			wayTo = function() return NeonStageConfig.Center end
+			wayName = "🎵 네온 무대"
 		elseif key == "guide" then -- (D-1982: the guide rabbit's square in the pocket park)
 			wayTo = function() return GuideConfig.Npc.position end
 			wayName = "🐰 안내원"
