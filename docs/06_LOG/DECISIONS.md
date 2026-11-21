@@ -6830,3 +6830,10 @@ Studio only (no script yet).
 - 가격: 200 코인, VIP 160 코인(VIP 20% 할인, D-270). 근거: 들어 있는 2단계 음료 3병을 따로 사면 300 코인(병당 100)이라 묶음 할인, 1분 1코인이면 약 3시간 놀이. 손 스파클러(30)보다 크고 케이크(100)보다 비싼 "테이블 세트".
 - ClubConfig.BucketCoins / BucketCoinsVip, SparkleService "BuyBucketCoins"(EconomyService.Spend → grantBucketItem), 아이템 가게 카드 💰 구매하기. Robux 상품 SparklerBucket(_VIP)은 예전 구매 때문에 등록만 유지.
 - 확인(Studio Play, 1인, VIP 계정): "BuyBucketCoins" → 6,471 → 6,311 코인(VIP 160), 가방에 🍾 스파클러 버킷, 경제 기록 Sink Club_SparklerBucket. 게임 스크립트 오류 0.
+
+## D-1876 Event card thumbnail and texts (2026-11-21)
+- User: "응 만들어줘" (the Roblox event card for 오후의 첫눈) and "지금 출석이벤트에 대한 문구만 작성해줘". tools/art/event_thumb_winter.py → docs/04_ART/thumbnails/events/winter2026_event_1920x1080.png; card texts for both events and how to make a card: docs/01_SYSTEMS/EVENT_CARDS.md. Category: 축제 (the dashboard's list: 새로운 기능 / 얼리 액세스 / 확장판 / 챌린지 / 퀘스트 / 축제 …).
+
+## D-1877 Attendance window clear of Roblox's top buttons (2026-11-21)
+- User (phone shot: the header "한국의 오후 · OHU GRAND OPENING" under Roblox's ☰ / 💬): "고쳐".
+- OpeningEventController: the window is placed between GuiService.TopbarInset's bottom (+6) and the screen's bottom, centred there, at most 680 x 420 (was centred on the whole screen at 86 % height); re-placed when the inset or the viewport changes.
