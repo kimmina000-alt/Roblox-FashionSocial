@@ -41,7 +41,11 @@ M.ChoreoKeepDetail = { "LeftHand", "RightHand", "LeftFoot", "RightFoot" } :: {st
 -- skips it. Studio: FashionGame attribute ChoreoReduceOff = the old clean-ups. nil = off.
 -- (D-1972, 2nd pass) post = true: the shake / average clean-ups still run on the reduced curve (reduction alone made
 -- more fast moments in the real playback: NEON +21 %, Lemonade +23 %, measured by 안무 (3) 편집)
-M.ChoreoReduce = { spike = 4, tol = 8, maxGap = 0.6, post = true, keep = { "Head", "LeftHand", "RightHand", "LeftFoot", "RightFoot" } } :: any
+-- (D-1956) hit = degrees/s: a move this fast that stops dead (or starts) keeps that pose as a still key (the beat's hit)
+-- (D-1956, 2nd review) post = false again: the shake / average clean-ups on top rubbed out small hits (BANG 0-60 s against the
+-- video: hits gone 76 -> 67, reduction off 62; pairs 162 -> 171, off 179); arms shake 5.85 -> 6.28 degrees RMS, legs 4.23 -> 4.34
+-- (before the edits 5.81 / 5.30)
+M.ChoreoReduce = { spike = 4, tol = 8, maxGap = 0.6, post = false, hit = 150, keep = { "Head", "LeftHand", "RightHand", "LeftFoot", "RightFoot" } } :: any
 M.ChoreoRetarget = true
 
 -- (D-817) a dancer following a choreography walks its dance path (D-813),
@@ -3952,6 +3956,49 @@ do
 	local list = if f.plant == nil then {} elseif f.plant.from then { f.plant } else table.clone(f.plant)
 	table.insert(list, 1, { from = 1.0, to = 3.4, contact = 0.45, landHold = true })
 	f.plant = list
+end
+
+-- (D-1953, 2nd review of Lemonade final3: 2:36.2-2:37.0 the right foot slid 1.7 studs; the capture lifts it a little over
+-- the 0.45 contact height there, so the noStep hold (D-1967) let it go and it slid near the floor) a higher contact height
+-- for that stretch keeps it held (no steps: D-1967, the user found steps hopping in 2:30-2:37). Put first.
+do
+	local f = (M.ChoreoFixes[116980798181063] or {}) :: any
+	M.ChoreoFixes[116980798181063] = f
+	local list = if f.plant == nil then {} elseif f.plant.from then { f.plant } else table.clone(f.plant)
+	table.insert(list, 1, { from = 5.0, to = 6.3, contact = 0.75, noStep = true })
+	f.plant = list
+end
+
+-- (D-1954, 2nd review "잔걸음" Pretty Girl 2:05-2:13 / With 0:27-0:33: standing, a knee bent 25-45 degrees for 0.2-0.4 s
+-- every 0.3 s — the capture rocks a standing foot 0.4 studs back and forth, and each time it was 0.35 off its spot the
+-- hold made a step of it, lifted) where the video stands with both feet down (Pretty Girl 2:07-2:11, With 0:26.9-0:29.3 /
+-- 0:29.7-0:30.8) the hold takes no steps there (noStep, D-1932). Put first.
+do
+	local function plantFirst(id: number, item: any)
+		local f = (M.ChoreoFixes[id] or {}) :: any
+		M.ChoreoFixes[id] = f
+		local list = if f.plant == nil then {} elseif f.plant.from then { f.plant } else table.clone(f.plant)
+		table.insert(list, 1, item)
+		f.plant = list
+	end
+	-- (2nd review of D-1954: from 2:07 the feet stayed 0.8 torso apart; the video brings them together at 2:09.5, so the window starts there)
+	plantFirst(86500685186308, { from = 10.4, to = 11.85, contact = 0.45, noStep = true }) -- Pretty Girl 2:09.5-2:11.0 (at 119.11)
+	plantFirst(131580629784808, { from = 3.05, to = 5.45, contact = 0.45, noStep = true }) -- With 0:26.9-0:29.3 (at 23.85)
+	plantFirst(131580629784808, { from = 5.85, to = 6.95, contact = 0.45, noStep = true }) -- With 0:29.7-0:30.8
+end
+
+-- (D-1957, 2nd review of D-1956: BANG 0:34.45-0:34.55 the right hand on the hip flew 0.8 studs out and back; the video keeps it
+-- on the waist) the capture straightens the right elbow 124 -> 8 -> 96 degrees in 0.4 s at piece 0.25-0.55 s; the old
+-- clean-ups rubbed it out, the key reduction keeps it (a big shape): the right elbow is held through it
+do
+	local f = (M.ChoreoFixes[105204020323017] or {}) :: any
+	M.ChoreoFixes[105204020323017] = f
+	local list = if f.freeze == nil then {} elseif f.freeze.from then { f.freeze } else table.clone(f.freeze)
+	local others = {}
+	for _, n in ipairs({ "LowerTorso", "UpperTorso", "Head", "LeftUpperArm", "LeftLowerArm", "LeftHand", "RightUpperArm", "RightHand",
+		"LeftUpperLeg", "LeftLowerLeg", "LeftFoot", "RightUpperLeg", "RightLowerLeg", "RightFoot" }) do table.insert(others, n) end
+	table.insert(list, { from = 0.18, to = 0.66, ease = 0.1, except = others })
+	f.freeze = list
 end
 
 return M

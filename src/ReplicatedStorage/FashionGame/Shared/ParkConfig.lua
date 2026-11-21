@@ -53,6 +53,25 @@ ParkConfig.RidesRunning = false
 ParkConfig.CarouselRunning = true
 -- (D-1425, user 2026-11-15: "바이킹 사람 타서 흔들리는 것까지 구현") the two vikings swing.
 ParkConfig.VikingRunning = true
+-- (D-1885) each viking runs only when someone is on: RideWait seconds after the first rider sits down
+-- (ParkConfig.vikingState, ParkRideService); false = the old shared clock (Board / Offset)
+-- (D-1888, user 2026-11-21: "모든 놀이기구 사람 없을 때는 대기 상태. (소방차, 관람차 제외)") the same for the
+-- tea cups and the jumping star (a run RideWait seconds after the first rider sits down, the Ride's
+-- attribute RunAt, ParkConfig.demandRun). The Ferris wheel and the fire truck keep their own ways, and
+-- the carousel turns all the time (user: "회전목마도 계속 돌게 해"); the peace train has no seats yet.
+ParkConfig.RidesOnDemand = true
+ParkConfig.RideWait = 10
+
+-- (D-1888) an on-demand run of runLen seconds: (seconds into the run or nil when standing,
+-- seconds until the next change: the start while waiting, the end while running; RideWait when idle)
+function ParkConfig.demandRun(model: Instance, t: number, runLen: number): (number?, number)
+	local runAt = model:GetAttribute("RunAt")
+	if typeof(runAt) ~= "number" then return nil, ParkConfig.RideWait end
+	local u = t - runAt
+	if u < 0 then return nil, -u end
+	if u >= runLen then return nil, ParkConfig.RideWait end
+	return u, runLen - u
+end
 -- (D-1432, user 2026-11-15: "회전컵") the tea cups turn and take riders.
 ParkConfig.TeaCupsRunning = true
 -- (D-1457, user 2026-11-15: "점핑스타 사람 타서 위아래로 뛰는 것까지 구현")
@@ -233,6 +252,18 @@ function ParkConfig.vikingState(model: Instance, t: number): (number, boolean, n
 	-- (D-1564, user 2026-11-17: "미니 바이킹 슈퍼 바이킹 운행 타임 겹치지 않도록") Offset (s) shifts a
 	-- viking's runs: the two vikings share one cycle and each swings while the other stands still
 	-- (tools/graybox/park_fixes4_1117.lua sets Board / Offset)
+	-- (D-1885, user 2026-11-21: "바이킹 사람 없을 때는 대기 상태 운행까지 10초 대기 시간만 두자") a run on
+	-- demand: with nobody on, the boat stands still; the first rider to sit down starts the
+	-- RideWait countdown, and the server writes the start of the swing into the Ride's attribute
+	-- RunAt (server time; ParkRideService). Board / Offset are not used then.
+	if ParkConfig.RidesOnDemand then
+		local runLen = cycle - board
+		local u, left = ParkConfig.demandRun(model, t, runLen)
+		if not u then return 0, true, left end
+		local env = if u < ramp then smooth(u / ramp) elseif u < ramp + hold then 1 else smooth((runLen - u) / ramp)
+		local angle = math.rad(attr(model, "MaxAngle", 45)) * env * math.sin(2 * math.pi * u / attr(model, "Period", 4))
+		return angle, false, runLen - u
+	end
 	local c = (t - attr(model, "Offset", 0)) % cycle
 	if c < board then return 0, true, board - c end
 	local u = c - board
@@ -277,8 +308,16 @@ function ParkConfig.teacupState(model: Instance, t: number): (number, number, bo
 	local cycle = board + run
 	if not ParkConfig.isRunning("ParkTeaCups") then return 0, 0, true, 0 end
 	local c = t % cycle
-	if c < board then return 0, 0, true, board - c end
-	local u = c - board
+	local u
+	if ParkConfig.RidesOnDemand then -- (D-1888) a run only with riders on
+		local left
+		u, left = ParkConfig.demandRun(model, t, run)
+		if not u then return 0, 0, true, left end
+		c = board + u
+	else
+		if c < board then return 0, 0, true, board - c end
+		u = c - board
+	end
 	-- f(u) = seconds at full speed so far
 	local f = if u < ramp then u * u / (2 * ramp) elseif u < ramp + hold then ramp / 2 + (u - ramp) else ramp + hold - (run - u) ^ 2 / (2 * ramp)
 	local turn = (f / attr(model, "TurnPeriod", 14)) % 1 * 2 * math.pi
@@ -311,7 +350,17 @@ function ParkConfig.teacupExtra(model: Instance, cup: number, t: number): (numbe
 	local _, _, still, left = ParkConfig.teacupState(model, t)
 	if still and ParkConfig.isRunning("ParkTeaCups") then
 		-- standing still: held at the end of the last run
-		t = t - (attr(model, "Board", 15) - left)
+		if ParkConfig.RidesOnDemand then
+			-- (D-1888) the run that ended (RunAt + its length), or the one before a waiting run (LastEnd)
+			local runAt, lastEnd = model:GetAttribute("RunAt"), model:GetAttribute("LastEnd")
+			if typeof(runAt) == "number" and t >= runAt then
+				t = runAt + ParkConfig.runLength(model)
+			elseif typeof(lastEnd) == "number" then
+				t = lastEnd
+			end
+		else
+			t = t - (attr(model, "Board", 15) - left)
+		end
 	end
 	local dt = math.max(0, t - attr(model, "SpinEpoch", 0) - s.Z)
 	local k = math.exp(-dt / ParkConfig.SpinFade)
@@ -379,8 +428,16 @@ function ParkConfig.jumpStarState(model: Instance, t: number): (number, boolean,
 	if not ParkConfig.isRunning("ParkJumpStar") then return 0, true, 0 end
 	local cycle = board + run
 	local c = t % cycle
-	if c < board then return 0, true, board - c end
-	local u = c - board
+	local u
+	if ParkConfig.RidesOnDemand then -- (D-1888) a run only with riders on
+		local left
+		u, left = ParkConfig.demandRun(model, t, run)
+		if not u then return 0, true, left end
+		c = board + u
+	else
+		if c < board then return 0, true, board - c end
+		u = c - board
+	end
 	for i = 1, #keys - 1 do
 		local a, b = keys[i], keys[i + 1]
 		if u < b[1] then
@@ -405,8 +462,14 @@ function ParkConfig.jumpStarBigDrop(model: Instance, t: number): boolean
 	if not ParkConfig.isRunning("ParkJumpStar") then return false end
 	local board = attr(model, "Board", 15)
 	local c = t % (board + keys[#keys][1])
-	if c < board then return false end
-	local u = c - board
+	local u
+	if ParkConfig.RidesOnDemand then -- (D-1888)
+		u = ParkConfig.demandRun(model, t, keys[#keys][1])
+		if not u then return false end
+	else
+		if c < board then return false end
+		u = c - board
+	end
 	for i = 2, #keys do
 		local e = keys[i][3]
 		if e == "fall" or e == "brake" then
@@ -442,6 +505,14 @@ function ParkConfig.seatRideKind(model: Instance): string?
 	if cs:HasTag(model, "ParkTeaCups") then return "ParkTeaCups" end
 	if cs:HasTag(model, "ParkJumpStar") then return "ParkJumpStar" end
 	return nil
+end
+
+-- (D-1888) one run's seconds (without the standing time)
+function ParkConfig.runLength(model: Instance): number
+	local kind = ParkConfig.seatRideKind(model)
+	if kind == "ParkTeaCups" then return attr(model, "Ramp", 4) * 2 + attr(model, "Hold", 24) end
+	if kind == "ParkJumpStar" then return ParkConfig.JumpKeys[#ParkConfig.JumpKeys][1] end
+	return attr(model, "Ramp", 10) * 2 + attr(model, "Hold", 20)
 end
 
 -- (standing still?, seconds until the next change)
