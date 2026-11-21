@@ -18,7 +18,39 @@ local DanceScoreConfig = {}
 DanceScoreConfig.Songs = {
 	[140713297574648] = { title = "NEON", artist = "A2O LITE", bpm = 129.99, firstBeat = -0.913 },
 }
-DanceScoreConfig.TodaySong = 140713297574648 -- (step 1: fixed; step 2 picks one a day at 05:00 KST)
+DanceScoreConfig.TodaySong = 140713297574648 -- (the fallback; todaySong picks one a day from Songs)
+
+-- (D-1817, step 2) the day: a KST day turning at 05:00 like the attendance event (D-1693)
+function DanceScoreConfig.dayKey(serverTime: number?): string
+	local t = math.floor(serverTime or workspace:GetServerTimeNow()) + 9 * 3600 - 5 * 3600
+	return os.date("!%Y%m%d", t) :: string
+end
+
+-- today's song: one of Songs a day, in turn (only songs with measured beats can be picked)
+function DanceScoreConfig.todaySong(serverTime: number?): number
+	local ids = {}
+	for id in pairs(DanceScoreConfig.Songs) do table.insert(ids, id) end
+	table.sort(ids)
+	if #ids == 0 then return DanceScoreConfig.TodaySong end
+	local t = math.floor(serverTime or workspace:GetServerTimeNow()) + 4 * 3600
+	return ids[math.floor(t / 86400) % #ids + 1]
+end
+
+-- (D-1817) rewards: coins once a day for finishing a run (EconomyService.Earn, its daily cap),
+-- a title for today's top 3 (player attribute Title_Dance = the rank, NameTagService)
+DanceScoreConfig.ParticipationCoins = 10
+DanceScoreConfig.TitleTop = 3
+DanceScoreConfig.BoardRefresh = 60 -- seconds between reads of today's ranking
+
+-- (D-1817, user 2026-11-21 via the progress session: "오늘의 곡 새로운 무대 시작 전에 '오늘의 곡에 도전하세요'
+-- 화면 상단에 글씨 띄우자", then "너무 잦나") the notice at the top: once every AnnounceEvery seconds
+-- (aligned to the server clock) for AnnounceSeconds, tap = the dashed way to the neon stage. Not shown
+-- to anyone online under AnnounceMinOnline, who has finished a run today, in the club, on a ride / seat,
+-- shooting in a photo booth, within AnnounceNear of the stage, or in a run.
+DanceScoreConfig.AnnounceEvery = 15 * 60
+DanceScoreConfig.AnnounceSeconds = 4
+DanceScoreConfig.AnnounceMinOnline = 60
+DanceScoreConfig.AnnounceNear = 48
 
 DanceScoreConfig.CountIn = 3 -- seconds of 3 · 2 · 1 before the song starts
 DanceScoreConfig.FallTime = 1.35 -- seconds a note takes from the top of its lane to the hit line

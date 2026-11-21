@@ -78,9 +78,12 @@ create("UIListLayout", {
 	Padding = UDim.new(0, GAP), SortOrder = Enum.SortOrder.LayoutOrder,
 }, row)
 
-type Choice = { key: string, icon: string, text: string, name: string, nightOnly: boolean? }
+type Choice = { key: string, icon: string, text: string, name: string, nightOnly: boolean?, dayOnly: boolean? }
 local CHOICES: {Choice} = {
+	-- (D-1817, user 2026-11-21 via the progress session: by day the club's place is 오늘의 곡 도전, the
+	-- way to the neon stage; at night the club as before)
 	{ key = "club", icon = "🎧", text = "클럽 가기", name = "클럽", nightOnly = true },
+	{ key = "neon", icon = "🎵", text = "오늘의 곡 도전", name = "오늘의 곡", dayOnly = true },
 	{ key = "photo", icon = "📸", text = "사진 찍으러 가기", name = "사진" },
 	{ key = "park", icon = "🎢", text = "놀이공원 가기", name = "놀이공원" },
 }
@@ -153,7 +156,7 @@ local function show()
 	night = ClubConfig.isNightOpen(DayNightConfig.clockNow())
 	local count = 0
 	for _, c in ipairs(CHOICES) do
-		local on = not c.nightOnly or night
+		local on = (not c.nightOnly or night) and (not c.dayOnly or not night)
 		tiles[c.key].Visible = on
 		if on then count += 1 end
 	end
