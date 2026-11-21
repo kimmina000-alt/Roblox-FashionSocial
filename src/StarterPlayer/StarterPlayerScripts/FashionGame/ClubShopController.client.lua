@@ -622,7 +622,6 @@ local function buildItemShop()
 			end)
 	end
 	if itemTab == 1 then
-		local bucketKey = if vip then "SparklerBucket_VIP" else "SparklerBucket"
 		local sparkKey = if vip then "ColdSpark_VIP" else "ColdSpark"
 		local cooldown = math.ceil((FashionGame:GetAttribute("ColdSparkReadyAt") or 0) - workspace:GetServerTimeNow())
 		-- the real items in the pictures (user 2026-10-30, SparkleService buildItemPreviews)
@@ -645,8 +644,14 @@ local function buildItemShop()
 			"들고 테이블 위 병(버킷)을 누르면 30초 연출", rs("Sparkler1"), nil, "🛒 구매하기", C, function() buyProduct("Sparkler1") end, look("Sparkler1"))
 		NeonShopUI.itemCard(list2, nextOrder(), "🎇", Color3.fromRGB(150, 50, 190), "스파클러 ×5",
 			"한 버킷에 5개까지 꽂아요", rs("Sparkler5"), nil, "🛒 구매하기", C, function() buyProduct("Sparkler5") end, look("Sparkler1")) -- (the same picture as one, user 2026-10-30)
+		-- (D-1815, user 2026-11-21: "버켓 스파클러도 코인으로 변경") coins, not Robux (VIP price for VIP)
+		local bucketPrice = if vip then ClubConfig.BucketCoinsVip else ClubConfig.BucketCoins
 		NeonShopUI.itemCard(list2, nextOrder(), "🍾", Color3.fromRGB(40, 120, 200), "스파클러 버킷 세트",
-			"얼음 버킷 + 음료 3개 + 스파클러 3개", rs("SparklerBucket"), if vip then nil else rs("SparklerBucket_VIP"), "🛒 구매하기", C, function() buyProduct(bucketKey) end, look("SparklerBucket"))
+			"얼음 버킷 + 음료 3개 + 스파클러 3개", "💰 " .. bucketPrice, if vip then nil else ("💰 " .. ClubConfig.BucketCoinsVip), "💰 구매하기", COIN, function()
+				local ok, message = ClubShop:InvokeServer("BuyBucketCoins", nil)
+				toast(tostring(message or (if ok then "" else "살 수 없어요.")))
+				if ok then closeShops() end
+			end, look("SparklerBucket"))
 		local hasGlow = player:GetAttribute("Pass_Glowstick") == true
 		NeonShopUI.itemCard(list2, nextOrder(), "🌟", Color3.fromRGB(40, 170, 120), "야광봉",
 			"영구 아이템 · 누르면 색이 바뀌어요", if hasGlow then "보유 중" else ("R$" .. MonetizationConfig.GamePasses.Glowstick.price), nil,

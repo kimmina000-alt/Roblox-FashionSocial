@@ -339,5 +339,11 @@ ClubConfig.TableKeepSeconds = 180
 -- sells for coins: 30 = about half an hour of play (1 coin a minute), above the top cafe drinks (20)
 -- and well below a cake (100). The Robux product HandSparkler stays registered (old purchases).
 ClubConfig.HandSparklerCoins = 30
+-- (D-1815, user 2026-11-21: "버켓 스파클러도 코인으로 변경 적당 가격 추천") the sparkler bucket set
+-- (ice bucket + 3 tier-2 drinks + 3 sparklers) sells for coins: its 3 drinks alone are 300 coins
+-- one by one (100 each), so 200 is a set discount (about 3 hours of play); VIP 20% off like
+-- every VIP price (D-270). The Robux products SparklerBucket(_VIP) stay registered (old purchases).
+ClubConfig.BucketCoins = 200
+ClubConfig.BucketCoinsVip = 160
 
 return ClubConfig
