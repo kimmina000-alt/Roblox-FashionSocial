@@ -11,19 +11,21 @@ export type Spot = { key: string, name: string, at: Vector3, face: Vector3 }
 
 local SpawnConfig = {}
 
--- the spots the user picked from the screenshots (D-1982)
+-- the spots the user picked from the screenshots (D-1982, 2026-11-21; shots in the shared notes spawn_1..4):
+-- beach sand by the seafront walk, the park plaza just inside the gate (tea cups and carousel ahead),
+-- the sidewalk at 오후네컷's corner door, the club sidewalk in front of the door (outside the rope)
 SpawnConfig.Day = {
 	{ key = "beach", name = "해변", at = Vector3.new(-215, 1, -40), face = Vector3.new(-250, 1, -40) },
-	{ key = "park", name = "놀이공원", at = Vector3.new(-97, 17, -262), face = Vector3.new(-100, 17, -330) },
-	{ key = "photo", name = "오후네컷 앞", at = Vector3.new(44, 3, -50), face = Vector3.new(64, 3, -66) },
+	{ key = "park", name = "놀이공원", at = Vector3.new(-97, 16.1, -296), face = Vector3.new(-97, 16.1, -330) },
+	{ key = "photo", name = "오후네컷 앞", at = Vector3.new(44, 0.6, -50), face = Vector3.new(64, 3, -66) },
 	-- (the hanok village inside 광화문 dropped, user 2026-11-21: the village is being removed except 광화문)
 } :: {Spot}
 
 -- no beach at night (players: "밤이 무서워요")
 SpawnConfig.Night = {
-	{ key = "park", name = "놀이공원", at = Vector3.new(-97, 17, -262), face = Vector3.new(-100, 17, -330) },
-	{ key = "club", name = "클럽 입구", at = Vector3.new(34, 3.6, -210), face = Vector3.new(60, 3.6, -210) },
-	{ key = "photo", name = "오후네컷 앞", at = Vector3.new(44, 3, -50), face = Vector3.new(64, 3, -66) },
+	{ key = "park", name = "놀이공원", at = Vector3.new(-97, 16.1, -296), face = Vector3.new(-97, 16.1, -330) },
+	{ key = "club", name = "클럽 입구", at = Vector3.new(34, 0.6, -210), face = Vector3.new(60, 0.6, -210) },
+	{ key = "photo", name = "오후네컷 앞", at = Vector3.new(44, 0.6, -50), face = Vector3.new(64, 3, -66) },
 } :: {Spot}
 
 -- a friend already here: this far beside them

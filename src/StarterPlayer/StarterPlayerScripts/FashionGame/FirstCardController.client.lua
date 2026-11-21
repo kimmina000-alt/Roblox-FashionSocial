@@ -6,6 +6,8 @@
 --   🎧 클럽 가기          (only at night: the club is open 18:00..06:00, ClubConfig.isNightOpen)
 --   📸 사진 찍으러 가기    (오후네컷)
 --   🎢 놀이공원 가기       (OHU LAND)
+-- (D-1982, user 2026-11-21: players now start at the beach / park / club too, away from the guide) a small
+-- line under the tiles, "🐰 안내원에게 가기", draws the way to the guide rabbit (UiBus.ShowWay "guide").
 -- A tile closes the card and draws the way on the ground (FirstGoalController's dashed way,
 -- UiBus.ShowWay with the place key; white by day, neon pink by night). ✕ just closes it.
 -- The long tour (TourController) no longer starts by itself: the guide rabbit's question starts it.
@@ -50,10 +52,11 @@ end
 
 ---------------------------------------------------------------- the card
 local TILE, GAP = 104, 10
+local GUIDE_H = 34
 local gui = create("ScreenGui", { Name = "FirstCardGui", ResetOnSpawn = false, IgnoreGuiInset = true, DisplayOrder = 30, Enabled = false }, playerGui)
 -- (above the hotbar at the bottom)
 local holder = create("Frame", {
-	AnchorPoint = Vector2.new(0.5, 1), Position = UDim2.new(0.5, 0, 1, -96), Size = UDim2.fromOffset(TILE, TILE + 34),
+	AnchorPoint = Vector2.new(0.5, 1), Position = UDim2.new(0.5, 0, 1, -96), Size = UDim2.fromOffset(TILE, TILE + 34 + GUIDE_H),
 	BackgroundTransparency = 1,
 }, gui)
 local head = create("TextLabel", {
@@ -132,6 +135,18 @@ for i, c in ipairs(CHOICES) do
 	tiles[c.key] = tile
 end
 close.Activated:Connect(function() shut("닫기") end)
+local guide = create("TextButton", {
+	AnchorPoint = Vector2.new(0.5, 0), Position = UDim2.new(0.5, 0, 0, 34 + TILE + 6), Size = UDim2.fromOffset(170, 28),
+	BackgroundColor3 = BLACK, BackgroundTransparency = 0.35, Text = "🐰 안내원에게 가기", Font = Enum.Font.GothamBold,
+	TextSize = 14, TextColor3 = WHITE, AutoButtonColor = false,
+}, holder)
+create("UICorner", { CornerRadius = UDim.new(1, 0) }, guide)
+guide.Activated:Connect(function()
+	if not open then return end
+	Sfx.play("click", 0.5)
+	shut("안내원")
+	UiBus.ShowWay:Fire("guide")
+end)
 
 local function show()
 	if open then return end
@@ -142,7 +157,7 @@ local function show()
 		tiles[c.key].Visible = on
 		if on then count += 1 end
 	end
-	holder.Size = UDim2.fromOffset(count * TILE + (count - 1) * GAP, TILE + 34)
+	holder.Size = UDim2.fromOffset(count * TILE + (count - 1) * GAP, TILE + 34 + GUIDE_H)
 	open = true
 	shownAt = os.clock()
 	gui.Enabled = true

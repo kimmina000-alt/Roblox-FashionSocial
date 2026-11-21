@@ -1724,6 +1724,8 @@ return {
 	["🏯 광화문"] = "🏯 Gwanghwamun",
 	["🐞 버그"] = "🐞 Error",
 	["🐡 볼빵빵"] = "🐡 Mofletes",
+	["🐰 안내원"] = "🐰 Guía",
+	["🐰 안내원에게 가기"] = "🐰 Ir con el guía",
 	["👀 보여 주기"] = "👀 Muéstrame",
 	["👁 1인칭"] = "👁 Primera persona",
 	["👁 1인칭 (V)"] = "👁 Primera persona (V)",

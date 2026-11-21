@@ -516,7 +516,7 @@ local UiBus = require(script.Parent:WaitForChild("UiBus"))
 local wayTo: (() -> Vector3?)? = nil
 local wayName = ""
 -- (D-1980) with a place key (the first-visit card's tiles): "club" (door, then the dance floor), "photo"
--- (오후네컷) or "park" (OHU LAND), white by day and neon pink by night; without one, as before
+-- (오후네컷), "park" (OHU LAND) or "guide" (the guide rabbit, D-1982), white by day and neon pink by night; without one, as before
 local PARK_GATE = Vector3.new(-97, 17, -250) -- (GuideConfig.Places.park.at; checked in Play D-1980)
 UiBus.ShowWay.Event:Connect(function(key: string?)
 	if running then return end -- (the goal already draws its way)
@@ -531,6 +531,9 @@ UiBus.ShowWay.Event:Connect(function(key: string?)
 				return GuideConfig.Places.club.at
 			end
 			wayName = "🎧 OHU CLUB"
+		elseif key == "guide" then -- (D-1982: the guide rabbit's square in the pocket park)
+			wayTo = function() return GuideConfig.Npc.position end
+			wayName = "🐰 안내원"
 		elseif key == "park" then
 			local park = GuideConfig.Places.park
 			wayTo = function() return if park then park.at else PARK_GATE end
