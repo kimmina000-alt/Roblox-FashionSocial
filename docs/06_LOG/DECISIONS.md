@@ -6671,3 +6671,4 @@ Studio only (no script yet).
 - 사용자: "버켓 스파클러도 코인으로 변경 적당 가격 추천" (D-1567 손 스파클러처럼).
 - 가격: 200 코인, VIP 160 코인(VIP 20% 할인, D-270). 근거: 들어 있는 2단계 음료 3병을 따로 사면 300 코인(병당 100)이라 묶음 할인, 1분 1코인이면 약 3시간 놀이. 손 스파클러(30)보다 크고 케이크(100)보다 비싼 "테이블 세트".
 - ClubConfig.BucketCoins / BucketCoinsVip, SparkleService "BuyBucketCoins"(EconomyService.Spend → grantBucketItem), 아이템 가게 카드 💰 구매하기. Robux 상품 SparklerBucket(_VIP)은 예전 구매 때문에 등록만 유지.
+- 확인(Studio Play, 1인, VIP 계정): "BuyBucketCoins" → 6,471 → 6,311 코인(VIP 160), 가방에 🍾 스파클러 버킷, 경제 기록 Sink Club_SparklerBucket. 게임 스크립트 오류 0.
