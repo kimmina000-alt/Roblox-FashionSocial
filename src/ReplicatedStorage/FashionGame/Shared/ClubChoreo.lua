@@ -3987,4 +3987,18 @@ do
 	plantFirst(131580629784808, { from = 5.85, to = 6.95, contact = 0.45, noStep = true }) -- With 0:29.7-0:30.8
 end
 
+-- (D-1957, 2nd review of D-1956: BANG 0:34.45-0:34.55 the right hand on the hip flew 0.8 studs out and back; the video keeps it
+-- on the waist) the capture straightens the right elbow 124 -> 8 -> 96 degrees in 0.4 s at piece 0.25-0.55 s; the old
+-- clean-ups rubbed it out, the key reduction keeps it (a big shape): the right elbow is held through it
+do
+	local f = (M.ChoreoFixes[105204020323017] or {}) :: any
+	M.ChoreoFixes[105204020323017] = f
+	local list = if f.freeze == nil then {} elseif f.freeze.from then { f.freeze } else table.clone(f.freeze)
+	local others = {}
+	for _, n in ipairs({ "LowerTorso", "UpperTorso", "Head", "LeftUpperArm", "LeftLowerArm", "LeftHand", "RightUpperArm", "RightHand",
+		"LeftUpperLeg", "LeftLowerLeg", "LeftFoot", "RightUpperLeg", "RightLowerLeg", "RightFoot" }) do table.insert(others, n) end
+	table.insert(list, { from = 0.18, to = 0.66, ease = 0.1, except = others })
+	f.freeze = list
+end
+
 return M
