@@ -529,8 +529,6 @@ end
 
 local function press(laneIndex: number)
 	held[laneIndex] = true
-	-- (D-1818s, user 2026-11-21: "연달아 클릭했을 때도 소리 나게") every press plays its button's sound, hit or not
-	if run and run.active then laneSound(laneIndex) end
 	local lane = lanes[laneIndex]
 	if lane then
 		lane.flash.BackgroundTransparency = 0.3
@@ -549,6 +547,9 @@ local function press(laneIndex: number)
 		if songNow - note.t > 1 then break end
 	end
 	if best and bestGap <= DanceScoreConfig.Late then
+		-- (D-1818t, user 2026-11-21: "아래에서 내려오는 키 있을 때만 소리 나게 … 연달아 누를 때 연달아 소리") the sound
+		-- only when the press meets a falling note, at once, before the judging work (6 copies per button)
+		laneSound(laneIndex)
 		judge(r, best, if bestGap <= DanceScoreConfig.Perfect then "PERFECT" elseif bestGap <= DanceScoreConfig.Great then "GREAT" else "MISS")
 	end
 end
