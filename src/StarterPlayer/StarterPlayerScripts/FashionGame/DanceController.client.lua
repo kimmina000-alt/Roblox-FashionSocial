@@ -405,9 +405,22 @@ local syncPill = create("Frame", {
 }, gui)
 corner(syncPill, 17)
 create("UIStroke", { Color = COLORS.join, Thickness = 1.5 }, syncPill)
+-- (D-1819, user 2026-11-21: "같이추기 하늘색 창 더 아래로 내리고 사슬 아이콘 누르면 창 숨길 수 있게") the 🔗 is
+-- its own button: a tap folds the pill to a small round 🔗, another tap opens it again
+local syncFolded = false
+local syncChain = button({
+	Name = "Chain",
+	AnchorPoint = Vector2.new(0, 0.5),
+	Position = UDim2.new(0, 4, 0.5, 0),
+	Size = UDim2.fromOffset(26, 26),
+	BackgroundColor3 = COLORS.join,
+	BackgroundTransparency = 0.6,
+	Text = "🔗",
+	TextSize = 14,
+}, syncPill, 13)
 local syncText = label({
-	Position = UDim2.fromOffset(12, 0),
-	Size = UDim2.new(1, -84, 1, 0),
+	Position = UDim2.fromOffset(36, 0),
+	Size = UDim2.new(1, -108, 1, 0),
 	Text = "",
 	TextXAlignment = Enum.TextXAlignment.Left,
 	TextTruncate = Enum.TextTruncate.AtEnd,
@@ -642,7 +655,13 @@ local function layoutPanel()
 	place(syncPill, 330, top)
 	-- (D-1767, user 2026-11-18: "누구랑 같이 추기도 아래로 내려") the "🔗 ○○님과 같이 추기" pill at the bottom middle,
 	-- over the skip vote card (bottom - 100) and the hotbar, like the other notices
-	syncPill.Position = UDim2.new(0, syncPill.Position.X.Offset, 1, -138)
+	-- (D-1819, user 2026-11-21: "더 아래로") lower: just over the hotbar (was 138 up); while the skip-vote card
+	-- (ClubQuickBar SkipVotePanel, the same spot) is up, just over it
+	local quick = playerGui:FindFirstChild("ClubQuickBar")
+	local vote = quick and quick:FindFirstChild("SkipVotePanel", true)
+	local voteUp = vote ~= nil and vote:IsA("GuiObject") and vote.Visible
+	syncPill.Position = UDim2.new(0, syncPill.Position.X.Offset, 1, if voteUp then -100 - (vote :: GuiObject).AbsoluteSize.Y - 6 else -100)
+	if syncFolded then syncPill.Size = UDim2.fromOffset(34, syncPill.Size.Y.Offset) end
 	place(playerCard, 290, top + 38)
 end
 layoutPanel()
@@ -765,8 +784,8 @@ local function refreshSync()
 	if leader then
 		local dance = current.key and ClubConfig.findDance(current.key)
 		syncText.Text = if dance
-			then string.format("🔗 %s님과 같이 추기 · %s %.1fx", leader.DisplayName, dance.name, tempo)
-			else string.format("🔗 %s님과 같이 추기 · 상대가 쉬는 중", leader.DisplayName)
+			then string.format("%s님과 같이 추기 · %s %.1fx", leader.DisplayName, dance.name, tempo)
+			else string.format("%s님과 같이 추기 · 상대가 쉬는 중", leader.DisplayName)
 	end
 end
 
@@ -1113,6 +1132,28 @@ stopButton.MouseButton1Click:Connect(function()
 	if current.key or joinedPlayer() then requestStop() end
 end)
 syncLeave.MouseButton1Click:Connect(leaveSync)
+-- (D-1819) the 🔗 folds / opens the pill; the pill moves over the skip-vote card while that shows
+syncChain.MouseButton1Click:Connect(function()
+	syncFolded = not syncFolded
+	syncText.Visible = not syncFolded
+	syncLeave.Visible = not syncFolded
+	layoutPanel()
+end)
+task.spawn(function()
+	local wasUp = false
+	while true do
+		task.wait(0.3)
+		if syncPill.Visible then
+			local quick = playerGui:FindFirstChild("ClubQuickBar")
+			local vote = quick and quick:FindFirstChild("SkipVotePanel", true)
+			local up = vote ~= nil and vote:IsA("GuiObject") and vote.Visible
+			if up ~= wasUp then
+				wasUp = up
+				layoutPanel()
+			end
+		end
+	end
+end)
 
 local preloaded = false
 local Popups = require(script.Parent:WaitForChild("Popups"))
