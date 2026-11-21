@@ -191,11 +191,17 @@ local answerQ = create("TextLabel", {
 	Size = UDim2.new(1, 0, 0, 44), BackgroundTransparency = 1, Font = Enum.Font.GothamBold, TextSize = 17,
 	TextColor3 = ORANGE, TextWrapped = true, TextXAlignment = Enum.TextXAlignment.Left, Text = "",
 }, answer)
-local answerA = create("TextLabel", {
+-- (D-1983: the catalog how-to is eight lines long: the answer scrolls when it does not fit)
+local answerScroll = create("ScrollingFrame", {
 	Position = UDim2.fromOffset(0, 48), Size = UDim2.new(1, 0, 1, -110), BackgroundTransparency = 1,
+	BorderSizePixel = 0, ScrollBarThickness = 4, AutomaticCanvasSize = Enum.AutomaticSize.Y,
+	CanvasSize = UDim2.new(), ScrollBarImageColor3 = ORANGE,
+}, answer)
+local answerA = create("TextLabel", {
+	Size = UDim2.new(1, -8, 0, 0), AutomaticSize = Enum.AutomaticSize.Y, BackgroundTransparency = 1,
 	Font = Enum.Font.GothamMedium, TextSize = 16, TextColor3 = BROWN, TextWrapped = true,
 	TextXAlignment = Enum.TextXAlignment.Left, TextYAlignment = Enum.TextYAlignment.Top, Text = "",
-}, answer)
+}, answerScroll)
 local backButton = button(answer, "◀ 목록", ROW, BROWN)
 backButton.AnchorPoint = Vector2.new(0, 1)
 backButton.Position = UDim2.new(0, 0, 1, 0)
@@ -222,6 +228,7 @@ local function showAnswer(faq: GuideConfig.Faq)
 	shown = faq
 	answerQ.Text = "Q. " .. faq.q
 	answerA.Text = faq.a
+	answerScroll.CanvasPosition = Vector2.zero
 	local place = faq.place and GuideConfig.Places[faq.place]
 	showButton.Visible = place ~= nil
 	goButton.Visible = place ~= nil or faq.action ~= nil

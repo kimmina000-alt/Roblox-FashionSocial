@@ -137,7 +137,10 @@ for i, c in ipairs(CHOICES) do
 	end)
 	tiles[c.key] = tile
 end
-close.Activated:Connect(function() shut("닫기") end)
+close.Activated:Connect(function()
+	shut("닫기")
+	UiBus.GuideHint:Fire() -- (D-1983: where the guide is, for later)
+end)
 local guide = create("TextButton", {
 	AnchorPoint = Vector2.new(0.5, 0), Position = UDim2.new(0.5, 0, 0, 34 + TILE + 6), Size = UDim2.fromOffset(170, 28),
 	BackgroundColor3 = BLACK, BackgroundTransparency = 0.35, Text = "🐰 안내원에게 가기", Font = Enum.Font.GothamBold,
