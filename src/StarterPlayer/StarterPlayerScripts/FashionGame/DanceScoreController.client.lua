@@ -357,7 +357,8 @@ local laneTurn = { 0, 0, 0, 0 }
 for i, id in ipairs(DanceScoreConfig.LaneSounds) do
 	laneSounds[i] = {}
 	if id ~= 0 then
-		for _ = 1, 3 do table.insert(laneSounds[i], hitSound(id, DanceScoreConfig.LaneSoundVolume, 1)) end
+		-- (D-1818s) 6 copies: fast taps on one button each get their own sound
+		for _ = 1, 6 do table.insert(laneSounds[i], hitSound(id, DanceScoreConfig.LaneSoundVolume, 1)) end
 	end
 end
 local function laneSound(lane: number)
@@ -506,7 +507,6 @@ local function judge(r: Run, note: any, kind: string)
 			askServer("Freeze", false)
 		end
 		hitSwell(kind)
-		laneSound(note.lane)
 		local level = DanceScoreConfig.auroraLevel(r.combo, r.total)
 		if level ~= r.auroraLevel then setAurora(r, level) end
 		-- (D-1818d, user 2026-11-21: "맞는 타이밍에 눌렀을 때 누르는 버튼 해당 컬러로 진동 확장하는 듯한 효과 … 버튼 그림")
@@ -529,6 +529,8 @@ end
 
 local function press(laneIndex: number)
 	held[laneIndex] = true
+	-- (D-1818s, user 2026-11-21: "연달아 클릭했을 때도 소리 나게") every press plays its button's sound, hit or not
+	if run and run.active then laneSound(laneIndex) end
 	local lane = lanes[laneIndex]
 	if lane then
 		lane.flash.BackgroundTransparency = 0.3
@@ -750,12 +752,17 @@ for i, lane in ipairs(lanes) do
 	end)
 end
 -- (D-1818m) the keys: A S D F through ContextActionService while playing (bound in setPlayMode)
-laneKey = function(_name, state, input)
-	local i = KEY_LANE[input.KeyCode]
-	if not i or UserInputService:GetFocusedTextBox() then return Enum.ContextActionResult.Pass end
-	if state == Enum.UserInputState.Begin then press(i) elseif state == Enum.UserInputState.End then held[i] = false end
+-- (D-1818s) ContextActionService only keeps A S D F from walking; the presses come from UserInputService
+-- (a CAS callback missed quick presses in Studio: 1 of 3)
+laneKey = function(_name, _state, input)
+	if not KEY_LANE[input.KeyCode] or UserInputService:GetFocusedTextBox() then return Enum.ContextActionResult.Pass end
 	return Enum.ContextActionResult.Sink
 end
+UserInputService.InputBegan:Connect(function(input)
+	if not run then return end
+	local i = KEY_LANE[input.KeyCode]
+	if i and not UserInputService:GetFocusedTextBox() then press(i) end
+end)
 -- (D-1818g) letting go: the finger / mouse that pressed a lane button (wherever it is let go)
 UserInputService.InputEnded:Connect(function(input)
 	local i = pressedBy[input]
@@ -763,6 +770,8 @@ UserInputService.InputEnded:Connect(function(input)
 		pressedBy[input] = nil
 		held[i] = false
 	end
+	local k = KEY_LANE[input.KeyCode]
+	if k then held[k] = false end
 end)
 
 -- windows
