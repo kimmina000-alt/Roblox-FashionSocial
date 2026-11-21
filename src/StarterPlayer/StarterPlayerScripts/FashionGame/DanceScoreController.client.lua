@@ -100,8 +100,10 @@ end
 -- entry button (on the stage, when no window is open)
 -- (D-1818b, user 2026-11-21: "오늘의 곡 도전 버튼 너무 큰데 왼쪽 상단으로 위치 옮기기") small, top left under the
 -- top bar (placed in layout)
-local entry = button(gui, "🎵 오늘의 곡 도전", PINK, Color3.fromRGB(26, 11, 34), BIG, 14)
+-- (user 2026-11-21: "오늘의 곡 도전 버튼 배경 검은색에 흰색 글씨로") black with white letters
+local entry = button(gui, "🎵 오늘의 곡 도전", Color3.new(0, 0, 0), Color3.new(1, 1, 1), BIG, 14)
 entry.Name = "Entry"
+entry.BackgroundTransparency = 0.15
 entry.AnchorPoint = Vector2.new(0, 0)
 entry.Position = UDim2.fromOffset(16, 60)
 entry.Size = UDim2.fromOffset(128, 32)
