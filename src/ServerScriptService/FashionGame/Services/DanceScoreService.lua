@@ -158,9 +158,48 @@ local function setAttributes(player: Player, start: number?, soundId: number?)
 	character:SetAttribute("DanceChallengeTrack", soundId)
 end
 
+-- (D-1818c) the aurora round a dancer on a long combo, seen by everyone: soft aurora-coloured light
+-- rising round the body (a particle emitter on the root)
+local function setAurora(player: Player, on: boolean)
+	local character = player.Character
+	local root = character and character:FindFirstChild("HumanoidRootPart")
+	if not root then return end
+	local old = root:FindFirstChild("DanceAurora")
+	if not on then
+		if old then old:Destroy() end
+		return
+	end
+	if old then return end
+	local a = Instance.new("Attachment")
+	a.Name = "DanceAurora"
+	a.Parent = root
+	local e = Instance.new("ParticleEmitter")
+	e.Texture = "rbxasset://textures/particles/smoke_main.dds"
+	e.Color = ColorSequence.new({
+		ColorSequenceKeypoint.new(0, Color3.fromRGB(80, 255, 170)),
+		ColorSequenceKeypoint.new(0.35, Color3.fromRGB(70, 220, 255)),
+		ColorSequenceKeypoint.new(0.7, Color3.fromRGB(170, 110, 255)),
+		ColorSequenceKeypoint.new(1, Color3.fromRGB(255, 110, 200)),
+	})
+	e.LightEmission = 1
+	e.LightInfluence = 0
+	e.Size = NumberSequence.new({ NumberSequenceKeypoint.new(0, 2.5), NumberSequenceKeypoint.new(1, 5) })
+	e.Transparency = NumberSequence.new({ NumberSequenceKeypoint.new(0, 1), NumberSequenceKeypoint.new(0.3, 0.55), NumberSequenceKeypoint.new(1, 1) })
+	e.Lifetime = NumberRange.new(1.4, 2)
+	e.Rate = 22
+	e.Speed = NumberRange.new(1.5, 3)
+	e.SpreadAngle = Vector2.new(180, 30)
+	e.Acceleration = Vector3.new(0, 3, 0)
+	e.Rotation = NumberRange.new(0, 360)
+	e.RotSpeed = NumberRange.new(-30, 30)
+	e.Parent = a
+end
+
 local function stop(player: Player)
 	runs[player] = nil
 	setAttributes(player, nil, nil)
+	if player.Character then player.Character:SetAttribute("DanceFrozen", nil) end
+	setAurora(player, false)
 end
 
 local function start(player: Player): (boolean, any, any)
@@ -250,6 +289,16 @@ function DanceScoreService.Start()
 			return true
 		elseif action == "Finish" then
 			return finish(player, payload)
+		elseif action == "Freeze" or action == "Aurora" then
+			-- (D-1818c) a miss holds the dance (character attribute DanceFrozen: other screens leave its pose
+			-- alone), the long combo's aurora; only in a run
+			if not runs[player] or not player.Character then return false end
+			if action == "Freeze" then
+				player.Character:SetAttribute("DanceFrozen", if payload == true then true else nil)
+			else
+				setAurora(player, payload == true)
+			end
+			return true
 		end
 		return false
 	end

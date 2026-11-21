@@ -52,6 +52,16 @@ DanceScoreConfig.AnnounceSeconds = 4
 DanceScoreConfig.AnnounceMinOnline = 60
 DanceScoreConfig.AnnounceNear = 48
 
+-- (D-1818c, user 2026-11-21: "누를 때 드럼 소리 내서 흥나게", "전체 콤보 몇인지 계산해서 적당한 수 이상 콤보 찍으면 오로라
+-- 추가") a kick on every hit, a snare over it on PERFECT (Creator Store: "Kick Drum" 137721550021975,
+-- "INSTRUMENT Snare Drum" 127450250691379; swap the ids here); the aurora from this combo on, until a miss
+DanceScoreConfig.DrumKick = 137721550021975
+DanceScoreConfig.DrumSnare = 127450250691379
+function DanceScoreConfig.auroraCombo(total: number): number
+	-- 15 % of the song's notes, in tens, at least 30 (NEON: 409 notes → 60)
+	return math.max(30, math.floor(total * 0.15 / 10 + 0.5) * 10)
+end
+
 DanceScoreConfig.CountIn = 3 -- seconds of 3 · 2 · 1 before the song starts
 DanceScoreConfig.FallTime = 1.35 -- seconds a note takes from the top of its lane to the hit line
 -- judging windows (real seconds from the note's time)
