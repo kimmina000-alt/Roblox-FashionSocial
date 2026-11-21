@@ -41,7 +41,8 @@ M.ChoreoKeepDetail = { "LeftHand", "RightHand", "LeftFoot", "RightFoot" } :: {st
 -- skips it. Studio: FashionGame attribute ChoreoReduceOff = the old clean-ups. nil = off.
 -- (D-1972, 2nd pass) post = true: the shake / average clean-ups still run on the reduced curve (reduction alone made
 -- more fast moments in the real playback: NEON +21 %, Lemonade +23 %, measured by 안무 (3) 편집)
-M.ChoreoReduce = { spike = 4, tol = 8, maxGap = 0.6, post = true, keep = { "Head", "LeftHand", "RightHand", "LeftFoot", "RightFoot" } } :: any
+-- (D-1956) hit = degrees/s: a move this fast that stops dead (or starts) keeps that pose as a still key (the beat's hit)
+M.ChoreoReduce = { spike = 4, tol = 8, maxGap = 0.6, post = true, hit = 150, keep = { "Head", "LeftHand", "RightHand", "LeftFoot", "RightFoot" } } :: any
 M.ChoreoRetarget = true
 
 -- (D-817) a dancer following a choreography walks its dance path (D-813),
