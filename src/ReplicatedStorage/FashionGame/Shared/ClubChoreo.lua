@@ -42,7 +42,10 @@ M.ChoreoKeepDetail = { "LeftHand", "RightHand", "LeftFoot", "RightFoot" } :: {st
 -- (D-1972, 2nd pass) post = true: the shake / average clean-ups still run on the reduced curve (reduction alone made
 -- more fast moments in the real playback: NEON +21 %, Lemonade +23 %, measured by 안무 (3) 편집)
 -- (D-1956) hit = degrees/s: a move this fast that stops dead (or starts) keeps that pose as a still key (the beat's hit)
-M.ChoreoReduce = { spike = 4, tol = 8, maxGap = 0.6, post = true, hit = 150, keep = { "Head", "LeftHand", "RightHand", "LeftFoot", "RightFoot" } } :: any
+-- (D-1956, 2nd review) post = false again: the shake / average clean-ups on top rubbed out small hits (BANG 0-60 s against the
+-- video: hits gone 76 -> 67, reduction off 62; pairs 162 -> 171, off 179); arms shake 5.85 -> 6.28 degrees RMS, legs 4.23 -> 4.34
+-- (before the edits 5.81 / 5.30)
+M.ChoreoReduce = { spike = 4, tol = 8, maxGap = 0.6, post = false, hit = 150, keep = { "Head", "LeftHand", "RightHand", "LeftFoot", "RightFoot" } } :: any
 M.ChoreoRetarget = true
 
 -- (D-817) a dancer following a choreography walks its dance path (D-813),
