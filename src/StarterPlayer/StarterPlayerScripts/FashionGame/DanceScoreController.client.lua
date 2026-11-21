@@ -444,26 +444,38 @@ end)
 -- (D-1818g, user 2026-11-21: "버튼 타이밍 맞춰서 눌렀을 때만 음량 잠깐 키우는 건") a hit swells the song I hear for a
 -- moment: an EqualizerSoundEffect on the stage Sound, every band up by HitSwell dB
 -- (D-1818h, user 2026-11-21: "딱 그 길이만큼만 노래 소리 키우는 거") for exactly as long as the hit sound plays
+-- (D-1818q, user 2026-11-21: "성공하는 순간 딜레이 없이 바로 0.5초 볼륨 5배") the gain is set right in the hit
+-- (not on the next frame); 5 x = +14 dB, more than one EqualizerSoundEffect gives (+10 dB at most), so two
+-- of them share it
 local swell, swellUntil = 0, 0
-local swellEq: EqualizerSoundEffect? = nil
+local swellEqs: {EqualizerSoundEffect} = {}
+local function setSwellGain(gain: number)
+	local first = math.min(gain, 10)
+	local rest = math.min(gain - first, 10)
+	for i, g in ipairs({ first, rest }) do
+		local eq = swellEqs[i]
+		if eq and eq.MidGain ~= g then eq.LowGain, eq.MidGain, eq.HighGain = g, g, g end
+	end
+end
 local function hitSwell(kind: string)
 	local stage = script.Parent:FindFirstChild("NeonStageController")
 	local sound = stage and stage:FindFirstChild("NeonStageMusic")
 	if not (sound and sound:IsA("Sound")) then return end
-	if not swellEq or swellEq.Parent ~= sound then
-		swellEq = (sound:FindFirstChild("DanceHitSwell") :: any) or make("EqualizerSoundEffect", { Name = "DanceHitSwell",
-			LowGain = 0, MidGain = 0, HighGain = 0 }, sound)
+	for i, name in ipairs({ "DanceHitSwell", "DanceHitSwell2" }) do
+		local eq = swellEqs[i]
+		if not eq or eq.Parent ~= sound then
+			swellEqs[i] = (sound:FindFirstChild(name) :: any) or make("EqualizerSoundEffect", { Name = name,
+				LowGain = 0, MidGain = 0, HighGain = 0 }, sound)
+		end
 	end
 	local db = if kind == "PERFECT" then DanceScoreConfig.HitSwellPerfect else DanceScoreConfig.HitSwellGreat
-	local length = DanceScoreConfig.HitSwellTime
 	if os.clock() >= swellUntil or db >= swell then swell = db end
-	swellUntil = os.clock() + length
+	swellUntil = os.clock() + DanceScoreConfig.HitSwellTime
+	setSwellGain(swell)
 end
 RunService.RenderStepped:Connect(function()
-	local eq = swellEq
-	if not eq then return end
-	local gain = if os.clock() < swellUntil then swell else 0
-	if eq.MidGain ~= gain then eq.LowGain, eq.MidGain, eq.HighGain = gain, gain, gain end
+	if #swellEqs == 0 then return end
+	setSwellGain(if os.clock() < swellUntil then swell else 0)
 end)
 
 local function judge(r: Run, note: any, kind: string)

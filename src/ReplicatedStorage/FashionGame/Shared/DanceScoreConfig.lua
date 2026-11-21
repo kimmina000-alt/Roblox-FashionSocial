@@ -70,16 +70,18 @@ DanceScoreConfig.HoldSound = 0
 -- (dB on every band of an EqualizerSoundEffect on the stage Sound)
 -- (D-1818k, user 2026-11-21: "기계음 삭제하고 그 순간 1초씩 음량 2배 키우기로 변경") the hit sounds are gone (the ids
 -- above are kept, unused); a hit makes the song twice as loud (+6 dB = 2 x amplitude) for 1 s from that hit
-DanceScoreConfig.HitSwellPerfect = 6.02
-DanceScoreConfig.HitSwellGreat = 6.02
-DanceScoreConfig.HitSwellTime = 1
+-- (D-1818q, user 2026-11-21: "효과음 빼고 성공하는 순간 딜레이 없이 바로 0.5초 볼륨 5배 키우기") 5 x = +13.98 dB for 0.5 s
+DanceScoreConfig.HitSwellPerfect = 13.98
+DanceScoreConfig.HitSwellGreat = 13.98
+DanceScoreConfig.HitSwellTime = 0.5
 -- (D-1818m, user 2026-11-21: "6 빼고 3 5 7 8 차례대로 버튼 네 개에 하나씩 적용") a hit plays its button's own 0.5 s
 -- EDM sound (tools/art/edm_half.py, docs/04_ART/sfx): 1 ◀/A = edm_3_wobble_half, 2 ▼/S = edm_5_stab,
 -- 3 ▲/D = edm_7_808, 4 ▶/F = edm_8_pump. Upload them (Vantablack_Dev) and put the ids here (0 = silent)
 -- (D-1818o, user 2026-11-21: "a d: 5 / s f: 7") A and D = edm_5_stab, S and F = edm_7_808 (the wobble
 -- 125197725220519 and the pump 116720116970109 are uploaded but unused)
 -- (D-1818p, user 2026-11-21: "7번으로 모두 통일") every button = edm_7_808
-DanceScoreConfig.LaneSounds = { 140128383020491, 140128383020491, 140128383020491, 140128383020491 }
+-- (D-1818q, user 2026-11-21: "효과음 빼고") no button sounds (808 140128383020491 kept here for later)
+DanceScoreConfig.LaneSounds = { 0, 0, 0, 0 }
 DanceScoreConfig.LaneSoundVolume = 0.6
 function DanceScoreConfig.auroraCombo(total: number): number
 	-- 15 % of the song's notes, in tens, at least 30 (NEON: 409 notes → 60)
