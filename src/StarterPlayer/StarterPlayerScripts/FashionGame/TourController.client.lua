@@ -15,7 +15,6 @@
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local TweenService = game:GetService("TweenService")
-local HttpService = game:GetService("HttpService")
 
 local FashionGame = ReplicatedStorage:WaitForChild("FashionGame")
 local remote = FashionGame:WaitForChild("Remotes"):WaitForChild("Guide") :: RemoteFunction
@@ -60,7 +59,7 @@ local STEPS: {Step} = {
 		path = { { eye = Vector3.new(-292, 17, 318), look = Vector3.new(-440, 4, 280), t = 3.2 } } }, -- (D-1367: inside, out to the sea through the glass wall)
 	{ title = "🏪 OH24 편의점", text = "물놀이 후에는 역시 컵라면이지. 편의점에서는 과자, 아이스크림, 컵라면, 삼각김밥을 팔고 있어. 친구바는 친구랑 반씩 나눠 먹을 수도 있어~ 먹을수록 경험치(XP)도 쑥쑥!",
 		eye = Vector3.new(-5, 40, 95), look = Vector3.new(-70, 10, 140) },
-	{ title = "🏯 광화문", text = "이곳은 야경이 예쁜 광화문이야. 개장을 기다리고 있지. 두근두근.",
+	{ title = "🏯 광화문", text = "이곳은 야경이 예쁜 광화문이야.",
 		-- (D-1367) from the plaza in front, a little low: the inside (still being built) is not seen
 		eye = Vector3.new(89, 7, 93), look = Vector3.new(144.5, 16, 147.3) },
 	{ title = "", text = "내가 사는 동네 소개는 여기까지! 화면 버튼에 대한 설명도 들을래?", yes = "응!", no = "아니, 괜찮아!" },
@@ -313,28 +312,8 @@ skip.Activated:Connect(function()
 end)
 if UiBus.StartTour then UiBus.StartTour.Event:Connect(start) end
 
--- (D-1523, user: "첫 접속엔 목표만") the first visit no longer started the tour by itself.
--- (D-1690, user 2026-11-17: "투어 추가해 투어 끝나고 출석 이벤트 보여 주고 목표 안내 순서") it does again:
--- the first visit is ① this tour → ② the opening attendance window (OpeningEventController waits
--- while TourActive) → ③ the first goal (FirstGoalController waits for both). Once: the "tour2" tip;
--- the guide NPC's question still starts it again. (Studio: FirstGoalTest = true shows it every Play.)
-task.spawn(function()
-	local TEST = game:GetService("RunService"):IsStudio() and FashionGame:GetAttribute("FirstGoalTest") == true
-	-- (D-1731, user 2026-11-18: "스튜디오에 튜토리얼이랑 출석 체크 이벤트 띄우지 마 실제로 플레이어들한테는 사용해야 함")
-	-- in Studio the tour starts by itself only with FirstGoalTest on (test players are new every Play);
-	-- live servers are unchanged
-	if game:GetService("RunService"):IsStudio() and not TEST then return end
-	local waited = 0
-	while player:GetAttribute("TipsSeen") == nil and waited < 20 do
-		task.wait(0.5)
-		waited += 0.5
-	end
-	local ok, keys = pcall(function() return HttpService:JSONDecode(player:GetAttribute("TipsSeen") or "[]") end)
-	local seen = ok and typeof(keys) == "table" and table.find(keys, TOUR_KEY) ~= nil
-	if seen and not TEST then return end
-	if not player.Character then player.CharacterAdded:Wait() end
-	local t0 = os.clock()
-	while playerGui:FindFirstChild("OHULoading") and os.clock() - t0 < 90 do task.wait(0.5) end
-	task.wait(1.5)
-	start()
-end)
+-- (D-1523, user: "첫 접속엔 목표만") the first visit no longer started the tour by itself; D-1690 brought
+-- it back as the first thing a newcomer sees.
+-- (D-1980, 2026-11-21: 91 % of new players skipped it in the last 7 days) it no longer starts by itself:
+-- the first visit shows one card with three places instead (FirstCardController). The tour starts only
+-- from the guide rabbit's question (UiBus.StartTour, above).

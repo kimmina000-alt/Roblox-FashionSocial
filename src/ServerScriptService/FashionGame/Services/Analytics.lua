@@ -23,13 +23,19 @@
 --               how far (로딩 중 | 가만히 | 걷기만 | the last activity done)
 --    LoadSecs   (value = seconds the loading screen was up) New | Back
 --    TourEnd    (value = the tour card reached, 1..18) 끝까지 | 건너뜀 / New | Back
+--    FirstCard  (value = seconds the first-visit card was up; D-1980) 클럽 | 사진 | 놀이공원 | 닫기 |
+--               다른 창 | 안내원 / 낮 | 밤 / New | Back. The card holds three places (FirstCardController);
+--               the tour starts only from the guide NPC since then.
 -- 2. Custom events (field 1 / 2 / 3):
 --    PlaceEnter        place / New|Back / Solo|Friends        each entry (not within 60 s of the last one there)
 --    Interact          activity / place / New·Solo ...        doing something (dance, eat, photo ...), once per
 --                                                             activity and place per 5 minutes
 --    FirstAction       action / order 1..6 / time bucket      new players: the first 6 different first things done
 --    FirstInteractSecs (value = seconds)                      new players: join → first interaction
---    FirstSession      3분 | 10분                              new players: stayed that long in the first visit
+--    FirstSession      3분 | 10분 / spawn spot                 new players: stayed that long in the first visit
+--                                                             (field 2 since D-1982: SpawnSpot, "-" before)
+--    SpawnAt           spawn spot / 낮 | 밤 / New | Back      (D-1982) where the player appeared on joining
+--                                                             (SpawnService: beach, park, photo, club, friend)
 -- 3. Recurring funnels (a session id per run):
 --    PhotoBooth  1 부스 입장 → 2 촬영 시작 → 3 컷·프레임 고름 → 4 저장   (PhotoBoothService, its session id)
 --    ClubVisit   1 입장 → 2 첫 춤                                     (each entry into the club)
@@ -91,7 +97,7 @@ type State = {
 	lastSaveAt: number?, lastBooth: string?, recheckedBooth: string?, lastAlbum: number,
 	-- (D-1524) onboarding steps reached (sent once `newKnown`), first leave
 	newKnown: boolean, reached: {[number]: string}, loaded: boolean, moved: boolean,
-	spawnAt: Vector3?, lastAction: string?, tourEnded: boolean,
+	spawnAt: Vector3?, lastAction: string?, tourEnded: boolean, cardEnded: boolean,
 }
 local states: {[Player]: State} = {}
 local friends: {[number]: {[number]: boolean}} = {}
@@ -178,6 +184,7 @@ function Analytics.interact(player: Player, activity: string)
 	s.lastAction = activity -- (D-1524: FirstLeave's "how far")
 	if not s.interacted then
 		s.interacted = true
+		player:SetAttribute("Interacted", true) -- (D-1981: the opening attendance window waits for it)
 		onboarding(player, 4, "첫 상호작용") -- (D-1524: was step 2)
 		if s.new then
 			custom(player, "FirstInteractSecs", math.floor(os.clock() - s.joined + 0.5), nil)
@@ -295,7 +302,7 @@ local function onPlayer(player: Player)
 		playtime = 0, dwell3 = false, dwell10 = false,
 		lastSaveAt = nil, lastBooth = nil, recheckedBooth = nil, lastAlbum = -math.huge,
 		newKnown = false, reached = {}, loaded = false, moved = false,
-		spawnAt = nil, lastAction = nil, tourEnded = false,
+		spawnAt = nil, lastAction = nil, tourEnded = false, cardEnded = false,
 	}
 	states[player] = s
 	onboarding(player, 1, "접속")
@@ -329,6 +336,20 @@ local function onPlayer(player: Player)
 				end
 			end
 		end
+	end)
+	-- (D-1982) the join spawn spot (SpawnService): the first move counts from there, and SpawnAt once
+	-- New | Back is known (30 s, as LoadSecs)
+	player:GetAttributeChangedSignal("SpawnSpot"):Connect(function()
+		local st = states[player]
+		if not st then return end
+		if not st.moved then st.spawnAt = nil end
+		local spot = player:GetAttribute("SpawnSpot")
+		local night = player:GetAttribute("SpawnNight") == true
+		task.delay(30, function()
+			if states[player] == st and typeof(spot) == "string" then
+				custom(player, "SpawnAt", 1, fields(spot, if night then "밤" else "낮", visitor(player)))
+			end
+		end)
 	end)
 	-- sitting anywhere (benches, stools, chairs) counts as doing something
 	local function watch(character: Model)
@@ -386,6 +407,14 @@ function Analytics.Start(zoneFn: (Player) -> string?, balanceFn: (Player) -> num
 				if states[player] == s then custom(player, "LoadSecs", secs, fields(visitor(player))) end
 			end)
 			return
+		elseif step == "FirstCard" then -- (D-1980) the first-visit card: which place, or closed
+			if not s or s.cardEnded or typeof(arg) ~= "table" then return end
+			s.cardEnded = true
+			local CHOICES = { ["클럽"] = true, ["사진"] = true, ["놀이공원"] = true, ["닫기"] = true, ["다른 창"] = true, ["안내원"] = true }
+			local choice = if typeof(arg.choice) == "string" and CHOICES[arg.choice] then arg.choice else "닫기"
+			local secs = if typeof(arg.secs) == "number" and arg.secs == arg.secs then math.clamp(math.floor(arg.secs + 0.5), 0, 600) else 0
+			custom(player, "FirstCard", secs, fields(choice, if arg.night == true then "밤" else "낮", visitor(player)))
+			return
 		elseif step == "TourSkip" or step == "TourDone" then
 			if not s or s.tourEnded then return end
 			s.tourEnded = true
@@ -409,7 +438,8 @@ function Analytics.Start(zoneFn: (Player) -> string?, balanceFn: (Player) -> num
 			local now = os.clock()
 			for player, s in pairs(states) do
 				if not player.Parent or player:GetAttribute("Spectating") then continue end
-				local place = zoneOf(player)
+				-- (D-1982) not the default spawn's place in the moment before SpawnService moves the character
+				local place = if player:GetAttribute("SpawnSpot") ~= nil or now - s.joined > 20 then zoneOf(player) else nil
 				if place and place ~= s.place then
 					s.place = place
 					if place ~= "거리" and (not s.lastEnter[place] or now - s.lastEnter[place] > 60) then
@@ -432,6 +462,7 @@ function Analytics.Start(zoneFn: (Player) -> string?, balanceFn: (Player) -> num
 							s.spawnAt = root.Position
 						elseif (root.Position - (s.spawnAt :: Vector3)).Magnitude > 20 then
 							s.moved = true
+							player:SetAttribute("Moved", true) -- (D-1981)
 							onboarding(player, 3, "첫 이동")
 						end
 					end
@@ -440,12 +471,12 @@ function Analytics.Start(zoneFn: (Player) -> string?, balanceFn: (Player) -> num
 					local stayed = now - s.joined
 					if not s.dwell3 and stayed >= 180 then
 						s.dwell3 = true
-						custom(player, "FirstSession", 1, fields("3분"))
+						custom(player, "FirstSession", 1, fields("3분", player:GetAttribute("SpawnSpot") or "-"))
 						onboarding(player, 5, "3분 머묾")
 					end
 					if not s.dwell10 and stayed >= 600 then
 						s.dwell10 = true
-						custom(player, "FirstSession", 1, fields("10분"))
+						custom(player, "FirstSession", 1, fields("10분", player:GetAttribute("SpawnSpot") or "-"))
 						onboarding(player, 6, "10분 머묾")
 					end
 				end

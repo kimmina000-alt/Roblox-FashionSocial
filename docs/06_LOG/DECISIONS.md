@@ -6801,3 +6801,20 @@ Studio only (no script yet).
 - User: "둘 다 진행해" (this and the per-player translation table, D-1845 of the i18n session). Workspace.StreamingMinRadius 128 → 64 (StreamingTargetRadius 256, Opportunistic, PauseOutsideLoadedArea unchanged), place only: a joining phone must have only 64 studs around the spawn before the game starts; the rest up to 256 streams in while playing.
 - Parts within 128 / 64 studs of the spawn candidates (Studio count): 놀이공원 안 2,334 / 205, 오후네컷 앞 2,811 / 1,067, 클럽 앞 3,427 / 992, NW 광장 2,435 / 503, 해변 326 / 51, 한옥 210 / 59.
 - Studio Play on one PC cannot show it (the content arrives at once; parts at the close were 7,223 both times): check LoadSecs for new players on the dashboard a day after publishing (11-20..21: about 11 s).
+
+## D-1980 첫 방문: 긴 투어 대신 장소 카드 하나 (2026-11-21)
+- 근거(최근 7일 대시보드, 진행 관리 세션): 신규 5,780명 로딩 끝 84% → 첫 이동 62% → 첫 상호작용 42% → 3분 31% → 10분 11%. 투어 91% 건너뜀(1,485 대 141). 58%가 3분 안에 나감(거리 36%, 포켓 공원 35%).
+- 사용자가 시안 3개 중 B를 고름: 화면 아래(핫바 위) 큰 정사각 타일 "어디부터 가 볼까?" — 🎧 클럽 가기(밤 18:00~06:00에만, 낮에는 숨김) · 📸 사진 찍으러 가기(오후네컷) · 🎢 놀이공원 가기(OHU LAND), ✕ 닫기. 시안: 공유 노트 폴더 first_card_mockups.html.
+- 타일을 누르면 카드가 닫히고 FirstGoalController의 걷는 길 점선(UiBus.ShowWay(key))이 그곳까지. 사용자 선택 "낮 흰 점선 / 밤 네온 핑크": 낮 흰색 투명도 0.45, 밤 핑크(255, 92, 205) 0.3, 표지도 밤에는 진한 핑크. 클럽은 문 → 안의 댄스 플로어까지.
+- 한 번만: 팁 "card1"(+ "tour2"). 새 FirstCardController. Studio에서는 FirstGoalTest = true일 때만.
+- 투어(TourController)는 저절로 시작하지 않음. 안내원 토끼 질문 "🗺 동네 둘러보기"(전 "… 다시 보기")로만.
+- 분석: 커스텀 이벤트 FirstCard(값 = 카드가 떠 있던 초, 클럽/사진/놀이공원/닫기/다른 창 · 낮/밤 · New/Back). 온보딩 퍼널은 그대로. docs/01_SYSTEMS/ANALYTICS.md.
+
+## D-1981 첫 1분은 창을 적게: 출석 이벤트 창은 첫 이동 · 첫 상호작용 뒤 (2026-11-21)
+- OpeningEventController의 자동 창은 플레이어가 처음 20스터드 움직였거나(서버 Analytics 첫 이동) 처음 무언가를 한 뒤(첫 상호작용)에만, 그 뒤 2초 + 다른 창이 없을 때 열림. 서버가 플레이어 속성 Moved / Interacted를 켬. 🎁 버튼은 그대로 언제든.
+
+## D-1982 신규 접속 위치를 여러 곳으로 (2026-11-21)
+- 근거: FirstLeave에서 신규 70%가 지금 스폰 근처(거리 36%, 포켓 공원 35%)에서 나감. 사용자 결정(진행 관리 세션 전달): 처음부터 할 거리 한가운데에 떨어뜨리기.
+- 접속할 때마다 첫 캐릭터만 게임 시각에 맞는 후보 중 하나로(무작위). 낮: 해변 · 놀이공원 안 · 오후네컷 앞(한옥 마을은 사용자 11-21 결정으로 뺌: 광화문만 남기고 마을을 걷어 냄). 밤: 놀이공원 안 · 클럽 입구 앞 · 오후네컷 앞(밤 해변은 "밤이 무서워요"라서 뺌). 같은 서버에 Roblox 친구가 있으면 그 친구 옆(4스터드, 앉아 있거나 관전 중이면 제외). 리스폰은 지금처럼 안내원 옆 SpawnLocation(포켓 공원 주차장, 걷는 곳 밖)을 그대로 씀.
+- Shared/SpawnConfig(위치, Enabled 스위치) + SpawnService. 옮기기 전에 RequestStreamAroundAsync로 그곳을 먼저 불러옴. Studio 테스트 스폰(StudioTestSpawn)이 켜져 있으면 끔.
+- 분석: 새 이벤트 SpawnAt(스폰 위치 / 낮 · 밤 / New · Back), FirstSession 필드 2 = 스폰 위치. 첫 이동은 옮긴 곳부터 셈.
