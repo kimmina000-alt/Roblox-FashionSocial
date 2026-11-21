@@ -108,6 +108,17 @@ entry.AnchorPoint = Vector2.new(0, 0)
 entry.Position = UDim2.fromOffset(16, 60)
 entry.Size = UDim2.fromOffset(256, 64) -- (user 2026-11-21: "오늘의 곡 도전 크기 더 키우기 2배로": was 128 × 32, 14)
 entry.Visible = false
+-- (D-1818e, user 2026-11-21: "오늘의 곡 도전 버튼에 네온 테두리 넣어 주기") a pink · purple · cyan neon edge that
+-- turns slowly and glows a little brighter and dimmer
+local entryEdge = make("UIStroke", { Color = Color3.new(1, 1, 1), Thickness = 3, ApplyStrokeMode = Enum.ApplyStrokeMode.Border }, entry)
+local entryEdgeGradient = make("UIGradient", { Color = ColorSequence.new({ ColorSequenceKeypoint.new(0, PINK),
+	ColorSequenceKeypoint.new(0.5, Color3.fromRGB(170, 110, 255)), ColorSequenceKeypoint.new(1, CYAN) }) }, entryEdge)
+RunService.RenderStepped:Connect(function()
+	if not entry.Visible then return end
+	local t = os.clock()
+	entryEdgeGradient.Rotation = (t * 90) % 360
+	entryEdge.Thickness = 3 + 0.8 * math.sin(t * 3)
+end)
 
 --------------------------------------------------------------------------
 -- start window
