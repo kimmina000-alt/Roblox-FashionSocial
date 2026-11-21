@@ -59,7 +59,7 @@ DanceScoreConfig.AnnounceNear = 48
 -- of the drums: a short crisp tick on every hit ("Note Hit Sound (Crisp)" 8537782950, 0.06 s) and a bright ping
 -- over it on PERFECT ("Note Hit Sound (Ping)" 8537544526, 0.08 s); the drums were kick 137721550021975 /
 -- snare 127450250691379
-DanceScoreConfig.HitSound = 8537782950
+DanceScoreConfig.HitSound = 139362397261513 -- (D-1818h: dance_hit.wav, uploaded by the user 2026-11-21; was Crisp 8537782950)
 DanceScoreConfig.PerfectSound = 8537544526
 -- (D-1818g, user 2026-11-21: "사이버펑크 edm 같은 소리면 좋겠는데") our own cyberpunk stabs: tools/art/dance_sfx.py makes
 -- docs/04_ART/sfx/dance_hit.wav / dance_perfect.wav / dance_hold.wav; once uploaded (Vantablack_Dev) their ids go
