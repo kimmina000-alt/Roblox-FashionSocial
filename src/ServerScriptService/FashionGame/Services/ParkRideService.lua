@@ -315,6 +315,38 @@ function ParkRideService.Start()
 		ride.model:SetAttribute("Drive", Vector3.new(position.X, base.Y, position.Z))
 		ride.model:SetAttribute("DriveYaw", yaw % (2 * math.pi))
 	end)
+	-- (D-1885 / D-1888) the vikings, the tea cups and the jumping star run on demand: the first rider to
+	-- sit down on a standing ride starts the ParkConfig.RideWait countdown (Ride attribute RunAt = the
+	-- run's start, server time); everyone off before it starts, the countdown is called off. Riders
+	-- still on after a run: the next one RideWait later. LastEnd = when the run before ended (the tea
+	-- cups hold their spin from it while standing).
+	task.spawn(function()
+		local KINDS = { "ParkViking", "ParkTeaCups", "ParkJumpStar" }
+		while true do
+			task.wait(0.2)
+			if not ParkConfig.RidesOnDemand then continue end
+			local t = now()
+			for _, tag in ipairs(KINDS) do
+				for _, ride in ipairs(CollectionService:GetTagged(tag)) do
+					if not ride:IsA("Model") or not ride:IsDescendantOf(workspace) then continue end
+					local anyone = false
+					for index = 1, ParkConfig.rideSeatCount(ride) do
+						if ride:GetAttribute("Rider" .. index) ~= nil then anyone = true break end
+					end
+					local runAt = ride:GetAttribute("RunAt")
+					local runLen = ParkConfig.runLength(ride)
+					local pending = typeof(runAt) == "number" and t < runAt
+					local running = typeof(runAt) == "number" and t >= runAt and t < runAt + runLen
+					if anyone and not pending and not running then
+						if typeof(runAt) == "number" then ride:SetAttribute("LastEnd", runAt + runLen) end
+						ride:SetAttribute("RunAt", t + ParkConfig.RideWait)
+					elseif not anyone and pending then
+						ride:SetAttribute("RunAt", nil)
+					end
+				end
+			end
+		end
+	end)
 	-- tubes bump (user 2026-10-30): a drifting tube that touches another is
 	-- pushed off (BumpVel / BumpAt, read by ParkConfig.floatCFrame); a paddled
 	-- tube bounces on its rider's side (ParkRidesController)

@@ -20,6 +20,9 @@ UiBus.StartTour = Instance.new("BindableEvent")
 UiBus.OpenSupport = Instance.new("BindableEvent")
 -- (D-1697) the guide's "뭘 해야 할지 모르겠어.": the dashed way to the club (night) / 오후네컷 (day) (FirstGoalController)
 UiBus.ShowWay = Instance.new("BindableEvent")
+-- (D-1983) a player closed the first card / skipped the tour: "궁금한 게 있으면 나한테 찾아와!" and the guide outlined
+-- (GuideHintController)
+UiBus.GuideHint = Instance.new("BindableEvent")
 
 -- (D-1792) the neon stage (NeonStageController): dance a song's choreography on the stage's shared
 -- clock (soundId, server start time), or nil to stop (ChoreoController)

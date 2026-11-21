@@ -317,6 +317,22 @@ local function keyPoints(poses: {CFrame}, times: {number}, tol: number, maxGap: 
 	return list
 end
 
+-- (D-1956, 2nd review of D-1972: BANG 0-60 s hits ±60 ms 52 % -> 49 %, 25 ms late, 15 of 271 hits gone; the keys only kept
+-- the farthest-out poses, so the frame where a fast move stops dead (or starts out of a hold) was dropped and the curve
+-- slid through it) the poses where a move faster than `hit` degrees/s stops (or starts) are kept too, and the curve is
+-- still there
+local function hitPoints(poses: {CFrame}, times: {number}, hit: number): {[number]: boolean}
+	local n = #poses
+	local sp = {}
+	for i = 2, n do sp[i] = angleOf(poses[i - 1], poses[i]) / math.max(times[i] - times[i - 1], 1e-3) end
+	local out = {}
+	for i = 3, n - 2 do
+		local vin, vout = (sp[i - 1] + sp[i]) / 2, (sp[i + 1] + sp[i + 2]) / 2
+		if (vin > hit and vout < 0.35 * vin) or (vout > hit and vin < 0.35 * vout) then out[i] = true end
+	end
+	return out
+end
+
 -- a turn as a vector (axis × radians) and back
 local function logOf(c: CFrame): Vector3
 	local axis, ang = c:ToAxisAngle()
@@ -331,6 +347,14 @@ end
 local function reduce(raw: {CFrame}, times: {number}, settings: any): {CFrame}
 	local poses = despike(raw, settings.spike or 3)
 	local keys = keyPoints(poses, times, settings.tol or 4, settings.maxGap or 0.5)
+	local still = if settings.hit then hitPoints(poses, times, settings.hit) else {} -- (D-1956)
+	if next(still) then
+		local set = {}
+		for _, i in ipairs(keys) do set[i] = true end
+		for i in pairs(still) do set[i] = true end
+		keys = {}
+		for i = 1, #poses do if set[i] then table.insert(keys, i) end end
+	end
 	local out = table.clone(poses)
 	for s = 1, #keys - 1 do
 		local i1, i2 = keys[s], keys[s + 1]
@@ -355,12 +379,14 @@ local function reduce(raw: {CFrame}, times: {number}, settings: any): {CFrame}
 			local turning = u0.Magnitude > 1e-4 and u2.Magnitude > 1e-4 and u0:Dot(u2) > 0
 			m1 = if turning then Vector3.zero else (u2 - u0) / (t2 - times[i0]) * dt
 		end
+		if still[i1] then m1 = Vector3.zero end
 		local m2 = u2
 		if u3 then
 			local back, ahead = -u2, u3 - u2
 			local turning = back.Magnitude > 1e-4 and ahead.Magnitude > 1e-4 and back:Dot(ahead) > 0
 			m2 = if turning then Vector3.zero else u3 / (times[i3] - t1) * dt
 		end
+		if still[i2] then m2 = Vector3.zero end
 		for k = i1 + 1, i2 - 1 do
 			local x = (times[k] - t1) / dt
 			local x2, x3 = x * x, x * x * x
