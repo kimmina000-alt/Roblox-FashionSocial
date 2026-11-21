@@ -5235,7 +5235,11 @@ do
 		-- garden were out of bounds): it now goes round the village's outer stone walls (x 80..548,
 		-- z 182..648) — east along the palace wall's south line (z 52) to x 560, north to z 665, west to the
 		-- palace wall's west line (x 52) and down it to z 387; the roads outside stay closed
-		{ 194, -50 }, { 277, -50 }, { 277, 52 }, { 560, 52 }, { 560, 665 }, { 52, 665 }, { 52, 387 }, { -415, 387 },	}
+		-- (D-1916, user 2026-11-21: "한옥마을은 그냥 광화문만 둬야겠다") the village is gone (backed up in the place):
+		-- the line now runs along the 광화문 palace walls (NE curve, straight across the closed gate, SW curve,
+		-- then down x 52), so nobody walks into the empty land behind them; the 광화문 yard in front stays open
+		{ 194, -50 }, { 277, -50 }, { 290, 50 }, { 263, 74 }, { 244, 109 }, { 223, 141 }, { 138, 227 }, { 107, 254 },
+		{ 82, 279 }, { 62, 306 }, { 52, 335 }, { 52, 387 }, { -415, 387 },	}
 	for i = 1, #P do
 		local a, b = P[i], P[(i % #P) + 1]
 		local pa, pb = Vector3.new(a[1], 0, a[2]), Vector3.new(b[1], 0, b[2])

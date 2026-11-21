@@ -1,3 +1,4 @@
+-- RETIRED (D-1916, 2026-11-21): 한옥 마을을 지움(광화문만 남김). 다시 돌리지 마세요: tools/graybox/LAYOUT.md "한옥 마을 삭제".
 -- (D-1328, user 2026-11-12, two photos of 한옥 마을 walls: "블록 감싸고 있는 벽 돌담벽으로
 -- 구현하기") The user's own wall Parts round the 한옥 blocks (Workspace top level, 13.8 tall,
 -- 2 thick, length along X) get the photo's look: square grey stone blocks in white mortar,

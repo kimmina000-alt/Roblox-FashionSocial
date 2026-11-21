@@ -6666,3 +6666,10 @@ Studio only (no script yet).
 - user 2026-11-20: "공터 단상에 네온 노래 더 자주 나오게 해 줘 3~4곡 걸러서 한 번 나오게".
 - NeonStageService.pick(): 서버의 첫 곡은 NEON. 그 뒤 다른 안무 곡을 무작위로 3곡 또는 4곡(NeonStageConfig.NeonEvery = {3, 4}, 매번 새로 뽑음) 틀고 다시 NEON. 그 사이 곡에는 NEON이 안 나오고, 바로 앞 곡도 다시 안 나옴.
 - 안무가 생긴 곡은 따로 등록하지 않아도 단상 목록에 들어감(NeonStageConfig.tracks()가 곡을 고를 때마다 ClubPlaylist를 읽음; 여러 클립을 이은 곡만 빠짐).
+## D-1916 한옥 마을 삭제: 광화문만 남기고 백업 (2026-11-21)
+- 사용자(진행 관리 세션이 전달): "한옥마을은 그냥 광화문만 둬야겠다. 한옥마을 만든 거 따로 묶어서 백업해 놓고 삭제."
+- Studio(place 전용): Workspace 의 HanokVillage(1,374) · HanokGarden(654) · HanokCafe(1,272) · HanokRoofs · HanokStoneWalls(320) · HanokStoneWall 조각 25 · 남은 한옥 블록 2 · 벚나무 3 · HanokWallKitPreview(125), ServerStorage 의 ParkedHanokBlocks · HanokDevSrc 를 ServerStorage.Backup_HanokVillage_1121 로. 백업 안 태그 357개는 BackupTags 속성에 적고 지움(위치를 쓰는 서비스가 사본을 집지 않게), 스크립트 없음. 지형 연못 두 곳(정원 · 북쪽 육각정)의 물을 비움(정원 쪽은 빈 땅, 북쪽은 잔디 둑만 남음). Workspace 부품 22,838 → 19,032(−3,806).
+- 남긴 것: 광화문(Hongdae_Layout.Gwanghwamun 639 부품, 옆 담 HanokWallExtension, 해태, 앞마당 잔디), 가림막 HanokHoarding(빈 땅을 가림), 그레이박스 07_Hanok_Village(체인이 만드는 옛 구역, (391,-37) 근처 — 확인 필요).
+- 맵 경계: D-1733 의 마을 바깥 둘레 선을 빼고 광화문 담을 따라 (277,-50) → (290,50) → 북동 곡선 → 닫힌 문을 가로질러 → 남서 곡선 → (52,335) → (52,387). tools/graybox/hanok_close_1121.lua(지금 장소: 벽 5 빼고 10 세움), build_hongdae_layout.lua 의 경계 목록도 같은 선.
+- 체인: hanok_ground_fill(3-24) · hanok_open_1118 · hanok_stonewall_1112 은 은퇴(파일 맨 위 RETIRED 표시, LAYOUT.md). 정원 · 카페 · 마을 스크립트는 기록용으로 남기되 다시 돌리지 않음.
+- 코드에서 한옥 카페 / 마을을 쓰는 곳(고칠지는 메인 세션과 정함): CafeJobConfig.Shops "HanokCafe"(알바 가게), SnackConfig.HanokCafe("OHU 한옥카페" 메뉴) + SnackMenuArt.HanokCafe, TrashConfig.TreasureShops "HanokCafe"(쓰레기통 보물 D-1920), GuideConfig 장소 hanok "광화문 · 한옥 마을", TourController 광화문 단계 문구, StudioTestSpawn(D-1732, 문 안쪽 (178, 5, 230) = 이제 경계 밖, Studio 전용), ParkGatePassController(D-1734, 제작자만 문 통과 → 이제 문 뒤는 빈 땅).
