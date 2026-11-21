@@ -295,6 +295,10 @@ local function setPlayMode(on: boolean)
 	if on then
 		hidden.touch = GuiService.TouchControlsEnabled
 		GuiService.TouchControlsEnabled = false
+		-- (D-1818w, user 2026-11-21: "게임 시작하면 자동으로 무대 카메라 켜지게 하자") the stage camera films the run
+		-- (StageCameraController, LocalPlayer attribute StageCamera); put back as it was afterwards
+		hidden.stageCam = player:GetAttribute("StageCamera") == true
+		player:SetAttribute("StageCamera", true)
 		if humanoid then hidden.walk = humanoid.WalkSpeed humanoid.WalkSpeed = 0 end
 		for _, name in ipairs({ "FashionHotbar", "NeonStageCamera" }) do
 			local g = playerGui:FindFirstChild(name)
@@ -307,6 +311,7 @@ local function setPlayMode(on: boolean)
 			false, Enum.ContextActionPriority.High.Value, Enum.KeyCode.A, Enum.KeyCode.S, Enum.KeyCode.D, Enum.KeyCode.F)
 	else
 		if hidden.touch ~= nil then GuiService.TouchControlsEnabled = hidden.touch end
+		if hidden.stageCam ~= nil then player:SetAttribute("StageCamera", if hidden.stageCam then true else nil) end
 		if humanoid and hidden.walk then humanoid.WalkSpeed = hidden.walk end
 		for _, name in ipairs({ "FashionHotbar", "NeonStageCamera" }) do
 			local g = hidden[name]

@@ -121,7 +121,11 @@ local function wanted(): (ClubConfig.Track?, ClubCamera.Song?)
 	local r = root()
 	-- (D-1820) on the neon stage: the stage's song
 	if stageStart() then
-		local stageTrack = NeonStageConfig.track()
+		-- (D-1818w) in 오늘의 곡 도전 the stage clock is the challenge's: its own song, not the stage's
+		local character = player.Character
+		local challengeTrack = character and typeof(character:GetAttribute("DanceChallenge")) == "number"
+			and NeonStageConfig.trackById(character:GetAttribute("DanceChallengeTrack"))
+		local stageTrack = challengeTrack or NeonStageConfig.track()
 		local stageSong = stageTrack and ClubCamera.forTrack(stageTrack)
 		if not stageTrack or not stageSong then return nil, nil end
 		return stageTrack, stageSong
