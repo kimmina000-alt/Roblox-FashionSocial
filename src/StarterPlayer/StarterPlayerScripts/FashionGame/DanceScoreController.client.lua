@@ -558,6 +558,7 @@ local function fillBoards()
 		for i, row in ipairs(b.rows) do
 			local e = list[i]
 			row.Text = if e then string.format("%2d  %s", i, tostring(e.n)) else ""
+			row.Visible = e ~= nil
 			local score = row:FindFirstChild("Score") :: TextLabel?
 			if score then score.Text = if e then tostring(e.s) else "" end
 			row.TextColor3 = if i == 1 then YELLOW elseif i <= 3 then Color3.fromRGB(255, 160, 210) else Color3.new(1, 1, 1)

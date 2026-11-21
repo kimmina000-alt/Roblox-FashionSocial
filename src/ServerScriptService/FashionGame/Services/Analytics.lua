@@ -24,7 +24,7 @@
 --    LoadSecs   (value = seconds the loading screen was up) New | Back
 --    TourEnd    (value = the tour card reached, 1..18) 끝까지 | 건너뜀 / New | Back
 --    FirstCard  (value = seconds the first-visit card was up; D-1980) 클럽 | 사진 | 놀이공원 | 닫기 |
---               다른 창 | 안내원 / 낮 | 밤 / New | Back. The card holds three places (FirstCardController);
+--               다른 창 | 안내원 | 오늘의 곡 (D-1817) / 낮 | 밤 / New | Back. The card holds three places (FirstCardController);
 --               the tour starts only from the guide NPC since then.
 -- 2. Custom events (field 1 / 2 / 3):
 --    PlaceEnter        place / New|Back / Solo|Friends        each entry (not within 60 s of the last one there)
@@ -410,7 +410,7 @@ function Analytics.Start(zoneFn: (Player) -> string?, balanceFn: (Player) -> num
 		elseif step == "FirstCard" then -- (D-1980) the first-visit card: which place, or closed
 			if not s or s.cardEnded or typeof(arg) ~= "table" then return end
 			s.cardEnded = true
-			local CHOICES = { ["클럽"] = true, ["사진"] = true, ["놀이공원"] = true, ["닫기"] = true, ["다른 창"] = true, ["안내원"] = true }
+			local CHOICES = { ["클럽"] = true, ["사진"] = true, ["놀이공원"] = true, ["닫기"] = true, ["다른 창"] = true, ["안내원"] = true, ["오늘의 곡"] = true } -- (D-1817: the day tile)
 			local choice = if typeof(arg.choice) == "string" and CHOICES[arg.choice] then arg.choice else "닫기"
 			local secs = if typeof(arg.secs) == "number" and arg.secs == arg.secs then math.clamp(math.floor(arg.secs + 0.5), 0, 600) else 0
 			custom(player, "FirstCard", secs, fields(choice, if arg.night == true then "밤" else "낮", visitor(player)))
