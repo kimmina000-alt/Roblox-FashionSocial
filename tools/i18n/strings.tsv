@@ -96,7 +96,7 @@ aab933	exact	신발	2	src/ReplicatedStorage/FashionGame/Shared/CatalogConfig.lua
 f32dcc	exact	클래식 셔츠	2	src/ReplicatedStorage/FashionGame/Shared/CatalogConfig.lua:113
 caf4fe	exact	클래식 티셔츠	2	src/ReplicatedStorage/FashionGame/Shared/CatalogConfig.lua:114
 9c45aa	exact	클래식 바지	2	src/ReplicatedStorage/FashionGame/Shared/CatalogConfig.lua:115
-f563e5	exact	액세서리	3	src/ReplicatedStorage/FashionGame/Shared/CatalogConfig.lua:120
+f563e5	exact	액세서리	4	src/ReplicatedStorage/FashionGame/Shared/CatalogConfig.lua:120
 ae5db2	exact	모자	2	src/ReplicatedStorage/FashionGame/Shared/CatalogConfig.lua:122
 dd57cc	exact	얼굴 액세서리	1	src/ReplicatedStorage/FashionGame/Shared/CatalogConfig.lua:123
 03876a	exact	목	2	src/ReplicatedStorage/FashionGame/Shared/CatalogConfig.lua:124
@@ -110,7 +110,7 @@ c0b0c8	exact	눈썹	1	src/ReplicatedStorage/FashionGame/Shared/CatalogConfig.lua
 02b9bb	exact	얼굴 메이크업	1	src/ReplicatedStorage/FashionGame/Shared/CatalogConfig.lua:137
 8a80e4	exact	입술 메이크업	1	src/ReplicatedStorage/FashionGame/Shared/CatalogConfig.lua:138
 bda8c3	exact	눈 메이크업	1	src/ReplicatedStorage/FashionGame/Shared/CatalogConfig.lua:139
-4b8034	exact	애니메이션	3	src/ReplicatedStorage/FashionGame/Shared/CatalogConfig.lua:144
+4b8034	exact	애니메이션	4	src/ReplicatedStorage/FashionGame/Shared/CatalogConfig.lua:144
 df9ab9	exact	애니메이션 팩	1	src/ReplicatedStorage/FashionGame/Shared/CatalogConfig.lua:146
 f5697e	exact	대기	1	src/ReplicatedStorage/FashionGame/Shared/CatalogConfig.lua:147
 62f6ee	exact	걷기	1	src/ReplicatedStorage/FashionGame/Shared/CatalogConfig.lua:148
@@ -124,12 +124,12 @@ c058ef	exact	이모트	1	src/ReplicatedStorage/FashionGame/Shared/CatalogConfig.
 c27184	exact	기타	1	src/ReplicatedStorage/FashionGame/Shared/CatalogConfig.lua:160
 c27044	exact	기어	1	src/ReplicatedStorage/FashionGame/Shared/CatalogConfig.lua:162
 8a5a60	exact	아바타 배경	1	src/ReplicatedStorage/FashionGame/Shared/CatalogConfig.lua:163
-aabd4a	exact	신체	3	src/ReplicatedStorage/FashionGame/Shared/CatalogConfig.lua:78
+aabd4a	exact	신체	4	src/ReplicatedStorage/FashionGame/Shared/CatalogConfig.lua:78
 c5ebaf	exact	전신	1	src/ReplicatedStorage/FashionGame/Shared/CatalogConfig.lua:83
 0a7e10	exact	헤어	4	src/ReplicatedStorage/FashionGame/Shared/CatalogConfig.lua:84
 9971f3	exact	머리	4	src/ReplicatedStorage/FashionGame/Shared/CatalogConfig.lua:88
 527315	exact	얼굴	4	src/ReplicatedStorage/FashionGame/Shared/CatalogConfig.lua:92
-331a24	exact	복장	3	src/ReplicatedStorage/FashionGame/Shared/CatalogConfig.lua:97
+331a24	exact	복장	4	src/ReplicatedStorage/FashionGame/Shared/CatalogConfig.lua:97
 50bc76	exact	셔츠	2	src/ReplicatedStorage/FashionGame/Shared/CatalogConfig.lua:99
 25e6b5	exact	무지개	1	src/ReplicatedStorage/FashionGame/Shared/ClubConfig.lua:197
 d9c3c9	exact	마젠타	1	src/ReplicatedStorage/FashionGame/Shared/ClubConfig.lua:198
@@ -1184,39 +1184,39 @@ fd3268	exact	착용 중	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/Cat
 6ca628	exact	검색 · ID	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/CatalogController.client.lua:1693
 30f25b	exact	이름 또는 아이템 ID로 검색	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/CatalogController.client.lua:1693
 dfc4bc	exact	필터	2	src/StarterPlayer/StarterPlayerScripts/FashionGame/CatalogController.client.lua:1701
-582701	exact	아바타 편집 중인 변경 사항을 먼저 적용하거나 취소하세요.	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/CatalogController.client.lua:1967
-1b3b62	exact	레이어 순서를 바꾸지 못했습니다.	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/CatalogController.client.lua:1986
-1ab8fe	exact	아이템을 벗지 못했습니다.	2	src/StarterPlayer/StarterPlayerScripts/FashionGame/CatalogController.client.lua:2015
-b039fb	exact	× 해제	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/CatalogController.client.lua:2132
-5d4187	exact	즐겨찾기를 바꾸지 못했습니다.	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/CatalogController.client.lua:2329
-42dcc1	exact	즐겨찾기에 추가했습니다.	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/CatalogController.client.lua:2335
-088cd4	exact	즐겨찾기에서 해제했습니다.	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/CatalogController.client.lua:2335
-978eec	exact	아이템 정보를 불러오지 못했어요.	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/CatalogController.client.lua:2391
-5b9e64	exact	입고 있는 아이템이 없어요.	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/CatalogController.client.lua:2504
-53946b	tmpl	{1}개 담았어요	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/CatalogController.client.lua:2521
-261df7	tmpl	가진 아이템 {1}개	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/CatalogController.client.lua:2522
-acb14c	tmpl	판매 안 함 {1}개	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/CatalogController.client.lua:2523
-3ae0fc	exact	번들을 벗지 못했습니다.	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/CatalogController.client.lua:2787
-ad6583	exact	번들을 착용하지 못했습니다.	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/CatalogController.client.lua:2787
-bfec4f	exact	아이템을 착용하지 못했습니다.	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/CatalogController.client.lua:2886
-2e9871	exact	문제가 생겼습니다. 다시 시도하세요.	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/CatalogController.client.lua:2897
-97a825	exact	이번 접속에서 입어 본 아이템이 없습니다. 최근 목록은 다시 접속하면 비워집니다.	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/CatalogController.client.lua:3053
-e29fbb	exact	즐겨찾기한 아이템이 없습니다. 아이템 이미지를 두 번 눌러 추가하세요.	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/CatalogController.client.lua:3054
-abd0fc	exact	착용 중인 아이템이 없습니다.	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/CatalogController.client.lua:3055
-de1668	exact	검색어·카테고리에 맞는 아이템이 이 목록에 없습니다.	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/CatalogController.client.lua:3159
-773ea2	exact	그 ID의 아이템을 찾지 못했어요.	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/CatalogController.client.lua:3268
-d38e53	exact	인기: 지난 한 달 집계를 쓸 수 없어 전체 기간 기준으로 표시합니다.	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/CatalogController.client.lua:3368
-d1f991	exact	검색에 실패했습니다 (Roblox API 오류). 잠시 후 다시 시도하세요.	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/CatalogController.client.lua:3375
-a1bd3c	exact	" 검색 결과가 없습니다.	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/CatalogController.client.lua:3397
-a87801	exact	이 카테고리에 표시할 아이템이 없습니다.	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/CatalogController.client.lua:3397
-c6f12c	exact	이 카테고리는 현재 Roblox API에서 직접 검색할 수 없습니다.	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/CatalogController.client.lua:3408
-512e59	exact	이 카테고리는 Roblox 카탈로그 API로 검색할 수 없어 준비 중입니다.	2	src/StarterPlayer/StarterPlayerScripts/FashionGame/CatalogController.client.lua:3409
+582701	exact	아바타 편집 중인 변경 사항을 먼저 적용하거나 취소하세요.	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/CatalogController.client.lua:1968
+1b3b62	exact	레이어 순서를 바꾸지 못했습니다.	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/CatalogController.client.lua:1987
+1ab8fe	exact	아이템을 벗지 못했습니다.	2	src/StarterPlayer/StarterPlayerScripts/FashionGame/CatalogController.client.lua:2016
+b039fb	exact	× 해제	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/CatalogController.client.lua:2133
+5d4187	exact	즐겨찾기를 바꾸지 못했습니다.	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/CatalogController.client.lua:2330
+42dcc1	exact	즐겨찾기에 추가했습니다.	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/CatalogController.client.lua:2336
+088cd4	exact	즐겨찾기에서 해제했습니다.	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/CatalogController.client.lua:2336
+978eec	exact	아이템 정보를 불러오지 못했어요.	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/CatalogController.client.lua:2392
+5b9e64	exact	입고 있는 아이템이 없어요.	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/CatalogController.client.lua:2505
+53946b	tmpl	{1}개 담았어요	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/CatalogController.client.lua:2522
+261df7	tmpl	가진 아이템 {1}개	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/CatalogController.client.lua:2523
+acb14c	tmpl	판매 안 함 {1}개	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/CatalogController.client.lua:2524
+3ae0fc	exact	번들을 벗지 못했습니다.	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/CatalogController.client.lua:2788
+ad6583	exact	번들을 착용하지 못했습니다.	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/CatalogController.client.lua:2788
+bfec4f	exact	아이템을 착용하지 못했습니다.	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/CatalogController.client.lua:2887
+2e9871	exact	문제가 생겼습니다. 다시 시도하세요.	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/CatalogController.client.lua:2898
+97a825	exact	이번 접속에서 입어 본 아이템이 없습니다. 최근 목록은 다시 접속하면 비워집니다.	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/CatalogController.client.lua:3055
+e29fbb	exact	즐겨찾기한 아이템이 없습니다. 아이템 이미지를 두 번 눌러 추가하세요.	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/CatalogController.client.lua:3056
+abd0fc	exact	착용 중인 아이템이 없습니다.	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/CatalogController.client.lua:3057
+de1668	exact	검색어·카테고리에 맞는 아이템이 이 목록에 없습니다.	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/CatalogController.client.lua:3180
+773ea2	exact	그 ID의 아이템을 찾지 못했어요.	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/CatalogController.client.lua:3291
+d38e53	exact	인기: 지난 한 달 집계를 쓸 수 없어 전체 기간 기준으로 표시합니다.	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/CatalogController.client.lua:3391
+d1f991	exact	검색에 실패했습니다 (Roblox API 오류). 잠시 후 다시 시도하세요.	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/CatalogController.client.lua:3399
 e1ed40	exact	착용 중인 아이템	2	src/StarterPlayer/StarterPlayerScripts/FashionGame/CatalogController.client.lua:342
-2be71a	exact	상의	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/CatalogController.client.lua:3472
-e8db56	exact	하의	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/CatalogController.client.lua:3473
-0a2ab5	exact	 (준비 중)	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/CatalogController.client.lua:3503
-234695	exact	아이템을 더 불러오지 못했습니다. 잠시 후 다시 스크롤하세요.	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/CatalogController.client.lua:3591
-25a2b8	exact	다른 아바타 변경이 진행 중입니다.	2	src/StarterPlayer/StarterPlayerScripts/FashionGame/CatalogController.client.lua:3768
+a1bd3c	exact	" 검색 결과가 없습니다.	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/CatalogController.client.lua:3421
+a87801	exact	이 카테고리에 표시할 아이템이 없습니다.	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/CatalogController.client.lua:3421
+c6f12c	exact	이 카테고리는 현재 Roblox API에서 직접 검색할 수 없습니다.	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/CatalogController.client.lua:3432
+512e59	exact	이 카테고리는 Roblox 카탈로그 API로 검색할 수 없어 준비 중입니다.	2	src/StarterPlayer/StarterPlayerScripts/FashionGame/CatalogController.client.lua:3433
+2be71a	exact	상의	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/CatalogController.client.lua:3496
+e8db56	exact	하의	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/CatalogController.client.lua:3497
+0a2ab5	exact	 (준비 중)	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/CatalogController.client.lua:3527
+234695	exact	아이템을 더 불러오지 못했습니다. 잠시 후 다시 스크롤하세요.	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/CatalogController.client.lua:3615
+25a2b8	exact	다른 아바타 변경이 진행 중입니다.	2	src/StarterPlayer/StarterPlayerScripts/FashionGame/CatalogController.client.lua:3792
 3ec90d	exact	← 애니메이션 팩	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/CatalogController.client.lua:936
 110f7e	exact	⏹ 그만 추기	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/ChoreoController.client.lua:1210
 ce10a3	exact	💃 안무 따라하기	3	src/StarterPlayer/StarterPlayerScripts/FashionGame/ChoreoController.client.lua:41

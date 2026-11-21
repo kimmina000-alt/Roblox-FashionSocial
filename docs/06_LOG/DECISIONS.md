@@ -6666,3 +6666,8 @@ Studio only (no script yet).
 - user 2026-11-20: "공터 단상에 네온 노래 더 자주 나오게 해 줘 3~4곡 걸러서 한 번 나오게".
 - NeonStageService.pick(): 서버의 첫 곡은 NEON. 그 뒤 다른 안무 곡을 무작위로 3곡 또는 4곡(NeonStageConfig.NeonEvery = {3, 4}, 매번 새로 뽑음) 틀고 다시 NEON. 그 사이 곡에는 NEON이 안 나오고, 바로 앞 곡도 다시 안 나옴.
 - 안무가 생긴 곡은 따로 등록하지 않아도 단상 목록에 들어감(NeonStageConfig.tracks()가 곡을 고를 때마다 ClubPlaylist를 읽음; 여러 클립을 이은 곡만 빠짐).
+
+## D-1845 번역 표: 플레이어마다 자기 언어 하나만 받기 (2026-11-21)
+- 메모리 · 로딩 세션 요청(사용자 승인 "둘 다 진행해"): 16개 표(약 2 MB)가 ReplicatedStorage에 있어서 모든 플레이어가 시작 전에 다 받았음.
+- 표를 ServerStorage.FashionGame.I18n으로 옮김(src/ServerStorage/FashionGame/I18n, tools/i18n/build.py 출력도 거기로; Rojo 프로젝트에 ServerStorage 추가, $ignoreUnknownInstances라 기존 에셋은 그대로). 새 I18nBooks.server.lua가 입장 · LocaleId 변경 · Studio Lang 속성 때 그 플레이어 언어 하나만 PlayerGui.I18nBook에 복사(PlayerGui는 본인에게만 전송). 한국어는 아무것도 안 받음.
+- Shared/L.lua: 서버는 ServerStorage에서, 클라이언트는 PlayerGui.I18nBook에서 표를 찾음. L.start()는 표가 올 때까지(최대 60초) 기다린 뒤 화면 문구를 바꿈.

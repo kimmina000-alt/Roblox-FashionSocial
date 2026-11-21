@@ -14,6 +14,17 @@
       "$className": "ServerScriptService",
       "$path": "src/ServerScriptService"
     },
+    "ServerStorage": {
+      "$className": "ServerStorage",
+      "$ignoreUnknownInstances": true,
+      "FashionGame": {
+        "$className": "Folder",
+        "$ignoreUnknownInstances": true,
+        "I18n": {
+          "$path": "src/ServerStorage/FashionGame/I18n"
+        }
+      }
+    },
     "StarterPlayer": {
       "$className": "StarterPlayer",
       "StarterPlayerScripts": {

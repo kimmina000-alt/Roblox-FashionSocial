@@ -1,4 +1,4 @@
-"""Build the translation modules src/ReplicatedStorage/FashionGame/Shared/I18n/<lang>.lua.
+"""Build the translation modules src/ServerStorage/FashionGame/I18n/<lang>.lua (server only; each client gets its own one, D-1845).
 
 Input:
   tools/i18n/strings.tsv   from extract.py: id \t kind \t Korean \t uses \t where
@@ -12,7 +12,7 @@ import os, re, glob, collections
 
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 LANGS = ['en', 'es', 'pt', 'fr', 'de', 'it', 'ja', 'zh-cn', 'zh-tw', 'ru', 'th', 'tr', 'vi', 'id', 'pl', 'ar']
-OUT = os.path.join(ROOT, 'src', 'ReplicatedStorage', 'FashionGame', 'Shared', 'I18n')
+OUT = os.path.join(ROOT, 'src', 'ServerStorage', 'FashionGame', 'I18n')
 BS = chr(92)  # backslash
 
 def unesc(s):
