@@ -256,7 +256,7 @@ local function start(player: Player): (boolean, any, any)
 	local track = NeonStageConfig.trackById(soundId)
 	if not track then return false, "오늘의 곡을 찾을 수 없어요.", nil end
 	local at = workspace:GetServerTimeNow() + DanceScoreConfig.CountIn
-	runs[player] = { start = at, soundId = soundId, total = #DanceScoreConfig.chart(track) }
+	runs[player] = { start = at, soundId = soundId, total = DanceScoreConfig.noteCount(DanceScoreConfig.chart(track)) } -- (D-1818g: held notes count twice)
 	setAttributes(player, at, soundId)
 	return true, at, soundId
 end

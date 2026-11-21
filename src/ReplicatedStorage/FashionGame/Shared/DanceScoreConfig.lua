@@ -61,6 +61,15 @@ DanceScoreConfig.AnnounceNear = 48
 -- snare 127450250691379
 DanceScoreConfig.HitSound = 8537782950
 DanceScoreConfig.PerfectSound = 8537544526
+-- (D-1818g, user 2026-11-21: "사이버펑크 edm 같은 소리면 좋겠는데") our own cyberpunk stabs: tools/art/dance_sfx.py makes
+-- docs/04_ART/sfx/dance_hit.wav / dance_perfect.wav / dance_hold.wav; once uploaded (Vantablack_Dev) their ids go
+-- here and replace the two above (0 = not uploaded yet: the end of a hold uses PerfectSound)
+DanceScoreConfig.HoldSound = 0
+-- (D-1818g, user 2026-11-21: "버튼 타이밍 맞춰서 눌렀을 때만 음량 잠깐 키우는 건") a hit swells the song for a moment
+-- (dB on every band of an EqualizerSoundEffect on the stage Sound, back to 0 over HitSwellTime seconds)
+DanceScoreConfig.HitSwellPerfect = 4
+DanceScoreConfig.HitSwellGreat = 2.5
+DanceScoreConfig.HitSwellTime = 0.22
 function DanceScoreConfig.auroraCombo(total: number): number
 	-- 15 % of the song's notes, in tens, at least 30 (NEON: 409 notes → 60)
 	return math.max(30, math.floor(total * 0.15 / 10 + 0.5) * 10)
@@ -96,10 +105,15 @@ DanceScoreConfig.MaxScore = 100000
 DanceScoreConfig.GreatShare = 0.6 -- (a Great is worth this much of a Perfect)
 DanceScoreConfig.Grades = { { grade = "S", from = 0.9 }, { grade = "A", from = 0.75 }, { grade = "B", from = 0 } }
 
-export type Note = { t: number, lane: number } -- t = song seconds; lane 1..4
+export type Note = { t: number, lane: number, hold: number? } -- t = song seconds; lane 1..4; hold = song second
+-- a held note ends (press at t, keep pressing until hold)
 
 -- the notes of a song: on its beats from where the choreography starts to the song's end, a rest
--- every 8th beat, lanes from a fixed walk (never the same lane three times running)
+-- every 8th beat, lanes from a fixed walk (never the same lane three times running).
+-- (D-1818g, user 2026-11-21: "난이도도 조금만 더 올리자 꾹 누르는 부분도 만들고") a little harder: in about 4 bars of 10
+-- one more note on a half beat (an 8th, on the other thumb's side), and every 4th bar a held note from
+-- beat 2 for two beats; while it is held the other notes go to the other thumb's two lanes (1-2 = left
+-- thumb, 3-4 = right thumb, on phones held flat and upright alike)
 function DanceScoreConfig.chart(track: ClubConfig.Track): {Note}
 	local info = DanceScoreConfig.Songs[track.soundId]
 	if not info then return {} end
@@ -119,20 +133,51 @@ function DanceScoreConfig.chart(track: ClubConfig.Track): {Note}
 		seed = (seed * 48271) % 2147483647
 		return seed / 2147483647
 	end
+	local function otherSide(lane: number): number
+		return (if lane <= 2 then 3 else 1) + math.floor(rand() * 2)
+	end
 	local prev, prev2 = 0, 0
+	local holdUntil, holdLane = -math.huge, 0
+	local eighthAt = -1
 	local k = math.ceil((first - info.firstBeat) / beat)
 	while true do
 		local t = info.firstBeat + k * beat
 		if t > last then break end
-		if k % 8 ~= 7 then
+		local pos = k % 8
+		local bar = k // 8
+		if pos == 0 or eighthAt == -1 then
+			eighthAt = if rand() < 0.4 then (if rand() < 0.5 then 2 else 5) else -2
+		end
+		if pos ~= 7 then
 			local lane = 1 + math.floor(rand() * 4)
 			if lane == prev and lane == prev2 then lane = lane % 4 + 1 end
-			table.insert(notes, { t = t, lane = lane })
+			if t < holdUntil then lane = otherSide(holdLane) end
+			local note: Note = { t = t, lane = lane }
+			if bar % 4 == 2 and pos == 1 and t + 2 * beat <= last then
+				note.hold = t + 2 * beat
+				holdUntil, holdLane = t + 2 * beat + 0.05, lane
+			end
+			table.insert(notes, note)
 			prev2, prev = prev, lane
+			local half = t + beat / 2
+			if pos == eighthAt and half <= last and half >= holdUntil then
+				local extra = otherSide(lane)
+				table.insert(notes, { t = half, lane = extra })
+				prev2, prev = prev, extra
+			end
 		end
 		k += 1
 	end
 	return notes
+end
+
+-- judged notes in a chart: one per note, two per held note (pressed in time, kept to the end)
+function DanceScoreConfig.noteCount(notes: {Note}): number
+	local n = #notes
+	for _, note in ipairs(notes) do
+		if note.hold then n += 1 end
+	end
+	return n
 end
 
 -- seconds a run lasts: the song's real length (Studio test: FashionGame attribute DanceScoreTestEnd =

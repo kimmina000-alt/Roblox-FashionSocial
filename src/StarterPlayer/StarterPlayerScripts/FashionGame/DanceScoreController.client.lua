@@ -262,8 +262,11 @@ layout()
 -- a run
 type Run = { start: number, track: ClubConfig.Track, notes: {any}, nextSpawn: number, perfect: number, great: number,
 	miss: number, combo: number, best: number, rate: number, active: boolean, offStage: number,
-	frozen: boolean, aurora: boolean, auroraAt: number, auroraLevel: number, lastCount: number }
+	frozen: boolean, aurora: boolean, auroraAt: number, auroraLevel: number, lastCount: number,
+	total: number, holds: {any} }
 local run: Run? = nil
+-- (D-1818g) lanes pressed now (held notes need the press kept until their end)
+local held: {[number]: boolean} = {}
 local hidden: {[string]: any} = {}
 
 local function setPlayMode(on: boolean)
@@ -321,9 +324,15 @@ local SOUND = {
 	SNARE = hitSound(DanceScoreConfig.PerfectSound, 0.35, 1),
 	MISS = hitSound(SoundConfig.Ui.error, 0.18, 1.6),
 	BEEP = hitSound(DanceScoreConfig.CountBeep, 0.6, 1),
+	HOLD = hitSound(if DanceScoreConfig.HoldSound ~= 0 then DanceScoreConfig.HoldSound else DanceScoreConfig.PerfectSound, 0.5, 1),
 }
 local lastMissSound = 0
-local function playJudge(kind: string)
+local function playJudge(kind: string, tail: boolean?)
+	if tail and kind ~= "MISS" then
+		SOUND.HOLD.TimePosition = 0
+		SOUND.HOLD:Play()
+		return
+	end
 	local s = SOUND[if kind == "MISS" then "MISS" else "KICK"]
 	if kind == "PERFECT" then
 		SOUND.SNARE.TimePosition = 0
@@ -403,12 +412,38 @@ RunService.RenderStepped:Connect(function()
 	auroraBand.BackgroundTransparency = ({ 0.75, 0.66, 0.56 })[math.max(level, 1)] + 0.08 * math.sin(t * (1.2 + level * 0.6))
 end)
 
+-- (D-1818g, user 2026-11-21: "버튼 타이밍 맞춰서 눌렀을 때만 음량 잠깐 키우는 건") a hit swells the song I hear for a
+-- moment: an EqualizerSoundEffect on the stage Sound, every band up by HitSwell dB, back to 0 in HitSwellTime
+local swell, swellPeak = 0, 1
+local swellEq: EqualizerSoundEffect? = nil
+local function hitSwell(kind: string)
+	local stage = script.Parent:FindFirstChild("NeonStageController")
+	local sound = stage and stage:FindFirstChild("NeonStageMusic")
+	if not (sound and sound:IsA("Sound")) then return end
+	if not swellEq or swellEq.Parent ~= sound then
+		swellEq = (sound:FindFirstChild("DanceHitSwell") :: any) or make("EqualizerSoundEffect", { Name = "DanceHitSwell",
+			LowGain = 0, MidGain = 0, HighGain = 0 }, sound)
+	end
+	local db = if kind == "PERFECT" then DanceScoreConfig.HitSwellPerfect else DanceScoreConfig.HitSwellGreat
+	if db >= swell then swell, swellPeak = db, db end
+end
+RunService.RenderStepped:Connect(function(dt)
+	local eq = swellEq
+	if not eq or (swell <= 0 and eq.MidGain == 0) then return end
+	swell = math.max(0, swell - dt * swellPeak / DanceScoreConfig.HitSwellTime)
+	eq.LowGain, eq.MidGain, eq.HighGain = swell, swell, swell
+end)
+
 local function judge(r: Run, note: any, kind: string)
 	note.done = true
-	if note.frame then note.frame:Destroy() note.frame = nil end
+	-- (D-1818g) a held note pressed in time stays on screen until its end (the holds loop judges its end)
+	local holding = note.hold ~= nil and kind ~= "MISS"
+	if note.frame and not holding then note.frame:Destroy() note.frame = nil end
+	if holding then table.insert(r.holds, note) end
 	if kind == "PERFECT" then r.perfect += 1 r.combo += 1
 	elseif kind == "GREAT" then r.great += 1 r.combo += 1
 	else r.miss += 1 r.combo = 0 end
+	if note.hold and kind == "MISS" then r.miss += 1 end -- (its end can no longer be kept either)
 	r.best = math.max(r.best, r.combo)
 	-- (D-1818c, user 2026-11-21: "누르는 거 실패하면 안무 멈추기 / 다시 성공하면 추기") a miss holds the dance's pose
 	-- (ChoreoController reads DanceFrozenAt; DanceFrozen on the character for the other screens), the next
@@ -426,7 +461,8 @@ local function judge(r: Run, note: any, kind: string)
 			player:SetAttribute("DanceFrozenAt", nil)
 			askServer("Freeze", false)
 		end
-		local level = DanceScoreConfig.auroraLevel(r.combo, #r.notes)
+		hitSwell(kind)
+		local level = DanceScoreConfig.auroraLevel(r.combo, r.total)
 		if level ~= r.auroraLevel then setAurora(r, level) end
 		-- (D-1818d, user 2026-11-21: "맞는 타이밍에 눌렀을 때 누르는 버튼 해당 컬러로 진동 확장하는 듯한 효과 … 버튼 그림")
 		-- a ring of the lane's colour spreading out of the button
@@ -444,10 +480,11 @@ local function judge(r: Run, note: any, kind: string)
 		end
 	end
 	showJudge(kind)
-	playJudge(kind)
+	playJudge(kind, note.tail)
 end
 
 local function press(laneIndex: number)
+	held[laneIndex] = true
 	local lane = lanes[laneIndex]
 	if lane then
 		lane.flash.BackgroundTransparency = 0.3
@@ -473,7 +510,7 @@ local function press(laneIndex: number)
 end
 
 local function showResult(r: Run, serverResult: any)
-	local score = DanceScoreConfig.score(#r.notes, r.perfect, r.great)
+	local score = DanceScoreConfig.score(r.total, r.perfect, r.great)
 	local grade = DanceScoreConfig.grade(score)
 	if typeof(serverResult) == "table" and typeof(serverResult.score) == "number" then
 		score, grade = serverResult.score, serverResult.grade
@@ -510,10 +547,11 @@ local function begin()
 		return
 	end
 	local notes = {}
-	for _, n in ipairs(DanceScoreConfig.chart(t)) do table.insert(notes, { t = n.t, lane = n.lane, done = false }) end
+	for _, n in ipairs(DanceScoreConfig.chart(t)) do table.insert(notes, { t = n.t, lane = n.lane, hold = n.hold, done = false }) end
 	run = { start = startAt, track = t, notes = notes, nextSpawn = 1, perfect = 0, great = 0, miss = 0, combo = 0, best = 0,
 		rate = ClubConfig.songRate(t, 1), active = true, offStage = 0,
-		frozen = false, aurora = false, auroraAt = DanceScoreConfig.auroraCombo(#notes), auroraLevel = 0, lastCount = 0 }
+		frozen = false, aurora = false, auroraAt = DanceScoreConfig.auroraCombo(DanceScoreConfig.noteCount(notes)), auroraLevel = 0, lastCount = 0,
+		total = DanceScoreConfig.noteCount(notes), holds = {} }
 	local info = DanceScoreConfig.Songs[t.soundId]
 	songLabel.Text = if info then (info.title .. " · " .. info.artist) else t.title
 	scoreLabel.Text = "0"
@@ -535,6 +573,7 @@ endRun = function(finished: boolean)
 	play.Visible = false
 	countLabel.Text = ""
 	auroraBand.Visible = false
+	swell = 0
 	player:SetAttribute("DanceFrozenAt", nil)
 	setPlayMode(false)
 	if finished and remote then
@@ -588,6 +627,18 @@ RunService.RenderStepped:Connect(function(dt)
 	while r.nextSpawn <= #r.notes and r.notes[r.nextSpawn].t - songNow <= fall do
 		local note = r.notes[r.nextSpawn]
 		local lane = lanes[note.lane]
+		if note.hold then
+			-- (D-1818g) a held note: a see-through bar as long as the hold, its head at the bottom
+			note.frame = make("Frame", { Name = "Hold", AnchorPoint = Vector2.new(0.5, 1), Size = UDim2.new(1, -24, 0, 16),
+				BackgroundColor3 = LANE_COLORS[note.lane], BackgroundTransparency = 0.45, BorderSizePixel = 0 }, lane.frame)
+			round(note.frame, 8)
+			local head = make("Frame", { Name = "Head", AnchorPoint = Vector2.new(0.5, 1), Position = UDim2.fromScale(0.5, 1),
+				Size = UDim2.new(1, 12, 0, 16), BackgroundColor3 = LANE_COLORS[note.lane], BorderSizePixel = 0 }, note.frame)
+			round(head, 8)
+			make("UIStroke", { Color = Color3.new(1, 1, 1), Thickness = 1.5, Transparency = 0.25 }, head)
+			r.nextSpawn += 1
+			continue
+		end
 		note.frame = make("Frame", { Name = "Note", AnchorPoint = Vector2.new(0.5, 0.5), Size = UDim2.new(1, -12, 0, 16),
 			BackgroundColor3 = LANE_COLORS[note.lane], BorderSizePixel = 0 }, lane.frame)
 		round(note.frame, 8)
@@ -605,8 +656,31 @@ RunService.RenderStepped:Connect(function(dt)
 		local note = r.notes[i]
 		if not note.done then
 			local ahead = (note.t - songNow) / fall -- 1 = top, 0 = hit line
-			if note.frame then note.frame.Position = UDim2.new(0.5, 0, 0, height * (1 - ahead) - 8) end
+			if note.frame and note.hold then
+				note.frame.Position = UDim2.new(0.5, 0, 0, height * (1 - ahead))
+				note.frame.Size = UDim2.new(1, -24, 0, height * (note.hold - note.t) / fall + 16)
+			elseif note.frame then
+				note.frame.Position = UDim2.new(0.5, 0, 0, height * (1 - ahead) - 8)
+			end
 			if (songNow - note.t) / r.rate > DanceScoreConfig.Late then judge(r, note, "MISS") end
+		end
+	end
+	-- (D-1818g) held notes: the bar shrinks into the hit line while the lane stays pressed; kept to the end
+	-- (or let go at most Late before it) = PERFECT, let go earlier = MISS
+	for i = #r.holds, 1, -1 do
+		local note = r.holds[i]
+		local left = note.hold - songNow
+		if note.frame then
+			note.frame.Position = UDim2.new(0.5, 0, 0, height)
+			note.frame.Size = UDim2.new(1, -24, 0, math.max(0, height * left / fall) + 16)
+		end
+		local lane = lanes[note.lane]
+		if lane and held[note.lane] then lane.flash.BackgroundTransparency = 0.55 end
+		if left <= 0 or not held[note.lane] then
+			table.remove(r.holds, i)
+			if note.frame then note.frame:Destroy() note.frame = nil end
+			if lane then TweenService:Create(lane.flash, TweenInfo.new(0.18), { BackgroundTransparency = 1 }):Play() end
+			judge(r, { lane = note.lane, done = false, tail = true }, if left / r.rate <= DanceScoreConfig.Late then "PERFECT" else "MISS")
 		end
 	end
 	-- the end of the song
@@ -617,9 +691,13 @@ RunService.RenderStepped:Connect(function(dt)
 end)
 
 -- input: the four buttons, D F J K, the arrows
+local pressedBy: {[InputObject]: number} = {}
 for i, lane in ipairs(lanes) do
 	lane.button.InputBegan:Connect(function(input)
-		if input.UserInputType == Enum.UserInputType.Touch or input.UserInputType == Enum.UserInputType.MouseButton1 then press(i) end
+		if input.UserInputType == Enum.UserInputType.Touch or input.UserInputType == Enum.UserInputType.MouseButton1 then
+			pressedBy[input] = i
+			press(i)
+		end
 	end)
 end
 local KEYS = {
@@ -631,6 +709,16 @@ UserInputService.InputBegan:Connect(function(input, processed)
 	local i = KEYS[input.KeyCode]
 	if i and not (processed and UserInputService:GetFocusedTextBox()) then press(i) end
 end)
+-- (D-1818g) letting go: the finger / mouse that pressed a lane button (wherever it is let go), or the key
+UserInputService.InputEnded:Connect(function(input)
+	local i = pressedBy[input]
+	if i then
+		pressedBy[input] = nil
+		held[i] = false
+	end
+	local k = KEYS[input.KeyCode]
+	if k then held[k] = false end
+end)
 
 -- windows
 entry.Activated:Connect(function()
@@ -638,7 +726,7 @@ entry.Activated:Connect(function()
 	local info = t and DanceScoreConfig.Songs[t.soundId]
 	if not t or not info then return end
 	startTitle.Text = info.title
-	local total = #DanceScoreConfig.chart(t)
+	local total = DanceScoreConfig.noteCount(DanceScoreConfig.chart(t))
 	startInfo.Text = string.format("%s · 약 %d분 · 전체 %d 콤보 · %d 콤보부터 오로라", info.artist, math.floor(NeonStageConfig.realLength(t) / 60 + 0.5), total, DanceScoreConfig.auroraCombo(total))
 	local best = player:GetAttribute("DanceBest")
 	startBest.Text = if typeof(best) == "number" and player:GetAttribute("DancePlayedDay") == DanceScoreConfig.dayKey()
