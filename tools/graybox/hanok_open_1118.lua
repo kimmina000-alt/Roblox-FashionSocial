@@ -1,3 +1,4 @@
+-- RETIRED (D-1916, 2026-11-21): 한옥 마을을 지움(광화문만 남김). 다시 돌리지 마세요: tools/graybox/LAYOUT.md "한옥 마을 삭제".
 --!nocheck
 -- 한옥 마을 안쪽 열기 (D-1733, user 2026-11-18: "한옥 마을 돌담벽을 선으로 한옥마을 안쪽에 못 가게 막아 놓은 부분
 -- 풀어 줘. 바깥 도로는 더 못 가는 부분 유지."). The invisible map boundary (Hongdae_Layout.MapBoundary,

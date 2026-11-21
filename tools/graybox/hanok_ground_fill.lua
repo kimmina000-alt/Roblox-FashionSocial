@@ -1,3 +1,4 @@
+-- RETIRED (D-1916, 2026-11-21): 한옥 마을을 지움(광화문만 남김). 다시 돌리지 마세요: tools/graybox/LAYOUT.md "한옥 마을 삭제".
 -- (D-1323, user 2026-11-12: "비어 있는 곳 땅 구현", photo of the empty brown triangle inside
 -- the 한옥 마을 behind 광화문) The Hongdae_Layout.Ground slabs leave a hole x 47..277,
 -- z 68..387 for the 광화문 front yard (terrain grass at y 0). With the PalaceBlockout gone

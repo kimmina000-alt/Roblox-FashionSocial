@@ -67,7 +67,7 @@
   3-23a3. `park_ride_gates_1115.lua` — 바이킹 입구·출구 문(D-1443): Workspace["미니바이킹"].Gates / ["슈퍼바이킹"].Gates(태그 RideGate). 입구는 운행이 멈췄을 때만 열리고, 출구는 안에서 나오는 사람만 지나간다(RideGateController). park_viking_stage_1115 다음.
   3-23b. `park_teacups_1115.lua` — 회전컵(D-1432): Workspace["회전컵"](Base + Ride, 태그 ParkTeaCups)에 회전판·찻주전자·컵 5개를 새로 짓는다. 메시: ArtAssets.TeaCupTex / TeapotTex(가져오기 후) 아니면 TeaCup / Teapot. park_layout_1111은 이 모델이 있으면 07_TeaCups 블록아웃을 안 만든다. 백업 ArtAssets.회전컵_Backup.
   3-23c. `park_front_fill_1115.lua` — 순위표 뒤 빈 공간 메우기(D-1434): ParkPlatform 앞면(z -223.4)과 순위표·착지 판 줄(z -216) 사이를 계단 서쪽 벽(x -115.1)까지 같은 돌로 채운다. park_raise 다음.
-  3-24. `hanok_ground_fill.lua`(D-1323, 한옥 마을 빈 땅을 지형 잔디로) → `bakery_underlight.lua`(D-1319/D-1324, 빵 진열대 조명) → `oh24_cold_off_1113.lua` — OH24 서쪽 벽의 냉장 · 냉동고(Cold* / ShelfRow)를 지움: 사용자 진열장 이미지 블록(Workspace.cold)만 남김(D-1333).
+  3-24. ~~`hanok_ground_fill.lua`~~(D-1323, 한옥 마을 빈 땅을 지형 잔디로 — **D-1916부터 돌리지 않음**: 한옥 마을을 지움) → `bakery_underlight.lua`(D-1319/D-1324, 빵 진열대 조명) → `oh24_cold_off_1113.lua` — OH24 서쪽 벽의 냉장 · 냉동고(Cold* / ShelfRow)를 지움: 사용자 진열장 이미지 블록(Workspace.cold)만 남김(D-1333).
   3-25. `user_map_snapshot_1113.lua` — 사용자 손 편집 되돌려 놓기(D-1334): ServerStorage.UserMapSnapshot의 OH24Store · BigSpenderLED · ClubAnnex · Gukbap · OhuFourCuts · AmusementParkGate를 통째로 다시 넣고, OpenSea를 지우고, 바닥 판 · 보도 · 해변 계단 · 산책로 몇 개와 ParkRaise.ParkPlatform을 사용자 상태로. 이 공간들은 이제 스크립트가 아니라 스냅숏이 기준: Studio에서 손으로 고친 뒤 스냅숏의 해당 모델을 새로 복사해 둘 것. 맨 마지막.
   3-26. `park_expand_1113.lua` — 놀이공원 부지를 서쪽 바다 끝(x -298.5)까지, 남쪽은 공원 남쪽 벽(z -277)까지 넓힘(D-1393): 그 안의 해변 모래 · 계단 · 산책로 · 가로등 · 야자수 · 파라솔 · 튜브 · 비치체어를 지우고 남쪽으로 이어지는 것은 z -277에서 자름, 유턴 도로 끝을 남쪽으로 129 옮기고 도로 · 차선 · 인도를 그 뒤에서 시작, 공원 높이(16) 바닥(ParkRaise.ParkPlatformWest)과 잔디 띠 연장, 북쪽 구역 서쪽 벽(x -276.1)을 z -279.5까지 잇고 남쪽 벽을 z -279.5로 옮김, 안쪽 공원의 옛 서쪽 벽(x -147.5) 삭제. snapshot 단계 뒤 맨 마지막. AmusementParkGate는 스냅숏에도 반영돼 있음.
 4. 손 편집 기록(`ServerStorage.PropOverrides`, git `prop_overrides.json`)은 2·3단계에서 자동 적용. 다시 빌드하기 전에 항상 `prop_save.lua`로 먼저 저장.
@@ -108,7 +108,7 @@
   - `park_neon_stage_1118.lua` (D-1792) — 놀이공원 앞 공터(포켓 파크 둥근 광장) 가운데 네온 무대 Workspace["네온무대"] (D-1793: 댄스봉 받침과 같은 은색 DiamondPlate; D-1820: 반지름 18 높이 1.2 한 층 + 얇은 연분홍 선 하나) (Hongdae_Layout 밖, 다시 돌려도 됨). 크기·높이는 Shared/NeonStageConfig와 같아야 함.
   - `park_bumper_track_1119.lua` (D-1826) — 범퍼카장 바닥 타원 레이스 트랙 + 가운데 원뿔 7개(태그 BumperCone), 범퍼.04_BumperCars.Track. park_bumper_big_1116 / park_bumper_dress_1115 다음에 실행.
   - `club_passage_light_1117.lua` (D-1659) — 락커룸 통로 천장 보라 조명(Passage.PassageGlow, SurfaceLight 각도 120 · 범위 24): 통로 대리석도 클럽 바닥처럼 보라 결이 보이게. club_locker_1103 다음 어디든.
-  - `hanok_open_1118.lua` (D-1733) — 한옥 마을 안쪽을 가로막던 맵 경계(x 277, z 387)를 마을 바깥 돌담 둘레로 옮김. 빌드 스크립트도 같은 선을 만들어서, 이건 지금 장소에만 필요(체인을 다시 돌리면 빌드가 새 선을 만듦).
+  - ~~`hanok_open_1118.lua`~~ (D-1733, **D-1916에 은퇴**: 대신 `hanok_close_1121.lua`가 경계를 광화문 담 선으로 되돌림) — 한옥 마을 안쪽을 가로막던 맵 경계(x 277, z 387)를 마을 바깥 돌담 둘레로 옮김. 빌드 스크립트도 같은 선을 만들어서, 이건 지금 장소에만 필요(체인을 다시 돌리면 빌드가 새 선을 만듦).
   - `road_paint_1118.lua` (D-1725) — 도로 차선(흰 · 노랑 · 파랑 버스차로) 색을 어둡고 탁하게: 낮 블룸에 빛나던 것. 이름이 차선인 얇은 SmoothPlastic 중 옛 색만 바꿈(빌드 스크립트도 새 색). 체인 끝 쪽 어디든.
   - `spawn_by_guide_1117.lua` (D-1696) — 플레이어 스포너를 포켓 파크 안내원 토끼 바로 옆(-105, 0.6, -56)으로, 안내원(서쪽)을 보고 시작. 체인 맨 끝에(빌드 스크립트가 스포너를 모퉁이 광장으로 옮기므로).
   - `beach_tube_pile_1117.lua` (D-1576) — 해변 종합안내도 북쪽(21 스터드) 모래 위에 튜브 18개 더미 + "튜브 무료 대여" 표지판 + PromptPart(TubeRentService가 "튜브 들기"를 붙임). build_beach_signs 다음에 실행.
@@ -120,3 +120,9 @@
 - `hanok_garden_1117.lua`: kit 다음에 실행. Workspace.HanokGarden(남동쪽 필지 집 · 연못 · 정자 · 대문). 체인 스크립트와 상관없음(Workspace 최상위), 다시 돌려도 결과가 같다.
 - `hanok_cafe_1118.lua` (D-1746): kit 다음에 실행. Workspace.HanokCafe(가장 동쪽 담장 필지 카페 · 퍼걸러 · 대문). 체인 밖, 다시 돌려도 결과가 같다.
 - `hanok_village_1119.lua` (D-1910~): kit 다음에 실행. Workspace.HanokVillage(골목 판석 · 청사초롱 · 필지 대문, 이후 단계의 필지 꾸밈). 체인 밖.
+
+## 한옥 마을 삭제 (2026-11-21, D-1916)
+- 사용자: "한옥마을은 그냥 광화문만 둬야겠다. 한옥마을 만든 거 따로 묶어서 백업해 놓고 삭제." 광화문(Hongdae_Layout.Gwanghwamun, 옆 담 HanokWallExtension, 해태, 앞마당)과 가림막(HanokHoarding)만 남김.
+- 백업: ServerStorage.Backup_HanokVillage_1121 (Workspace 폴더: HanokVillage, HanokGarden, HanokCafe, HanokRoofs, HanokStoneWalls, HanokStoneWall 조각 25, 남은 블록 Part 2, 벚나무 Cherry Blossom M 3, HanokWallKitPreview / ParkedHanokBlocks / HanokDevSrc). 태그는 속성 BackupTags 에 적어 두고 지움(357개). 되살리려면 Workspace 로 옮기고 BackupTags 대로 태그를 다시 붙임.
+- 다시 돌리지 않음: `hanok_stonewall_1112.lua`, `hanok_ground_fill.lua`, `hanok_open_1118.lua`, `hanok_wall_kit.lua` → `hanok_garden_1117.lua` / `hanok_cafe_1118.lua` / `hanok_village_1119.lua` (체인 밖, 기록용으로 남김).
+- `hanok_close_1121.lua`: 맵 경계를 광화문 담 선(북동 곡선 → 닫힌 문 → 남서 곡선 → x 52)으로. build_hongdae_layout 도 같은 선.
