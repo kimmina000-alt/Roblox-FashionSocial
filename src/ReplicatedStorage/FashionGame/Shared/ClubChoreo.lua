@@ -3965,4 +3965,21 @@ do
 	f.plant = list
 end
 
+-- (D-1954, 2nd review "잔걸음" Pretty Girl 2:05-2:13 / With 0:27-0:33: standing, a knee bent 25-45 degrees for 0.2-0.4 s
+-- every 0.3 s — the capture rocks a standing foot 0.4 studs back and forth, and each time it was 0.35 off its spot the
+-- hold made a step of it, lifted) where the video stands with both feet down (Pretty Girl 2:07-2:11, With 0:26.9-0:29.3 /
+-- 0:29.7-0:30.8) the hold takes no steps there (noStep, D-1932). Put first.
+do
+	local function plantFirst(id: number, item: any)
+		local f = (M.ChoreoFixes[id] or {}) :: any
+		M.ChoreoFixes[id] = f
+		local list = if f.plant == nil then {} elseif f.plant.from then { f.plant } else table.clone(f.plant)
+		table.insert(list, 1, item)
+		f.plant = list
+	end
+	plantFirst(86500685186308, { from = 7.85, to = 11.85, contact = 0.45, noStep = true }) -- Pretty Girl 2:07.0-2:11.0 (at 119.11)
+	plantFirst(131580629784808, { from = 3.05, to = 5.45, contact = 0.45, noStep = true }) -- With 0:26.9-0:29.3 (at 23.85)
+	plantFirst(131580629784808, { from = 5.85, to = 6.95, contact = 0.45, noStep = true }) -- With 0:29.7-0:30.8
+end
+
 return M

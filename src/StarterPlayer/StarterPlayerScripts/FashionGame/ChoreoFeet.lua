@@ -13,7 +13,14 @@ local CONTACT = 0.18 -- sole within this of the floor = on the floor
 local LET_GO = 0.12 -- seconds to ease back to the animation after the foot lifts
 local STRETCH = 1.2 -- studs from its spot: let go
 -- (D-1932) a held foot the dance moves this far along the floor steps there instead (lifted, not slid)
-local STEP = 0.35
+-- (D-1955, 2nd review "잔걸음": Pretty Girl / With / BAD / 체포 / CC / NEON knees bent 25-45 degrees every 0.3 s while the
+-- video stands — the capture rocks a standing foot 0.3-0.5 studs back and forth and every 0.35 of it became a lifted step:
+-- Pretty Girl 0:35-0:57 69 steps, BAD 0:20-0:46 107) measured on the foot's place averaged over STEP_SMOOTH seconds, which a
+-- rocking foot hardly moves, and 0.6 studs: 36 / 80 steps, knee flickers 27 -> 19 / 55 -> 33 (hold off: 13 / 30); a foot the
+-- dance takes FAST_STEP away (real travel, the average lags) steps at once, so none is let go to slide (STRETCH: 7 / 21 -> 0)
+local STEP = 0.6
+local STEP_SMOOTH = 0.3
+local FAST_STEP = 0.9
 local STEP_TIME = 0.3 -- (D-1939: was 0.2; the sideways move now takes only its middle half)
 -- (D-1937: was 0.6 on top of the dance's own foot height, which folded the knee 30-60 degrees; D-1938: the sole clears
 -- the floor by this much at the top of a step, nothing added where the dance already lifts it that high)
@@ -41,7 +48,7 @@ local function midMove(u: number): number
 end
 
 type Joint = Motor6D | AnimationConstraint
-type FootState = { spot: Vector3?, w: number, letGo: number?, lifted: boolean?, stepFrom: Vector3?, stepT: number?, stepLift: number?, arc: number?, landAt: Vector3? }
+type FootState = { spot: Vector3?, w: number, letGo: number?, lifted: boolean?, stepFrom: Vector3?, stepT: number?, stepLift: number?, arc: number?, landAt: Vector3?, smA: Vector3? }
 local states: {[Model]: {[string]: FootState}} = setmetatable({}, { __mode = "k" }) :: any
 
 -- the child part's frame from its parent's frame and the joint
@@ -137,6 +144,7 @@ function ChoreoFeet.apply(character: Model, joints: {[string]: Joint}, active: b
 		if K.Y - floorY < KNEEL_KNEE * scale then onFloor = false end
 		local st = mine[side]
 		if not st then st = { spot = nil, w = 0, letGo = nil } mine[side] = st end
+		st.smA = if st.smA then st.smA:Lerp(A, math.clamp(dt / STEP_SMOOTH, 0, 1)) else A -- (D-1955)
 		-- a foot that lifted and is down again is held at once where it landed (only a pulled foot waits to be let go)
 		if active and onFloor and st.letGo and st.lifted then st.spot, st.w, st.letGo, st.lifted, st.arc = A, 1, nil, nil, nil end
 		if active and onFloor and not st.letGo then
@@ -145,7 +153,8 @@ function ChoreoFeet.apply(character: Model, joints: {[string]: Joint}, active: b
 			-- along the floor in the game) the dance carrying a held foot STEP studs off its spot = a step: the foot is lifted
 			-- and carried to the new spot over STEP_TIME (planted again there), instead of sliding or being dragged
 			local away = Vector2.new(st.spot.X - A.X, st.spot.Z - A.Z).Magnitude
-			if not noStep and not st.stepFrom and away > STEP * scale then st.stepFrom, st.stepT, st.stepLift = st.spot, 0, nil end
+			local smAway = Vector2.new(st.spot.X - (st.smA :: Vector3).X, st.spot.Z - (st.smA :: Vector3).Z).Magnitude -- (D-1955)
+			if not noStep and not st.stepFrom and (smAway > STEP * scale or away > FAST_STEP * scale) then st.stepFrom, st.stepT, st.stepLift = st.spot, 0, nil end
 			-- (D-1907) pulled too far: eased off over 0.3 s, then held again where it is (it jumped 1.2 studs in a frame)
 			if not st.stepFrom and away > (if noStep then 2 else STRETCH) * scale then st.letGo = 0.3 end
 		elseif st.spot and not st.letGo then
