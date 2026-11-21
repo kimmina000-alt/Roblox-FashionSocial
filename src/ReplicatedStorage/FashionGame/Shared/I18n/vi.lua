@@ -360,7 +360,7 @@ return {
 	["광고 자리를 찾을 수 없어요."] = "Không tìm thấy vị trí quảng cáo.",
 	["광고를 내렸어요."] = "Đã gỡ quảng cáo.",
 	["광고판"] = "Bảng quảng cáo",
-	["광화문 · 한옥 마을"] = "Gwanghwamun · Làng Hanok",
+	["광화문"] = "Gwanghwamun",
 	["광화문 앞 마당과 해태 앞은 사진 찍기 좋은 곳이에요."] = "Sân trước Gwanghwamun và tượng haetae là chỗ chụp ảnh đẹp.",
 	["괜찮아요"] = "Thôi, cảm ơn",
 	["구겨진 영수증"] = "Hóa đơn nhàu",

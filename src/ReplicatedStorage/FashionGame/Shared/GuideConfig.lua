@@ -28,7 +28,9 @@ GuideConfig.Places = {
 		at = Vector3.new(-206, 3, 272), look = Vector3.new(-260, 18, 276) },
 	beach = { key = "beach", name = "해변", emoji = "🏖", text = "모래사장과 바다예요. 튜브를 타고 물놀이를 해요.",
 		at = Vector3.new(-215, 1, -40), look = Vector3.new(-250, 0, -40) },
-	hanok = { key = "hanok", name = "광화문 · 한옥 마을", emoji = "🏯", text = "광화문 앞 마당과 해태 앞은 사진 찍기 좋은 곳이에요.",
+	-- (D-1916 / 2026-11-21: the hanok village is gone, only 광화문 is left: the name says 광화문 only; `at` is
+	-- the front yard on the city side of the gate, `look` the gate roof, both outside the new 광화문-wall boundary)
+	hanok = { key = "hanok", name = "광화문", emoji = "🏯", text = "광화문 앞 마당과 해태 앞은 사진 찍기 좋은 곳이에요.",
 		at = Vector3.new(120, 1, 165), look = Vector3.new(165, 18, 215), eye = Vector3.new(55, 48, 110) },
 	park = { key = "park", name = "OHU LAND", emoji = "🎡", text = "계단 위 놀이공원이 문을 열었어요! 놀이기구를 타고 무료 풍선도 받아 가세요.", -- (D-1547)
 		at = Vector3.new(-97, 17, -250), look = Vector3.new(-100, 30, -330) },

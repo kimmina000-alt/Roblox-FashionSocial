@@ -360,7 +360,7 @@ return {
 	["광고 자리를 찾을 수 없어요."] = "Spazio pubblicitario non trovato.",
 	["광고를 내렸어요."] = "Annuncio rimosso.",
 	["광고판"] = "Cartellone",
-	["광화문 · 한옥 마을"] = "Gwanghwamun · Villaggio Hanok",
+	["광화문"] = "Gwanghwamun",
 	["광화문 앞 마당과 해태 앞은 사진 찍기 좋은 곳이에요."] = "Il cortile di Gwanghwamun e le statue haetae sono perfetti per le foto.",
 	["괜찮아요"] = "No grazie",
 	["구겨진 영수증"] = "Scontrino stropicciato",

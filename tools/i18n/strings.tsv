@@ -240,44 +240,44 @@ ce1801	exact	OH24 편의점 (준비 중)	1	src/ReplicatedStorage/FashionGame/Sha
 9107b5	exact	과자·음료·컵라면을 코인으로 사는 편의점이에요. 지금은 오픈 준비 중이에요.	1	src/ReplicatedStorage/FashionGame/Shared/GuideConfig.lua:25
 993ed1	exact	바다가 보이는 카페예요. 음료와 케이크를 먹고, 카운터 안쪽에서 알바도 할 수 있어요.	1	src/ReplicatedStorage/FashionGame/Shared/GuideConfig.lua:27
 dc332d	exact	모래사장과 바다예요. 튜브를 타고 물놀이를 해요.	1	src/ReplicatedStorage/FashionGame/Shared/GuideConfig.lua:29
-46bd4b	exact	광화문 · 한옥 마을	1	src/ReplicatedStorage/FashionGame/Shared/GuideConfig.lua:31
-528360	exact	광화문 앞 마당과 해태 앞은 사진 찍기 좋은 곳이에요.	1	src/ReplicatedStorage/FashionGame/Shared/GuideConfig.lua:31
-5c2d2d	exact	계단 위 놀이공원이 문을 열었어요! 놀이기구를 타고 무료 풍선도 받아 가세요.	1	src/ReplicatedStorage/FashionGame/Shared/GuideConfig.lua:33
-b5d7cb	exact	순위표 · 안내원	1	src/ReplicatedStorage/FashionGame/Shared/GuideConfig.lua:35
-633a56	exact	기부·레벨 순위표가 있어요. 앞에서 돌아다니는 토끼 안내원에게 무엇이든 물어보세요!	1	src/ReplicatedStorage/FashionGame/Shared/GuideConfig.lua:35
-f688eb	exact	안내원	1	src/ReplicatedStorage/FashionGame/Shared/GuideConfig.lua:48
-40b5a0	exact	클럽은 어디 있고 언제 열어요?	1	src/ReplicatedStorage/FashionGame/Shared/GuideConfig.lua:60
-29186d	exact	큰길 동쪽의 검은 건물 OHU CLUB이에요. 밤 18:00~06:00에만 들어갈 수 있어요(게임 시간, 오른쪽 위 시계).	1	src/ReplicatedStorage/FashionGame/Shared/GuideConfig.lua:60
-c8276a	exact	춤은 어떻게 춰요?	1	src/ReplicatedStorage/FashionGame/Shared/GuideConfig.lua:61
-9ed694	exact	화면 오른쪽 위 ♪ 버튼을 눌러 춤을 골라요. 근처 사람을 누르면 같이 출 수 있어요.	1	src/ReplicatedStorage/FashionGame/Shared/GuideConfig.lua:61
-e3c684	exact	노래를 바꾸거나 넘길 수 있어요?	1	src/ReplicatedStorage/FashionGame/Shared/GuideConfig.lua:62
-aebb49	exact	클럽 위 노래 제목 왼쪽 목록 버튼(줄 세 개)에서 노래를 예약하고, 오른쪽 ›로 스킵 투표를 해요. 클럽 사람 절반이 찬성하면 넘어가요.	1	src/ReplicatedStorage/FashionGame/Shared/GuideConfig.lua:62
-aafbb8	exact	DJ는 어떻게 해요?	1	src/ReplicatedStorage/FashionGame/Shared/GuideConfig.lua:63
-b70a5a	exact	클럽의 🎵 버튼 창에서 DJ 시간을 사면 차례가 와요. DJ 턴테이블 앞에서 🎵 버튼을 누르면 디제잉을 시작해요. DJ는 노래·속도·조명을 바꿀 수 있어요.	1	src/ReplicatedStorage/FashionGame/Shared/GuideConfig.lua:63
-1dee78	exact	사진은 어디서 찍어요?	1	src/ReplicatedStorage/FashionGame/Shared/GuideConfig.lua:64
-e41bc2	exact	오후네컷 사진관에서 친구랑 네 컷을 찍어요. 화면의 📸 버튼으로 지금 화면도 찍을 수 있어요.	1	src/ReplicatedStorage/FashionGame/Shared/GuideConfig.lua:64
-2eba72	exact	코인은 어떻게 벌어요?	1	src/ReplicatedStorage/FashionGame/Shared/GuideConfig.lua:65
-2cf6fb	exact	게임에 있으면 1분마다 코인이 쌓여요. 비치 카페에서 알바를 하면 더 벌 수 있어요.	1	src/ReplicatedStorage/FashionGame/Shared/GuideConfig.lua:65
-c31e2d	exact	알바는 어떻게 해요?	1	src/ReplicatedStorage/FashionGame/Shared/GuideConfig.lua:66
-730441	exact	비치 카페 카운터 안쪽 작업대에서 '알바 시작'을 눌러요. 주문 목록에서 [만들기] → 손님에게 [서빙하기]를 하면 코인을 받아요.	1	src/ReplicatedStorage/FashionGame/Shared/GuideConfig.lua:66
-2875b9	exact	음식은 어디서 먹어요?	1	src/ReplicatedStorage/FashionGame/Shared/GuideConfig.lua:67
-c46525	exact	국밥집·카페·OH24 편의점·놀이공원 간식 가게에서 사요. 사 먹으면 경험치(XP)도 올라요. 손에 든 음식을 누르면 한 입씩 먹고, 케이크·수육은 테이블에 놓고 다 같이 나눠 먹어요.	1	src/ReplicatedStorage/FashionGame/Shared/GuideConfig.lua:67
-ce8eb8	exact	옷은 어떻게 갈아입어요?	1	src/ReplicatedStorage/FashionGame/Shared/GuideConfig.lua:68
-0fa805	exact	오른쪽 위 옷걸이 버튼으로 카탈로그를 열어 입어 보고, ⚙ 아바타 편집에서 장신구 위치·크기도 바꿀 수 있어요.	1	src/ReplicatedStorage/FashionGame/Shared/GuideConfig.lua:68
-fceaa5	exact	멀리 빨리 가려면요?	1	src/ReplicatedStorage/FashionGame/Shared/GuideConfig.lua:69
-2b12ac	exact	길가의 버스 정류장 표지판을 누르면 다른 정류장으로 바로 가요. 지하철 출구 계단 아래에서도 갈 곳을 고를 수 있어요.	1	src/ReplicatedStorage/FashionGame/Shared/GuideConfig.lua:69
-377685	exact	물놀이는 어디서 해요?	1	src/ReplicatedStorage/FashionGame/Shared/GuideConfig.lua:70
-633d83	exact	서쪽 해변에서 튜브를 타고 바다에 들어가요.	1	src/ReplicatedStorage/FashionGame/Shared/GuideConfig.lua:70
-ca05f4	exact	놀이공원은 어디 있어요?	1	src/ReplicatedStorage/FashionGame/Shared/GuideConfig.lua:71
-6b1648	exact	계단 위 OHU LAND가 문을 열었어요! 바이킹, 회전컵, 관람차, 범퍼카를 탈 수 있어요.	1	src/ReplicatedStorage/FashionGame/Shared/GuideConfig.lua:71
-ca2596	exact	경험치(XP)는 어떻게 올려요?	1	src/ReplicatedStorage/FashionGame/Shared/GuideConfig.lua:73
-f6a2c8	exact	코인이나 로벅스로 산 음식·음료를 먹으면 경험치가 올라요. 한 입 먹을 때마다 조금씩 오르고, 다 먹으면 그 음식의 경험치를 모두 받아요(무료 음식은 경험치가 없고, 하루에 오를 수 있는 양은 정해져 있어요). 내 경험치는 이름 아래 ⭐ XP로 보여요.	1	src/ReplicatedStorage/FashionGame/Shared/GuideConfig.lua:73
-2babe6	exact	국밥을 테이블에 놓으면 남도 먹어요?	1	src/ReplicatedStorage/FashionGame/Shared/GuideConfig.lua:74
-6d2b11	exact	아니요, 테이블에 놓은 국밥은 놓은 사람만 떠먹어요. 수육 한 접시와 케이크는 테이블에 놓으면 모두 한 조각씩 가져가 먹어요.	1	src/ReplicatedStorage/FashionGame/Shared/GuideConfig.lua:74
-929f3e	exact	🗺 동네 둘러보기	1	src/ReplicatedStorage/FashionGame/Shared/GuideConfig.lua:77
-13fc94	exact	카메라가 동네를 한 바퀴 돌며 장소와 화면 버튼을 알려 줘요.	1	src/ReplicatedStorage/FashionGame/Shared/GuideConfig.lua:77
-835698	exact	💬 불편한 점·바라는 점 보내기	1	src/ReplicatedStorage/FashionGame/Shared/GuideConfig.lua:79
-c77597	exact	버그, 불편한 점, 있었으면 하는 것 무엇이든 알려 주세요! 개발자가 하나하나 직접 읽어요. 화면 오른쪽 위 💬 버튼으로도 보낼 수 있어요.	1	src/ReplicatedStorage/FashionGame/Shared/GuideConfig.lua:79
+696de2	exact	광화문	1	src/ReplicatedStorage/FashionGame/Shared/GuideConfig.lua:33
+528360	exact	광화문 앞 마당과 해태 앞은 사진 찍기 좋은 곳이에요.	1	src/ReplicatedStorage/FashionGame/Shared/GuideConfig.lua:33
+5c2d2d	exact	계단 위 놀이공원이 문을 열었어요! 놀이기구를 타고 무료 풍선도 받아 가세요.	1	src/ReplicatedStorage/FashionGame/Shared/GuideConfig.lua:35
+b5d7cb	exact	순위표 · 안내원	1	src/ReplicatedStorage/FashionGame/Shared/GuideConfig.lua:37
+633a56	exact	기부·레벨 순위표가 있어요. 앞에서 돌아다니는 토끼 안내원에게 무엇이든 물어보세요!	1	src/ReplicatedStorage/FashionGame/Shared/GuideConfig.lua:37
+f688eb	exact	안내원	1	src/ReplicatedStorage/FashionGame/Shared/GuideConfig.lua:50
+40b5a0	exact	클럽은 어디 있고 언제 열어요?	1	src/ReplicatedStorage/FashionGame/Shared/GuideConfig.lua:62
+29186d	exact	큰길 동쪽의 검은 건물 OHU CLUB이에요. 밤 18:00~06:00에만 들어갈 수 있어요(게임 시간, 오른쪽 위 시계).	1	src/ReplicatedStorage/FashionGame/Shared/GuideConfig.lua:62
+c8276a	exact	춤은 어떻게 춰요?	1	src/ReplicatedStorage/FashionGame/Shared/GuideConfig.lua:63
+9ed694	exact	화면 오른쪽 위 ♪ 버튼을 눌러 춤을 골라요. 근처 사람을 누르면 같이 출 수 있어요.	1	src/ReplicatedStorage/FashionGame/Shared/GuideConfig.lua:63
+e3c684	exact	노래를 바꾸거나 넘길 수 있어요?	1	src/ReplicatedStorage/FashionGame/Shared/GuideConfig.lua:64
+aebb49	exact	클럽 위 노래 제목 왼쪽 목록 버튼(줄 세 개)에서 노래를 예약하고, 오른쪽 ›로 스킵 투표를 해요. 클럽 사람 절반이 찬성하면 넘어가요.	1	src/ReplicatedStorage/FashionGame/Shared/GuideConfig.lua:64
+aafbb8	exact	DJ는 어떻게 해요?	1	src/ReplicatedStorage/FashionGame/Shared/GuideConfig.lua:65
+b70a5a	exact	클럽의 🎵 버튼 창에서 DJ 시간을 사면 차례가 와요. DJ 턴테이블 앞에서 🎵 버튼을 누르면 디제잉을 시작해요. DJ는 노래·속도·조명을 바꿀 수 있어요.	1	src/ReplicatedStorage/FashionGame/Shared/GuideConfig.lua:65
+1dee78	exact	사진은 어디서 찍어요?	1	src/ReplicatedStorage/FashionGame/Shared/GuideConfig.lua:66
+e41bc2	exact	오후네컷 사진관에서 친구랑 네 컷을 찍어요. 화면의 📸 버튼으로 지금 화면도 찍을 수 있어요.	1	src/ReplicatedStorage/FashionGame/Shared/GuideConfig.lua:66
+2eba72	exact	코인은 어떻게 벌어요?	1	src/ReplicatedStorage/FashionGame/Shared/GuideConfig.lua:67
+2cf6fb	exact	게임에 있으면 1분마다 코인이 쌓여요. 비치 카페에서 알바를 하면 더 벌 수 있어요.	1	src/ReplicatedStorage/FashionGame/Shared/GuideConfig.lua:67
+c31e2d	exact	알바는 어떻게 해요?	1	src/ReplicatedStorage/FashionGame/Shared/GuideConfig.lua:68
+730441	exact	비치 카페 카운터 안쪽 작업대에서 '알바 시작'을 눌러요. 주문 목록에서 [만들기] → 손님에게 [서빙하기]를 하면 코인을 받아요.	1	src/ReplicatedStorage/FashionGame/Shared/GuideConfig.lua:68
+2875b9	exact	음식은 어디서 먹어요?	1	src/ReplicatedStorage/FashionGame/Shared/GuideConfig.lua:69
+c46525	exact	국밥집·카페·OH24 편의점·놀이공원 간식 가게에서 사요. 사 먹으면 경험치(XP)도 올라요. 손에 든 음식을 누르면 한 입씩 먹고, 케이크·수육은 테이블에 놓고 다 같이 나눠 먹어요.	1	src/ReplicatedStorage/FashionGame/Shared/GuideConfig.lua:69
+ce8eb8	exact	옷은 어떻게 갈아입어요?	1	src/ReplicatedStorage/FashionGame/Shared/GuideConfig.lua:70
+0fa805	exact	오른쪽 위 옷걸이 버튼으로 카탈로그를 열어 입어 보고, ⚙ 아바타 편집에서 장신구 위치·크기도 바꿀 수 있어요.	1	src/ReplicatedStorage/FashionGame/Shared/GuideConfig.lua:70
+fceaa5	exact	멀리 빨리 가려면요?	1	src/ReplicatedStorage/FashionGame/Shared/GuideConfig.lua:71
+2b12ac	exact	길가의 버스 정류장 표지판을 누르면 다른 정류장으로 바로 가요. 지하철 출구 계단 아래에서도 갈 곳을 고를 수 있어요.	1	src/ReplicatedStorage/FashionGame/Shared/GuideConfig.lua:71
+377685	exact	물놀이는 어디서 해요?	1	src/ReplicatedStorage/FashionGame/Shared/GuideConfig.lua:72
+633d83	exact	서쪽 해변에서 튜브를 타고 바다에 들어가요.	1	src/ReplicatedStorage/FashionGame/Shared/GuideConfig.lua:72
+ca05f4	exact	놀이공원은 어디 있어요?	1	src/ReplicatedStorage/FashionGame/Shared/GuideConfig.lua:73
+6b1648	exact	계단 위 OHU LAND가 문을 열었어요! 바이킹, 회전컵, 관람차, 범퍼카를 탈 수 있어요.	1	src/ReplicatedStorage/FashionGame/Shared/GuideConfig.lua:73
+ca2596	exact	경험치(XP)는 어떻게 올려요?	1	src/ReplicatedStorage/FashionGame/Shared/GuideConfig.lua:75
+f6a2c8	exact	코인이나 로벅스로 산 음식·음료를 먹으면 경험치가 올라요. 한 입 먹을 때마다 조금씩 오르고, 다 먹으면 그 음식의 경험치를 모두 받아요(무료 음식은 경험치가 없고, 하루에 오를 수 있는 양은 정해져 있어요). 내 경험치는 이름 아래 ⭐ XP로 보여요.	1	src/ReplicatedStorage/FashionGame/Shared/GuideConfig.lua:75
+2babe6	exact	국밥을 테이블에 놓으면 남도 먹어요?	1	src/ReplicatedStorage/FashionGame/Shared/GuideConfig.lua:76
+6d2b11	exact	아니요, 테이블에 놓은 국밥은 놓은 사람만 떠먹어요. 수육 한 접시와 케이크는 테이블에 놓으면 모두 한 조각씩 가져가 먹어요.	1	src/ReplicatedStorage/FashionGame/Shared/GuideConfig.lua:76
+929f3e	exact	🗺 동네 둘러보기	1	src/ReplicatedStorage/FashionGame/Shared/GuideConfig.lua:79
+13fc94	exact	카메라가 동네를 한 바퀴 돌며 장소와 화면 버튼을 알려 줘요.	1	src/ReplicatedStorage/FashionGame/Shared/GuideConfig.lua:79
+835698	exact	💬 불편한 점·바라는 점 보내기	1	src/ReplicatedStorage/FashionGame/Shared/GuideConfig.lua:81
+c77597	exact	버그, 불편한 점, 있었으면 하는 것 무엇이든 알려 주세요! 개발자가 하나하나 직접 읽어요. 화면 오른쪽 위 💬 버튼으로도 보낼 수 있어요.	1	src/ReplicatedStorage/FashionGame/Shared/GuideConfig.lua:81
 be2f38	exact	클럽 바 에너지 드링크 블루 윙(6잔).	1	src/ReplicatedStorage/FashionGame/Shared/MonetizationConfig.lua:101
 d3305e	exact	프리미엄 음료 스택 하이드로(6잔).	1	src/ReplicatedStorage/FashionGame/Shared/MonetizationConfig.lua:104
 7bac6c	exact	스택 하이드로 (VIP가)	1	src/ReplicatedStorage/FashionGame/Shared/MonetizationConfig.lua:105
