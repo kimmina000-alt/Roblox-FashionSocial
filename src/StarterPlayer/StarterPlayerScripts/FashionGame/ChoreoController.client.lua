@@ -154,6 +154,9 @@ end
 -- (D-811) every dancer's body joints by the part they move (the name the
 -- keyframe poses use), for ChoreoSmooth
 local jointsOf: {[Model]: {[string]: Motor6D | AnimationConstraint}} = setmetatable({}, { __mode = "k" }) :: any
+-- (D-1958) wrist bend limits (degrees from the rest pose)
+local WRIST_SOFT, WRIST_MAX = 80, 98
+
 local function bodyJoints(character: Model): {[string]: Motor6D | AnimationConstraint}
 	local cached = jointsOf[character]
 	-- (D-858) a new body (wardrobe, a saved look) builds new joints: read them
@@ -1003,6 +1006,24 @@ RunService.PreSimulation:Connect(function(dt)
 				end
 				-- (D-1321) on the chair the hips rest on the seat, not through it
 				ChoreoChair.sit(character)
+				-- (D-1958, 2nd review: wrists folded past 105 degrees look broken (D-1895 size bands: 50-80 good) — NEON 1:51.7 136,
+				-- Catch Catch 1:44.0 124, NEON 3:03.4 108, Suddenly 3:02.5 105, from the capture plus the `bend` fixes) a wrist past
+				-- WRIST_SOFT is eased toward WRIST_MAX and never beyond it; its own turn axis is kept
+				do
+					local joints = bodyJoints(character)
+					for _, name in ipairs({ "LeftHand", "RightHand" }) do
+						local j = joints[name]
+						if j then
+							local tf = j.Transform
+							local axis, a = tf.Rotation:ToAxisAngle()
+							local deg = math.deg(math.abs(a))
+							if deg > WRIST_SOFT then
+								local soft = WRIST_SOFT + (WRIST_MAX - WRIST_SOFT) * math.tanh((deg - WRIST_SOFT) / (WRIST_MAX - WRIST_SOFT))
+								j.Transform = CFrame.new(tf.Position) * CFrame.fromAxisAngle(axis, math.rad(soft) * math.sign(a))
+							end
+						end
+					end
+				end
 				-- (D-1905) a ChoreoFixes `plant` window: a foot on the floor keeps its spot while the body moves on
 				do
 					local cached = floorCache[character]
