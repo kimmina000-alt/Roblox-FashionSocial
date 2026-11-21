@@ -280,6 +280,36 @@ local function heardSongTime(r: Run): number
 	return clock
 end
 
+-- (D-1818, user 2026-11-21: "적당한 타이밍에 잘 맞게 누를 때랑 틀릴 때랑 다 안 맞는 효과음 넣기") a bright tick on
+-- a hit (PERFECT a little higher than GREAT) and a short low buzz on a miss or a tap with no note near:
+-- the game's own UI sounds (SoundConfig.Ui click / error) at other pitches, on this screen only
+local SoundConfig = require(Shared:WaitForChild("SoundConfig"))
+local function hitSound(id: number, volume: number, speed: number): Sound
+	local s = Instance.new("Sound")
+	s.SoundId = "rbxassetid://" .. tostring(id)
+	s.Volume = volume
+	s.PlaybackSpeed = speed
+	s.Parent = gui
+	return s
+end
+local SOUND = {
+	PERFECT = hitSound(SoundConfig.Ui.click, 0.55, 1.35),
+	GREAT = hitSound(SoundConfig.Ui.click, 0.45, 1.1),
+	MISS = hitSound(SoundConfig.Ui.error, 0.18, 1.6),
+}
+local lastMissSound = 0
+local function playJudge(kind: string)
+	local s = SOUND[kind]
+	if not s then return end
+	if kind == "MISS" then
+		-- (a run of missed notes would buzz on every beat: at most one buzz in 0.35 s)
+		if os.clock() - lastMissSound < 0.35 then return end
+		lastMissSound = os.clock()
+	end
+	s.TimePosition = 0
+	s:Play()
+end
+
 local judgeTween: Tween? = nil
 local function showJudge(kind: string)
 	judgeLabel.Text = kind
@@ -301,6 +331,7 @@ local function judge(r: Run, note: any, kind: string)
 	else r.miss += 1 r.combo = 0 end
 	r.best = math.max(r.best, r.combo)
 	showJudge(kind)
+	playJudge(kind)
 end
 
 local function press(laneIndex: number)
@@ -323,6 +354,8 @@ local function press(laneIndex: number)
 	end
 	if best and bestGap <= DanceScoreConfig.Late then
 		judge(r, best, if bestGap <= DanceScoreConfig.Perfect then "PERFECT" elseif bestGap <= DanceScoreConfig.Great then "GREAT" else "MISS")
+	elseif heardSongTime(r) > (r.notes[1] and r.notes[1].t - 1 or 0) then
+		playJudge("MISS") -- (a tap with no note near: the buzz only, nothing counted)
 	end
 end
 
