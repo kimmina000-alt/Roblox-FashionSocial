@@ -33,6 +33,15 @@ M.ChoreoHome = { settle = 2.5, back = 1.5 } :: any
 M.ChoreoFrontLock = nil :: any
 -- (D-998, user: "손목·발목은 다듬지 않기") parts the automatic tremble clean-ups leave as captured
 M.ChoreoKeepDetail = { "LeftHand", "RightHand", "LeftFoot", "RightFoot" } :: {string}?
+-- (D-1972, user 2026-11-21: "손목과 발목 고개 움직임은 유지하고 그 외 움직임만 … 중간 중간 프레임 삭제해서
+-- 부드럽게 연결", "미세한 움직임이나 … 튀는 프레임, 떨림 없애기") key reduction for every joint but
+-- `keep` (ChoreoSmooth.reduce): spikes over `spike` degrees put back on their neighbours' line,
+-- then only the poses that hold the shape (within `tol` degrees, at least one every `maxGap` s)
+-- stay and the rest are rebuilt on a smooth curve through them. A piece's ChoreoFixes `sharp`
+-- skips it. Studio: FashionGame attribute ChoreoReduceOff = the old clean-ups. nil = off.
+-- (D-1972, 2nd pass) post = true: the shake / average clean-ups still run on the reduced curve (reduction alone made
+-- more fast moments in the real playback: NEON +21 %, Lemonade +23 %, measured by 안무 (3) 편집)
+M.ChoreoReduce = { spike = 4, tol = 8, maxGap = 0.6, post = true, keep = { "Head", "LeftHand", "RightHand", "LeftFoot", "RightFoot" } } :: any
 M.ChoreoRetarget = true
 
 -- (D-817) a dancer following a choreography walks its dance path (D-813),
@@ -3869,6 +3878,10 @@ do
 end
 
 -- (D-1967, user's 3rd 2P list for aespa-Lemonade): legs held where a leg flicked, v3 1:40-2:12 kept in place, 2:13 one even turn
+-- (D-1949, 2nd review of Lemonade D-1969 (v2 77 % + v3 23 %): the six v3 pieces had no stay-in-place / planted feet, so
+-- 0:59.75-1:10.1 slid 14.9 studs in 9 places and 1:26-1:56.6 51.1 studs in 31 (1:38.7 left foot 6.1); the v3 fancams follow
+-- the dancer with the camera, so their travel cannot be trusted) as the v2 pieces (D-1931): `still` outside Lemonade's
+-- formation moves (1:32.5-1:34.3, 1:38.8-1:40.8, 0.2 s margins), `plant` on every v3 piece (contact 0.45, steps)
 do
 	local function addList(id: number, key: string, item: any)
 		local f = (M.ChoreoFixes[id] or {}) :: any
@@ -3915,6 +3928,30 @@ do
 	addList(76195346888656, "level", { from = 0, to = 1.4, ease = 0.3 })
 	local f16 = M.ChoreoFixes[82680550952125] :: any
 	f16.spin = { from = 4.8, to = 7.7, ease = "both" }
+	for id, wins in {
+		[136573199349283] = { { 0.00, 99 } }, -- at 59.75
+		[104433202165131] = { { 0.00, 99 } }, -- at 67.5
+		[135684881711516] = { { 0.00, 6.30 }, { 8.50, 99 } }, -- at 86
+		[119706515996739] = { { 0.00, 3.80 }, { 6.20, 99 } }, -- at 94.8
+		[102178089107461] = { { 0.00, 99 } }, -- at 102.9
+		[116451294316978] = { { 0.00, 99 } }, -- at 113.5
+	} do
+		for _, w in ipairs(wins) do addList(id, "still", { from = w[1], to = w[2] }) end
+		addList(id, "plant", { from = 0, to = 99, contact = 0.45 })
+	end
+end
+
+-- (D-1950, 2nd review of Lemonade v3final2: 0:24.3-0:26.5 the planted feet slid again, 0:25.1 left foot 3.2 studs; D-1969
+-- took this piece's hold away for 1.0-3.4 because the noStep hold let the right foot go and took it again in one frame) the
+-- video steps from side to side in place here (lifts the foot and puts it down), so this gap gets a hold that steps: the foot
+-- is lifted and set down where the step aimed (`landHold`) instead of being held still or left to slide. Put first: the
+-- first window that matches counts.
+do
+	local f = (M.ChoreoFixes[123559029471758] or {}) :: any
+	M.ChoreoFixes[123559029471758] = f
+	local list = if f.plant == nil then {} elseif f.plant.from then { f.plant } else table.clone(f.plant)
+	table.insert(list, 1, { from = 1.0, to = 3.4, contact = 0.45, landHold = true })
+	f.plant = list
 end
 
 return M

@@ -19,6 +19,11 @@ local STEP_TIME = 0.3 -- (D-1939: was 0.2; the sideways move now takes only its 
 -- the floor by this much at the top of a step, nothing added where the dance already lifts it that high)
 local STEP_LIFT = 0.3
 local KNEE_LIFT = 45 -- (D-1942) degrees a step's lift may bend the knee past the dance's own (25: feet dragged 145 places, 35: 76, 45: 39)
+-- (D-1948, user 2026-11-20: "다리 길이에 맞춰 기준값이 커지고 작아지게") every distance above was tuned on a test avatar
+-- with 4.0-stud legs (hip -> knee -> ankle); a bigger avatar (6.0-stud legs) lifted its feet relatively less and dragged
+-- 2.5x as often (Suddenly 48 -> 118). Each foot's distances are scaled by its own leg length / REF_LEG.
+local REF_LEG = 4.0
+local KNEEL_KNEE = 0.6 -- (D-1951) a knee this near the floor (studs at REF_LEG) = kneeling: no hold on that leg
 local KNEE_MORE = 15 -- (D-1937) degrees the hold may bend the knee past the dance's own (D-1941: was 20, BANG legs 4 degrees off)
 
 -- (D-1939, 2nd review of D-1938: BANG 1:48.3 the foot went 0.6 studs sideways with the heel 0.1 above the floor, at the
@@ -123,7 +128,13 @@ function ChoreoFeet.apply(character: Model, joints: {[string]: Joint}, active: b
 		local size = footPart.Size
 		local half = math.abs(footCF.RightVector.Y) * size.X / 2 + math.abs(footCF.UpVector.Y) * size.Y / 2 + math.abs(footCF.LookVector.Y) * size.Z / 2
 		local sole = footCF.Position.Y - half - floorY -- (D-1937) how high the dance has the foot
-		local onFloor = sole < (contact or CONTACT)
+		local l1, l2 = (K - H).Magnitude, (A - K).Magnitude
+		local scale = math.clamp((l1 + l2) / REF_LEG, 0.5, 2.5) -- (D-1948)
+		local onFloor = sole < (contact or CONTACT) * scale
+		-- (D-1951, 2nd review of D-1948: NEON 0:50-0:54 / Catch Catch 0:06, 2:00 the kneels floated 1.5 studs: the scaled
+		-- contact took the foot behind a kneel for a planted foot, the hold bent that shin into the floor and the floor lift
+		-- (D-995) raised the whole body) a knee near the floor = kneeling: the foot is not held, the dance's own pose stays
+		if K.Y - floorY < KNEEL_KNEE * scale then onFloor = false end
 		local st = mine[side]
 		if not st then st = { spot = nil, w = 0, letGo = nil } mine[side] = st end
 		-- a foot that lifted and is down again is held at once where it landed (only a pulled foot waits to be let go)
@@ -134,9 +145,9 @@ function ChoreoFeet.apply(character: Model, joints: {[string]: Joint}, active: b
 			-- along the floor in the game) the dance carrying a held foot STEP studs off its spot = a step: the foot is lifted
 			-- and carried to the new spot over STEP_TIME (planted again there), instead of sliding or being dragged
 			local away = Vector2.new(st.spot.X - A.X, st.spot.Z - A.Z).Magnitude
-			if not noStep and not st.stepFrom and away > STEP then st.stepFrom, st.stepT, st.stepLift = st.spot, 0, nil end
+			if not noStep and not st.stepFrom and away > STEP * scale then st.stepFrom, st.stepT, st.stepLift = st.spot, 0, nil end
 			-- (D-1907) pulled too far: eased off over 0.3 s, then held again where it is (it jumped 1.2 studs in a frame)
-			if not st.stepFrom and away > (if noStep then 2 else STRETCH) then st.letGo = 0.3 end
+			if not st.stepFrom and away > (if noStep then 2 else STRETCH) * scale then st.letGo = 0.3 end
 		elseif st.spot and not st.letGo then
 			-- lifted: LET_GO; the window over: 0.5 s (the body has gone on, the foot catches up slowly)
 			st.letGo = if active then LET_GO else 0.5
@@ -158,10 +169,10 @@ function ChoreoFeet.apply(character: Model, joints: {[string]: Joint}, active: b
 		if st.letGo then
 			if not st.arc then
 				local gap = Vector2.new(st.spot.X - A.X, st.spot.Z - A.Z).Magnitude
-				st.arc = if st.lifted or gap > 0.2 then 1 else 0
+				st.arc = if st.lifted or gap > 0.2 * scale then 1 else 0
 			end
 			-- (D-1940) the lift is made up every frame: the dance may lower the foot while it is carried over
-			T += Vector3.new(0, liftShape(1 - st.w) * (st.arc :: number) * math.max(0, STEP_LIFT - sole), 0)
+			T += Vector3.new(0, liftShape(1 - st.w) * (st.arc :: number) * math.max(0, STEP_LIFT * scale - sole), 0)
 		end
 		if st.stepFrom then
 			-- (D-1932) a step: from the old spot to where the dance has the foot now, lifted on the way
@@ -176,11 +187,10 @@ function ChoreoFeet.apply(character: Model, joints: {[string]: Joint}, active: b
 			-- (D-1940, 2nd review of D-1939: Lemonade 1:40.7 / BANG 2:52.6 the lift was worked out once, at the start, and the
 			-- dance lowered the foot during the step, so it still crossed 1.8 studs 0.1 above the floor) worked out every frame
 			-- from the real sole height: the capture often has the foot 0.1-0.26 below the floor (the lift ended 0.05 up)
-			st.stepLift = math.max(0, STEP_LIFT - sole)
+			st.stepLift = math.max(0, STEP_LIFT * scale - sole)
 			T = Vector3.new(from.X + (to.X - from.X) * k, A.Y + liftShape(u) * (st.stepLift :: number), from.Z + (to.Z - from.Z) * k)
 			if u >= 1 then st.spot, st.stepFrom, st.stepT, st.stepLift, st.landAt = to, nil, nil, nil, nil end
 		end
-		local l1, l2 = (K - H).Magnitude, (A - K).Magnitude
 		local function kneeAt(d: number): number
 			return math.deg(math.acos(math.clamp((l1 * l1 + l2 * l2 - d * d) / (2 * l1 * l2), -1, 1)))
 		end
