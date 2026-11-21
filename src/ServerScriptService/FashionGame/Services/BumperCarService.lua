@@ -69,8 +69,37 @@ local EMPTY_RETURN = 180 -- (D-1829) seconds an empty car waits before it goes b
 local DOORS = { Vector2.new(-95, -645), Vector2.new(-148.5, -645) }
 local spreadRandom = Random.new()
 local placed: {Vector2} = {}
-local function scatterSpot(fallback: Vector2): (Vector2, number)
+-- (D-1889, user 2026-11-21: "대기하는 범퍼카 바닥에 레일 가리지 않게 위치 조정") the waiting cars stand off the
+-- oval track painted on the floor (park_bumper_track_1119: centre (-159, -702.5), straights ±36.65 along X,
+-- asphalt ring 29..51 out): two rows of four in the infield either side of the cones (along the straights,
+-- facing opposite ways) and one in each corner of the hall facing its middle. More cars than spots: a random
+-- spot clear of the ring by TRACK_CLEAR.
+local TRACK_CX, TRACK_CZ, TRACK_HALF, TRACK_IN, TRACK_OUT, TRACK_CLEAR = -159, -702.5, 36.65, 29, 51, 10
+local function trackDist(p: Vector2): number
+	local dx = math.max(math.abs(p.X - TRACK_CX) - TRACK_HALF, 0)
+	return math.sqrt(dx * dx + (p.Y - TRACK_CZ) ^ 2)
+end
+local WAIT_SPOTS: {{ p: Vector2, yaw: number }} = {}
+do
+	for _, x in ipairs({ -204, -174, -144, -114 }) do
+		table.insert(WAIT_SPOTS, { p = Vector2.new(x, TRACK_CZ - 15), yaw = 0 })
+		table.insert(WAIT_SPOTS, { p = Vector2.new(x, TRACK_CZ + 15), yaw = math.pi })
+	end
 	local hall = BumperCarConfig.Hall
+	for _, c in ipairs({ { hall.x0 + 10.5, hall.z0 + 10.5 }, { hall.x1 - 10.5, hall.z0 + 10.5 }, { hall.x0 + 10.5, hall.z1 - 10.5 }, { hall.x1 - 10.5, hall.z1 - 10.5 } }) do
+		local p = Vector2.new(c[1], c[2])
+		table.insert(WAIT_SPOTS, { p = p, yaw = math.atan2(-(TRACK_CZ - p.Y), TRACK_CX - p.X) })
+	end
+end
+local nextSpot = 0
+local function scatterSpot(fallback: Vector2): (Vector2, number, boolean)
+	local hall = BumperCarConfig.Hall
+	nextSpot += 1
+	local fixed = WAIT_SPOTS[nextSpot]
+	if fixed then
+		table.insert(placed, fixed.p)
+		return fixed.p, fixed.yaw, true
+	end
 	for _ = 1, 300 do
 		local p = Vector2.new(
 			spreadRandom:NextNumber(hall.x0 + SPREAD_EDGE, hall.x1 - SPREAD_EDGE),
@@ -81,17 +110,22 @@ local function scatterSpot(fallback: Vector2): (Vector2, number)
 		end
 		-- (D-1829) not on the track's row of cones in the infield (park_bumper_track_1119: z -702.5, x -204..-114)
 		if ok and math.abs(p.Y + 702.5) < 9 and p.X > -213 and p.X < -105 then ok = false end
+		-- (D-1889) and off the painted ring
+		if ok then
+			local d = trackDist(p)
+			if d > TRACK_IN - TRACK_CLEAR and d < TRACK_OUT + TRACK_CLEAR then ok = false end
+		end
 		for _, q in ipairs(placed) do
 			if not ok then break end
 			if (p - q).Magnitude < SPREAD_GAP then ok = false end
 		end
 		if ok then
 			table.insert(placed, p)
-			return p, spreadRandom:NextNumber(-math.pi, math.pi)
+			return p, spreadRandom:NextNumber(-math.pi, math.pi), false
 		end
 	end
 	table.insert(placed, fallback)
-	return fallback, 0
+	return fallback, 0, false
 end
 
 local function build(model: Model)
@@ -105,8 +139,8 @@ local function build(model: Model)
 	local hall = BumperCarConfig.Hall
 	local r = body.CFrame.RightVector
 	local yaw = math.atan2(-r.Z, r.X) -- (the car's +X; Euler angles flip near 180°)
-	local spot, turn = scatterSpot(Vector2.new(body.Position.X, body.Position.Z)) -- (D-1704)
-	yaw += turn
+	local spot, turn, absolute = scatterSpot(Vector2.new(body.Position.X, body.Position.Z)) -- (D-1704)
+	yaw = if absolute then turn else yaw + turn -- (D-1889: a waiting spot's own heading)
 	local base = CFrame.new(spot.X, hall.floorY + 0.5, spot.Y) * CFrame.Angles(0, yaw, 0)
 	body.Anchored, body.CanCollide, body.CanQuery, body.CanTouch, body.Massless = false, false, false, false, true
 	body.CollisionGroup = CAR_GROUP

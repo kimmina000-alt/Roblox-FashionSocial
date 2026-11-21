@@ -134,7 +134,9 @@ RunService.Heartbeat:Connect(function()
 		local down = (h0 - h1) / 0.05
 		local k = if down > ParkConfig.JumpWindSpeed then math.clamp((down - ParkConfig.JumpWindSpeed) / (JUMP_FULL - ParkConfig.JumpWindSpeed), 0.25, 1) else 0
 		local big = ParkConfig.jumpStarBigDrop(ride, t)
-		if not big then k = 0 end -- (D-1481: the hops fall fast too; the wind is for the last drop)
+		-- (D-1886, user 2026-11-21: "점핑스타 내려올 때 바람소리 넣기 바이킹 소리") the viking's wind on every
+		-- way down, the hops too (D-1481 had it on the last drop only); the big drop at full
+		if big and k > 0 then k = 1 end
 		if big and not inBigDrop[ride] then cheer(part) end -- (D-1708)
 		inBigDrop[ride] = big
 		set(part, DROP_MAX * k, 0.95 + 0.3 * k)
