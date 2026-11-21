@@ -6666,3 +6666,8 @@ Studio only (no script yet).
 - user 2026-11-20: "공터 단상에 네온 노래 더 자주 나오게 해 줘 3~4곡 걸러서 한 번 나오게".
 - NeonStageService.pick(): 서버의 첫 곡은 NEON. 그 뒤 다른 안무 곡을 무작위로 3곡 또는 4곡(NeonStageConfig.NeonEvery = {3, 4}, 매번 새로 뽑음) 틀고 다시 NEON. 그 사이 곡에는 NEON이 안 나오고, 바로 앞 곡도 다시 안 나옴.
 - 안무가 생긴 곡은 따로 등록하지 않아도 단상 목록에 들어감(NeonStageConfig.tracks()가 곡을 고를 때마다 ClubPlaylist를 읽음; 여러 클립을 이은 곡만 빠짐).
+
+## D-1815 스파클러 버킷 세트를 코인으로 (2026-11-21)
+- 사용자: "버켓 스파클러도 코인으로 변경 적당 가격 추천" (D-1567 손 스파클러처럼).
+- 가격: 200 코인, VIP 160 코인(VIP 20% 할인, D-270). 근거: 들어 있는 2단계 음료 3병을 따로 사면 300 코인(병당 100)이라 묶음 할인, 1분 1코인이면 약 3시간 놀이. 손 스파클러(30)보다 크고 케이크(100)보다 비싼 "테이블 세트".
+- ClubConfig.BucketCoins / BucketCoinsVip, SparkleService "BuyBucketCoins"(EconomyService.Spend → grantBucketItem), 아이템 가게 카드 💰 구매하기. Robux 상품 SparklerBucket(_VIP)은 예전 구매 때문에 등록만 유지.

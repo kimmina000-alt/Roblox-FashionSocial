@@ -996,6 +996,16 @@ function SparkleService.Handle(player: Player, action: string, payload: any): (b
 		end
 		local ok, message = grantHandSparkler(player)
 		return ok, message, true
+	elseif action == "BuyBucketCoins" then
+		-- (D-1815) the sparkler bucket set for coins (ClubConfig.BucketCoins / BucketCoinsVip)
+		if not player:FindFirstChildOfClass("Backpack") then return false, "잠시 후 다시 시도하세요.", true end
+		local EconomyService = require(script.Parent.EconomyService)
+		local price = if player:GetAttribute("Pass_VIP") == true then ClubConfig.BucketCoinsVip else ClubConfig.BucketCoins
+		if not EconomyService.Spend(player, price, "Club_SparklerBucket") then
+			return false, string.format("코인이 모자라요. (%d 코인)", price), true
+		end
+		local ok, message = grantBucketItem(player)
+		return ok, message, true
 	elseif action == "DJColdSpark" then
 		local ok, message = djColdSpark(player)
 		return ok, message, true
