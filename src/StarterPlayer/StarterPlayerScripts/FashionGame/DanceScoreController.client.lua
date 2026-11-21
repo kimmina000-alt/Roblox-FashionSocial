@@ -98,11 +98,13 @@ end
 
 --------------------------------------------------------------------------
 -- entry button (on the stage, when no window is open)
-local entry = button(gui, "🎵 오늘의 곡 도전", PINK, Color3.fromRGB(26, 11, 34), BIG, 18)
+-- (D-1818b, user 2026-11-21: "오늘의 곡 도전 버튼 너무 큰데 왼쪽 상단으로 위치 옮기기") small, top left under the
+-- top bar (placed in layout)
+local entry = button(gui, "🎵 오늘의 곡 도전", PINK, Color3.fromRGB(26, 11, 34), BIG, 14)
 entry.Name = "Entry"
-entry.AnchorPoint = Vector2.new(1, 0.5)
-entry.Position = UDim2.new(1, -16, 0.6, 0)
-entry.Size = UDim2.fromOffset(176, 48)
+entry.AnchorPoint = Vector2.new(0, 0)
+entry.Position = UDim2.fromOffset(16, 60)
+entry.Size = UDim2.fromOffset(128, 32)
 entry.Visible = false
 
 --------------------------------------------------------------------------
@@ -200,6 +202,7 @@ local function layout()
 	local vp = gui.AbsoluteSize
 	local top = TopBar.bottom() + 8
 	local wide = vp.X > vp.Y
+	entry.Position = UDim2.fromOffset(16, top)
 	local panelW = math.min(420, vp.X - 32)
 	startPanel.Size = UDim2.fromOffset(panelW, 300)
 	result.Size = UDim2.fromOffset(math.min(440, vp.X - 32), 330)
@@ -462,6 +465,12 @@ RunService.RenderStepped:Connect(function(dt)
 		note.frame = make("Frame", { Name = "Note", AnchorPoint = Vector2.new(0.5, 0.5), Size = UDim2.new(1, -12, 0, 16),
 			BackgroundColor3 = LANE_COLORS[note.lane], BorderSizePixel = 0 }, lane.frame)
 		round(note.frame, 8)
+		-- (D-1818b, user 2026-11-21: "바 내려올 때 그라데이션으로 위에 잔상 남기면서 내려오게 너무 길게는 말고") a short
+		-- fading trail above the falling bar
+		local trail = make("Frame", { Name = "Trail", AnchorPoint = Vector2.new(0.5, 1), Position = UDim2.new(0.5, 0, 0, 4),
+			Size = UDim2.new(0.8, 0, 0, 40), BackgroundColor3 = LANE_COLORS[note.lane], BorderSizePixel = 0, ZIndex = 0 }, note.frame)
+		round(trail, 6)
+		make("UIGradient", { Rotation = 90, Transparency = NumberSequence.new({ NumberSequenceKeypoint.new(0, 1), NumberSequenceKeypoint.new(1, 0.45) }) }, trail)
 		r.nextSpawn += 1
 	end
 	-- move them; a note past the late window is a miss
