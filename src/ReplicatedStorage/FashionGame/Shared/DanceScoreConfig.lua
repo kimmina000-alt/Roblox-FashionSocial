@@ -71,8 +71,9 @@ DanceScoreConfig.HoldSound = 0
 -- (D-1818k, user 2026-11-21: "기계음 삭제하고 그 순간 1초씩 음량 2배 키우기로 변경") the hit sounds are gone (the ids
 -- above are kept, unused); a hit makes the song twice as loud (+6 dB = 2 x amplitude) for 1 s from that hit
 -- (D-1818q, user 2026-11-21: "효과음 빼고 성공하는 순간 딜레이 없이 바로 0.5초 볼륨 5배 키우기") 5 x = +13.98 dB for 0.5 s
-DanceScoreConfig.HitSwellPerfect = 13.98
-DanceScoreConfig.HitSwellGreat = 13.98
+-- (D-1818r, user 2026-11-21: "볼륨 5배 삭제") no swell any more (0 dB; set a number here to bring it back)
+DanceScoreConfig.HitSwellPerfect = 0
+DanceScoreConfig.HitSwellGreat = 0
 DanceScoreConfig.HitSwellTime = 0.5
 -- (D-1818m, user 2026-11-21: "6 빼고 3 5 7 8 차례대로 버튼 네 개에 하나씩 적용") a hit plays its button's own 0.5 s
 -- EDM sound (tools/art/edm_half.py, docs/04_ART/sfx): 1 ◀/A = edm_3_wobble_half, 2 ▼/S = edm_5_stab,
@@ -81,8 +82,9 @@ DanceScoreConfig.HitSwellTime = 0.5
 -- 125197725220519 and the pump 116720116970109 are uploaded but unused)
 -- (D-1818p, user 2026-11-21: "7번으로 모두 통일") every button = edm_7_808
 -- (D-1818q, user 2026-11-21: "효과음 빼고") no button sounds (808 140128383020491 kept here for later)
-DanceScoreConfig.LaneSounds = { 0, 0, 0, 0 }
-DanceScoreConfig.LaneSoundVolume = 0.6
+-- (D-1818r, user 2026-11-21: "edm 5를 볼륨 반으로 줄여서 4개 키에 넣어 봐") every button = edm_5_stab at half volume
+DanceScoreConfig.LaneSounds = { 76294360258700, 76294360258700, 76294360258700, 76294360258700 }
+DanceScoreConfig.LaneSoundVolume = 0.3 -- (D-1818r: half of 0.6)
 function DanceScoreConfig.auroraCombo(total: number): number
 	-- 15 % of the song's notes, in tens, at least 30 (NEON: 409 notes → 60)
 	return math.max(30, math.floor(total * 0.15 / 10 + 0.5) * 10)
