@@ -6666,3 +6666,8 @@ Studio only (no script yet).
 - user 2026-11-20: "공터 단상에 네온 노래 더 자주 나오게 해 줘 3~4곡 걸러서 한 번 나오게".
 - NeonStageService.pick(): 서버의 첫 곡은 NEON. 그 뒤 다른 안무 곡을 무작위로 3곡 또는 4곡(NeonStageConfig.NeonEvery = {3, 4}, 매번 새로 뽑음) 틀고 다시 NEON. 그 사이 곡에는 NEON이 안 나오고, 바로 앞 곡도 다시 안 나옴.
 - 안무가 생긴 곡은 따로 등록하지 않아도 단상 목록에 들어감(NeonStageConfig.tracks()가 곡을 고를 때마다 ClubPlaylist를 읽음; 여러 클립을 이은 곡만 빠짐).
+
+## D-1814 안무 따라 하기 점수 "오늘의 곡 도전" 기획 + 화면 시안 (2026-11-21)
+- 사용자(진행 관리 세션 경유): 유지율 2%, 클럽(춤) + 오후네컷을 깊게. 안무 리듬 게임 시안 먼저, 코드는 나중에.
+- 사용자 결정: 오늘의 곡 대결은 포켓 공원 광장 네온 무대에서(낮 · 밤). 무대 곡은 구경꾼에게 그대로, 도전자에게만 오늘의 곡.
+- 문서 docs/01_SYSTEMS/DANCE_SCORE.md, 시안 https://claude.ai/artifact/3KTo2VS6jySsX6Z7VzBKpU (스타일 A 네온 클럽 / B 노을 팝 / C 음악방송 × 5장). 사용자가 스타일을 고르면 그 줄로 만든다.
