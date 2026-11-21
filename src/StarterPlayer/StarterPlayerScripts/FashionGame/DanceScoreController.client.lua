@@ -139,7 +139,8 @@ local barBack = make("Frame", { Position = UDim2.fromOffset(0, 20), Size = UDim2
 round(barBack, 3)
 local barFill = make("Frame", { Size = UDim2.fromScale(0, 1), BackgroundColor3 = CYAN }, barBack)
 round(barFill, 3)
-local quit = button(play, "✕ 그만하기", BG, SOFT, BODY, 12)
+-- (D-1818d, user 2026-11-21: "나가기 버튼 앞에 아이콘 ㅁ로 뜨는 거 확인 후 수정": Gotham has no ✕, it showed as a box)
+local quit = button(play, "X  그만하기", BG, SOFT, BODY, 12)
 quit.BackgroundTransparency = 0.2
 quit.Size = UDim2.fromOffset(96, 30)
 local scoreLabel = label(play, "0", 26, Color3.new(1, 1, 1), BIG, { AnchorPoint = Vector2.new(1, 0), Size = UDim2.fromOffset(200, 30),
@@ -249,7 +250,7 @@ layout()
 -- a run
 type Run = { start: number, track: ClubConfig.Track, notes: {any}, nextSpawn: number, perfect: number, great: number,
 	miss: number, combo: number, best: number, rate: number, active: boolean, offStage: number,
-	frozen: boolean, aurora: boolean, auroraAt: number }
+	frozen: boolean, aurora: boolean, auroraAt: number, auroraLevel: number, lastCount: number }
 local run: Run? = nil
 local hidden: {[string]: any} = {}
 
@@ -307,6 +308,7 @@ local SOUND = {
 	KICK = hitSound(DanceScoreConfig.DrumKick, 0.9, 1),
 	SNARE = hitSound(DanceScoreConfig.DrumSnare, 0.6, 1),
 	MISS = hitSound(SoundConfig.Ui.error, 0.18, 1.6),
+	BEEP = hitSound(DanceScoreConfig.CountBeep, 0.6, 1),
 }
 local lastMissSound = 0
 local function playJudge(kind: string)
@@ -333,7 +335,7 @@ local function showJudge(kind: string)
 	judgeTween = TweenService:Create(judgeScale, TweenInfo.new(0.15), { Scale = 1 })
 	judgeTween:Play()
 	local r = run
-	comboLabel.Text = if r and r.combo >= 2 then (string.format("%d 콤보", r.combo) .. (if r.aurora then " · 오로라!" else "")) else ""
+	comboLabel.Text = if r and r.combo >= 2 then (string.format("%d 콤보", r.combo) .. (if r.aurora then string.format(" · 오로라 %d단계!", r.auroraLevel) else "")) else ""
 	comboLabel.TextColor3 = if r and r.aurora then Color3.fromRGB(140, 255, 210) else Color3.new(1, 1, 1)
 	-- (D-1818c, user 2026-11-21: "퍼펙트 뜨면 퍼펙트 글씨에 빤짝이 화려하게") PERFECT: a shine across the letters and
 	-- little stars bursting out round them
@@ -343,8 +345,8 @@ local function showJudge(kind: string)
 		TweenService:Create(judgeShine, TweenInfo.new(0.35), { Offset = Vector2.new(1, 0) }):Play()
 		for i = 1, 8 do
 			local a = (i / 8) * math.pi * 2 + math.random() * 0.5
-			local star = make("TextLabel", { BackgroundTransparency = 1, Text = if i % 2 == 0 then "✦" else "✧", TextSize = math.random(14, 26),
-				Font = BIG, TextColor3 = if i % 3 == 0 then Color3.fromRGB(255, 150, 220) else YELLOW, AnchorPoint = Vector2.new(0.5, 0.5),
+			local star = make("TextLabel", { BackgroundTransparency = 1, Text = if i % 2 == 0 then "✨" else "⭐", TextSize = math.random(14, 24),
+				Font = BODY, TextColor3 = if i % 3 == 0 then Color3.fromRGB(255, 150, 220) else YELLOW, AnchorPoint = Vector2.new(0.5, 0.5),
 				Position = UDim2.fromScale(0.5, 0.5), Size = UDim2.fromOffset(30, 30), ZIndex = 5 }, judgeLabel)
 			local dist = math.random(70, 150)
 			TweenService:Create(star, TweenInfo.new(0.55, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
@@ -370,10 +372,13 @@ local auroraBand = make("Frame", { Name = "Aurora", Size = UDim2.new(1, 0, 0.5, 
 local auroraGradient = make("UIGradient", { Color = ColorSequence.new({
 	ColorSequenceKeypoint.new(0, Color3.fromRGB(80, 255, 170)), ColorSequenceKeypoint.new(0.33, Color3.fromRGB(70, 220, 255)),
 	ColorSequenceKeypoint.new(0.66, Color3.fromRGB(170, 110, 255)), ColorSequenceKeypoint.new(1, Color3.fromRGB(80, 255, 170)) }) }, auroraBand)
-local function setAurora(r: Run, on: boolean)
-	r.aurora = on
-	auroraBand.Visible = on
-	askServer("Aurora", on)
+-- (D-1818d) level 0..3: the band grows taller and brighter with each step; the server makes the dancer's aurora
+local function setAurora(r: Run, level: number)
+	r.auroraLevel = level
+	r.aurora = level > 0
+	auroraBand.Visible = level > 0
+	auroraBand.Size = UDim2.new(1, 0, ({ 0.35, 0.5, 0.7 })[math.max(level, 1)], 0)
+	askServer("Aurora", level)
 end
 RunService.RenderStepped:Connect(function()
 	if not auroraBand.Visible then return end
@@ -381,7 +386,9 @@ RunService.RenderStepped:Connect(function()
 	local t = os.clock()
 	auroraGradient.Offset = Vector2.new(math.sin(t * 0.6) * 0.4, 0)
 	auroraGradient.Rotation = 8 * math.sin(t * 0.4)
-	auroraBand.BackgroundTransparency = 0.72 + 0.08 * math.sin(t * 1.7)
+	local r = run
+	local level = if r then r.auroraLevel else 1
+	auroraBand.BackgroundTransparency = ({ 0.75, 0.66, 0.56 })[math.max(level, 1)] + 0.08 * math.sin(t * (1.2 + level * 0.6))
 end)
 
 local function judge(r: Run, note: any, kind: string)
@@ -400,14 +407,29 @@ local function judge(r: Run, note: any, kind: string)
 			player:SetAttribute("DanceFrozenAt", heardSongTime(r))
 			askServer("Freeze", true)
 		end
-		if r.aurora then setAurora(r, false) end
+		if r.aurora then setAurora(r, 0) end
 	else
 		if r.frozen then
 			r.frozen = false
 			player:SetAttribute("DanceFrozenAt", nil)
 			askServer("Freeze", false)
 		end
-		if not r.aurora and r.combo >= r.auroraAt then setAurora(r, true) end
+		local level = DanceScoreConfig.auroraLevel(r.combo, #r.notes)
+		if level ~= r.auroraLevel then setAurora(r, level) end
+		-- (D-1818d, user 2026-11-21: "맞는 타이밍에 눌렀을 때 누르는 버튼 해당 컬러로 진동 확장하는 듯한 효과 … 버튼 그림")
+		-- a ring of the lane's colour spreading out of the button
+		local lane = lanes[note.lane]
+		if lane then
+			local ring = make("Frame", { AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.fromScale(0.5, 0.5), Size = UDim2.fromScale(1, 1),
+				BackgroundTransparency = 1, ZIndex = 4 }, lane.button)
+			round(ring, 18)
+			local st = make("UIStroke", { Color = LANE_COLORS[note.lane], Thickness = if kind == "PERFECT" then 5 else 3,
+				ApplyStrokeMode = Enum.ApplyStrokeMode.Border }, ring)
+			local info = TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+			TweenService:Create(ring, info, { Size = UDim2.fromScale(if kind == "PERFECT" then 1.9 else 1.5, if kind == "PERFECT" then 1.9 else 1.5) }):Play()
+			TweenService:Create(st, info, { Transparency = 1 }):Play()
+			task.delay(0.32, function() ring:Destroy() end)
+		end
 	end
 	showJudge(kind)
 	playJudge(kind)
@@ -479,7 +501,7 @@ local function begin()
 	for _, n in ipairs(DanceScoreConfig.chart(t)) do table.insert(notes, { t = n.t, lane = n.lane, done = false }) end
 	run = { start = startAt, track = t, notes = notes, nextSpawn = 1, perfect = 0, great = 0, miss = 0, combo = 0, best = 0,
 		rate = ClubConfig.songRate(t, 1), active = true, offStage = 0,
-		frozen = false, aurora = false, auroraAt = DanceScoreConfig.auroraCombo(#notes) }
+		frozen = false, aurora = false, auroraAt = DanceScoreConfig.auroraCombo(#notes), auroraLevel = 0, lastCount = 0 }
 	local info = DanceScoreConfig.Songs[t.soundId]
 	songLabel.Text = if info then (info.title .. " · " .. info.artist) else t.title
 	scoreLabel.Text = "0"
@@ -522,9 +544,22 @@ RunService.RenderStepped:Connect(function(dt)
 	local now = workspace:GetServerTimeNow()
 	-- count-in
 	if now < r.start then
-		countLabel.Text = tostring(math.ceil(r.start - now))
+		local n = math.ceil(r.start - now)
+		countLabel.Text = tostring(n)
+		if n ~= r.lastCount and n <= 3 then
+			r.lastCount = n
+			SOUND.BEEP.PlaybackSpeed = 1
+			SOUND.BEEP.TimePosition = 0
+			SOUND.BEEP:Play()
+		end
 	else
 		countLabel.Text = ""
+		if r.lastCount ~= -1 then
+			r.lastCount = -1
+			SOUND.BEEP.PlaybackSpeed = 1.5 -- (the start: higher)
+			SOUND.BEEP.TimePosition = 0
+			SOUND.BEEP:Play()
+		end
 	end
 	-- off the stage for 2 s: the challenge ends
 	if onStage() then r.offStage = 0 else r.offStage += dt end
@@ -679,13 +714,14 @@ local function fillBoards()
 		b.title.Text = if info then (info.title .. " · " .. info.artist) else ""
 		b.empty.Visible = #list == 0
 		b.champName.Text = if list[1] then tostring(list[1].n) else "?"
-		b.champScore.Text = if list[1] then tostring(list[1].s) else "첫 1위를 기다려요"
+		b.champScore.Text = if list[1] then (tostring(list[1].s) .. (if typeof(list[1].c) == "number" then string.format(" · %d콤보", list[1].c) else "")) else "첫 1위를 기다려요"
 		for i, row in ipairs(b.rows) do
 			local e = list[i]
 			row.Text = if e then string.format("%2d  %s", i, tostring(e.n)) else ""
 			row.Visible = e ~= nil
 			local score = row:FindFirstChild("Score") :: TextLabel?
-			if score then score.Text = if e then tostring(e.s) else "" end
+			-- (D-1818d, user 2026-11-21: "순위표에 최대 콤보 수 표시")
+			if score then score.Text = if e then (tostring(e.s) .. (if typeof(e.c) == "number" then string.format("  ·  %d콤보", e.c) else "")) else "" end
 			row.TextColor3 = if i == 1 then YELLOW elseif i <= 3 then Color3.fromRGB(255, 160, 210) else Color3.new(1, 1, 1)
 		end
 	end
@@ -706,7 +742,7 @@ local function addBoard(part: Instance)
 	label(champ, "오늘의 1위", 44, YELLOW, BIG, { Position = UDim2.fromOffset(0, 160), Size = UDim2.new(1, 0, 0, 52) })
 	local champName = label(champ, "", 58, Color3.new(1, 1, 1), BIG, { Name = "ChampName", Position = UDim2.fromOffset(16, 236), Size = UDim2.new(1, -32, 0, 140),
 		TextWrapped = true, TextStrokeColor3 = PINK, TextStrokeTransparency = 0 })
-	local champScore = label(champ, "", 50, YELLOW, BIG, { Name = "ChampScore", Position = UDim2.fromOffset(0, 390), Size = UDim2.new(1, 0, 0, 60) })
+	local champScore = label(champ, "", 40, YELLOW, BIG, { Name = "ChampScore", Position = UDim2.fromOffset(0, 390), Size = UDim2.new(1, 0, 0, 60) })
 	local right = make("Frame", { BackgroundTransparency = 1, Position = UDim2.new(1 / 3, 20, 0, 20), Size = UDim2.new(2 / 3, -40, 1, -40) }, root)
 	local head = make("Frame", { BackgroundTransparency = 1, Size = UDim2.new(1, 0, 0, 110) }, right)
 	label(head, "오늘의 TOP 10", 74, Color3.new(1, 1, 1), BIG, { Size = UDim2.new(0.62, 0, 0, 82), TextXAlignment = Enum.TextXAlignment.Left,
@@ -724,7 +760,7 @@ local function addBoard(part: Instance)
 			BackgroundTransparency = if i <= 3 then 0.7 else 0.88, BackgroundColor3 = if i <= 3 then PINK else CARD })
 		round(row, 10)
 		make("UIPadding", { PaddingLeft = UDim.new(0, 18), PaddingRight = UDim.new(0, 18) }, row)
-		label(row, "", 38, YELLOW, BIG, { Name = "Score", Size = UDim2.fromScale(1, 1), TextXAlignment = Enum.TextXAlignment.Right })
+		label(row, "", 30, YELLOW, BIG, { Name = "Score", Size = UDim2.fromScale(1, 1), TextXAlignment = Enum.TextXAlignment.Right })
 		rows[i] = row
 	end
 	boards[part] = { rows = rows, title = title, empty = empty, champName = champName, champScore = champScore }

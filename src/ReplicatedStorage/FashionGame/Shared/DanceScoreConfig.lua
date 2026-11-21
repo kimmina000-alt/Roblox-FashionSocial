@@ -62,6 +62,26 @@ function DanceScoreConfig.auroraCombo(total: number): number
 	return math.max(30, math.floor(total * 0.15 / 10 + 0.5) * 10)
 end
 
+-- (D-1818d, user 2026-11-21: "콤보 단계별 오로라 차별화 점점 화려하게 남들에게도 보이게") the aurora in steps: level 1
+-- from auroraCombo, 2 from twice it, 3 from three times it (NEON: 60 / 120 / 180)
+function DanceScoreConfig.auroraLevel(combo: number, total: number): number
+	local step = DanceScoreConfig.auroraCombo(total)
+	return math.clamp(math.floor(combo / step), 0, 3)
+end
+
+-- (D-1818d, user 2026-11-21: "시작하기 전 카운트 셀 때 띠 띠 띠 하는 대표적인 카운트 효과음") 3 · 2 · 1 and a higher
+-- one at the start (Creator Store "Countdown beep" 117751546358455)
+DanceScoreConfig.CountBeep = 117751546358455
+
+-- (D-1818d, user 2026-11-21: "순위표에 최대 콤보 수 표시") the ranking keeps the best combo with the score:
+-- stored as score * 1000 + combo (combo up to 999), so the order is by score and then combo
+function DanceScoreConfig.pack(score: number, combo: number): number
+	return math.floor(score) * 1000 + math.clamp(math.floor(combo), 0, 999)
+end
+function DanceScoreConfig.unpack(value: number): (number, number)
+	return math.floor(value / 1000), value % 1000
+end
+
 DanceScoreConfig.CountIn = 3 -- seconds of 3 · 2 · 1 before the song starts
 DanceScoreConfig.FallTime = 1.35 -- seconds a note takes from the top of its lane to the hit line
 -- judging windows (real seconds from the note's time)
