@@ -301,7 +301,8 @@ M.Playlist = {
 	-- (D-932, user 2026-11-06: the D-931 upload 140713297574648 moved in here, its entry removed:
 	-- 3 × 73.770 ÷ 210.771 = 1.0500, `at` and the stage camera keep the song clock)
 	-- (D-935, user 2026-11-06 final values: boost3 5)
-	{ channel = "K-POP", title = "NEON-A2O LITE", soundId = 140713297574648, length = 210.771, fileSpeed = 1.05, lab = { speed = 1, tempo = 0.954, volume = 10, boost = 10, boost2 = 5, boost3 = 5, octave = 1, low = -34, mid = -20, high = -34, engine = "sound" }, choreo = {
+	-- (D-1865, user 2026-11-21: "부스터 4를 2로 변경", boost4 was 1)
+	{ channel = "K-POP", title = "NEON-A2O LITE", soundId = 140713297574648, length = 210.771, fileSpeed = 1.05, lab = { speed = 1, tempo = 0.954, volume = 10, boost = 10, boost2 = 5, boost3 = 5, boost4 = 2, octave = 1, low = -34, mid = -20, high = -34, engine = "sound" }, choreo = {
 		-- (D-809, user: 22 pieces, blends from tools/choreo/choreo_check.lua)
 		-- (D-868 → D-869, user: "서 있는 앞 3.3초 이거 안무임 다시 추가해서 수정해")
 		-- the pieces were cut from the stage fancam n9HYtcN6W4w on its own clock
