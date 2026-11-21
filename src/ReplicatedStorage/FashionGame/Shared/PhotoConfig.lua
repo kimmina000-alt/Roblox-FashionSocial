@@ -108,10 +108,10 @@ PhotoConfig.Frames = {
 	{ key = "cream", name = "크림", color = Color3.fromRGB(248, 236, 210), text = Color3.fromRGB(110, 90, 60), tab = "파스텔", price = "coins", coins = 100, style = "solid" },
 	-- (D-1874) the winter attendance event's limited frame (오후의 첫눈, the 7th attendance): a snow
 	-- lace frame drawn by tools/art/winter_frame (draft art; the user may send their own drawing).
-	-- Shown from the event's start (2026-12-04 05:00 KST); after its end (2027-01-01 05:00 KST) only
+	-- Shown from the event's start (2026-12-06 05:00 KST, D-1875); after its end (2027-01-01 05:00 KST) only
 	-- to the people who got it.
 	{ key = "winter2026", name = "겨울 첫눈", color = Color3.fromRGB(214, 232, 252), text = Color3.fromRGB(60, 100, 160), tab = "특별한", price = "event", style = "art",
-		showFrom = DateTime.fromUniversalTime(2026, 12, 3, 20, 0, 0).UnixTimestamp,
+		showFrom = DateTime.fromUniversalTime(2026, 12, 5, 20, 0, 0).UnixTimestamp,
 		hideAfter = DateTime.fromUniversalTime(2026, 12, 31, 20, 0, 0).UnixTimestamp,
 		eventButton = "🎁 겨울 출석 7회 보상",
 		eventNote = "겨울 출석 이벤트 '오후의 첫눈'에서 7번 출석하면 받는 한정 프레임이에요.",
@@ -128,8 +128,8 @@ PhotoConfig.Frames = {
 	-- pink halo, exact rounded photo holes, no seam in the 1x4 (images re-uploaded)
 	-- (D-1872, user 2026-11-19: "프레임은 오후네컷 스페셜 가장 앞에 진열") first card of 특별한
 	{ key = "opening2026", name = "오픈 기념", color = Color3.fromRGB(255, 196, 222), text = Color3.fromRGB(150, 70, 140), tab = "특별한", price = "event", style = "art",
-		-- (D-1873) after the event (2026-12-04 05:00 KST) only the people who got it see it
-		hideAfter = DateTime.fromUniversalTime(2026, 12, 3, 20, 0, 0).UnixTimestamp,
+		-- (D-1873) after the event (2026-12-06 05:00 KST, D-1875) only the people who got it see it
+		hideAfter = DateTime.fromUniversalTime(2026, 12, 5, 20, 0, 0).UnixTimestamp,
 		eventButton = "🎁 오픈 출석 7회 보상",
 		eventNote = "오픈 출석 이벤트에서 7번 출석하면 받는 한정 프레임이에요.",
 		art = {

@@ -6777,3 +6777,9 @@ Studio only (no script yet).
 - 메모리 · 로딩 세션 요청(사용자 승인 "둘 다 진행해"): 16개 표(약 2 MB)가 ReplicatedStorage에 있어서 모든 플레이어가 시작 전에 다 받았음.
 - 표를 ServerStorage.FashionGame.I18n으로 옮김(src/ServerStorage/FashionGame/I18n, tools/i18n/build.py 출력도 거기로; Rojo 프로젝트에 ServerStorage 추가, $ignoreUnknownInstances라 기존 에셋은 그대로). 새 I18nBooks.server.lua가 입장 · LocaleId 변경 · Studio Lang 속성 때 그 플레이어 언어 하나만 PlayerGui.I18nBook에 복사(PlayerGui는 본인에게만 전송). 한국어는 아무것도 안 받음.
 - Shared/L.lua: 서버는 ServerStorage에서, 클라이언트는 PlayerGui.I18nBook에서 표를 찾음. L.start()는 표가 올 때까지(최대 60초) 기다린 뒤 화면 문구를 바꿈.
+## D-1875 Opening event two days longer: ends 2026-12-06 05:00 KST; winter 12/6 ~ 12/31 (2026-11-21)
+- User: "응 이틀 늘리자" (on 11/21 = day 9, a first-timer could make only 13 of the 14 attendances before 12/4).
+- OpeningEventConfig: opening Days 21 → 23 (period "11/13 ~ 12/5", the last day 12/5 05:00 ~ 12/6 05:00 KST); winter Start 2026-12-05 20:00 UTC (= 12/6 05:00 KST), Days 28 → 26 (still ends 2027-01-01 05:00 KST, Goal 14).
+- Follow the opening end by themselves: the opening gift (EconomyConfig.welcomeGift), the 🎁 / window switch to winter, PhotoConfig `opening2026.hideAfter` and `winter2026.showFrom` = 2026-12-05 20:00 UTC.
+- Roblox event cards (Creator Dashboard → Events & Updates): opening card ends 2026-12-06 05:00 KST; winter card 2026-12-06 05:00 ~ 2027-01-01 05:00 KST (Submit for Featuring needs 7 days before the start: by 11/29).
+- Studio test clock (EventNow): 1796500860 = 12/6 05:01 KST (winter day 1).

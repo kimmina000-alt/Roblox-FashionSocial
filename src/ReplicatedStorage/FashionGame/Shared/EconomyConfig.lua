@@ -19,7 +19,7 @@ EconomyConfig.MaxBalance = 99999
 -- testing top-up (D-418), which put anyone under 100 back at 100 on every visit.
 EconomyConfig.WelcomeCoins = 50 -- (100 until D-758, user: not much to spend coins on yet)
 -- (D-1873, user 2026-11-21 via the progress session: end by itself, no publish needed on 12/3)
--- the gift stops with the opening attendance event (2026-12-04 05:00 KST); use welcomeGift()
+-- the gift stops with the opening attendance event (2026-12-06 05:00 KST since D-1875); use welcomeGift()
 function EconomyConfig.welcomeGift(): number?
 	local ok, Opening = pcall(function()
 		return require(game:GetService("ReplicatedStorage"):WaitForChild("FashionGame"):WaitForChild("Shared"):WaitForChild("OpeningEventConfig")) :: any

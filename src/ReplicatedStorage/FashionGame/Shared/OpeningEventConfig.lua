@@ -7,8 +7,8 @@
 -- window (on the day's first visit, and from the 🎁 button while an event runs).
 -- (D-1874, user 2026-11-21: "겨울 출석 이벤트 오후의 첫눈 바로 만들어", right after the opening
 -- event) several events, one after another: `Events` in order, `current()` = the one running now.
---   opening  OHU GRAND OPENING   2026-11-13 ~ 12-03   wallet.opening        FOUNDING MEMBER
---   winter   오후의 첫눈          2026-12-04 ~ 12-31   wallet.events.winter  WINTER 2026
+--   opening  OHU GRAND OPENING   2026-11-13 ~ 12-05   wallet.opening        FOUNDING MEMBER
+--   winter   오후의 첫눈          2026-12-06 ~ 12-31   wallet.events.winter  WINTER 2026
 -- The top-level Start / Days / Goal / FrameKey / TitleText / Rewards / EndUnix / ended() stay the
 -- opening event's (EconomyConfig.welcomeGift ends with it).
 
@@ -41,7 +41,9 @@ end
 local opening: Event = {
 	key = "opening",
 	Start = DateTime.fromUniversalTime(2026, 11, 12, 20, 0, 0), -- (= 2026-11-13 05:00 KST; 15:00 UTC = 00:00 KST until D-1693)
-	Days = 21, Goal = 14, FrameKey = "opening2026", TitleKey = "Founding", TitleText = "FOUNDING MEMBER",
+	-- (D-1875, user 2026-11-21: "이틀 늘리자") 21 → 23 days, to 2026-12-06 05:00 KST: someone who first comes
+	-- on day 10 (11/22) can still reach 14 by coming every day
+	Days = 23, Goal = 14, FrameKey = "opening2026", TitleKey = "Founding", TitleText = "FOUNDING MEMBER",
 	Rewards = coinsAndGifts(), EndUnix = 0,
 	small = "한국의 오후 · OHU GRAND OPENING", title = "출석 이벤트 💖", sub = "매일 오후에 놀러 오고, 특별한 선물 받아 가세요!",
 	-- (D-1695, user 2026-11-17: the line's words)
@@ -55,12 +57,12 @@ local opening: Event = {
 	frameName = "오픈 기념 한정 프레임 획득!", label = "오픈 출석 %d일차", titleName = "한정 칭호 FOUNDING MEMBER 획득!",
 }
 
--- (D-1874) 오후의 첫눈: starts the moment the opening event ends (2026-12-04 05:00 KST), 28 days
+-- (D-1874) 오후의 첫눈: starts the moment the opening event ends (2026-12-06 05:00 KST since D-1875; 12-04 before), 26 days
 -- (the last day is 12/31 05:00 ~ 2027-01-01 05:00 KST), 14 to finish; icy blue and lilac
 local winter: Event = {
 	key = "winter",
-	Start = DateTime.fromUniversalTime(2026, 12, 3, 20, 0, 0), -- (= 2026-12-04 05:00 KST)
-	Days = 28, Goal = 14, FrameKey = "winter2026", TitleKey = "Winter", TitleText = "WINTER 2026",
+	Start = DateTime.fromUniversalTime(2026, 12, 5, 20, 0, 0), -- (= 2026-12-06 05:00 KST)
+	Days = 26, Goal = 14, FrameKey = "winter2026", TitleKey = "Winter", TitleText = "WINTER 2026",
 	Rewards = coinsAndGifts(), EndUnix = 0,
 	small = "OHU WINTER EVENT · 오후의 첫눈", title = "출석 이벤트 ❄️", sub = "눈 오는 오후에 놀러 오고, 겨울 선물 받아 가세요!",
 	limited = '❄️ 한정 칭호 <font color="#9FDBFF">WINTER 2026</font> 증정. 모두에게 보이는 내 아이디 위에 뜨는 한정 칭호 아이템으로 해당 칭호는 이벤트 종료 후 재판매하지 않습니다.',
@@ -113,7 +115,7 @@ function OpeningEventConfig.now(): number
 	return DateTime.now().UnixTimestamp
 end
 
--- (D-1873) the opening event's end: day 21 ends 2026-12-04 05:00 KST. After it the opening gift
+-- (D-1873) the opening event's end: day 23 ends 2026-12-06 05:00 KST (D-1875). After it the opening gift
 -- stops (EconomyConfig.welcomeGift) and the opening frame is no longer shown to people who did
 -- not get it (PhotoConfig hideAfter). Titles and frames stay with the people who got them.
 OpeningEventConfig.EndUnix = opening.EndUnix
