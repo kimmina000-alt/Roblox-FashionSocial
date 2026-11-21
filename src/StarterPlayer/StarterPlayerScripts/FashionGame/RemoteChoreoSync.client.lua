@@ -144,6 +144,13 @@ RunService.PreAnimation:Connect(function()
 			local onStage = stageTime ~= nil and root ~= nil and root:IsA("BasePart") and NeonStageConfig.onStage(root.Position)
 			local songTime = if onStage then stageTime else clubTime
 			local map = if onStage and stageTrack then piecesFor(stageTrack) elseif clubTime and track then piecesFor(track) else nil
+			-- (D-1816) a dancer in 오늘의 곡 도전 dances today's song on their own clock (DanceScoreService)
+			local challengeStart = character and character:GetAttribute("DanceChallenge")
+			local challengeTrack = character and NeonStageConfig.trackById(character:GetAttribute("DanceChallengeTrack"))
+			if typeof(challengeStart) == "number" and challengeTrack and challengeTrack.choreo then
+				songTime = NeonStageConfig.songTime(challengeTrack, challengeStart, workspace:GetServerTimeNow())
+				map = piecesFor(challengeTrack)
+			end
 			if animator and songTime and map then
 				for _, t in ipairs(animator:GetPlayingAnimationTracks()) do
 					local entries = map[idOf(t.Animation.AnimationId)]

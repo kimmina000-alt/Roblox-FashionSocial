@@ -165,7 +165,18 @@ RunService.Heartbeat:Connect(function(dt)
 	local track = NeonStageConfig.track()
 	local root, humanoid = rootAndHumanoid()
 	local now = workspace:GetServerTimeNow()
-	local running = track ~= nil and typeof(start) == "number" and now - (start :: number) < NeonStageConfig.realLength(track :: ClubConfig.Track)
+	-- (D-1816) 오늘의 곡 도전: this player hears today's song from its own start (character attributes
+	-- DanceChallenge = server time of the start, DanceChallengeTrack = its soundId, DanceScoreService)
+	-- and dances it on that clock; the stage song goes on for everyone else
+	local character = player.Character
+	local challenge = character and character:GetAttribute("DanceChallenge")
+	local challengeTrack = character and NeonStageConfig.trackById(character:GetAttribute("DanceChallengeTrack"))
+	local challenging = typeof(challenge) == "number" and challengeTrack ~= nil
+	if challenging then
+		start, track = challenge, challengeTrack
+	end
+	local running = track ~= nil and typeof(start) == "number" and now >= (start :: number) - 0.05
+		and now - (start :: number) < NeonStageConfig.realLength(track :: ClubConfig.Track)
 	if running and track then setTrack(track) end
 	-- the music on the shared clock
 	local level = if running and root then NeonStageConfig.level(root.Position) else 0
@@ -193,7 +204,7 @@ RunService.Heartbeat:Connect(function(dt)
 		local character = player.Character
 		local still = humanoid.MoveDirection.Magnitude <= 0.1 and not humanoid.Sit and not humanoid.PlatformStand
 		local menuDance = character ~= nil and character:GetAttribute("DanceKey") ~= nil
-		if dancing ~= start and still and not menuDance and not optedOut and track.choreo then
+		if dancing ~= start and still and not menuDance and (not optedOut or challenging) and track.choreo then
 			UiBus.ChoreoStage:Fire(track.soundId, start)
 		end
 	elseif dancing ~= nil then
