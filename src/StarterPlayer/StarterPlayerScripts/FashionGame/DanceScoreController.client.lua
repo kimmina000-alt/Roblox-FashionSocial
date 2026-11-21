@@ -712,8 +712,7 @@ local function addBoard(part: Instance)
 	label(head, "오늘의 TOP 10", 74, Color3.new(1, 1, 1), BIG, { Size = UDim2.new(0.62, 0, 0, 82), TextXAlignment = Enum.TextXAlignment.Left,
 		TextStrokeColor3 = PINK, TextStrokeTransparency = 0 })
 	local title = label(head, "", 32, CYAN, BODY, { Position = UDim2.new(0, 0, 0, 80), Size = UDim2.new(0.62, 0, 0, 30), TextXAlignment = Enum.TextXAlignment.Left })
-	label(head, "네온 무대에서
-🎵 오늘의 곡 도전", 28, SOFT, BODY, { AnchorPoint = Vector2.new(1, 0), Position = UDim2.new(1, 0, 0, 14),
+	label(head, "네온 무대에서\n🎵 오늘의 곡 도전", 28, SOFT, BODY, { AnchorPoint = Vector2.new(1, 0), Position = UDim2.new(1, 0, 0, 14),
 		Size = UDim2.new(0.38, 0, 0, 84), TextXAlignment = Enum.TextXAlignment.Right })
 	local empty = label(right, "아직 기록이 없어요. 첫 1위가 되어 보세요!", 36, SOFT, BODY, { Position = UDim2.new(0, 0, 0, 200), Size = UDim2.new(1, 0, 0, 60), Visible = false })
 	local listBox = make("Frame", { BackgroundTransparency = 1, Position = UDim2.new(0, 0, 0, 124), Size = UDim2.new(1, 0, 1, -124) }, right)
