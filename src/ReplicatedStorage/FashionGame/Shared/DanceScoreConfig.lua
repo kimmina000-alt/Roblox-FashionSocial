@@ -55,8 +55,12 @@ DanceScoreConfig.AnnounceNear = 48
 -- (D-1818c, user 2026-11-21: "누를 때 드럼 소리 내서 흥나게", "전체 콤보 몇인지 계산해서 적당한 수 이상 콤보 찍으면 오로라
 -- 추가") a kick on every hit, a snare over it on PERFECT (Creator Store: "Kick Drum" 137721550021975,
 -- "INSTRUMENT Snare Drum" 127450250691379; swap the ids here); the aurora from this combo on, until a miss
-DanceScoreConfig.DrumKick = 137721550021975
-DanceScoreConfig.DrumSnare = 127450250691379
+-- (D-1818f, user 2026-11-21: "드럼 소리 말고 영상 속처럼 음악에 맞는 edm 느낌의 효과음") rhythm-game hit sounds instead
+-- of the drums: a short crisp tick on every hit ("Note Hit Sound (Crisp)" 8537782950, 0.06 s) and a bright ping
+-- over it on PERFECT ("Note Hit Sound (Ping)" 8537544526, 0.08 s); the drums were kick 137721550021975 /
+-- snare 127450250691379
+DanceScoreConfig.HitSound = 8537782950
+DanceScoreConfig.PerfectSound = 8537544526
 function DanceScoreConfig.auroraCombo(total: number): number
 	-- 15 % of the song's notes, in tens, at least 30 (NEON: 409 notes → 60)
 	return math.max(30, math.floor(total * 0.15 / 10 + 0.5) * 10)

@@ -317,8 +317,8 @@ end
 -- (D-1818c, user 2026-11-21: "누를 때 드럼 소리 내서 흥나게") hits are drums: a kick on every hit, a snare
 -- over it on PERFECT (DanceScoreConfig.DrumKick / DrumSnare)
 local SOUND = {
-	KICK = hitSound(DanceScoreConfig.DrumKick, 0.9, 1),
-	SNARE = hitSound(DanceScoreConfig.DrumSnare, 0.6, 1),
+	KICK = hitSound(DanceScoreConfig.HitSound, 0.8, 1),
+	SNARE = hitSound(DanceScoreConfig.PerfectSound, 0.35, 1),
 	MISS = hitSound(SoundConfig.Ui.error, 0.18, 1.6),
 	BEEP = hitSound(DanceScoreConfig.CountBeep, 0.6, 1),
 }
