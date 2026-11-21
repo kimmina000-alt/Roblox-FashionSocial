@@ -24,7 +24,18 @@ L.Languages = { "en", "es", "pt", "fr", "de", "it", "ja", "zh-cn", "zh-tw", "ru"
 local supported: {[string]: boolean} = { ko = true }
 for _, code in ipairs(L.Languages) do supported[code] = true end
 
-local folder = script.Parent:WaitForChild("I18n")
+-- (D-1845) the tables live in ServerStorage.FashionGame.I18n (server only). Each client gets
+-- just its own language from I18nBooks.server.lua: PlayerGui.I18nBook.<lang> (PlayerGui
+-- replicates to its own player only), so nobody downloads all 16 tables (~2 MB) at join.
+local function bookFolder(): Instance?
+	if RunService:IsServer() then
+		local fg = game:GetService("ServerStorage"):FindFirstChild("FashionGame")
+		return fg and fg:FindFirstChild("I18n")
+	end
+	local p = Players.LocalPlayer
+	local pg = p and p:FindFirstChild("PlayerGui")
+	return pg and pg:FindFirstChild("I18nBook")
+end
 
 local COIN = "💰"
 local GAP = "\u{2003}" -- CoinIcons swaps 💰 for this gap and lays a picture in it
@@ -87,8 +98,9 @@ local function bookFor(lang: string): Book?
 	if lang == "ko" then return nil end
 	local b = books[lang]
 	if b then return b end
-	local mod = folder:FindFirstChild(lang)
-	if not mod and lang ~= "en" then return bookFor("en") end
+	local folder = bookFolder()
+	local mod = folder and folder:FindFirstChild(lang)
+	if not mod and lang ~= "en" and RunService:IsServer() then return bookFor("en") end
 	if not mod then return nil end
 	local ok, data = pcall(require, mod)
 	if not ok or type(data) ~= "table" then return nil end
@@ -256,6 +268,10 @@ function L.start()
 	started = true
 	local lang = L.langOf()
 	if lang == "ko" then return end
+	-- (D-1845) wait for the server to hand over this player's table
+	local pg = Players.LocalPlayer:WaitForChild("PlayerGui")
+	local box = pg:WaitForChild("I18nBook", 60)
+	if box then box:WaitForChild(lang, 60) end
 	local b = bookFor(lang)
 	if not b then return end
 

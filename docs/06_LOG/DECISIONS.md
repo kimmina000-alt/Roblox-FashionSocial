@@ -6691,3 +6691,7 @@ Studio only (no script yet).
 ## D-1844 겨울 출석 이벤트 '오후의 첫눈' 문구 16개 언어 번역 (2026-11-21)
 - 이벤트 세션 요청: feat/event-winter-1121(D-1874)의 새 문구 13개를 tools/i18n/tr/p24_winter1121.tsv에. 이벤트 이름 '오후의 첫눈' = "OHU First Snow"(언어별로 OHU는 그대로), WINTER 2026 / OHU는 번역하지 않음.
 - 출석 칸 템플릿(색이 {1}로 바뀐 것) · "출석 이벤트 ❄️" · 한정 칭호 줄은 오픈 이벤트의 기존 번역에서 이어 만듦(💖→❄️, FOUNDING MEMBER→WINTER 2026). 채팅 명령어는 번역하지 않음.
+## D-1845 번역 표: 플레이어마다 자기 언어 하나만 받기 (2026-11-21)
+- 메모리 · 로딩 세션 요청(사용자 승인 "둘 다 진행해"): 16개 표(약 2 MB)가 ReplicatedStorage에 있어서 모든 플레이어가 시작 전에 다 받았음.
+- 표를 ServerStorage.FashionGame.I18n으로 옮김(src/ServerStorage/FashionGame/I18n, tools/i18n/build.py 출력도 거기로; Rojo 프로젝트에 ServerStorage 추가, $ignoreUnknownInstances라 기존 에셋은 그대로). 새 I18nBooks.server.lua가 입장 · LocaleId 변경 · Studio Lang 속성 때 그 플레이어 언어 하나만 PlayerGui.I18nBook에 복사(PlayerGui는 본인에게만 전송). 한국어는 아무것도 안 받음.
+- Shared/L.lua: 서버는 ServerStorage에서, 클라이언트는 PlayerGui.I18nBook에서 표를 찾음. L.start()는 표가 올 때까지(최대 60초) 기다린 뒤 화면 문구를 바꿈.
