@@ -6850,3 +6850,4 @@ Studio only (no script yet).
 
 ## D-1846 댄스 점수 도전 · 스폰 장소 문구 16개 언어 번역 (2026-11-21)
 - 메인 세션 요청: feat/dance-score-1121(D-1816)에 catalog-ui-redesign b948f991을 merge한 위에서 새 문구 19개를 tools/i18n/tr/p25_dancescore1121.tsv에: 오늘의 곡 도전 창 17개(시작 · 그만하기 · 최대 콤보 · 다시 도전 · "{1} 콤보" · "{1} · 약 {2}분 · 표시 {3}개" · 순위 준비 중 등), 스폰 장소 "오후네컷 앞" · "클럽 입구", FirstCard 닫힘 이유 "다른 창"(화면에는 안 보임). 표는 src/ServerStorage/FashionGame/I18n(D-1845). 채팅 명령어는 번역하지 않음.
+- 3인 테스트(사용자 창, 2026-11-21): Player1 무대에서 도전, Player2 무대 위, Player3 광장. Player1은 오늘의 곡을 자기 시작부터 들음(곡 28.86 s = 시작 후 28.85 s), Player2 · 3은 무대 곡(20 s 더 앞)을 계속 들음, Player2 · 3 화면에서 Player1이 Player1 화면과 같은 안무 조각 같은 위치(7.8 → 8.0 → 8.3 s, 호출 간격만큼)로 춤 = 자기 시계로 맞음. 테스트 끝(DanceScoreTestEnd)으로 결과 창 → 서버가 받음, 끝난 뒤 Player1은 다시 무대 곡을 듣고 걷기 16. 무대 밖 Player3의 Start는 "네온 무대 위에서 도전할 수 있어요."로 거절, 버튼 안 보임. 서버 · Player1 스크립트 오류 0. 테스트 속성은 지움.
