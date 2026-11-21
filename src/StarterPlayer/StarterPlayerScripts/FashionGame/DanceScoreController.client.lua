@@ -319,6 +319,7 @@ local function hitSound(id: number, volume: number, speed: number): Sound
 end
 -- (D-1818c, user 2026-11-21: "누를 때 드럼 소리 내서 흥나게") hits are drums: a kick on every hit, a snare
 -- over it on PERFECT (DanceScoreConfig.DrumKick / DrumSnare)
+local ContentProvider = game:GetService("ContentProvider")
 local SOUND = {
 	KICK = hitSound(DanceScoreConfig.HitSound, 0.8, 1),
 	SNARE = hitSound(DanceScoreConfig.PerfectSound, 0.35, 1),
@@ -327,19 +328,34 @@ local SOUND = {
 }
 -- (D-1818i, user 2026-11-21: "틀렸을 때 나는 소리는 없애자") a miss (and a tap with no note near) makes no sound;
 -- MISS still shows on screen
+-- (D-1818j, user 2026-11-21: "어떤 건 소리가 나고 어떤 건 소리가 안 나고") one Sound restarted on every hit dropped
+-- some (a restart while it still plays is not always heard): 4 copies of each, taken in turn, loaded up front
+local pools: {[string]: {Sound}} = {}
+local turns: {[string]: number} = {}
+for _, name in ipairs({ "KICK", "SNARE", "HOLD" }) do
+	local pool = { SOUND[name] }
+	for _ = 2, 4 do
+		local copy = SOUND[name]:Clone()
+		copy.Parent = gui
+		table.insert(pool, copy)
+	end
+	pools[name] = pool
+end
+task.spawn(function()
+	pcall(function() ContentProvider:PreloadAsync({ SOUND.KICK, SOUND.SNARE, SOUND.HOLD, SOUND.BEEP }) end)
+end)
+local function shot(name: string)
+	local pool = pools[name]
+	turns[name] = (turns[name] or 0) % #pool + 1
+	local s = pool[turns[name]]
+	s.TimePosition = 0
+	s:Play()
+end
 local function playJudge(kind: string, tail: boolean?)
 	if kind == "MISS" then return end
-	if tail then
-		SOUND.HOLD.TimePosition = 0
-		SOUND.HOLD:Play()
-		return
-	end
-	if kind == "PERFECT" then
-		SOUND.SNARE.TimePosition = 0
-		SOUND.SNARE:Play()
-	end
-	SOUND.KICK.TimePosition = 0
-	SOUND.KICK:Play()
+	if tail then shot("HOLD") return end
+	if kind == "PERFECT" then shot("SNARE") end
+	shot("KICK")
 end
 
 local judgeTween: Tween? = nil
@@ -626,14 +642,21 @@ RunService.RenderStepped:Connect(function(dt)
 		local note = r.notes[r.nextSpawn]
 		local lane = lanes[note.lane]
 		if note.hold then
-			-- (D-1818g) a held note: a see-through bar as long as the hold, its head at the bottom
-			note.frame = make("Frame", { Name = "Hold", AnchorPoint = Vector2.new(0.5, 1), Size = UDim2.new(1, -24, 0, 16),
-				BackgroundColor3 = LANE_COLORS[note.lane], BackgroundTransparency = 0.45, BorderSizePixel = 0 }, lane.frame)
+			-- (D-1818g) a held note: a bar as long as the hold, its head at the bottom
+			-- (D-1818j, user 2026-11-21: "하얀 테두리 삭제하고 눌러야 하는 동안 그라데이션 넣은 부분 늘리고 끝이 손가락 떼야
+			-- 할 때 타원 하나 더") no white edge; the body as wide as the note with a gradient (strong at the head,
+			-- lighter toward the end) over the whole time to keep pressing; a second oval at the end = let go there
+			note.frame = make("Frame", { Name = "Hold", AnchorPoint = Vector2.new(0.5, 1), Size = UDim2.new(1, -12, 0, 16),
+				BackgroundColor3 = LANE_COLORS[note.lane], BackgroundTransparency = 0, BorderSizePixel = 0 }, lane.frame)
 			round(note.frame, 8)
+			make("UIGradient", { Rotation = 90, Transparency = NumberSequence.new({ NumberSequenceKeypoint.new(0, 0.55),
+				NumberSequenceKeypoint.new(1, 0.15) }) }, note.frame)
 			local head = make("Frame", { Name = "Head", AnchorPoint = Vector2.new(0.5, 1), Position = UDim2.fromScale(0.5, 1),
-				Size = UDim2.new(1, 12, 0, 16), BackgroundColor3 = LANE_COLORS[note.lane], BorderSizePixel = 0 }, note.frame)
+				Size = UDim2.new(1, 0, 0, 16), BackgroundColor3 = LANE_COLORS[note.lane], BorderSizePixel = 0 }, note.frame)
 			round(head, 8)
-			make("UIStroke", { Color = Color3.new(1, 1, 1), Thickness = 1.5, Transparency = 0.25 }, head)
+			local tailCap = make("Frame", { Name = "Tail", AnchorPoint = Vector2.new(0.5, 0), Position = UDim2.fromScale(0.5, 0),
+				Size = UDim2.new(1, 0, 0, 16), BackgroundColor3 = LANE_COLORS[note.lane], BorderSizePixel = 0 }, note.frame)
+			round(tailCap, 8)
 			r.nextSpawn += 1
 			continue
 		end
@@ -656,7 +679,7 @@ RunService.RenderStepped:Connect(function(dt)
 			local ahead = (note.t - songNow) / fall -- 1 = top, 0 = hit line
 			if note.frame and note.hold then
 				note.frame.Position = UDim2.new(0.5, 0, 0, height * (1 - ahead))
-				note.frame.Size = UDim2.new(1, -24, 0, height * (note.hold - note.t) / fall + 16)
+				note.frame.Size = UDim2.new(1, -12, 0, height * (note.hold - note.t) / fall + 16)
 			elseif note.frame then
 				note.frame.Position = UDim2.new(0.5, 0, 0, height * (1 - ahead) - 8)
 			end
@@ -670,7 +693,7 @@ RunService.RenderStepped:Connect(function(dt)
 		local left = note.hold - songNow
 		if note.frame then
 			note.frame.Position = UDim2.new(0.5, 0, 0, height)
-			note.frame.Size = UDim2.new(1, -24, 0, math.max(0, height * left / fall) + 16)
+			note.frame.Size = UDim2.new(1, -12, 0, math.max(0, height * left / fall) + 16)
 		end
 		local lane = lanes[note.lane]
 		if lane and held[note.lane] then lane.flash.BackgroundTransparency = 0.55 end
