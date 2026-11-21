@@ -59,7 +59,7 @@ local STEPS: {Step} = {
 		path = { { eye = Vector3.new(-292, 17, 318), look = Vector3.new(-440, 4, 280), t = 3.2 } } }, -- (D-1367: inside, out to the sea through the glass wall)
 	{ title = "🏪 OH24 편의점", text = "물놀이 후에는 역시 컵라면이지. 편의점에서는 과자, 아이스크림, 컵라면, 삼각김밥을 팔고 있어. 친구바는 친구랑 반씩 나눠 먹을 수도 있어~ 먹을수록 경험치(XP)도 쑥쑥!",
 		eye = Vector3.new(-5, 40, 95), look = Vector3.new(-70, 10, 140) },
-	{ title = "🏯 광화문", text = "이곳은 야경이 예쁜 광화문이야. 개장을 기다리고 있지. 두근두근.",
+	{ title = "🏯 광화문", text = "이곳은 야경이 예쁜 광화문이야.",
 		-- (D-1367) from the plaza in front, a little low: the inside (still being built) is not seen
 		eye = Vector3.new(89, 7, 93), look = Vector3.new(144.5, 16, 147.3) },
 	{ title = "", text = "내가 사는 동네 소개는 여기까지! 화면 버튼에 대한 설명도 들을래?", yes = "응!", no = "아니, 괜찮아!" },

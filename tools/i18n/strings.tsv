@@ -34,7 +34,7 @@ e2d1c8	exact	만나서\n반가워요\nOHU 오후!	1	place
 b3837a	exact	고층 빌딩가	1	place
 6f8ef9	exact	한옥 마을 · 광화문	1	place
 3c0d30	exact	카페	2	place
-f5948b	exact	해변	2	place
+f5948b	exact	해변	3	place
 7cb584	exact	오후역	1	place
 9dbb1a	exact	<font color="#1d4fd8">발 씻는 곳</font> <font color="#e02424">빨래금지</font>	1	place
 0805c7	exact	물 틀기	1	place
@@ -615,25 +615,28 @@ d10df7	exact	새콤달콤 따뜻한 유자차	1	src/ReplicatedStorage/FashionGam
 81a30f	exact	갓 지은 공깃밥	1	src/ReplicatedStorage/FashionGame/Shared/SnackMenuArt.lua:97
 339fa9	exact	뽀얀 사골 국물에 돼지고기 듬뿍	1	src/ReplicatedStorage/FashionGame/Shared/SnackMenuArt.lua:98
 4f2884	exact	순대와 머릿고기가 든 국밥	1	src/ReplicatedStorage/FashionGame/Shared/SnackMenuArt.lua:99
+f00d10	exact	놀이공원	3	src/ReplicatedStorage/FashionGame/Shared/SpawnConfig.lua:17
+f7fd0f	exact	오후네컷 앞	2	src/ReplicatedStorage/FashionGame/Shared/SpawnConfig.lua:18
+c6b6d1	exact	클럽 입구	1	src/ReplicatedStorage/FashionGame/Shared/SpawnConfig.lua:25
 45909e	exact	구겨진 영수증	1	src/ReplicatedStorage/FashionGame/Shared/TrashConfig.lua:23
 0194c3	exact	빈 플라스틱 컵	1	src/ReplicatedStorage/FashionGame/Shared/TrashConfig.lua:24
 e2bab4	exact	구겨진 휴지	1	src/ReplicatedStorage/FashionGame/Shared/TrashConfig.lua:25
 60118c	exact	빈 과자 봉지	1	src/ReplicatedStorage/FashionGame/Shared/TrashConfig.lua:26
-ab2ab6	tmpl	🎫 DJ 이용권 1장을 받았어요! 밤(18:00~06:00)에 클럽 DJ 창에서 '🎧 DJ 시작'을 누르면 {1}분이 시작돼요.	1	src/ServerScriptService/FashionGame/ServerMain.server.lua:104
-1484bd	tmpl	지금부터 {1}분 동안 DJ예요! DJ 턴테이블 앞에서 🎵 버튼을 눌러 디제잉하세요.	1	src/ServerScriptService/FashionGame/ServerMain.server.lua:113
-bc0f54	exact	⏱ 코인 x2 부스트 1시간이 시작됐어요!	1	src/ServerScriptService/FashionGame/ServerMain.server.lua:128
-782623	tmpl	사진첩이 {1}장 늘어났어요!	1	src/ServerScriptService/FashionGame/ServerMain.server.lua:137
-c0af0e	exact	잘못된 요청입니다.	15	src/ServerScriptService/FashionGame/ServerMain.server.lua:145
-803110	exact	DJ 차례를 다음 사람에게 넘겼어요.	1	src/ServerScriptService/FashionGame/ServerMain.server.lua:190
-f22616	exact	지금 DJ 차례가 아니에요.	1	src/ServerScriptService/FashionGame/ServerMain.server.lua:192
-5524e0	exact	되돌릴 단계가 없어요.	1	src/ServerScriptService/FashionGame/ServerMain.server.lua:300
-aea147	exact	다시 할 단계가 없어요.	1	src/ServerScriptService/FashionGame/ServerMain.server.lua:300
-c45f14	exact	장바구니를 확인해 주세요.	1	src/ServerScriptService/FashionGame/ServerMain.server.lua:375
-51408e	exact	한 번에 사기를 열지 못했어요.	1	src/ServerScriptService/FashionGame/ServerMain.server.lua:391
-e5845f	exact	이 조합을 불러오지 못했어요.	1	src/ServerScriptService/FashionGame/ServerMain.server.lua:441
-6f6118	exact	저장된 코디를 찾을 수 없습니다. 이미 삭제되었을 수 있습니다.	1	src/ServerScriptService/FashionGame/ServerMain.server.lua:500
-c524ea	exact	이 코디를 불러오지 못했어요.	1	src/ServerScriptService/FashionGame/ServerMain.server.lua:514
-26addc	exact	원래 캐릭터를 아직 불러오지 못했어요.	1	src/ServerScriptService/FashionGame/ServerMain.server.lua:544
+ab2ab6	tmpl	🎫 DJ 이용권 1장을 받았어요! 밤(18:00~06:00)에 클럽 DJ 창에서 '🎧 DJ 시작'을 누르면 {1}분이 시작돼요.	1	src/ServerScriptService/FashionGame/ServerMain.server.lua:105
+1484bd	tmpl	지금부터 {1}분 동안 DJ예요! DJ 턴테이블 앞에서 🎵 버튼을 눌러 디제잉하세요.	1	src/ServerScriptService/FashionGame/ServerMain.server.lua:114
+bc0f54	exact	⏱ 코인 x2 부스트 1시간이 시작됐어요!	1	src/ServerScriptService/FashionGame/ServerMain.server.lua:129
+782623	tmpl	사진첩이 {1}장 늘어났어요!	1	src/ServerScriptService/FashionGame/ServerMain.server.lua:138
+c0af0e	exact	잘못된 요청입니다.	15	src/ServerScriptService/FashionGame/ServerMain.server.lua:146
+803110	exact	DJ 차례를 다음 사람에게 넘겼어요.	1	src/ServerScriptService/FashionGame/ServerMain.server.lua:191
+f22616	exact	지금 DJ 차례가 아니에요.	1	src/ServerScriptService/FashionGame/ServerMain.server.lua:193
+5524e0	exact	되돌릴 단계가 없어요.	1	src/ServerScriptService/FashionGame/ServerMain.server.lua:301
+aea147	exact	다시 할 단계가 없어요.	1	src/ServerScriptService/FashionGame/ServerMain.server.lua:301
+c45f14	exact	장바구니를 확인해 주세요.	1	src/ServerScriptService/FashionGame/ServerMain.server.lua:376
+51408e	exact	한 번에 사기를 열지 못했어요.	1	src/ServerScriptService/FashionGame/ServerMain.server.lua:392
+e5845f	exact	이 조합을 불러오지 못했어요.	1	src/ServerScriptService/FashionGame/ServerMain.server.lua:442
+6f6118	exact	저장된 코디를 찾을 수 없습니다. 이미 삭제되었을 수 있습니다.	1	src/ServerScriptService/FashionGame/ServerMain.server.lua:501
+c524ea	exact	이 코디를 불러오지 못했어요.	1	src/ServerScriptService/FashionGame/ServerMain.server.lua:515
+26addc	exact	원래 캐릭터를 아직 불러오지 못했어요.	1	src/ServerScriptService/FashionGame/ServerMain.server.lua:545
 e86707	exact	저장된 코디 데이터를 읽을 수 없습니다.	1	src/ServerScriptService/FashionGame/Services/AvatarService.lua:1554
 3298e4	exact	코디를 복원하지 못했습니다. 이전 모습은 그대로입니다.	1	src/ServerScriptService/FashionGame/Services/AvatarService.lua:1566
 d196a6	exact	복원 중 오류가 발생했습니다. 현재 아바타를 다시 불러와 확인해 주세요.	1	src/ServerScriptService/FashionGame/Services/AvatarService.lua:1567
@@ -1442,7 +1445,6 @@ dbbc47	exact	클럽	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/FirstCa
 cad7fb	exact	사진 찍으러 가기	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/FirstCardController.client.lua:81
 315cb0	exact	사진	2	src/StarterPlayer/StarterPlayerScripts/FashionGame/FirstCardController.client.lua:81
 01370a	exact	놀이공원 가기	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/FirstCardController.client.lua:82
-f00d10	exact	놀이공원	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/FirstCardController.client.lua:82
 35751c	exact	카탈로그 이용하기	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/FirstGoalController.client.lua:117
 db3f19	exact	카탈로그를 눌러 마음에 드는 옷으로 갈아입어 보세요.	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/FirstGoalController.client.lua:117
 a1353f	exact	오후네컷에서 사진 찍기	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/FirstGoalController.client.lua:134
@@ -1754,7 +1756,7 @@ a56b2f	exact	파도 소리 듣고 싶을 때 오는 해변이야. 날이 좋을 
 ec507e	exact	🏪 OH24 편의점	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/TourController.client.lua:60
 d0f791	exact	물놀이 후에는 역시 컵라면이지. 편의점에서는 과자, 아이스크림, 컵라면, 삼각김밥을 팔고 있어. 친구바는 친구랑 반씩 나눠 먹을 수도 있어~ 먹을수록 경험치(XP)도 쑥쑥!	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/TourController.client.lua:60
 e9ed5b	exact	🏯 광화문	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/TourController.client.lua:62
-fe29ba	exact	이곳은 야경이 예쁜 광화문이야. 개장을 기다리고 있지. 두근두근.	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/TourController.client.lua:62
+633802	exact	이곳은 야경이 예쁜 광화문이야.	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/TourController.client.lua:62
 2602c5	exact	내가 사는 동네 소개는 여기까지! 화면 버튼에 대한 설명도 들을래?	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/TourController.client.lua:65
 8780d9	exact	🕐 시계	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/TourController.client.lua:66
 af3689	exact	지금이 몇 시인지 알 수 있는 동네 시계야. 클럽에 가고 싶으면 시간을 꼭 확인해야 해.	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/TourController.client.lua:66

@@ -1099,7 +1099,7 @@ return {
 	["이 컵은 자리가 가득 찼어요. 다른 컵을 눌러 보세요."] = "Tách này đã đầy. Hãy chạm tách khác.",
 	["이 코디를 불러오지 못했어요."] = "Không tải được bộ đồ này.",
 	["이건 버릴 수 없어요."] = "Không vứt được cái này.",
-	["이곳은 야경이 예쁜 광화문이야. 개장을 기다리고 있지. 두근두근."] = "Đây là Gwanghwamun với cảnh đêm tuyệt đẹp. Đang chờ mở cửa. Hồi hộp quá!",
+	["이곳은 야경이 예쁜 광화문이야."] = "Đây là Gwanghwamun với cảnh đêm tuyệt đẹp.",
 	["이동 중…"] = "Đang di chuyển…",
 	["이름 또는 아이템 ID로 검색"] = "Tìm theo tên hoặc ID vật phẩm",
 	["이름 없는 아이템"] = "Vật phẩm không tên",

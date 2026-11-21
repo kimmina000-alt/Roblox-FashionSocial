@@ -1099,7 +1099,7 @@ return {
 	["이 컵은 자리가 가득 찼어요. 다른 컵을 눌러 보세요."] = "Cette tasse est pleine. Touche une autre tasse.",
 	["이 코디를 불러오지 못했어요."] = "Impossible de charger cette tenue.",
 	["이건 버릴 수 없어요."] = "Impossible de jeter ça.",
-	["이곳은 야경이 예쁜 광화문이야. 개장을 기다리고 있지. 두근두근."] = "Voici Gwanghwamun, magnifique la nuit. Il attend son ouverture. J'ai trop hâte !",
+	["이곳은 야경이 예쁜 광화문이야."] = "Voici Gwanghwamun, magnifique la nuit.",
 	["이동 중…"] = "En route…",
 	["이름 또는 아이템 ID로 검색"] = "Recherche par nom ou ID",
 	["이름 없는 아이템"] = "Objet sans nom",
