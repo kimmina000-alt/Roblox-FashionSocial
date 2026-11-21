@@ -3977,7 +3977,8 @@ do
 		table.insert(list, 1, item)
 		f.plant = list
 	end
-	plantFirst(86500685186308, { from = 7.85, to = 11.85, contact = 0.45, noStep = true }) -- Pretty Girl 2:07.0-2:11.0 (at 119.11)
+	-- (2nd review of D-1954: from 2:07 the feet stayed 0.8 torso apart; the video brings them together at 2:09.5, so the window starts there)
+	plantFirst(86500685186308, { from = 10.4, to = 11.85, contact = 0.45, noStep = true }) -- Pretty Girl 2:09.5-2:11.0 (at 119.11)
 	plantFirst(131580629784808, { from = 3.05, to = 5.45, contact = 0.45, noStep = true }) -- With 0:26.9-0:29.3 (at 23.85)
 	plantFirst(131580629784808, { from = 5.85, to = 6.95, contact = 0.45, noStep = true }) -- With 0:29.7-0:30.8
 end
