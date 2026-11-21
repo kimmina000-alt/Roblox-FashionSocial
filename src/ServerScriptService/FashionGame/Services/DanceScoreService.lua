@@ -60,6 +60,7 @@ local function bestOf(userId: number, day: string, soundId: number): number
 	local ok, v = pcall(function() return (s :: OrderedDataStore):GetAsync(tostring(userId)) end)
 	return if ok and typeof(v) == "number" then v else 0
 end
+-- (D-1818d) values are DanceScoreConfig.pack(score, combo)
 
 -- keeps the higher score; returns the day's best
 local function saveBest(userId: number, day: string, soundId: number, score: number): number
@@ -127,7 +128,10 @@ local function refresh()
 		end)
 	end
 	local shown = {}
-	for i = 1, math.min(10, #list) do table.insert(shown, { n = nameOf(list[i].id), s = list[i].s }) end
+	for i = 1, math.min(10, #list) do
+		local score, combo = DanceScoreConfig.unpack(list[i].s)
+		table.insert(shown, { n = nameOf(list[i].id), s = score, c = combo })
+	end
 	FashionGame:SetAttribute("DanceTop", HttpService:JSONEncode(shown))
 	FashionGame:SetAttribute("DanceTopDay", day)
 	FashionGame:SetAttribute("DanceTopSong", soundId)
@@ -158,9 +162,88 @@ local function setAttributes(player: Player, start: number?, soundId: number?)
 	character:SetAttribute("DanceChallengeTrack", soundId)
 end
 
+-- (D-1818c) the aurora round a dancer on a long combo, seen by everyone: soft aurora-coloured light
+-- rising round the body (a particle emitter on the root)
+-- (D-1818d, user 2026-11-21: "콤보 단계별 오로라 차별화 점점 화려하게 남들에게도 보이게") level 1..3, richer each
+-- step: 1 = the soft aurora; 2 = denser and bigger + rising sparkles; 3 = all of that + a glow light on the
+-- dancer and a wide ring of colour at the feet
+local function setAurora(player: Player, level: number)
+	local character = player.Character
+	local root = character and character:FindFirstChild("HumanoidRootPart")
+	if not root then return end
+	local old = root:FindFirstChild("DanceAurora")
+	if old and old:GetAttribute("Level") == level then return end
+	if old then old:Destroy() end
+	if level <= 0 then return end
+	local a = Instance.new("Attachment")
+	a.Name = "DanceAurora"
+	a:SetAttribute("Level", level)
+	a.Parent = root
+	local e = Instance.new("ParticleEmitter")
+	e.Texture = "rbxasset://textures/particles/smoke_main.dds"
+	e.Color = ColorSequence.new({
+		ColorSequenceKeypoint.new(0, Color3.fromRGB(80, 255, 170)),
+		ColorSequenceKeypoint.new(0.35, Color3.fromRGB(70, 220, 255)),
+		ColorSequenceKeypoint.new(0.7, Color3.fromRGB(170, 110, 255)),
+		ColorSequenceKeypoint.new(1, Color3.fromRGB(255, 110, 200)),
+	})
+	e.LightEmission = 1
+	e.LightInfluence = 0
+	e.Size = NumberSequence.new({ NumberSequenceKeypoint.new(0, 2.5), NumberSequenceKeypoint.new(1, 5) })
+	e.Transparency = NumberSequence.new({ NumberSequenceKeypoint.new(0, 1), NumberSequenceKeypoint.new(0.3, 0.55), NumberSequenceKeypoint.new(1, 1) })
+	e.Lifetime = NumberRange.new(1.4, 2)
+	e.Rate = 22
+	e.Speed = NumberRange.new(1.5, 3)
+	e.SpreadAngle = Vector2.new(180, 30)
+	e.Acceleration = Vector3.new(0, 3, 0)
+	e.Rotation = NumberRange.new(0, 360)
+	e.RotSpeed = NumberRange.new(-30, 30)
+	e.Rate = ({ 22, 40, 60 })[level]
+	local grow = ({ 1, 1.4, 1.8 })[level]
+	e.Size = NumberSequence.new({ NumberSequenceKeypoint.new(0, 2.5 * grow), NumberSequenceKeypoint.new(1, 5 * grow) })
+	e.Parent = a
+	if level >= 2 then
+		local sp = Instance.new("ParticleEmitter")
+		sp.Name = "Sparkles"
+		sp.Texture = "rbxasset://textures/particles/sparkles_main.dds"
+		sp.Color = e.Color
+		sp.LightEmission = 1
+		sp.Size = NumberSequence.new({ NumberSequenceKeypoint.new(0, 0.6), NumberSequenceKeypoint.new(1, 0) })
+		sp.Lifetime = NumberRange.new(1, 1.6)
+		sp.Rate = if level >= 3 then 50 else 25
+		sp.Speed = NumberRange.new(3, 6)
+		sp.SpreadAngle = Vector2.new(180, 180)
+		sp.Acceleration = Vector3.new(0, 4, 0)
+		sp.Parent = a
+	end
+	if level >= 3 then
+		local light = Instance.new("PointLight")
+		light.Name = "Glow"
+		light.Color = Color3.fromRGB(140, 220, 255)
+		light.Brightness = 3
+		light.Range = 14
+		light.Parent = a
+		local ring = Instance.new("ParticleEmitter")
+		ring.Name = "Ring"
+		ring.Texture = "rbxasset://textures/particles/smoke_main.dds"
+		ring.Color = e.Color
+		ring.LightEmission = 1
+		ring.Size = NumberSequence.new({ NumberSequenceKeypoint.new(0, 1), NumberSequenceKeypoint.new(1, 9) })
+		ring.Transparency = NumberSequence.new({ NumberSequenceKeypoint.new(0, 0.4), NumberSequenceKeypoint.new(1, 1) })
+		ring.Lifetime = NumberRange.new(0.8)
+		ring.Rate = 6
+		ring.Speed = NumberRange.new(0)
+		ring.Orientation = Enum.ParticleOrientation.VelocityPerpendicular
+		ring.EmissionDirection = Enum.NormalId.Bottom
+		ring.Parent = a
+	end
+end
+
 local function stop(player: Player)
 	runs[player] = nil
 	setAttributes(player, nil, nil)
+	if player.Character then player.Character:SetAttribute("DanceFrozen", nil) end
+	setAurora(player, 0)
 end
 
 local function start(player: Player): (boolean, any, any)
@@ -198,7 +281,7 @@ local function finish(player: Player, result: any): (boolean, any)
 	local score = DanceScoreConfig.score(run.total, perfect, great)
 	local day = DanceScoreConfig.dayKey(run.start)
 	local before = tonumber(player:GetAttribute("DanceBest")) or 0
-	local best = saveBest(player.UserId, day, run.soundId, score)
+	local best = DanceScoreConfig.unpack(saveBest(player.UserId, day, run.soundId, DanceScoreConfig.pack(score, combo)))
 	player:SetAttribute("DanceBest", best)
 	player:SetAttribute("DancePlayedDay", day)
 	-- coins once a day (the daily cap)
@@ -216,7 +299,7 @@ local function onJoin(player: Player)
 	player.CharacterAdded:Connect(function() runs[player] = nil end)
 	task.spawn(function()
 		local day = DanceScoreConfig.dayKey()
-		local best = bestOf(player.UserId, day, DanceScoreConfig.todaySong())
+		local best = DanceScoreConfig.unpack(bestOf(player.UserId, day, DanceScoreConfig.todaySong()))
 		if best > 0 and player.Parent then
 			player:SetAttribute("DanceBest", best)
 			player:SetAttribute("DancePlayedDay", day)
@@ -250,6 +333,16 @@ function DanceScoreService.Start()
 			return true
 		elseif action == "Finish" then
 			return finish(player, payload)
+		elseif action == "Freeze" or action == "Aurora" then
+			-- (D-1818c) a miss holds the dance (character attribute DanceFrozen: other screens leave its pose
+			-- alone), the long combo's aurora; only in a run
+			if not runs[player] or not player.Character then return false end
+			if action == "Freeze" then
+				player.Character:SetAttribute("DanceFrozen", if payload == true then true else nil)
+			else
+				setAurora(player, if typeof(payload) == "number" then math.clamp(math.floor(payload), 0, 3) else 0)
+			end
+			return true
 		end
 		return false
 	end

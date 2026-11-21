@@ -1381,6 +1381,14 @@ RunService.PreAnimation:Connect(function()
 		end
 		songTime += audioLag
 	end
+	-- (D-1818c, user 2026-11-21: "누르는 거 실패하면 안무 멈추기, 다시 성공하면 추기") 오늘의 곡 도전: after a miss the
+	-- dance holds its pose (LocalPlayer attribute DanceFrozenAt = the song time it stopped at,
+	-- DanceScoreController) until the next hit, then goes on from where the song is
+	local frozenAt = if stage then player:GetAttribute("DanceFrozenAt") else nil
+	if typeof(frozenAt) == "number" then
+		songTime = frozenAt
+		paused = true
+	end
 	-- (D-1321) a song's chair part (백화요란): the chair under the dancer
 	ChoreoChair.update((track :: any).chair, tostring(track.soundId) .. ":" .. tostring(start), songTime)
 	-- which segment that is (lengths known once each one has loaded); a gap

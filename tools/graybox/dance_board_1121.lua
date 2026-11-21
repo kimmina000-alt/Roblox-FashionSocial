@@ -17,9 +17,11 @@ board.CanCollide = false
 board.CastShadow = false
 board.Material = Enum.Material.SmoothPlastic
 board.Color = Color3.fromRGB(11, 7, 20)
--- x: just in front of the route map's back face (-149.25); y 2.4 .. 16.0; z -132.6 .. -123.4
-board.Size = Vector3.new(0.3, 13.6, 9.2)
-board.CFrame = CFrame.new(-148.95, 9.2, -128)
+-- (D-1818c, user 2026-11-21: "세 칸 다 써서 더 크고 눈에 띄게") the whole back: both ad frames and the middle
+-- (z -142.6 .. -113.4 between the end posts, y 2.4 .. 17.2 = the ad frames' height), just in front of the ad
+-- frames' back faces (x -148.9)
+board.Size = Vector3.new(0.3, 14.8, 29.2)
+board.CFrame = CFrame.new(-148.6, 9.8, -128)
 board.Parent = workspace
 CollectionService:AddTag(board, "DanceTopBoard")
 
@@ -31,7 +33,7 @@ edge.CanCollide = false
 edge.CastShadow = false
 edge.Material = Enum.Material.Neon
 edge.Color = Color3.fromRGB(255, 79, 180)
-edge.Size = Vector3.new(0.2, 13.9, 9.5)
+edge.Size = Vector3.new(0.2, 15.1, 29.5)
 edge.CFrame = board.CFrame * CFrame.new(-0.1, 0, 0)
 edge.Parent = board
 

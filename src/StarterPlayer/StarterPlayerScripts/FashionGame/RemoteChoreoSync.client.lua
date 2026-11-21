@@ -150,6 +150,8 @@ RunService.PreAnimation:Connect(function()
 			if typeof(challengeStart) == "number" and challengeTrack and challengeTrack.choreo then
 				songTime = NeonStageConfig.songTime(challengeTrack, challengeStart, workspace:GetServerTimeNow())
 				map = piecesFor(challengeTrack)
+				-- (D-1818c) held after a miss: their own pose, not put back on the song clock
+				if character and character:GetAttribute("DanceFrozen") then map = nil end
 			end
 			if animator and songTime and map then
 				for _, t in ipairs(animator:GetPlayingAnimationTracks()) do
