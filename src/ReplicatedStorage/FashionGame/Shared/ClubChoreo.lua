@@ -3941,7 +3941,7 @@ do
 	end
 end
 
--- (D-1950, 2nd review of Lemonade v3final2: 0:24.3-0:26.5 the planted feet slid again, 0:25.1 left foot 3.2 studs; D-1969
+-- (D-1924, was D-1950 on fix/feet-scale-1120; 2nd review of Lemonade v3final2: 0:24.3-0:26.5 the planted feet slid again, 0:25.1 left foot 3.2 studs; D-1969
 -- took this piece's hold away for 1.0-3.4 because the noStep hold let the right foot go and took it again in one frame) the
 -- video steps from side to side in place here (lifts the foot and puts it down), so this gap gets a hold that steps: the foot
 -- is lifted and set down where the step aimed (`landHold`) instead of being held still or left to slide. Put first: the
