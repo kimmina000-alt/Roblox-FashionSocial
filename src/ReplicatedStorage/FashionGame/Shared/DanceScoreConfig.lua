@@ -78,7 +78,8 @@ DanceScoreConfig.HitSwellTime = 1
 -- 3 ▲/D = edm_7_808, 4 ▶/F = edm_8_pump. Upload them (Vantablack_Dev) and put the ids here (0 = silent)
 -- (D-1818o, user 2026-11-21: "a d: 5 / s f: 7") A and D = edm_5_stab, S and F = edm_7_808 (the wobble
 -- 125197725220519 and the pump 116720116970109 are uploaded but unused)
-DanceScoreConfig.LaneSounds = { 76294360258700, 140128383020491, 76294360258700, 140128383020491 }
+-- (D-1818p, user 2026-11-21: "7번으로 모두 통일") every button = edm_7_808
+DanceScoreConfig.LaneSounds = { 140128383020491, 140128383020491, 140128383020491, 140128383020491 }
 DanceScoreConfig.LaneSoundVolume = 0.6
 function DanceScoreConfig.auroraCombo(total: number): number
 	-- 15 % of the song's notes, in tens, at least 30 (NEON: 409 notes → 60)
