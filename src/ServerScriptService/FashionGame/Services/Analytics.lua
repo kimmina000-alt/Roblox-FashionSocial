@@ -438,7 +438,8 @@ function Analytics.Start(zoneFn: (Player) -> string?, balanceFn: (Player) -> num
 			local now = os.clock()
 			for player, s in pairs(states) do
 				if not player.Parent or player:GetAttribute("Spectating") then continue end
-				local place = zoneOf(player)
+				-- (D-1982) not the default spawn's place in the moment before SpawnService moves the character
+				local place = if player:GetAttribute("SpawnSpot") ~= nil or now - s.joined > 20 then zoneOf(player) else nil
 				if place and place ~= s.place then
 					s.place = place
 					if place ~= "거리" and (not s.lastEnter[place] or now - s.lastEnter[place] > 60) then
