@@ -413,8 +413,9 @@ RunService.RenderStepped:Connect(function()
 end)
 
 -- (D-1818g, user 2026-11-21: "버튼 타이밍 맞춰서 눌렀을 때만 음량 잠깐 키우는 건") a hit swells the song I hear for a
--- moment: an EqualizerSoundEffect on the stage Sound, every band up by HitSwell dB, back to 0 in HitSwellTime
-local swell, swellPeak = 0, 1
+-- moment: an EqualizerSoundEffect on the stage Sound, every band up by HitSwell dB
+-- (D-1818h, user 2026-11-21: "딱 그 길이만큼만 노래 소리 키우는 거") for exactly as long as the hit sound plays
+local swell, swellUntil = 0, 0
 local swellEq: EqualizerSoundEffect? = nil
 local function hitSwell(kind: string)
 	local stage = script.Parent:FindFirstChild("NeonStageController")
@@ -425,13 +426,15 @@ local function hitSwell(kind: string)
 			LowGain = 0, MidGain = 0, HighGain = 0 }, sound)
 	end
 	local db = if kind == "PERFECT" then DanceScoreConfig.HitSwellPerfect else DanceScoreConfig.HitSwellGreat
-	if db >= swell then swell, swellPeak = db, db end
+	local length = if SOUND.KICK.TimeLength > 0 then SOUND.KICK.TimeLength else DanceScoreConfig.HitSwellTime
+	if os.clock() >= swellUntil or db >= swell then swell = db end
+	swellUntil = os.clock() + length
 end
-RunService.RenderStepped:Connect(function(dt)
+RunService.RenderStepped:Connect(function()
 	local eq = swellEq
-	if not eq or (swell <= 0 and eq.MidGain == 0) then return end
-	swell = math.max(0, swell - dt * swellPeak / DanceScoreConfig.HitSwellTime)
-	eq.LowGain, eq.MidGain, eq.HighGain = swell, swell, swell
+	if not eq then return end
+	local gain = if os.clock() < swellUntil then swell else 0
+	if eq.MidGain ~= gain then eq.LowGain, eq.MidGain, eq.HighGain = gain, gain, gain end
 end)
 
 local function judge(r: Run, note: any, kind: string)
@@ -573,7 +576,7 @@ endRun = function(finished: boolean)
 	play.Visible = false
 	countLabel.Text = ""
 	auroraBand.Visible = false
-	swell = 0
+	swellUntil = 0
 	player:SetAttribute("DanceFrozenAt", nil)
 	setPlayMode(false)
 	if finished and remote then

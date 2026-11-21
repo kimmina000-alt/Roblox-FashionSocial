@@ -63,13 +63,16 @@ DanceScoreConfig.HitSound = 8537782950
 DanceScoreConfig.PerfectSound = 8537544526
 -- (D-1818g, user 2026-11-21: "사이버펑크 edm 같은 소리면 좋겠는데") our own cyberpunk stabs: tools/art/dance_sfx.py makes
 -- docs/04_ART/sfx/dance_hit.wav / dance_perfect.wav / dance_hold.wav; once uploaded (Vantablack_Dev) their ids go
--- here and replace the two above (0 = not uploaded yet: the end of a hold uses PerfectSound)
+-- here and replace the two above (0 = not uploaded yet: the end of a hold uses PerfectSound).
+-- (D-1818h) the user picked dance_hit.wav (1) as the hit sound: its id goes into HitSound once uploaded
 DanceScoreConfig.HoldSound = 0
 -- (D-1818g, user 2026-11-21: "버튼 타이밍 맞춰서 눌렀을 때만 음량 잠깐 키우는 건") a hit swells the song for a moment
--- (dB on every band of an EqualizerSoundEffect on the stage Sound, back to 0 over HitSwellTime seconds)
+-- (dB on every band of an EqualizerSoundEffect on the stage Sound)
 DanceScoreConfig.HitSwellPerfect = 4
 DanceScoreConfig.HitSwellGreat = 2.5
-DanceScoreConfig.HitSwellTime = 0.22
+-- (D-1818h, user 2026-11-21: "타격음은 1이 좋고 … 딱 그 길이만큼만 노래 소리 키우는 거") the swell lasts exactly as long
+-- as the hit sound plays (its TimeLength; this until it has loaded: dance_hit.wav = 0.16 s), then drops at once
+DanceScoreConfig.HitSwellTime = 0.16
 function DanceScoreConfig.auroraCombo(total: number): number
 	-- 15 % of the song's notes, in tens, at least 30 (NEON: 409 notes → 60)
 	return math.max(30, math.floor(total * 0.15 / 10 + 0.5) * 10)
