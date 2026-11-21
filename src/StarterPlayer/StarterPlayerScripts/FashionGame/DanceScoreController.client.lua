@@ -5,7 +5,7 @@
 --   * 도전 시작 → DanceScoreService "Start": 3 · 2 · 1, then this player hears today's song from its start
 --     and dances its choreography (NeonStageController, character attribute DanceChallenge);
 --   * notes fall to four buttons: landscape two lanes at each side (one thumb each), portrait four
---     across the bottom; keys D F J K or the arrows. Judged on the song as heard (the stage Sound's
+--     across the bottom; keys A S D F on a PC (D-1818m). Judged on the song as heard (the stage Sound's
 --     TimePosition): Perfect / Great / Miss, combo;
 --   * the result: grade S / A / B, score, counts, best combo ("Finish": the server checks it).
 -- While playing: no walking (WalkSpeed 0), the phone's stick / jump button and the item hotbar hidden.
@@ -46,6 +46,11 @@ local VIOLET = Color3.fromRGB(167, 139, 250)
 local SOFT = Color3.fromRGB(200, 184, 232)
 local LANE_COLORS = { PINK, CYAN, YELLOW, VIOLET }
 local LANE_ARROWS = { "◀", "▼", "▲", "▶" }
+-- (D-1818m, user 2026-11-21: "pc에서는 화살표 말고 asdf 키로 순서대로 배치") on a PC the buttons read A S D F and
+-- those keys play them (no arrows, no D F J K); phones keep the arrows
+local LANE_KEYS = { "A", "S", "D", "F" }
+local KEY_LANE = { [Enum.KeyCode.A] = 1, [Enum.KeyCode.S] = 2, [Enum.KeyCode.D] = 3, [Enum.KeyCode.F] = 4 }
+local keyboardOnly = UserInputService.KeyboardEnabled and not UserInputService.TouchEnabled
 local BIG = Enum.Font.FredokaOne
 local BODY = Enum.Font.GothamBold
 
@@ -133,7 +138,7 @@ label(startPanel, "오늘의 곡 도전 · 광장 네온 무대", 13, CYAN, BODY
 local startTitle = label(startPanel, "NEON", 34, Color3.new(1, 1, 1), BIG, { LayoutOrder = 2, TextXAlignment = Enum.TextXAlignment.Left, Size = UDim2.new(1, 0, 0, 38) })
 local startInfo = label(startPanel, "", 14, Color3.fromRGB(230, 221, 247), BODY, { LayoutOrder = 3, TextXAlignment = Enum.TextXAlignment.Left })
 local startBest = label(startPanel, "", 13, SOFT, BODY, { LayoutOrder = 4, TextXAlignment = Enum.TextXAlignment.Left })
-label(startPanel, "표시가 아래 선에 닿을 때 같은 버튼을 눌러요 (PC: D F J K)", 13, SOFT, BODY,
+label(startPanel, "표시가 아래 선에 닿을 때 같은 버튼을 눌러요 (PC: A S D F)", 13, SOFT, BODY,
 	{ LayoutOrder = 5, TextXAlignment = Enum.TextXAlignment.Left, TextWrapped = true, Size = UDim2.new(1, 0, 0, 36) })
 local startRow = make("Frame", { LayoutOrder = 6, BackgroundTransparency = 1, Size = UDim2.new(1, 0, 0, 48) }, startPanel)
 make("UIListLayout", { FillDirection = Enum.FillDirection.Horizontal, Padding = UDim.new(0, 10) }, startRow)
@@ -176,7 +181,7 @@ for i = 1, 4 do
 	round(frame, 10)
 	stroke(frame, color, 1)
 	make("UIGradient", { Rotation = 90, Transparency = NumberSequence.new({ NumberSequenceKeypoint.new(0, 1), NumberSequenceKeypoint.new(1, 0) }) }, frame)
-	local b = make("TextButton", { Name = "Button" .. i, Text = LANE_ARROWS[i], TextSize = 26, Font = BIG, TextColor3 = Color3.new(1, 1, 1),
+	local b = make("TextButton", { Name = "Button" .. i, Text = if keyboardOnly then LANE_KEYS[i] else LANE_ARROWS[i], TextSize = 26, Font = BIG, TextColor3 = Color3.new(1, 1, 1),
 		BackgroundColor3 = color, BackgroundTransparency = 0.7, AutoButtonColor = false }, play)
 	round(b, 16)
 	stroke(b, color, 3)
@@ -269,6 +274,7 @@ local run: Run? = nil
 local held: {[number]: boolean} = {}
 local hidden: {[string]: any} = {}
 
+local laneKey: (string, Enum.UserInputState, InputObject) -> Enum.ContextActionResult -- (set under press)
 local function setPlayMode(on: boolean)
 	local humanoid = player.Character and player.Character:FindFirstChildOfClass("Humanoid")
 	if on then
@@ -281,6 +287,9 @@ local function setPlayMode(on: boolean)
 		end
 		ContextActionService:BindActionAtPriority("DanceScoreNoJump", function() return Enum.ContextActionResult.Sink end,
 			false, Enum.ContextActionPriority.High.Value, Enum.KeyCode.Space)
+		-- (D-1818m) A S D F are the lanes while playing (taken from walking / the camera keys)
+		ContextActionService:BindActionAtPriority("DanceScoreKeys", function(name, state, input) return laneKey(name, state, input) end,
+			false, Enum.ContextActionPriority.High.Value, Enum.KeyCode.A, Enum.KeyCode.S, Enum.KeyCode.D, Enum.KeyCode.F)
 	else
 		if hidden.touch ~= nil then GuiService.TouchControlsEnabled = hidden.touch end
 		if humanoid and hidden.walk then humanoid.WalkSpeed = hidden.walk end
@@ -290,6 +299,7 @@ local function setPlayMode(on: boolean)
 		end
 		table.clear(hidden)
 		ContextActionService:UnbindAction("DanceScoreNoJump")
+		ContextActionService:UnbindAction("DanceScoreKeys")
 	end
 end
 
@@ -325,8 +335,30 @@ local SOUND = {
 }
 -- (D-1818i, user 2026-11-21: "틀렸을 때 나는 소리는 없애자") a miss (and a tap with no note near) makes no sound;
 -- MISS still shows on screen
+-- (D-1818m, user 2026-11-21: "6 빼고 3 5 7 8 차례대로 버튼 네 개에 하나씩") each button its own 0.5 s EDM sound on a
+-- hit (DanceScoreConfig.LaneSounds; 0 = not uploaded yet: silent), 3 copies each so quick hits never cut one off
+local laneSounds: {{Sound}} = {}
+local laneTurn = { 0, 0, 0, 0 }
+for i, id in ipairs(DanceScoreConfig.LaneSounds) do
+	laneSounds[i] = {}
+	if id ~= 0 then
+		for _ = 1, 3 do table.insert(laneSounds[i], hitSound(id, DanceScoreConfig.LaneSoundVolume, 1)) end
+	end
+end
+local function laneSound(lane: number)
+	local pool = laneSounds[lane]
+	if not pool or #pool == 0 then return end
+	laneTurn[lane] = laneTurn[lane] % #pool + 1
+	local s = pool[laneTurn[lane]]
+	s.TimePosition = 0
+	s:Play()
+end
 task.spawn(function()
-	pcall(function() ContentProvider:PreloadAsync({ SOUND.BEEP }) end)
+	local all: {Instance} = { SOUND.BEEP }
+	for _, pool in ipairs(laneSounds) do
+		if pool[1] then table.insert(all, pool[1]) end
+	end
+	pcall(function() ContentProvider:PreloadAsync(all) end)
 end)
 
 local judgeTween: Tween? = nil
@@ -447,6 +479,7 @@ local function judge(r: Run, note: any, kind: string)
 			askServer("Freeze", false)
 		end
 		hitSwell(kind)
+		laneSound(note.lane)
 		local level = DanceScoreConfig.auroraLevel(r.combo, r.total)
 		if level ~= r.auroraLevel then setAurora(r, level) end
 		-- (D-1818d, user 2026-11-21: "맞는 타이밍에 눌렀을 때 누르는 버튼 해당 컬러로 진동 확장하는 듯한 효과 … 버튼 그림")
@@ -679,7 +712,7 @@ RunService.RenderStepped:Connect(function(dt)
 	end
 end)
 
--- input: the four buttons, D F J K, the arrows
+-- input: the four buttons (A S D F on a PC: laneKey below)
 local pressedBy: {[InputObject]: number} = {}
 for i, lane in ipairs(lanes) do
 	lane.button.InputBegan:Connect(function(input)
@@ -689,24 +722,20 @@ for i, lane in ipairs(lanes) do
 		end
 	end)
 end
-local KEYS = {
-	[Enum.KeyCode.D] = 1, [Enum.KeyCode.F] = 2, [Enum.KeyCode.J] = 3, [Enum.KeyCode.K] = 4,
-	[Enum.KeyCode.Left] = 1, [Enum.KeyCode.Down] = 2, [Enum.KeyCode.Up] = 3, [Enum.KeyCode.Right] = 4,
-}
-UserInputService.InputBegan:Connect(function(input, processed)
-	if not run then return end
-	local i = KEYS[input.KeyCode]
-	if i and not (processed and UserInputService:GetFocusedTextBox()) then press(i) end
-end)
--- (D-1818g) letting go: the finger / mouse that pressed a lane button (wherever it is let go), or the key
+-- (D-1818m) the keys: A S D F through ContextActionService while playing (bound in setPlayMode)
+laneKey = function(_name, state, input)
+	local i = KEY_LANE[input.KeyCode]
+	if not i or UserInputService:GetFocusedTextBox() then return Enum.ContextActionResult.Pass end
+	if state == Enum.UserInputState.Begin then press(i) elseif state == Enum.UserInputState.End then held[i] = false end
+	return Enum.ContextActionResult.Sink
+end
+-- (D-1818g) letting go: the finger / mouse that pressed a lane button (wherever it is let go)
 UserInputService.InputEnded:Connect(function(input)
 	local i = pressedBy[input]
 	if i then
 		pressedBy[input] = nil
 		held[i] = false
 	end
-	local k = KEYS[input.KeyCode]
-	if k then held[k] = false end
 end)
 
 -- windows
