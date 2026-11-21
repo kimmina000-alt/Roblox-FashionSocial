@@ -6670,3 +6670,9 @@ Studio only (no script yet).
 ## D-1553 (2026-11-21) 로딩 화면: 최소 8초 → 3초, 캐릭터가 서면 닫힘
 - Task from the progress session (user approved, 11-21): shorter loading and fewer out-of-memory exits. Dashboard after publishing (11-20..21): LoadSecs about 11 s for new players and 8-10 s for returning ones; onboarding 1 접속 → 2 로딩 끝 84 % (907 new players, 16 %, left during loading); out-of-memory exits on phones / tablets about one per 30 min; client memory 1.35 GB on average.
 - LoadingScreen kept the screen up at least MIN_SECONDS = 8 even when the game was ready sooner, so returning players' 8-10 s was mostly that floor. MIN_SECONDS 8 → 3; "ready" = game:IsLoaded() and the player's HumanoidRootPart in Workspace (no view of the void); the bar fills 0.2 a frame once ready (was 0.06, about 1.4 s at 30 fps). MAX_SECONDS 40 and the 건너뛰기 button are unchanged. The spawn / tour / first-screen code of the main session is not touched.
+- Studio solo Play (2026-11-21, measured from the client: when OHULoading is gone): the screen was up about 7-8 s before (game loaded and the character standing within 1 s: the floor alone), about 2.9 s after. No script errors.
+
+## D-1554 (2026-11-21) 스트리밍 최소 반경 128 → 64
+- User: "둘 다 진행해" (this and the per-player translation table, D-1845 of the i18n session). Workspace.StreamingMinRadius 128 → 64 (StreamingTargetRadius 256, Opportunistic, PauseOutsideLoadedArea unchanged), place only: a joining phone must have only 64 studs around the spawn before the game starts; the rest up to 256 streams in while playing.
+- Parts within 128 / 64 studs of the spawn candidates (Studio count): 놀이공원 안 2,334 / 205, 오후네컷 앞 2,811 / 1,067, 클럽 앞 3,427 / 992, NW 광장 2,435 / 503, 해변 326 / 51, 한옥 210 / 59.
+- Studio Play on one PC cannot show it (the content arrives at once; parts at the close were 7,223 both times): check LoadSecs for new players on the dashboard a day after publishing (11-20..21: about 11 s).
