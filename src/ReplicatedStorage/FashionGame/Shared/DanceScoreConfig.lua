@@ -86,7 +86,8 @@ DanceScoreConfig.HitSwellTime = 0.5
 -- (D-1818t, user 2026-11-21: "볼륨 그대로 7번으로 바꾸고") every button = edm_7_808, volume as it was
 -- (D-1818u, user 2026-11-21: "5번으로 하고 소리 반으로 더 줄여 봐") back to edm_5_stab, volume 0.15 → 0.075
 DanceScoreConfig.LaneSounds = { 76294360258700, 76294360258700, 76294360258700, 76294360258700 }
-DanceScoreConfig.LaneSoundVolume = 0.075 -- (D-1818r: half of 0.6; D-1818s, user 2026-11-21: "지금 상태에서 절반으로 더")
+-- (D-1818v, user 2026-11-21: "줄인 거에서 반만 더 키우고") 0.075 x 1.5
+DanceScoreConfig.LaneSoundVolume = 0.1125 -- (D-1818r: half of 0.6; D-1818s, user 2026-11-21: "지금 상태에서 절반으로 더")
 function DanceScoreConfig.auroraCombo(total: number): number
 	-- 15 % of the song's notes, in tens, at least 30 (NEON: 409 notes → 60)
 	return math.max(30, math.floor(total * 0.15 / 10 + 0.5) * 10)
