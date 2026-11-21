@@ -53,6 +53,10 @@ ParkConfig.RidesRunning = false
 ParkConfig.CarouselRunning = true
 -- (D-1425, user 2026-11-15: "바이킹 사람 타서 흔들리는 것까지 구현") the two vikings swing.
 ParkConfig.VikingRunning = true
+-- (D-1885) each viking runs only when someone is on: VikingWait seconds after the first rider sits down
+-- (ParkConfig.vikingState, ParkRideService); false = the old shared clock (Board / Offset)
+ParkConfig.VikingOnDemand = true
+ParkConfig.VikingWait = 10
 -- (D-1432, user 2026-11-15: "회전컵") the tea cups turn and take riders.
 ParkConfig.TeaCupsRunning = true
 -- (D-1457, user 2026-11-15: "점핑스타 사람 타서 위아래로 뛰는 것까지 구현")
@@ -233,6 +237,21 @@ function ParkConfig.vikingState(model: Instance, t: number): (number, boolean, n
 	-- (D-1564, user 2026-11-17: "미니 바이킹 슈퍼 바이킹 운행 타임 겹치지 않도록") Offset (s) shifts a
 	-- viking's runs: the two vikings share one cycle and each swings while the other stands still
 	-- (tools/graybox/park_fixes4_1117.lua sets Board / Offset)
+	-- (D-1885, user 2026-11-21: "바이킹 사람 없을 때는 대기 상태 운행까지 10초 대기 시간만 두자") a run on
+	-- demand: with nobody on, the boat stands still; the first rider to sit down starts the
+	-- VikingWait countdown, and the server writes the start of the swing into the Ride's attribute
+	-- RunAt (server time; ParkRideService). Board / Offset are not used then.
+	if ParkConfig.VikingOnDemand then
+		local runAt = model:GetAttribute("RunAt")
+		local runLen = cycle - board
+		if typeof(runAt) ~= "number" then return 0, true, ParkConfig.VikingWait end
+		local u = t - runAt
+		if u < 0 then return 0, true, -u end
+		if u >= runLen then return 0, true, ParkConfig.VikingWait end
+		local env = if u < ramp then smooth(u / ramp) elseif u < ramp + hold then 1 else smooth((runLen - u) / ramp)
+		local angle = math.rad(attr(model, "MaxAngle", 45)) * env * math.sin(2 * math.pi * u / attr(model, "Period", 4))
+		return angle, false, runLen - u
+	end
 	local c = (t - attr(model, "Offset", 0)) % cycle
 	if c < board then return 0, true, board - c end
 	local u = c - board
