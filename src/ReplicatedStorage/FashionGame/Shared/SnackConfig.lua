@@ -80,6 +80,9 @@ SnackConfig.Shops = {
 		prompt = "주문하기",
 		items = CAFE_ITEMS,
 	},
+	-- (D-1916, 2026-11-21) the 한옥카페 is gone with the hanok village: no counter in the world any more,
+	-- so nobody can order here; the menu stays only so items already in players' bags (식혜, 약과...)
+	-- still load and show their icons
 	HanokCafe = {
 		key = "HanokCafe",
 		title = "OHU 한옥카페",

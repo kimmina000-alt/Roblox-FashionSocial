@@ -12,6 +12,7 @@
 -- closed door leaves and the low beam over them (Hongdae_Layout.Gwanghwamun: GateDoorLeaf, GateDoorHead)
 -- and the construction netting behind (Hongdae_Layout.HanokHoarding: NetTeal / NetBlue) open the same
 -- way: the owner walks through into the hanok village; for everyone else the gate stays shut.
+-- (D-1916, 2026-11-21) taken out again: the village is gone, so the 광화문 stays shut for the owner too.
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -57,19 +58,8 @@ local function sweep()
 			if d:IsA("BasePart") and (CLOSED_PARTS[d.Name] or (d.Parent and d.Parent.Name == "ParkHoarding")) then open(d) end
 		end
 	end
-	-- (D-1734) the 광화문's door leaves
-	local gwanghwamun = layout:FindFirstChild("Gwanghwamun")
-	if gwanghwamun then
-		for _, d in ipairs(gwanghwamun:GetDescendants()) do
-			if d:IsA("BasePart") and (d.Name == "GateDoorLeaf" or d.Name == "GateDoorHead") then open(d) end
-		end
-	end
-	local hoarding = layout:FindFirstChild("HanokHoarding")
-	if hoarding then
-		for _, d in ipairs(hoarding:GetDescendants()) do
-			if d:IsA("BasePart") then open(d) end
-		end
-	end
+	-- (D-1734 opened the 광화문 doors and the netting behind for the owner; D-1916 took that out: the hanok
+	-- village behind the gate is gone, the map boundary now runs along the palace walls)
 	local boundary = layout:FindFirstChild("MapBoundary")
 	if boundary then
 		for _, w in ipairs(boundary:GetDescendants()) do

@@ -11,7 +11,8 @@
 local CafeJobConfig = {}
 
 -- cafes with a job (SnackConfig shop keys)
-CafeJobConfig.Shops = { "BeachCafe", "HanokCafe" }
+-- (D-1916, 2026-11-21) the 한옥카페 is gone with the hanok village: only the beach cafe
+CafeJobConfig.Shops = { "BeachCafe" }
 
 CafeJobConfig.ServeCoins = 4
 CafeJobConfig.CleanCoins = 2

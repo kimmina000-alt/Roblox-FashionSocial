@@ -197,7 +197,6 @@ SnackMenuArt.Themes = {
 -- which shops open the picture window, with which look
 SnackMenuArt.ShopTheme = {
 	BeachCafe = "cafe",
-	HanokCafe = "cafe",
 	Gukbap = "gukbap",
 	OH24 = "oh24", -- (D-1082)
 }

@@ -12,10 +12,11 @@ local RunService = game:GetService("RunService")
 if not RunService:IsStudio() then return end
 
 local FashionGame = ReplicatedStorage:WaitForChild("FashionGame")
--- just past the gate (the guide's 광화문 view runs from (120, 165) to the gate roof at (165, 215)); the
--- ground there is terrain at y 2.0 (checked 2026-11-18)
-local AT = Vector3.new(178, 2 + 3, 230)
-local INTO = Vector3.new(165 - 120, 0, 215 - 165).Unit
+-- (D-1916, 2026-11-21) the hanok village behind the gate is gone and the map boundary runs along the
+-- palace walls, so the old spot (178, 230) inside the gate is out of bounds: now on the 광화문 plaza in
+-- front of the gate (PlazaStone, top y 0.3, checked 2026-11-21), facing the closed gate at (180.7, 184)
+local AT = Vector3.new(150, 0.3 + 3, 155)
+local INTO = Vector3.new(180.7 - 150, 0, 184 - 155).Unit
 
 local function place(character: Model)
 	if FashionGame:GetAttribute("StudioTestSpawn") ~= true then return end

@@ -34,7 +34,8 @@ TrashConfig.JunkEvery = 600 -- seconds: now and then one more, while under JunkM
 -- shops (no Robux items, no shared cakes or plates), made like a bought one (SnackService.MakeTool).
 -- Every TreasureEvery seconds each can without one gets one with TreasureChance; it stays like any
 -- thrown-in item (KeepSeconds) until someone takes it.
-TrashConfig.TreasureShops = { "BeachCafe", "HanokCafe", "IceCream" }
+-- (D-1916) no 한옥카페 items any more: that cafe is gone with the hanok village
+TrashConfig.TreasureShops = { "BeachCafe", "IceCream" }
 TrashConfig.TreasureKinds = { cup = true, bread = true, cone = true }
 TrashConfig.TreasureEvery = 900 -- seconds (15 min)
 TrashConfig.TreasureChance = 0.3
