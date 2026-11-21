@@ -761,7 +761,9 @@ setTempo(1, false)
 
 local function refreshSync()
 	local leader = joinedPlayer()
-	syncPill.Visible = leader ~= nil
+	-- (D-1819, user 2026-11-21: "따라추기 안내 뜨는 거 삭제 굳이 안 띄워도 될 듯" = the sky-blue 같이 추기 window) never
+	-- shown: 같이 추기 still ends from the dance window's 같이 추기 tab or the other player's card (해제)
+	syncPill.Visible = false
 	if leader then
 		local dance = current.key and ClubConfig.findDance(current.key)
 		syncText.Text = if dance
