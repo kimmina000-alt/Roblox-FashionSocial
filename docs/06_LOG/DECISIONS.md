@@ -6748,3 +6748,32 @@ Studio only (no script yet).
 - 같이 고침: ChoreoSmooth.clear()가 아래에서 선언된 popCache를 비우려다 오류가 나던 것(선언을 위로 옮김).
 - 2차(같은 날): 안무 (3) 편집이 NEON · 레모네이드 전곡을 실제 재생으로 측정해 보니 작은 떨림은 -4~7 %만 줄고 600°/s 넘는 순간은 +21~23 % 늘었음. 관절 하나씩 재면 줄지만 몸 전체(월드) 자세로 재면 부모 · 자식 관절의 차이가 더해져서 생김. 고침: `post = true`, 키를 줄인 곡선에도 떨림 누르기(ChoreoShake) · 평균(ChoreoDejitter)을 그대로 거침. TWS 조각 4개, 월드 자세 기준 비교: 작은 떨림 예전 55 / 키 줄이기만 38 / post 23, 600°/s 넘는 순간 291 / 321 / 261, 큰 동작 폭 43.4° / 45.8° / 45.8°.
 - 2차 실제 재생 재측정(안무 (3) 편집, NEON · 레모네이드 전곡, 30Hz 월드 자세, 끔 → 1차 → 2차): 3° 미만 작은 왕복 9,986 → 9,199 → 8,545(-14 %) / 8,748 → 8,391 → 7,798(-11 %); 600°/s 넘는 순간 1,098 → 1,334 → 1,054(-4 %) / 789 → 981 → 814(+3 %); 속도 상위 1 % 678 → 717 → 675 / 659 → 706 → 664°/s; 동작 폭 그대로(21.9 → 22.2°, 21.8 → 22.3°); 디딘 발 끌림 55 → 45 / 91 → 86. 1차에서 늘었던 빠른 순간은 원래 수준으로 돌아옴.
+
+
+## D-1873 Opening event ends by itself on 2026-12-04 05:00 KST (2026-11-21)
+- Asked by the progress session for the user (2026-11-21): get the end of the opening event (11/13 ~ 12/3) ready so it ends without a publish on 12/3; the FOUNDING MEMBER title and the opening frame stay with the people who got them.
+- OpeningEventConfig: `EndUnix` (= Start + 21 days = 2026-12-03 20:00 UTC), `ended()`, `now()` (Studio only: ReplicatedStorage.FashionGame attribute `EventNow` = a unix time stands in for the clock, to test the end). `dayNow()` uses `now()`.
+- Opening gift: `EconomyConfig.welcomeGift()` gives `WelcomeCoins` (50) only until the event ends; EconomyService uses it (first visits after the end still set wallet.welcome / FirstVisit, without coins or the toast).
+- 🎁 button: re-checked every 30 s, so it also goes away for someone who stays past 05:00 (an open attendance window closes). The window's own opening needs `OpeningShowWindow`, which the server only sets on an event day.
+- Photo booth: PhotoConfig frame field `hideAfter` (unix); `opening2026` has 2026-12-04 05:00 KST. After it the frame card shows only to its owners (not as 🔒 · 출석 7회 to everyone else).
+- Kept: wallet.opening.title (Title_Founding on the name tag) and wallet.frames ("opening2026") are untouched.
+- Later clean-up (optional, any publish after 12/4): `WelcomeCoins = nil`, and the attendance window code can stay (it never shows again).
+
+
+## D-1874 Winter attendance event "오후의 첫눈" (2026-12-04 ~ 12-31), right after the opening event (2026-11-21)
+- User (A of three drafts, approved through the progress session: "겨울 출석 이벤트 오후의 첫눈 바로 만들어", 12/4 05:00 KST start by itself, merge and publish before 12/3).
+- OpeningEventConfig is now a list of events (`Events`, `current()`, `find()`, `dayNow(unix, ev)`, `periodText(ev)`, `rewardText(r, ev)`): opening (11/13 ~ 12/3, wallet.opening, FOUNDING MEMBER) and winter (Start 2026-12-03 20:00 UTC = 12/4 05:00 KST, 28 days, 14 to finish, the same coins 5..60, the frame `winter2026` at 7, the title WINTER 2026 at 14, record wallet.events.winter). Each event carries its window words and colours (winter: icy blue #3C8CE6, lilac, navy title plate with ice-blue letters). The top-level opening fields stay (EconomyConfig.welcomeGift still ends with the opening event).
+- OpeningEventService: works on the running event; attributes keep their names plus `OpeningEventKey`; every earned title is published all the time (`Title_Founding`, `Title_Winter`); coin toast "겨울 출석 N일차". PlayerDataService keeps `wallet.events[key]` (n, last, title, shownDay).
+- OpeningEventController: the window is built per event (rebuilt when the next starts, checked every 30 s); the auto-open on the day's first visit is unchanged (the main session's first-action wait D-1981 goes in the same block). RewardReveal.show(kind, ev) takes the event's colours, title plate and frame.
+- Title: NameTagService role `Winter` (navy plate, ice-blue letters / edge, after FOUNDING MEMBER), billboard 340 wide; ☰ 내 칭호 표시 has a WINTER 2026 switch (PlayerPrefsService / PlayerDataService badge lists).
+- Frame `winter2026` (특별한, first): draft art drawn in code, tools/art/winter_frame/draw.py (snow-lace scallops, ice gradient, snowflakes, a snowman with a red scarf at the bottom left, OHU in the footer), uploaded 1x4 rbxassetid://99512009938400, 2x2 rbxassetid://88656478489532. PhotoConfig `showFrom` (hidden before 12/4 05:00 KST) / `hideAfter` (only owners after 2027-01-01 05:00 KST) / `eventButton` / `eventNote` (the booth's 🔒 button and toast per frame). Shots: docs/06_LOG/images/2026-11-21/winter_frame_*.png.
+- Studio test: ReplicatedStorage.FashionGame attribute EventNow (unix) = 1796328060 (12/4 05:01 KST) for the winter window, OpeningStudioCount = true to let a Studio claim count (Studio data only).
+- New Korean texts for the translation pass (13): OHU WINTER EVENT · 오후의 첫눈 / 출석 이벤트 ❄️ / 눈 오는 오후에 놀러 오고, 겨울 선물 받아 가세요! / the ❄️ 한정 칭호 WINTER 2026 line / 겨울 한정 프레임 획득! / 한정 칭호 WINTER 2026 획득! / 겨울 출석 {1}일차 / 겨울 첫눈 / 🎁 겨울 출석 7회 보상 / 🎁 출석 7회 보상 / 겨울 출석 이벤트 '오후의 첫눈'에서 7번 출석하면 받는 한정 프레임이에요. / 출석 이벤트에서 7번 출석하면 받는 한정 프레임이에요. / 출석<br/><font size="22" color="{1}">{2}</font> / {3}.
+
+## D-1844 겨울 출석 이벤트 '오후의 첫눈' 문구 16개 언어 번역 (2026-11-21)
+- 이벤트 세션 요청: feat/event-winter-1121(D-1874)의 새 문구 13개를 tools/i18n/tr/p24_winter1121.tsv에. 이벤트 이름 '오후의 첫눈' = "OHU First Snow"(언어별로 OHU는 그대로), WINTER 2026 / OHU는 번역하지 않음.
+- 출석 칸 템플릿(색이 {1}로 바뀐 것) · "출석 이벤트 ❄️" · 한정 칭호 줄은 오픈 이벤트의 기존 번역에서 이어 만듦(💖→❄️, FOUNDING MEMBER→WINTER 2026). 채팅 명령어는 번역하지 않음.
+## D-1845 번역 표: 플레이어마다 자기 언어 하나만 받기 (2026-11-21)
+- 메모리 · 로딩 세션 요청(사용자 승인 "둘 다 진행해"): 16개 표(약 2 MB)가 ReplicatedStorage에 있어서 모든 플레이어가 시작 전에 다 받았음.
+- 표를 ServerStorage.FashionGame.I18n으로 옮김(src/ServerStorage/FashionGame/I18n, tools/i18n/build.py 출력도 거기로; Rojo 프로젝트에 ServerStorage 추가, $ignoreUnknownInstances라 기존 에셋은 그대로). 새 I18nBooks.server.lua가 입장 · LocaleId 변경 · Studio Lang 속성 때 그 플레이어 언어 하나만 PlayerGui.I18nBook에 복사(PlayerGui는 본인에게만 전송). 한국어는 아무것도 안 받음.
+- Shared/L.lua: 서버는 ServerStorage에서, 클라이언트는 PlayerGui.I18nBook에서 표를 찾음. L.start()는 표가 올 때까지(최대 60초) 기다린 뒤 화면 문구를 바꿈.

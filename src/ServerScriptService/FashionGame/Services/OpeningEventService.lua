@@ -9,6 +9,11 @@
 -- by itself), OpeningJustClaimed (the attendance counted on this visit), Title_Founding (the
 -- title, also after the event).
 -- A Studio test never counts (it would use up the real days).
+-- (D-1874) every attendance event of OpeningEventConfig.Events, the one running now
+-- (OpeningEventConfig.current()): the opening event's record is wallet.opening, the others'
+-- wallet.events[key]. The window's attributes keep their names (Opening*), plus OpeningEventKey =
+-- the running event's key. Every title earned is published all the time: Title_<TitleKey>
+-- (Title_Founding, Title_Winter).
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -25,30 +30,59 @@ local economy: any = nil
 -- 인정하는 걸로 수정") A visit no longer counts by itself: today's card shows 받기, and only
 -- the tap (remote OpeningEvent "Claim") counts the attendance and gives the reward. Player
 -- attribute OpeningCanClaim = true while today's 받기 is waiting.
-local function openingOf(wallet: any): any
-	local o = wallet.opening
+local function recordOf(wallet: any, ev: any): any
+	if ev.key == "opening" then
+		local o = wallet.opening
+		if typeof(o) ~= "table" then
+			o = { n = 0, last = 0, title = false }
+			wallet.opening = o
+		end
+		return o
+	end
+	if typeof(wallet.events) ~= "table" then wallet.events = {} end
+	local o = wallet.events[ev.key]
 	if typeof(o) ~= "table" then
 		o = { n = 0, last = 0, title = false }
-		wallet.opening = o
+		wallet.events[ev.key] = o
 	end
 	return o
 end
 
-local function canClaim(o: any): boolean
-	local day = OpeningEventConfig.dayNow()
+local function canClaim(o: any, ev: any): boolean
+	local day = OpeningEventConfig.dayNow(nil, ev)
 	-- (a Studio test never counts: it would use up the real days; attribute OpeningStudioCount
 	-- on ReplicatedStorage.FashionGame lets one through)
 	local studio = RunService:IsStudio() and not ReplicatedStorage.FashionGame:GetAttribute("OpeningStudioCount")
 	-- (D-1693: only a later day counts: when the day turned from midnight to 05:00 the night's day number
 	-- went back by one for those hours, and must not count again)
-	return day ~= nil and day > (tonumber(o.last) or 0) and o.n < OpeningEventConfig.Goal and not studio
+	return day ~= nil and day > (tonumber(o.last) or 0) and o.n < ev.Goal and not studio
 end
 
-local function publish(player: Player, o: any)
+local function publishTitles(player: Player, wallet: any)
+	for _, ev in ipairs(OpeningEventConfig.Events) do
+		local rec = if ev.key == "opening" then wallet.opening elseif typeof(wallet.events) == "table" then wallet.events[ev.key] else nil
+		local has = typeof(rec) == "table" and rec.title == true
+		player:SetAttribute("Title_" .. ev.TitleKey, if has then true else nil)
+	end
+end
+
+local function publish(player: Player, wallet: any)
+	local ev = OpeningEventConfig.current()
+	publishTitles(player, wallet)
+	local key = if ev then ev.key else nil
+	if player:GetAttribute("OpeningEventKey") ~= key then
+		player:SetAttribute("OpeningJustClaimed", nil) -- (the last event's "오늘 받았어요")
+	end
+	player:SetAttribute("OpeningEventKey", key)
+	if not ev then
+		player:SetAttribute("OpeningCanClaim", nil)
+		return
+	end
+	local o = recordOf(wallet, ev)
 	-- (D-1691 / D-1693, user 2026-11-17: "출석 이벤트는 24시간에 한 번씩 띄워야 해" → once a day, the day
 	-- turning at 05:00 KST like the attendance) the window opens by itself on the first visit of each event
 	-- day (wallet.opening.shownDay): OpeningShowWindow tells the client. (A Studio test does not write it.)
-	local day = OpeningEventConfig.dayNow()
+	local day = OpeningEventConfig.dayNow(nil, ev)
 	if day and tonumber(o.shownDay) ~= day then
 		if not RunService:IsStudio() then
 			o.shownDay = day
@@ -58,33 +92,37 @@ local function publish(player: Player, o: any)
 	end
 	player:SetAttribute("OpeningCount", o.n)
 	player:SetAttribute("OpeningClaimedDay", o.last)
-	player:SetAttribute("OpeningCanClaim", if canClaim(o) then true else nil)
-	player:SetAttribute("Title_Founding", if o.title then true else nil)
+	player:SetAttribute("OpeningCanClaim", if canClaim(o, ev) then true else nil)
 end
 
 local function refresh(player: Player)
 	local wallet = data.Wallet(player) -- (waits for the player's data)
 	if not player.Parent then return end
-	publish(player, openingOf(wallet))
+	publish(player, wallet)
 end
 
 local function claim(player: Player): (boolean, string?)
 	local wallet = data.Wallet(player)
 	if not player.Parent then return false, nil end
-	local o = openingOf(wallet)
-	if not canClaim(o) then
-		publish(player, o)
+	local ev = OpeningEventConfig.current()
+	if not ev then
+		publish(player, wallet)
+		return false, nil
+	end
+	local o = recordOf(wallet, ev)
+	if not canClaim(o, ev) then
+		publish(player, wallet)
 		return false, "오늘은 이미 받았어요."
 	end
 	o.n += 1
-	o.last = OpeningEventConfig.dayNow()
-	local reward = OpeningEventConfig.Rewards[o.n]
+	o.last = OpeningEventConfig.dayNow(nil, ev)
+	local reward = ev.Rewards[o.n]
 	if reward then
 		if reward.coins then
-			economy.Gift(player, reward.coins, string.format("오픈 출석 %d일차", o.n), "OpeningEvent")
+			economy.Gift(player, reward.coins, string.format(ev.label, o.n), if ev.key == "opening" then "OpeningEvent" else "Event_" .. ev.key)
 		elseif reward.frame then
-			if not table.find(wallet.frames, OpeningEventConfig.FrameKey) then
-				table.insert(wallet.frames, OpeningEventConfig.FrameKey)
+			if not table.find(wallet.frames, ev.FrameKey) then
+				table.insert(wallet.frames, ev.FrameKey)
 			end
 			economy.Republish(player) -- (OwnedFrames for the photo booth)
 		elseif reward.title then
@@ -93,7 +131,7 @@ local function claim(player: Player): (boolean, string?)
 	end
 	data.MarkDirty(player)
 	player:SetAttribute("OpeningJustClaimed", o.n)
-	publish(player, o)
+	publish(player, wallet)
 	return true, nil
 end
 

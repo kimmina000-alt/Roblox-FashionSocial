@@ -26,6 +26,7 @@ local playerGui = player:WaitForChild("PlayerGui")
 local FashionGame = ReplicatedStorage:WaitForChild("FashionGame")
 local Shared = FashionGame:WaitForChild("Shared")
 local PhotoConfig = require(Shared:WaitForChild("PhotoConfig"))
+local OpeningEventConfig = require(Shared:WaitForChild("OpeningEventConfig")) -- (D-1873)
 local ClubConfig = require(Shared:WaitForChild("ClubConfig"))
 local Remotes = FashionGame:WaitForChild("Remotes")
 local boothRemote = Remotes:WaitForChild("PhotoBooth") :: RemoteFunction
@@ -1415,7 +1416,7 @@ local function refreshSaveButton()
 	if info and not ownsFrame(info) then
 		pickDone.Text = if info.price == "coins"
 			then string.format("💰 %d 구매 후 저장", info.coins or 0)
-			elseif info.price == "event" then "🎁 오픈 출석 7회 보상" -- (D-1366)
+			elseif info.price == "event" then info.eventButton or "🎁 출석 7회 보상" -- (D-1366, D-1874)
 			else string.format("프레임 팩 R$%d", MonetizationConfig.GamePasses.FramePack.price)
 		pickDone.BackgroundColor3 = if info.price == "coins" then Color3.fromRGB(230, 170, 40) else Color3.fromRGB(0, 176, 111)
 	else
@@ -1435,7 +1436,12 @@ local function renderSwatches()
 	local chosen = {}
 	if shots then for _, index in ipairs(state.picks) do table.insert(chosen, shots.shots[index]) end end
 	for index, info in ipairs(PhotoConfig.Frames) do
-		if info.tab == frameTab then
+		-- (D-1873) an event frame past its end shows only to its owners
+		-- (D-1874) and one whose event has not started yet too
+		local now = OpeningEventConfig.now()
+		local gone = ((info.hideAfter ~= nil and now >= info.hideAfter) or (info.showFrom ~= nil and now < info.showFrom))
+			and not ownsFrame(info)
+		if info.tab == frameTab and not gone then
 			local card = button({
 				Name = "Frame_" .. info.key,
 				LayoutOrder = index,
@@ -1820,7 +1826,7 @@ pickDone.MouseButton1Click:Connect(function()
 				if not bought then return end
 			elseif info.price == "event" then
 				-- (D-1366) not for sale: the opening event's 7th attendance
-				toast("오픈 출석 이벤트에서 7번 출석하면 받는 한정 프레임이에요.")
+				toast(info.eventNote or "출석 이벤트에서 7번 출석하면 받는 한정 프레임이에요.") -- (D-1874)
 				return
 			else
 				local pass = MonetizationConfig.GamePasses.FramePack

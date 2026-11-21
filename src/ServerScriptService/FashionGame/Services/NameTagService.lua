@@ -127,10 +127,12 @@ local ROLES = {
 	-- (D-1366) the opening event's permanent title (player attribute Title_Founding): first,
 	-- on a dark plate with an orange edge like the user's sample
 	{ "Founding", 0, 96, Color3.fromRGB(255, 150, 60), "FOUNDING MEMBER" },
-	{ "Staff", 1, 34, Color3.fromRGB(30, 150, 80), "알바생" },
-	{ "GUARD", 2, 44, Color3.fromRGB(220, 20, 35), "GUARD" },
-	{ "VIP", 3, 23, Color3.fromRGB(255, 30, 50), "VIP" },
-	{ "DJ", 4, 23, Color3.fromRGB(70, 200, 255), "DJ" },
+	-- (D-1874) the winter attendance event's title (Title_Winter): navy plate, ice-blue letters and edge
+	{ "Winter", 1, 72, Color3.fromRGB(110, 190, 255), "WINTER 2026" },
+	{ "Staff", 2, 34, Color3.fromRGB(30, 150, 80), "알바생" },
+	{ "GUARD", 3, 44, Color3.fromRGB(220, 20, 35), "GUARD" },
+	{ "VIP", 4, 23, Color3.fromRGB(255, 30, 50), "VIP" },
+	{ "DJ", 5, 23, Color3.fromRGB(70, 200, 255), "DJ" },
 }
 local function refreshRoles(player: Player)
 	local character = player.Character
@@ -142,6 +144,7 @@ local function refreshRoles(player: Player)
 	local cafeJob = character:GetAttribute("CafeJob")
 	local on = {
 		Founding = player:GetAttribute("Title_Founding") == true,
+		Winter = player:GetAttribute("Title_Winter") == true,
 		Staff = cafeJob ~= nil and cafeJob ~= false and cafeJob ~= "",
 		GUARD = player:GetAttribute("Pass_Guard") == true,
 		VIP = player:GetAttribute("Pass_VIP") == true,
@@ -152,11 +155,11 @@ local function refreshRoles(player: Player)
 		if player:GetAttribute("HideBadge_" .. role) == true then on[role] = false end
 	end
 	local tag = head:FindFirstChild(ROLE_TAG)
-	if not (on.Founding or on.Staff or on.GUARD or on.VIP or on.DJ) then
+	if not (on.Founding or on.Winter or on.Staff or on.GUARD or on.VIP or on.DJ) then
 		if tag then tag:Destroy() end
 		return
 	end
-	if tag and not tag:FindFirstChild("Founding") then -- (an older tag without every badge)
+	if tag and not tag:FindFirstChild("Winter") then -- (an older tag without every badge)
 		tag:Destroy()
 		tag = nil
 	end
@@ -164,7 +167,7 @@ local function refreshRoles(player: Player)
 		local g = Instance.new("BillboardGui")
 		g.Name = ROLE_TAG
 		-- (half size, user 2026-10-30: was 110 x 26); wide enough for all four
-		g.Size = UDim2.fromOffset(260, ROW_H) -- (150 until D-1366: room for FOUNDING MEMBER too)
+		g.Size = UDim2.fromOffset(340, ROW_H) -- (150 until D-1366: room for FOUNDING MEMBER too)
 		g.StudsOffset = Vector3.new(0, 2.4, 0)
 		-- right over the name tag (id + XP, 46 px tall on the same anchor): one
 		-- badge height and a half up, so 23 px over its middle like before
@@ -189,11 +192,14 @@ local function refreshRoles(player: Player)
 			l.TextScaled = true
 			l.Text = spec[5]
 			l.TextColor3 = Color3.new(1, 1, 1)
-			if spec[1] == "GUARD" or spec[1] == "Founding" then
+			if spec[1] == "GUARD" or spec[1] == "Founding" or spec[1] == "Winter" then
 				-- the bodyguard plate, at the row's height
-				l.BackgroundColor3 = if spec[1] == "Founding" then Color3.fromRGB(40, 22, 12) else Color3.fromRGB(10, 10, 12)
+				l.BackgroundColor3 = if spec[1] == "Founding" then Color3.fromRGB(40, 22, 12)
+					elseif spec[1] == "Winter" then Color3.fromRGB(18, 32, 68)
+					else Color3.fromRGB(10, 10, 12)
 				l.BackgroundTransparency = 0.05
 				if spec[1] == "Founding" then l.TextColor3 = Color3.fromRGB(255, 170, 90) end
+				if spec[1] == "Winter" then l.TextColor3 = Color3.fromRGB(170, 222, 255) end
 				l.FontFace = Font.new("rbxasset://fonts/families/GothamSSm.json", Enum.FontWeight.Heavy)
 				local corner = Instance.new("UICorner")
 				corner.CornerRadius = UDim.new(0, 3)
@@ -244,8 +250,9 @@ function NameTagService.StartRoles()
 		player:GetAttributeChangedSignal("Pass_VIP"):Connect(function() refreshRoles(player) end)
 		player:GetAttributeChangedSignal("Pass_Guard"):Connect(function() refreshRoles(player) end)
 		player:GetAttributeChangedSignal("Title_Founding"):Connect(function() refreshRoles(player) end) -- (D-1366)
+		player:GetAttributeChangedSignal("Title_Winter"):Connect(function() refreshRoles(player) end) -- (D-1874)
 		-- (D-1378) each badge's 숨기기 in the ☰ menu
-		for _, role in ipairs({ "Founding", "Staff", "GUARD", "VIP", "DJ" }) do
+		for _, role in ipairs({ "Founding", "Winter", "Staff", "GUARD", "VIP", "DJ" }) do
 			player:GetAttributeChangedSignal("HideBadge_" .. role):Connect(function() refreshRoles(player) end)
 		end
 	end

@@ -63,7 +63,7 @@ export type JobRecord = { xp: number, served: number, cleaned: number }
 -- look = the last outfit worn (OutfitSnapshot), put back on the next visit (D-771)
 -- bag = the items carried when the player left (BagService, D-790): plain
 -- tables { k = kind, ... }, given back on the next visit
-export type Wallet = { coins: number, xp: number, frames: {string}, slots: number, daily: { day: string, counts: {[string]: number} }, jobs: {[string]: JobRecord}, boost: number, hair: {[string]: {number}}, tutorial: boolean, tips: {[string]: boolean}, welcome: boolean, look: any?, bag: {any}?, opening: { n: number, last: number, title: boolean, shownDay: number? }?, hideName: boolean?, hideBadges: {[string]: boolean}?, muteCheer: boolean?, gifted: {[string]: boolean}?, djTickets: number?, djSeconds: number? }
+export type Wallet = { coins: number, xp: number, frames: {string}, slots: number, daily: { day: string, counts: {[string]: number} }, jobs: {[string]: JobRecord}, boost: number, hair: {[string]: {number}}, tutorial: boolean, tips: {[string]: boolean}, welcome: boolean, look: any?, bag: {any}?, opening: { n: number, last: number, title: boolean, shownDay: number? }?, events: {[string]: { n: number, last: number, title: boolean, shownDay: number? }}?, hideName: boolean?, hideBadges: {[string]: boolean}?, muteCheer: boolean?, gifted: {[string]: boolean}?, djTickets: number?, djSeconds: number? }
 type Session = {
 	favorites: {Favorite},
 	outfits: {Outfit},
@@ -155,6 +155,21 @@ local function sanitizeWallet(raw: any): Wallet
 			shownDay = if typeof(o.shownDay) == "number" then math.floor(o.shownDay) else nil,
 		}
 	end
+	-- (D-1874) the later attendance events (OpeningEventConfig.Events other than opening), by key
+	if typeof(raw.events) == "table" then
+		local events = {}
+		for key, o in pairs(raw.events) do
+			if typeof(key) == "string" and #key <= 20 and typeof(o) == "table" then
+				events[key] = {
+					n = if typeof(o.n) == "number" then math.clamp(math.floor(o.n), 0, 100) else 0,
+					last = if typeof(o.last) == "number" then math.floor(o.last) else 0,
+					title = o.title == true,
+					shownDay = if typeof(o.shownDay) == "number" then math.floor(o.shownDay) else nil,
+				}
+			end
+		end
+		if next(events) then wallet.events = events end
+	end
 	-- (D-1377 / D-1378) the ☰ menu's 닉네임 숨기기 and each badge's 숨기기 (PlayerPrefsService)
 	if raw.hideName == true then wallet.hideName = true end
 	if raw.muteCheer == true then wallet.muteCheer = true end -- (D-1709: 놀이기구 환호성 off)
@@ -175,7 +190,7 @@ local function sanitizeWallet(raw: any): Wallet
 	end
 	if typeof(raw.hideBadges) == "table" then
 		local hidden = {}
-		for _, role in ipairs({ "Founding", "Staff", "GUARD", "VIP", "DJ" }) do
+		for _, role in ipairs({ "Founding", "Winter", "Staff", "GUARD", "VIP", "DJ" }) do
 			if raw.hideBadges[role] == true then hidden[role] = true end
 		end
 		if next(hidden) then wallet.hideBadges = hidden end

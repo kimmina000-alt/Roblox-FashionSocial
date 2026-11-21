@@ -16,7 +16,7 @@ local Players = game:GetService("Players")
 
 local PlayerPrefsService = {}
 
-PlayerPrefsService.Badges = { "Founding", "Staff", "GUARD", "VIP", "DJ" }
+PlayerPrefsService.Badges = { "Founding", "Winter", "Staff", "GUARD", "VIP", "DJ" }
 local isBadge: {[string]: boolean} = {}
 for _, role in ipairs(PlayerPrefsService.Badges) do isBadge[role] = true end
 

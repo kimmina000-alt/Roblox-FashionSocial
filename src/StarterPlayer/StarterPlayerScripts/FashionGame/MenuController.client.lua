@@ -99,7 +99,8 @@ create("TextLabel", {
 	Size = UDim2.new(1, 0, 0, 26), BackgroundTransparency = 1, Text = "내 칭호 표시", Font = Enum.Font.GothamBold, TextSize = 15,
 	TextColor3 = Color3.new(1, 1, 1), TextXAlignment = Enum.TextXAlignment.Left, LayoutOrder = 2,
 }, card)
-for i, badge in ipairs({ { "Founding", "FOUNDING MEMBER" }, { "Staff", "알바생" }, { "GUARD", "GUARD" }, { "VIP", "VIP" }, { "DJ", "DJ" } }) do
+-- (D-1874) + WINTER 2026 (the winter attendance event's title)
+for i, badge in ipairs({ { "Founding", "FOUNDING MEMBER" }, { "Winter", "WINTER 2026" }, { "Staff", "알바생" }, { "GUARD", "GUARD" }, { "VIP", "VIP" }, { "DJ", "DJ" } }) do
 	switchRow(2 + i, badge[2], "HideBadge_" .. badge[1], function(hide)
 		remote:InvokeServer("HideBadge", { role = badge[1], on = hide })
 	end, true)
@@ -107,12 +108,12 @@ end
 -- (D-1709, user 2026-11-18: "환호성 끄기 버튼 추가") 놀이기구 환호성: the vikings' / jumping star's cheer
 -- (RideWindController) on this screen; pink = heard (attribute MuteCheer = off), saved like the others
 -- (D-1729: the park's firework bangs too, so the row says so)
-switchRow(8, "🎢 환호성 · 폭죽 소리", "MuteCheer", function(mute) remote:InvokeServer("MuteCheer", mute) end)
+switchRow(20, "🎢 환호성 · 폭죽 소리", "MuteCheer", function(mute) remote:InvokeServer("MuteCheer", mute) end)
 -- (D-1594, user 2026-11-17: "ui 숨기기 버튼 추가") 🙈 UI 숨기기: everything on the screen goes (HideUi), a 👁
 -- button at the top right brings it back
 do
 	local HideUi = require(script.Parent:WaitForChild("HideUi"))
-	local b = row(9)
+	local b = row(21)
 	create("TextLabel", {
 		-- (D-1721, user 2026-11-18: "UI 숨기기 앞에 원숭이 말고 눈 이모지로 수정") 🙈 → 👁
 		Size = UDim2.fromScale(1, 1), BackgroundTransparency = 1, Text = "👁 UI 숨기기", Font = Enum.Font.GothamBold, TextSize = 15,
@@ -124,7 +125,7 @@ do
 	end)
 end
 do
-	local b = row(10)
+	local b = row(22)
 	create("TextLabel", {
 		Size = UDim2.fromScale(1, 1), BackgroundTransparency = 1, Text = "💝 기부하기", Font = Enum.Font.GothamBold, TextSize = 15,
 		TextColor3 = Color3.fromRGB(255, 190, 215), TextXAlignment = Enum.TextXAlignment.Left,

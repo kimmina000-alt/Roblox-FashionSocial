@@ -344,7 +344,7 @@ function EconomyService.Start(dataService: any)
 		task.spawn(function()
 			-- (D-754) the opening gift: once per player, on the first visit while
 			-- EconomyConfig.WelcomeCoins is set (wallet.welcome remembers it)
-			local gift = EconomyConfig.WelcomeCoins
+			local gift = EconomyConfig.welcomeGift() -- (D-1873: nil after the opening event)
 			local w = wallet(player)
 			-- (D-1124) wallet.welcome also marks "has been here before": the
 			-- player attribute FirstVisit tells the analytics a new player (New)
