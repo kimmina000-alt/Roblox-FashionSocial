@@ -6687,3 +6687,10 @@ Studio only (no script yet).
 - Frame `winter2026` (특별한, first): draft art drawn in code, tools/art/winter_frame/draw.py (snow-lace scallops, ice gradient, snowflakes, a snowman with a red scarf at the bottom left, OHU in the footer), uploaded 1x4 rbxassetid://99512009938400, 2x2 rbxassetid://88656478489532. PhotoConfig `showFrom` (hidden before 12/4 05:00 KST) / `hideAfter` (only owners after 2027-01-01 05:00 KST) / `eventButton` / `eventNote` (the booth's 🔒 button and toast per frame). Shots: docs/06_LOG/images/2026-11-21/winter_frame_*.png.
 - Studio test: ReplicatedStorage.FashionGame attribute EventNow (unix) = 1796328060 (12/4 05:01 KST) for the winter window, OpeningStudioCount = true to let a Studio claim count (Studio data only).
 - New Korean texts for the translation pass (13): OHU WINTER EVENT · 오후의 첫눈 / 출석 이벤트 ❄️ / 눈 오는 오후에 놀러 오고, 겨울 선물 받아 가세요! / the ❄️ 한정 칭호 WINTER 2026 line / 겨울 한정 프레임 획득! / 한정 칭호 WINTER 2026 획득! / 겨울 출석 {1}일차 / 겨울 첫눈 / 🎁 겨울 출석 7회 보상 / 🎁 출석 7회 보상 / 겨울 출석 이벤트 '오후의 첫눈'에서 7번 출석하면 받는 한정 프레임이에요. / 출석 이벤트에서 7번 출석하면 받는 한정 프레임이에요. / 출석<br/><font size="22" color="{1}">{2}</font> / {3}.
+
+## D-1875 Opening event two days longer: ends 2026-12-06 05:00 KST; winter 12/6 ~ 12/31 (2026-11-21)
+- User: "응 이틀 늘리자" (on 11/21 = day 9, a first-timer could make only 13 of the 14 attendances before 12/4).
+- OpeningEventConfig: opening Days 21 → 23 (period "11/13 ~ 12/5", the last day 12/5 05:00 ~ 12/6 05:00 KST); winter Start 2026-12-05 20:00 UTC (= 12/6 05:00 KST), Days 28 → 26 (still ends 2027-01-01 05:00 KST, Goal 14).
+- Follow the opening end by themselves: the opening gift (EconomyConfig.welcomeGift), the 🎁 / window switch to winter, PhotoConfig `opening2026.hideAfter` and `winter2026.showFrom` = 2026-12-05 20:00 UTC.
+- Roblox event cards (Creator Dashboard → Events & Updates): opening card ends 2026-12-06 05:00 KST; winter card 2026-12-06 05:00 ~ 2027-01-01 05:00 KST (Submit for Featuring needs 7 days before the start: by 11/29).
+- Studio test clock (EventNow): 1796500860 = 12/6 05:01 KST (winter day 1).
