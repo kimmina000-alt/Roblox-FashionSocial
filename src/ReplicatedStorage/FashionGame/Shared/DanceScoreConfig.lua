@@ -68,11 +68,11 @@ DanceScoreConfig.PerfectSound = 8537544526
 DanceScoreConfig.HoldSound = 0
 -- (D-1818g, user 2026-11-21: "버튼 타이밍 맞춰서 눌렀을 때만 음량 잠깐 키우는 건") a hit swells the song for a moment
 -- (dB on every band of an EqualizerSoundEffect on the stage Sound)
-DanceScoreConfig.HitSwellPerfect = 4
-DanceScoreConfig.HitSwellGreat = 2.5
--- (D-1818h, user 2026-11-21: "타격음은 1이 좋고 … 딱 그 길이만큼만 노래 소리 키우는 거") the swell lasts exactly as long
--- as the hit sound plays (its TimeLength; this until it has loaded: dance_hit.wav = 0.16 s), then drops at once
-DanceScoreConfig.HitSwellTime = 0.16
+-- (D-1818k, user 2026-11-21: "기계음 삭제하고 그 순간 1초씩 음량 2배 키우기로 변경") the hit sounds are gone (the ids
+-- above are kept, unused); a hit makes the song twice as loud (+6 dB = 2 x amplitude) for 1 s from that hit
+DanceScoreConfig.HitSwellPerfect = 6.02
+DanceScoreConfig.HitSwellGreat = 6.02
+DanceScoreConfig.HitSwellTime = 1
 function DanceScoreConfig.auroraCombo(total: number): number
 	-- 15 % of the song's notes, in tens, at least 30 (NEON: 409 notes → 60)
 	return math.max(30, math.floor(total * 0.15 / 10 + 0.5) * 10)
@@ -113,10 +113,10 @@ export type Note = { t: number, lane: number, hold: number? } -- t = song second
 
 -- the notes of a song: on its beats from where the choreography starts to the song's end, a rest
 -- every 8th beat, lanes from a fixed walk (never the same lane three times running).
--- (D-1818g, user 2026-11-21: "난이도도 조금만 더 올리자 꾹 누르는 부분도 만들고") a little harder: in about 4 bars of 10
--- one more note on a half beat (an 8th, on the other thumb's side), and every 4th bar a held note from
--- beat 2 for two beats; while it is held the other notes go to the other thumb's two lanes (1-2 = left
--- thumb, 3-4 = right thumb, on phones held flat and upright alike)
+-- (D-1818g, user 2026-11-21: "난이도도 조금만 더 올리자") a little harder: in about 4 bars of 10 one more note on a
+-- half beat (an 8th, on the other thumb's side: 1-2 = left thumb, 3-4 = right thumb).
+-- (D-1818k, user 2026-11-21: "꾹 눌러야 하는 버튼 삭제") no held notes any more (the controller still draws one if
+-- a chart has `hold`)
 function DanceScoreConfig.chart(track: ClubConfig.Track): {Note}
 	local info = DanceScoreConfig.Songs[track.soundId]
 	if not info then return {} end
@@ -140,30 +140,22 @@ function DanceScoreConfig.chart(track: ClubConfig.Track): {Note}
 		return (if lane <= 2 then 3 else 1) + math.floor(rand() * 2)
 	end
 	local prev, prev2 = 0, 0
-	local holdUntil, holdLane = -math.huge, 0
 	local eighthAt = -1
 	local k = math.ceil((first - info.firstBeat) / beat)
 	while true do
 		local t = info.firstBeat + k * beat
 		if t > last then break end
 		local pos = k % 8
-		local bar = k // 8
 		if pos == 0 or eighthAt == -1 then
 			eighthAt = if rand() < 0.4 then (if rand() < 0.5 then 2 else 5) else -2
 		end
 		if pos ~= 7 then
 			local lane = 1 + math.floor(rand() * 4)
 			if lane == prev and lane == prev2 then lane = lane % 4 + 1 end
-			if t < holdUntil then lane = otherSide(holdLane) end
-			local note: Note = { t = t, lane = lane }
-			if bar % 4 == 2 and pos == 1 and t + 2 * beat <= last then
-				note.hold = t + 2 * beat
-				holdUntil, holdLane = t + 2 * beat + 0.05, lane
-			end
-			table.insert(notes, note)
+			table.insert(notes, { t = t, lane = lane })
 			prev2, prev = prev, lane
 			local half = t + beat / 2
-			if pos == eighthAt and half <= last and half >= holdUntil then
+			if pos == eighthAt and half <= last then
 				local extra = otherSide(lane)
 				table.insert(notes, { t = half, lane = extra })
 				prev2, prev = prev, extra

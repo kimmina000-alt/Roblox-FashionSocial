@@ -317,46 +317,17 @@ local function hitSound(id: number, volume: number, speed: number): Sound
 	s.Parent = gui
 	return s
 end
--- (D-1818c, user 2026-11-21: "누를 때 드럼 소리 내서 흥나게") hits are drums: a kick on every hit, a snare
--- over it on PERFECT (DanceScoreConfig.DrumKick / DrumSnare)
+-- (D-1818k, user 2026-11-21: "기계음 삭제하고 그 순간 1초씩 음량 2배 키우기로 변경") no hit sounds any more: a hit
+-- makes the song louder instead (hitSwell); only the 3 · 2 · 1 beep is left
 local ContentProvider = game:GetService("ContentProvider")
 local SOUND = {
-	KICK = hitSound(DanceScoreConfig.HitSound, 0.8, 1),
-	SNARE = hitSound(DanceScoreConfig.PerfectSound, 0.35, 1),
 	BEEP = hitSound(DanceScoreConfig.CountBeep, 0.6, 1),
-	HOLD = hitSound(if DanceScoreConfig.HoldSound ~= 0 then DanceScoreConfig.HoldSound else DanceScoreConfig.PerfectSound, 0.5, 1),
 }
 -- (D-1818i, user 2026-11-21: "틀렸을 때 나는 소리는 없애자") a miss (and a tap with no note near) makes no sound;
 -- MISS still shows on screen
--- (D-1818j, user 2026-11-21: "어떤 건 소리가 나고 어떤 건 소리가 안 나고") one Sound restarted on every hit dropped
--- some (a restart while it still plays is not always heard): 4 copies of each, taken in turn, loaded up front
-local pools: {[string]: {Sound}} = {}
-local turns: {[string]: number} = {}
-for _, name in ipairs({ "KICK", "SNARE", "HOLD" }) do
-	local pool = { SOUND[name] }
-	for _ = 2, 4 do
-		local copy = SOUND[name]:Clone()
-		copy.Parent = gui
-		table.insert(pool, copy)
-	end
-	pools[name] = pool
-end
 task.spawn(function()
-	pcall(function() ContentProvider:PreloadAsync({ SOUND.KICK, SOUND.SNARE, SOUND.HOLD, SOUND.BEEP }) end)
+	pcall(function() ContentProvider:PreloadAsync({ SOUND.BEEP }) end)
 end)
-local function shot(name: string)
-	local pool = pools[name]
-	turns[name] = (turns[name] or 0) % #pool + 1
-	local s = pool[turns[name]]
-	s.TimePosition = 0
-	s:Play()
-end
-local function playJudge(kind: string, tail: boolean?)
-	if kind == "MISS" then return end
-	if tail then shot("HOLD") return end
-	if kind == "PERFECT" then shot("SNARE") end
-	shot("KICK")
-end
 
 local judgeTween: Tween? = nil
 local function showJudge(kind: string)
@@ -437,7 +408,7 @@ local function hitSwell(kind: string)
 			LowGain = 0, MidGain = 0, HighGain = 0 }, sound)
 	end
 	local db = if kind == "PERFECT" then DanceScoreConfig.HitSwellPerfect else DanceScoreConfig.HitSwellGreat
-	local length = if SOUND.KICK.TimeLength > 0 then SOUND.KICK.TimeLength else DanceScoreConfig.HitSwellTime
+	local length = DanceScoreConfig.HitSwellTime
 	if os.clock() >= swellUntil or db >= swell then swell = db end
 	swellUntil = os.clock() + length
 end
@@ -494,7 +465,6 @@ local function judge(r: Run, note: any, kind: string)
 		end
 	end
 	showJudge(kind)
-	playJudge(kind, note.tail)
 end
 
 local function press(laneIndex: number)
@@ -518,8 +488,6 @@ local function press(laneIndex: number)
 	end
 	if best and bestGap <= DanceScoreConfig.Late then
 		judge(r, best, if bestGap <= DanceScoreConfig.Perfect then "PERFECT" elseif bestGap <= DanceScoreConfig.Great then "GREAT" else "MISS")
-	elseif heardSongTime(r) > (r.notes[1] and r.notes[1].t - 1 or 0) then
-		playJudge("MISS") -- (a tap with no note near: the buzz only, nothing counted)
 	end
 end
 
