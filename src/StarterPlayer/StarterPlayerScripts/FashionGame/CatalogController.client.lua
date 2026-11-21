@@ -2598,10 +2598,14 @@ createItemCard = function(item: any, layoutOrder: number)
 	})
 	star:SetAttribute("FavoriteKey", favoriteKey)
 	star.Parent = cardContent
+	-- (D-1806, user 2026-11-20 from a player's note "돈 안 내면 옷을 못 갈아입음": "아이템 칸 자체를
+	-- 누르면 아이템 입을 수 있게", the button below = 자세히 보기) the whole card above the button wears /
+	-- takes off; the button opens the details
+	local cardAction: () -> ()
 	local imageHitArea = create("TextButton", {
 		Name = "ImageHitArea",
-		Size = thumbnail.Size,
-		Position = thumbnail.Position,
+		Size = UDim2.new(1, 0, 1, -34),
+		Position = UDim2.fromOffset(0, 0),
 		BackgroundTransparency = 1,
 		Text = "",
 		AutoButtonColor = false,
@@ -2616,11 +2620,11 @@ createItemCard = function(item: any, layoutOrder: number)
 			toggleFavorite(assetId, favoriteType, item)
 		else
 			lastImageTap = now
-			-- (D-799; every card since D-800, user) a single tap opens the details,
+			-- a single tap wears / takes off (D-1806; it opened the details before),
 			-- once the double-tap (★) window has passed
 			task.delay(0.5, function()
 				if lastImageTap == now and card.Parent then
-					itemDetail.open(assetId, favoriteType, item)
+					cardAction()
 				end
 			end)
 		end
@@ -2698,9 +2702,17 @@ createItemCard = function(item: any, layoutOrder: number)
 		TextColor3 = Color3.fromRGB(255, 255, 255),
 		TextSize = 11,
 		Font = Enum.Font.GothamBold,
-		AutoButtonColor = canTryOn,
+		AutoButtonColor = true,
+		Text = "자세히",
+		ZIndex = 5,
 	})
 	actionButton.Parent = cardContent
+	local wornStroke = create("UIStroke", {
+		Color = Color3.fromRGB(160, 130, 235),
+		Thickness = 2,
+		Enabled = false,
+	})
+	wornStroke.Parent = card
 
 	local actionCorner = create("UICorner", {
 		CornerRadius = UDim.new(0, 7),
@@ -2708,38 +2720,13 @@ createItemCard = function(item: any, layoutOrder: number)
 	actionCorner.Parent = actionButton
 
 	local function updateButton()
-		if isShoeBundle then
-			if isShoeBundleWorn(assetId) then
-				actionButton.Text = "WORN"
-				actionButton.BackgroundColor3 = Color3.fromRGB(105, 85, 160)
-			else
-				actionButton.Text = "WEAR"
-				actionButton.BackgroundColor3 = Color3.fromRGB(70, 70, 85)
-			end
-			actionButton.AutoButtonColor = true
-			return
-		end
-		if isBundle then
-			actionButton.Text = "CONTENTS"
-			actionButton.BackgroundColor3 = Color3.fromRGB(70, 70, 85)
-			actionButton.AutoButtonColor = true
-			return
-		end
-
-		if not canTryOn then
-			actionButton.Text = "VIEW ONLY"
-			actionButton.BackgroundColor3 = Color3.fromRGB(55, 55, 65)
-			actionButton.AutoButtonColor = false
-			return
-		end
-
-		if currentWornItems[assetId] then
-			actionButton.Text = "WORN"
-			actionButton.BackgroundColor3 = Color3.fromRGB(105, 85, 160)
-		else
-			actionButton.Text = "WEAR"
-			actionButton.BackgroundColor3 = Color3.fromRGB(70, 70, 85)
-		end
+		-- (D-1806) the button always reads 자세히; a worn item shows by the purple button + outline
+		local worn = if isShoeBundle then isShoeBundleWorn(assetId)
+			elseif isBundle or not canTryOn then false
+			else currentWornItems[assetId] ~= nil
+		actionButton.Text = "자세히"
+		actionButton.BackgroundColor3 = if worn then Color3.fromRGB(105, 85, 160) else Color3.fromRGB(70, 70, 85)
+		wornStroke.Enabled = worn
 	end
 
 	updateButton()
@@ -2751,6 +2738,10 @@ createItemCard = function(item: any, layoutOrder: number)
 	end
 
 	actionButton.MouseButton1Click:Connect(function()
+		itemDetail.open(assetId, favoriteType, item)
+	end)
+
+	cardAction = function()
 		if actionBusy then
 			return
 		end
@@ -2803,6 +2794,7 @@ createItemCard = function(item: any, layoutOrder: number)
 		end
 
 		if not canTryOn then
+			showToast("이 종류의 아이템은 아직 착용할 수 없습니다.")
 			return
 		end
 
@@ -2899,7 +2891,7 @@ createItemCard = function(item: any, layoutOrder: number)
 		end
 
 		actionBusy = false
-	end)
+	end
 	return card
 end
 
