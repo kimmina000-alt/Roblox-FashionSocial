@@ -66,7 +66,7 @@ local head = create("TextLabel", {
 create("UIStroke", { Color = BLACK, Thickness = 2, Transparency = 0.2 }, head)
 local close = create("TextButton", {
 	AnchorPoint = Vector2.new(1, 0), Position = UDim2.new(1, 14, 0, -2), Size = UDim2.fromOffset(30, 30),
-	BackgroundColor3 = BLACK, BackgroundTransparency = 0.25, Text = "✕", Font = Enum.Font.GothamBlack, TextSize = 15,
+	BackgroundColor3 = BLACK, BackgroundTransparency = 0.25, Text = "X", Font = Enum.Font.GothamBlack, TextSize = 15, -- ("✕" is a box in Gotham)
 	TextColor3 = WHITE, AutoButtonColor = false,
 }, holder)
 create("UICorner", { CornerRadius = UDim.new(1, 0) }, close)
@@ -167,6 +167,22 @@ local function show()
 	holder.Position = UDim2.new(0.5, 0, 1, 60)
 	TweenService:Create(holder, TweenInfo.new(0.35, Enum.EasingStyle.Back), { Position = UDim2.new(0.5, 0, 1, -96) }):Play()
 end
+
+-- (D-1982) the server moves the first character to a spawn spot (SpawnService, attribute SpawnSpot) after
+-- the camera has already settled behind the default spawn: turn the camera to look where the character
+-- faces, so the place is in front of the player (every join, not only the first visit)
+local function cameraBehind()
+	local character = player.Character
+	local root = character and character:FindFirstChild("HumanoidRootPart") :: BasePart?
+	local camera = workspace.CurrentCamera
+	if not root or not camera or camera.CameraType ~= Enum.CameraType.Custom then return end
+	local look = root.CFrame.LookVector * Vector3.new(1, 0, 1)
+	if look.Magnitude < 0.1 then return end
+	look = look.Unit
+	camera.CFrame = CFrame.lookAt(root.Position - look * 14 + Vector3.new(0, 6, 0), root.Position + look * 30 + Vector3.new(0, 2, 0))
+end
+player:GetAttributeChangedSignal("SpawnSpot"):Connect(function() task.defer(cameraBehind) end)
+if player:GetAttribute("SpawnSpot") then task.defer(cameraBehind) end
 
 -- first visit: after the server has told the tips seen and the loading screen is gone
 task.spawn(function()
