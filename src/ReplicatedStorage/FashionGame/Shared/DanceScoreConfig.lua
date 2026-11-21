@@ -76,7 +76,7 @@ DanceScoreConfig.HitSwellTime = 1
 -- (D-1818m, user 2026-11-21: "6 빼고 3 5 7 8 차례대로 버튼 네 개에 하나씩 적용") a hit plays its button's own 0.5 s
 -- EDM sound (tools/art/edm_half.py, docs/04_ART/sfx): 1 ◀/A = edm_3_wobble_half, 2 ▼/S = edm_5_stab,
 -- 3 ▲/D = edm_7_808, 4 ▶/F = edm_8_pump. Upload them (Vantablack_Dev) and put the ids here (0 = silent)
-DanceScoreConfig.LaneSounds = { 0, 0, 0, 0 }
+DanceScoreConfig.LaneSounds = { 125197725220519, 76294360258700, 140128383020491, 116720116970109 } -- (uploaded by the user 2026-11-21)
 DanceScoreConfig.LaneSoundVolume = 0.6
 function DanceScoreConfig.auroraCombo(total: number): number
 	-- 15 % of the song's notes, in tens, at least 30 (NEON: 409 notes → 60)

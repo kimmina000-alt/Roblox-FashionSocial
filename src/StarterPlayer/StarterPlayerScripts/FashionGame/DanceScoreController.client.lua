@@ -50,7 +50,16 @@ local LANE_ARROWS = { "◀", "▼", "▲", "▶" }
 -- those keys play them (no arrows, no D F J K); phones keep the arrows
 local LANE_KEYS = { "A", "S", "D", "F" }
 local KEY_LANE = { [Enum.KeyCode.A] = 1, [Enum.KeyCode.S] = 2, [Enum.KeyCode.D] = 3, [Enum.KeyCode.F] = 4 }
-local keyboardOnly = UserInputService.KeyboardEnabled and not UserInputService.TouchEnabled
+-- (D-1818n, user 2026-11-21: "pc에서는 화살표 말고 A S D F 로 표시해야 해") a PC with a touch screen (or Studio's
+-- touch setting) counted as a phone: now any keyboard shows A S D F, unless the last input was a touch; a key
+-- pressed switches to A S D F at once (also in Studio's phone view)
+local function showKeys(): boolean
+	local last = UserInputService:GetLastInputType()
+	if last == Enum.UserInputType.Keyboard then return true end
+	if last == Enum.UserInputType.Touch then return false end
+	return UserInputService.KeyboardEnabled
+end
+local keyboardOnly = showKeys()
 local BIG = Enum.Font.FredokaOne
 local BODY = Enum.Font.GothamBold
 
@@ -189,6 +198,12 @@ for i = 1, 4 do
 	round(flash, 16)
 	lanes[i] = { frame = frame, button = b, flash = flash }
 end
+UserInputService.LastInputTypeChanged:Connect(function()
+	local keys = showKeys()
+	if keys == keyboardOnly then return end
+	keyboardOnly = keys
+	for i, lane in ipairs(lanes) do lane.button.Text = if keys then LANE_KEYS[i] else LANE_ARROWS[i] end
+end)
 
 --------------------------------------------------------------------------
 -- result window
