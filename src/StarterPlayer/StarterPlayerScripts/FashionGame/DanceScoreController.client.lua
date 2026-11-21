@@ -322,29 +322,24 @@ end
 local SOUND = {
 	KICK = hitSound(DanceScoreConfig.HitSound, 0.8, 1),
 	SNARE = hitSound(DanceScoreConfig.PerfectSound, 0.35, 1),
-	MISS = hitSound(SoundConfig.Ui.error, 0.18, 1.6),
 	BEEP = hitSound(DanceScoreConfig.CountBeep, 0.6, 1),
 	HOLD = hitSound(if DanceScoreConfig.HoldSound ~= 0 then DanceScoreConfig.HoldSound else DanceScoreConfig.PerfectSound, 0.5, 1),
 }
-local lastMissSound = 0
+-- (D-1818i, user 2026-11-21: "틀렸을 때 나는 소리는 없애자") a miss (and a tap with no note near) makes no sound;
+-- MISS still shows on screen
 local function playJudge(kind: string, tail: boolean?)
-	if tail and kind ~= "MISS" then
+	if kind == "MISS" then return end
+	if tail then
 		SOUND.HOLD.TimePosition = 0
 		SOUND.HOLD:Play()
 		return
 	end
-	local s = SOUND[if kind == "MISS" then "MISS" else "KICK"]
 	if kind == "PERFECT" then
 		SOUND.SNARE.TimePosition = 0
 		SOUND.SNARE:Play()
 	end
-	if kind == "MISS" then
-		-- (a run of missed notes would buzz on every beat: at most one buzz in 0.35 s)
-		if os.clock() - lastMissSound < 0.35 then return end
-		lastMissSound = os.clock()
-	end
-	s.TimePosition = 0
-	s:Play()
+	SOUND.KICK.TimePosition = 0
+	SOUND.KICK:Play()
 end
 
 local judgeTween: Tween? = nil
