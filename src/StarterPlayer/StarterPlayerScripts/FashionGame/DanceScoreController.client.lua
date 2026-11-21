@@ -205,7 +205,7 @@ local function layout()
 	if wide then
 		-- two lanes at each side, one thumb each
 		local w, gap, btnH = 66, 10, 66
-		laneTop, laneBottom = top + 40, vp.Y - 16 - btnH - 8
+		laneTop, laneBottom = top + 70, vp.Y - 16 - btnH - 8 -- (under the song bar and 그만하기)
 		for i, lane in ipairs(lanes) do
 			local x = if i <= 2 then 16 + (i - 1) * (w + gap) else vp.X - 16 - (2 * w + gap) + (i - 3) * (w + gap)
 			lane.frame.Position = UDim2.fromOffset(x, laneTop)
@@ -403,7 +403,7 @@ RunService.RenderStepped:Connect(function(dt)
 		return
 	end
 	local songNow = if now < r.start then NeonStageConfig.songTime(r.track, r.start, now) else heardSongTime(r)
-	local length = NeonStageConfig.realLength(r.track)
+	local length = DanceScoreConfig.runLength(r.track)
 	barFill.Size = UDim2.fromScale(math.clamp((now - r.start) / length, 0, 1), 1)
 	local fall = DanceScoreConfig.FallTime * r.rate -- (song seconds)
 	-- new notes into their lanes

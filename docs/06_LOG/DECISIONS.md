@@ -6837,3 +6837,13 @@ Studio only (no script yet).
 ## D-1877 Attendance window clear of Roblox's top buttons (2026-11-21)
 - User (phone shot: the header "한국의 오후 · OHU GRAND OPENING" under Roblox's ☰ / 💬): "고쳐".
 - OpeningEventController: the window is placed between GuiService.TopbarInset's bottom (+6) and the screen's bottom, centred there, at most 680 x 420 (was centred on the whole screen at 86 % height); re-placed when the inset or the viewport changes.
+
+## D-1816 안무 점수 게임 1단계: 네온 무대 "오늘의 곡 도전" (NEON) (2026-11-21)
+- 사용자: A 시안, 네온 무대에서, 메인 작업(첫 방문 카드 · 스폰) 뒤에 1단계. 기획 docs/01_SYSTEMS/DANCE_SCORE.md (D-1814, 브랜치 docs/dance-score-1121).
+- Shared/DanceScoreConfig: 오늘의 곡 NEON 고정(TodaySong), 박자 129.99 bpm · 첫 박 song -0.913 (무대 영상 소리의 onset으로 잼, 곡 3등분 모두 5 ms 안), 표시 = 박마다(8박마다 한 번 쉼), 4 s부터 곡 끝까지(안무 시작 14.4 s는 너무 기다림), 줄은 고정 시드로(같은 줄 3번 연속 없음) → 409개. 판정 Perfect ±70 ms / Great ±130 ms / 180 ms 넘으면 Miss, 100,000점 만점(Great = 0.6), 등급 S 90 % / A 75 % / B. Studio 전용 FashionGame 속성 DanceScoreTestEnd(초) = 한 판 길이(결과 화면 확인용).
+- DanceScoreService(원격 함수 DanceScore): Start = 무대 위에서만, 3 s 뒤 시작, 캐릭터 속성 DanceChallenge(서버 시각) · DanceChallengeTrack; Stop; Finish = 표시 수 · 콤보 · 플레이 시간(85 %)으로 말이 안 되는 점수만 거르고 서버가 점수 · 등급 계산. 순위 저장은 2단계.
+- NeonStageController: 도전 중이면 그 사람 화면에서만 오늘의 곡을 처음부터 틀고(무대 곡은 그 사람에게 안 들림) 그 시계로 안무. RemoteChoreoSync: 다른 화면에서도 도전자는 자기 곡 시계로 춤.
+- DanceScoreController(A 네온 클럽): 무대 위 "🎵 오늘의 곡 도전" 버튼 → 시작 창 → 3 · 2 · 1 → 가로 = 좌우 2줄씩(엄지), 세로 = 아래 4줄, 키 D F J K / 화살표. 판정은 실제로 들리는 곡 위치(무대 Sound TimePosition × fileSpeed)로. 도전 중 걷기 0 · 폰 조이스틱/점프 · 핫바 · 🎥 버튼 숨김. 무대에서 2 s 내려가면 끝, ✕ 그만하기. 결과 창 = 등급 · 점수 · PERFECT/GREAT/MISS · 최대 콤보 · 다시 도전.
+- 확인(Studio Play, 1인, PC 735×413 창): 무대 위 버튼 → 시작 창(표시 개수) → 카운트 → 표시 내려옴 · PERFECT 판정 · 점수 → 25 s 테스트 끝 → 결과 창(서버가 받음) → 걷기 · 핫바 · 조이스틱 원래대로, 속성 지워짐. 게임 스크립트 오류 0. 사진 docs/06_LOG/images/2026-11-21/dance_score_*.jpg.
+- 아직: 폰 세로 화면 실제 확인, 2인(구경꾼이 무대 곡을 듣고 도전자가 오늘의 곡 안무를 추는지), Miss 때 아바타 한 박자 멈칫, 도전 카메라, 2단계(하루 순위 · 버스정류장 벽 TOP 10 · 칭호 / 코인).
+- 번역할 새 문구: "🎵 오늘의 곡 도전", "오늘의 곡 도전 · 광장 네온 무대", "%s · 약 %d분 · 표시 %d개", "오늘의 순위 · 칭호는 곧 열려요", "표시가 아래 선에 닿을 때 같은 버튼을 눌러요 (PC: D F J K)", "닫기", "도전 시작", "✕ 그만하기", "%d 콤보", "최대 콤보", "다시 도전", "오늘의 순위는 곧 열려요", "점수를 서버에 남기지 못했어요", "무대에서 내려가서 도전이 끝났어요.", "네온 무대 위에서 도전할 수 있어요.", "오늘의 곡을 찾을 수 없어요.", "지금은 도전할 수 없어요.".

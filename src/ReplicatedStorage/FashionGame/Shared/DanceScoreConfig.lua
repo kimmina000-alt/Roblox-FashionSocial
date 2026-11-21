@@ -43,7 +43,8 @@ function DanceScoreConfig.chart(track: ClubConfig.Track): {Note}
 		if typeof(piece.at) == "number" then first = math.min(first, piece.at) end
 	end
 	if first == math.huge then first = 0 end
-	first = math.max(first, 1)
+	-- (notes from 4 s at the latest: NEON's choreography starts at 14.4 s, too long a wait)
+	first = math.clamp(first, 1, 4)
 	local length = (if typeof((track :: any).length) == "number" then (track :: any).length else 210) * ClubConfig.fileSpeed(track)
 	local last = length - 2
 	local notes: {Note} = {}
@@ -66,6 +67,18 @@ function DanceScoreConfig.chart(track: ClubConfig.Track): {Note}
 		k += 1
 	end
 	return notes
+end
+
+-- seconds a run lasts: the song's real length (Studio test: FashionGame attribute DanceScoreTestEnd =
+-- seconds, to see the result screen without playing the whole song; never on live servers)
+function DanceScoreConfig.runLength(track: ClubConfig.Track): number
+	local NeonStageConfig = require(script.Parent:WaitForChild("NeonStageConfig")) :: any
+	local length = NeonStageConfig.realLength(track)
+	if game:GetService("RunService"):IsStudio() then
+		local test = ReplicatedStorage:WaitForChild("FashionGame"):GetAttribute("DanceScoreTestEnd")
+		if typeof(test) == "number" and test > 0 then return math.min(length, test) end
+	end
+	return length
 end
 
 -- score from the counts (Perfect = full share, Great = GreatShare of it)

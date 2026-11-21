@@ -64,7 +64,7 @@ local function finish(player: Player, result: any): (boolean, any)
 	-- most of the song has played
 	local played = workspace:GetServerTimeNow() - run.start
 	if perfect + great + miss > run.total + 2 or combo > perfect + great
-		or played < NeonStageConfig.realLength(track) * 0.85 then
+		or played < DanceScoreConfig.runLength(track) * 0.85 then
 		return false, nil
 	end
 	local score = DanceScoreConfig.score(run.total, perfect, great)
