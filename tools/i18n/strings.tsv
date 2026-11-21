@@ -5,6 +5,8 @@
 280652	tmpl	{1} (남은 시간)	1	manual
 77665d	tmpl	{1}님이 {2} R$ 기부하셨습니다.{3}	1	manual
 57e3cb	tmpl	오늘의 TOP 10 · 1~3위는 하루 칭호 · 첫 도전 +{1} 코인	1	manual
+6cd5d2	tmpl	오로라 {1}단계!	1	manual
+d3bead	tmpl	{1}콤보	1	manual
 4823c9	exact	눌\n러\n주\n세\n요	1	place
 303a85	exact	COFFEE\n아이스 아메리카노  무료\n카페라테 · 카푸치노  💰10\n카라멜 마끼아또  💰10\n\nNON COFFEE\n딸기 스무디 · 얼그레이  💰20\n블루 레몬에이드  💰20	1	place
 f6ad4d	exact	ESPRESSO\n아메리카노  4.5\n카페라떼  5.0\n바닐라 라떼  5.5	1	place
@@ -755,9 +757,9 @@ d80c33	exact	없는 피치예요.	1	src/ServerScriptService/FashionGame/Services
 43c257	tmpl	피치 x{1}	1	src/ServerScriptService/FashionGame/Services/ClubService.lua:571
 733646	exact	없는 볼륨이에요.	1	src/ServerScriptService/FashionGame/Services/ClubService.lua:574
 c8f895	tmpl	볼륨 x{1}	1	src/ServerScriptService/FashionGame/Services/ClubService.lua:576
-99e201	exact	네온 무대 위에서 도전할 수 있어요.	2	src/ServerScriptService/FashionGame/Services/DanceScoreService.lua:170
-de4f01	exact	오늘의 곡을 찾을 수 없어요.	2	src/ServerScriptService/FashionGame/Services/DanceScoreService.lua:174
-db33d3	exact	오늘의 곡 도전	2	src/ServerScriptService/FashionGame/Services/DanceScoreService.lua:208
+99e201	exact	네온 무대 위에서 도전할 수 있어요.	2	src/ServerScriptService/FashionGame/Services/DanceScoreService.lua:253
+de4f01	exact	오늘의 곡을 찾을 수 없어요.	2	src/ServerScriptService/FashionGame/Services/DanceScoreService.lua:257
+db33d3	exact	오늘의 곡 도전	2	src/ServerScriptService/FashionGame/Services/DanceScoreService.lua:291
 6880d2	tmpl	DJ 시간이 {1}분 연장되었습니다.	1	src/ServerScriptService/FashionGame/Services/DjService.lua:133
 de2b26	tmpl	기다리는 DJ가 있어 연장 대신 대기 {1}번째로 넣었어요.	1	src/ServerScriptService/FashionGame/Services/DjService.lua:139
 623072	exact	대기 중인 DJ 시간이 늘어났습니다.	1	src/ServerScriptService/FashionGame/Services/DjService.lua:146
@@ -1245,7 +1247,7 @@ e8db56	exact	하의	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/Catalog
 234695	exact	아이템을 더 불러오지 못했습니다. 잠시 후 다시 스크롤하세요.	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/CatalogController.client.lua:3607
 25a2b8	exact	다른 아바타 변경이 진행 중입니다.	2	src/StarterPlayer/StarterPlayerScripts/FashionGame/CatalogController.client.lua:3784
 3ec90d	exact	← 애니메이션 팩	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/CatalogController.client.lua:936
-110f7e	exact	⏹ 그만 추기	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/ChoreoController.client.lua:1210
+110f7e	exact	⏹ 그만 추기	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/ChoreoController.client.lua:1231
 ce10a3	exact	💃 안무 따라하기	3	src/StarterPlayer/StarterPlayerScripts/FashionGame/ChoreoController.client.lua:41
 7a7a59	exact	🧪 테스트: Bubble Pop 틀기	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/ChoreoController.client.lua:64
 f2f56e	tmpl	🌙 클럽은 밤에 열려요\n오픈까지 약 {1}분	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/ClubDoorSignController.client.lua:102
@@ -1421,25 +1423,30 @@ f23a56	exact	님과	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/DanceCo
 cfba8a	exact	오늘의 곡 도전 · 광장 네온 무대	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/DanceScoreController.client.lua:120
 4d6c12	exact	표시가 아래 선에 닿을 때 같은 버튼을 눌러요 (PC: D F J K)	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/DanceScoreController.client.lua:124
 0e9d96	exact	도전 시작	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/DanceScoreController.client.lua:130
-6cf901	exact	✕ 그만하기	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/DanceScoreController.client.lua:142
-32f1b2	exact	최대 콤보	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/DanceScoreController.client.lua:187
-be2d0c	exact	다시 도전	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/DanceScoreController.client.lua:197
-a17a58	tmpl	{1} 콤보	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/DanceScoreController.client.lua:327
-0de1d7	exact	🎉 내 최고 기록!	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/DanceScoreController.client.lua:377
-eceaef	tmpl	오늘 {1}위	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/DanceScoreController.client.lua:378
-05721e	tmpl	내 최고 {1}점	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/DanceScoreController.client.lua:379
-fea86f	tmpl	+{1} 코인	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/DanceScoreController.client.lua:380
-3c2c5a	exact	점수를 서버에 남기지 못했어요	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/DanceScoreController.client.lua:383
-455926	exact	지금은 도전할 수 없어요.	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/DanceScoreController.client.lua:401
-59d13d	exact	무대에서 내려가서 도전이 끝났어요.	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/DanceScoreController.client.lua:455
-11700a	tmpl	{1} · 약 {2}분 · 표시 {3}개	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/DanceScoreController.client.lua:517
-15c147	tmpl	오늘 내 최고 {1}점 · 1~3위는 하루 칭호	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/DanceScoreController.client.lua:520
-ec4b54	exact	오늘의 TOP 10 · 1~3위는 하루 칭호 · 첫 도전 +	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/DanceScoreController.client.lua:521
-2d45ce	exact	 코인	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/DanceScoreController.client.lua:521
-3eafaf	exact	🎵 오늘의 곡에 도전하세요!	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/DanceScoreController.client.lua:545
-4b4236	exact	오늘의 TOP 10	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/DanceScoreController.client.lua:619
-78056b	exact	아직 기록이 없어요. 첫 1위가 되어 보세요!	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/DanceScoreController.client.lua:621
-32d492	exact	네온 무대에서 🎵 오늘의 곡 도전	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/DanceScoreController.client.lua:631
+3df3c5	exact	X  그만하기	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/DanceScoreController.client.lua:143
+32f1b2	exact	최대 콤보	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/DanceScoreController.client.lua:191
+be2d0c	exact	다시 도전	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/DanceScoreController.client.lua:201
+a17a58	tmpl	{1} 콤보	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/DanceScoreController.client.lua:338
+feb964	tmpl	 · 오로라 {1}단계!	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/DanceScoreController.client.lua:338
+0de1d7	exact	🎉 내 최고 기록!	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/DanceScoreController.client.lua:473
+eceaef	tmpl	오늘 {1}위	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/DanceScoreController.client.lua:474
+05721e	tmpl	내 최고 {1}점	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/DanceScoreController.client.lua:475
+fea86f	tmpl	+{1} 코인	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/DanceScoreController.client.lua:476
+3c2c5a	exact	점수를 서버에 남기지 못했어요	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/DanceScoreController.client.lua:479
+455926	exact	지금은 도전할 수 없어요.	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/DanceScoreController.client.lua:497
+59d13d	exact	무대에서 내려가서 도전이 끝났어요.	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/DanceScoreController.client.lua:567
+1dbfbf	tmpl	{1} · 약 {2}분 · 전체 {3} 콤보 · {4} 콤보부터 오로라	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/DanceScoreController.client.lua:630
+15c147	tmpl	오늘 내 최고 {1}점 · 1~3위는 하루 칭호	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/DanceScoreController.client.lua:633
+ec4b54	exact	오늘의 TOP 10 · 1~3위는 하루 칭호 · 첫 도전 +	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/DanceScoreController.client.lua:634
+2d45ce	exact	 코인	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/DanceScoreController.client.lua:634
+3eafaf	exact	🎵 오늘의 곡에 도전하세요!	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/DanceScoreController.client.lua:659
+13bda4	tmpl	 · {1}콤보	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/DanceScoreController.client.lua:717
+7f1906	exact	첫 1위를 기다려요	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/DanceScoreController.client.lua:717
+79bde1	tmpl	  ·  {1}콤보	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/DanceScoreController.client.lua:724
+04e3a1	exact	오늘의 1위	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/DanceScoreController.client.lua:742
+4b4236	exact	오늘의 TOP 10	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/DanceScoreController.client.lua:748
+0bd2f5	exact	네온 무대에서\n🎵 오늘의 곡 도전	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/DanceScoreController.client.lua:751
+78056b	exact	아직 기록이 없어요. 첫 1위가 되어 보세요!	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/DanceScoreController.client.lua:753
 e2a92e	exact	DJ 시간을 더 사요. 기다리는 사람이 있으면 연장 대신 대기 순서에 들어가요.	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/DjHelp.lua:17
 e84cee	exact	지금 곡을 넘기고 다음 곡을 틀어요.	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/DjHelp.lua:18
 61b934	exact	아래 목록이 사람 목록으로 바뀌어요. 초대한 사람만 DJ 존(무대)에 올라올 수 있어요.	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/DjHelp.lua:19
