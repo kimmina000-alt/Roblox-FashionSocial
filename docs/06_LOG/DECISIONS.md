@@ -6694,3 +6694,10 @@ Studio only (no script yet).
 - Follow the opening end by themselves: the opening gift (EconomyConfig.welcomeGift), the 🎁 / window switch to winter, PhotoConfig `opening2026.hideAfter` and `winter2026.showFrom` = 2026-12-05 20:00 UTC.
 - Roblox event cards (Creator Dashboard → Events & Updates): opening card ends 2026-12-06 05:00 KST; winter card 2026-12-06 05:00 ~ 2027-01-01 05:00 KST (Submit for Featuring needs 7 days before the start: by 11/29).
 - Studio test clock (EventNow): 1796500860 = 12/6 05:01 KST (winter day 1).
+
+## D-1876 Event card thumbnail and texts (2026-11-21)
+- User: "응 만들어줘" (the Roblox event card for 오후의 첫눈) and "지금 출석이벤트에 대한 문구만 작성해줘". tools/art/event_thumb_winter.py → docs/04_ART/thumbnails/events/winter2026_event_1920x1080.png; card texts for both events and how to make a card: docs/01_SYSTEMS/EVENT_CARDS.md. Category: 축제 (the dashboard's list: 새로운 기능 / 얼리 액세스 / 확장판 / 챌린지 / 퀘스트 / 축제 …).
+
+## D-1877 Attendance window clear of Roblox's top buttons (2026-11-21)
+- User (phone shot: the header "한국의 오후 · OHU GRAND OPENING" under Roblox's ☰ / 💬): "고쳐".
+- OpeningEventController: the window is placed between GuiService.TopbarInset's bottom (+6) and the screen's bottom, centred there, at most 680 x 420 (was centred on the whole screen at 86 % height); re-placed when the inset or the viewport changes.

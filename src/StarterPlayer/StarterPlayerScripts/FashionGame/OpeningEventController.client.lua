@@ -12,6 +12,8 @@
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local GuiService = game:GetService("GuiService")
+local Workspace = game:GetService("Workspace")
 
 local FashionGame = ReplicatedStorage:WaitForChild("FashionGame")
 local Config = require(FashionGame:WaitForChild("Shared"):WaitForChild("OpeningEventConfig"))
@@ -46,11 +48,27 @@ local setOpen: (on: boolean) -> ()
 
 local function build(ev: any): Built
 	local window = create("Frame", {
-		Name = "Window", AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.fromScale(0.5, 0.52),
+		Name = "Window", AnchorPoint = Vector2.new(0.5, 0), Position = UDim2.fromScale(0.5, 0.07),
 		Size = UDim2.new(0.94, 0, 0.86, 0), BackgroundColor3 = Color3.fromRGB(252, 240, 248),
 	}, gui)
 	corner(window, 22)
-	create("UISizeConstraint", { MaxSize = Vector2.new(680, 420) }, window)
+	-- (D-1877, user's phone 2026-11-21: the header "한국의 오후 · OHU GRAND OPENING" sat under Roblox's own
+	-- ☰ / 💬 buttons) the window fits between Roblox's top bar (GuiService.TopbarInset) and the screen's
+	-- bottom, centred in that space, at most 680 x 420
+	local function place()
+		local camera = Workspace.CurrentCamera
+		if not camera then return end
+		local vp = camera.ViewportSize
+		local inset = GuiService.TopbarInset
+		local top = (if inset.Height > 0 then inset.Max.Y else 0) + 6
+		local room = math.max(200, vp.Y - top - 6)
+		local h = math.min(420, room)
+		window.Size = UDim2.fromOffset(math.min(680, vp.X * 0.94), h)
+		window.Position = UDim2.new(0.5, 0, 0, top + math.max(0, (room - h) / 2))
+	end
+	place()
+	GuiService:GetPropertyChangedSignal("TopbarInset"):Connect(place)
+	if Workspace.CurrentCamera then Workspace.CurrentCamera:GetPropertyChangedSignal("ViewportSize"):Connect(place) end
 	create("UIStroke", { Color = WHITE, Thickness = 3 }, window)
 	create("UIGradient", { Rotation = 90, Color = ColorSequence.new(ev.bgTop, ev.bgBottom) }, window)
 	create("UIPadding", { PaddingLeft = UDim.new(0, 14), PaddingRight = UDim.new(0, 14), PaddingTop = UDim.new(0, 10), PaddingBottom = UDim.new(0, 10) }, window)
