@@ -23,7 +23,7 @@ COL = {
     "pink": (1.0, 0.55, 0.68), "sky": (0.55, 0.78, 1.0), "blue": (0.15, 0.35, 0.85), "navy": (0.05, 0.1, 0.35),
     "grey": (0.42, 0.44, 0.5), "yellow": (1.0, 0.8, 0.15), "teal": (0.2, 0.75, 0.8), "cream": (0.95, 0.88, 0.7),
     "bread": (0.82, 0.55, 0.25), "deer": (0.55, 0.34, 0.18), "rednose": (1.0, 0.05, 0.05), "orange": (1.0, 0.5, 0.15),
-    "ivory": (1.0, 0.95, 0.82), "darkgreen": (0.02, 0.2, 0.09), "rice": (0.98, 0.97, 0.93),
+    "ivory": (1.0, 0.95, 0.82), "darkgreen": (0.02, 0.2, 0.09), "rice": (0.98, 0.97, 0.93), "lightpink": (1.0, 0.6, 0.72), "noodle": (0.96, 0.8, 0.38), "wood": (0.72, 0.5, 0.28), "ramenred": (0.85, 0.08, 0.1),
 }
 
 # the base's landmarks (from its bounding boxes)
@@ -246,11 +246,16 @@ def _(hat):
 def _(hat):
     remove_hat(hat)
     capdome("green", "green")
-    # (D-2016, user: "손에 들고 있는 거 삼각김밥") a triangle kimbap: white rice, black nori band at the bottom
-    k = RHAND + Vector((-0.05, -0.2, 0.32))
-    cyl(k, 0.34, 0.16, "rice", rot=(math.radians(90), math.radians(-90), 0), verts=3, bevel=0.06)  # (tip up)
-    box(k + Vector((0, 0, -0.14)), (0.3, 0.18, 0.16), "black", bevel=0.02)
-    box(k + Vector((0, -0.09, 0.02)), (0.14, 0.01, 0.1), "red", bevel=0.0)
+    # (D-2017, user: "한 손에는 뚜껑 열린 컵라면 다른 손에는 젓가락") an open cup ramen in the left hand (white cup
+    # with a red band, noodles and broth on top, the lid half peeled back), chopsticks in the right hand
+    c = LHAND + Vector((0.05, -0.18, 0.3))
+    cone(c, 0.24, 0.32, 0.5, "white", rot=(0, 0, 0))
+    cone(c + Vector((0, 0, 0.02)), 0.255, 0.3, 0.16, "ramenred")
+    cyl(c + Vector((0, 0, 0.24)), 0.29, 0.03, "noodle")
+    bpy.ops.mesh.primitive_cylinder_add(vertices=24, radius=0.33, depth=0.02, location=c + Vector((0, 0.24, 0.42)), rotation=(math.radians(-65), 0, 0))
+    finish(bpy.context.active_object, "white", 0)   # the lid, peeled back
+    for dx in (-0.04, 0.04):
+        cyl(RHAND + Vector((dx - 0.1, -0.22, 0.45)), 0.025, 0.95, "wood", rot=(math.radians(15), math.radians(-25), 0), verts=8)
 
 @look("gukbap")
 def _(hat):
@@ -281,6 +286,30 @@ def _(hat):
 
 @look("surfer")
 def _(hat):
+    # (D-2017, user: "남방 입혀 꽃무늬, 복잡하면 연핑크") a light pink shirt with little white flowers (yellow middles)
+    suit_only("lightpink")
+    import random
+    rnd = random.Random(7)
+    dg = bpy.context.evaluated_depsgraph_get()
+    scn = bpy.context.scene
+    # flowers where a ray from the front first meets the pink shirt (body and arms)
+    spots = []
+    for zi, z in enumerate((0.2, 0.42, 0.64, 0.86, 1.08, 1.3, 1.5)):
+        for x in (-1.0, -0.72, -0.44, -0.16, 0.12, 0.4, 0.68, 0.96):
+            spots.append((x + (0.14 if zi % 2 else 0) + rnd.uniform(-0.05, 0.05), z + rnd.uniform(-0.04, 0.04)))
+    for (x, z) in spots:
+        hit, loc, nrm, idx, obj, mtx = scn.ray_cast(dg, Vector((x, -4, z)), Vector((0, 1, 0)))
+        if not hit or not obj or not obj.data.materials or obj.data.materials[0].name != "lightpink":
+            continue
+        n = Vector(nrm).normalized()
+        p = Vector(loc) + n * 0.02
+        t1 = n.cross(Vector((0, 0, 1))).normalized()
+        t2 = n.cross(t1).normalized()
+        a0 = rnd.uniform(0, 1.2)
+        for i in range(5):
+            a = a0 + i * 2 * math.pi / 5
+            sphere(p + (t1 * math.cos(a) + t2 * math.sin(a)) * 0.075, (0.06, 0.06, 0.04), "white", sub=0)
+        sphere(p + n * 0.02, (0.04, 0.04, 0.04), "yellow", sub=0)
     box((0, FACE_Y - 0.03, EYES_Z), (0.62, 0.06, 0.14), "black")
     box((1.5, 0.35, 1.2), (0.6, 0.12, 2.4), "teal", rot=(0, math.radians(-8), 0), bevel=0.25)
 
@@ -346,6 +375,13 @@ def _(hat):
         base = Vector((0.52 * s, 0, HEAD_TOP - 0.05))
         d = Vector((math.sin(ang), 0, math.cos(ang)))
         cone(base + d * 0.3, 0.15, 0.02, 0.6, "cream", rot=(0, ang, 0))
+    # (D-2017, user: "수염에 세모 두 개로 만든 리본 두 개") two bows on the beard, each two triangles tip to tip
+    for s in (-1, 1):
+        ctr = Vector((0.3 * s, -1.03, 1.3))
+        for side in (-1, 1):
+            # a flat triangle (3-sided cylinder, axis front-back), its tip pointing to the knot
+            cyl(ctr + Vector((0.17 * side, 0, 0)), 0.2, 0.07, "red", rot=(math.radians(90), math.radians(-90 if side > 0 else 90), 0), verts=3, bevel=0.025)
+        sphere(ctr + Vector((0, -0.04, 0)), (0.07, 0.05, 0.07), "red", sub=0)
 
 @look("rudolph")
 def _(hat):
