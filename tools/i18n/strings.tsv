@@ -1887,3 +1887,4 @@ af00ce	tmpl	"{1}" 일부 복원: 아이템 {2}개는 더 이상 착용할 수 �
 452ae5	tmpl	"{1}" 코디로 갈아입었습니다.	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/WardrobeView.lua:836
 3c9a71	exact	코디를 복원하지 못했습니다.	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/WardrobeView.lua:839
 d6f208	exact	미리보기 없음	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/WardrobeView.lua:875
+476cb5	exact	📳 진동	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/MenuController.client.lua:113

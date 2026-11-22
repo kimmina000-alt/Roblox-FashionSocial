@@ -6972,3 +6972,24 @@ Studio only (no script yet).
 - 사용자: "네온 설정값" → "부스터 4를 2로 변경". boost4 없음(= 1) → 2, 들리는 크기 2배. 나머지 그대로. Play로 들어 보지는 않음.
 - (D-1818 추가 22, 사용자 2026-11-21) "게임 시작하면 자동으로 무대 카메라 켜지게 하자": 오늘의 곡 도전을 시작하면 무대 카메라(LocalPlayer 속성 StageCamera)를 켜고 끝나면 원래대로; StageCameraController는 도전 중이면 무대 곡 대신 도전 곡(DanceChallengeTrack)의 샷을 씀. Studio Play: 시작 8 s 뒤 CameraType Scriptable, 끝난 뒤 StageCamera nil · Custom.
 - (D-1818 추가 23, 사용자 2026-11-22) "내가 설정 안 해도 리듬 게임 알아서 안무 있는 곡으로 랜덤으로 달라지게": 오늘의 곡 = 네온 무대가 트는 안무 곡 25곡 중 하루 하나 무작위(Random에 날짜 키, 모든 서버 · 화면이 같음, 어제 곡은 피함; 05:00 KST에 바뀜). 곡마다 박자는 tools/choreo/dance_beats.py가 원곡 mp3(D:\Roblox\오후\음원)에서 자동으로 잼(스펙트럼 변화 → 템포 → 박자 격자 맞춤) → Shared/DanceScoreSongs.lua(생성 파일). 확인: NEON 130.007 bpm(전 129.99), 무대 영상으로 잰 격자와 0.02 s 차이. 150 bpm 이상(SHOCK · With · Call My Name)은 두 박자마다 표시. 결과 창 곡 이름도 오늘의 곡으로. Studio 테스트: FashionGame 속성 DanceSongOverride = soundId(Studio만). 전체 박자를 옮길 때는 DanceScoreConfig.BeatOffset. Studio Play: 오늘(11-22) CRASH, 표시 · 노래 · 무대 카메라 · 결과 창 확인.
+
+## D-1984 오늘의 곡 도전: 곡마다 맞춘 버튼 소리 (2026-11-22)
+- 사용자: "노래에 맞는 드럼 소리나 edm 소리 ai로 만든 후 리듬 게임에 적용".
+- 원곡 mp3(D:\Roblox\오후\음원)에서 곡마다 조(키)와 템포를 잼: `tools/art/song_key.py`(스펙트럼 피크 크로마 + Krumhansl 프로필, 결과 `docs/04_ART/sfx/kits/songs_key.json`; NEON 129.9 bpm = 무대 영상 129.99와 같음).
+- 소리는 직접 합성(샘플 없음): `tools/art/dance_kits.py` → `docs/04_ART/sfx/kits/` 16개(0.42 s, 어택 2~3 ms, 크기는 사용자가 맞춘 edm_5_stab과 같게). 키트 4개 × 버튼 4개:
+  - edm: 슈퍼소 파워코드 스탭 I5 / IV5 / V5 / 높은 I5 (NEON, CRASH, Looks Can Kill 등 10곡)
+  - trap: 808(곡 음에 맞춤) / 스네어 / 어두운 브라스 스탭 / 클랩 (BAD, REDRED, SHEESH 등 7곡)
+  - pop: 밝은 플럭 I5 / IV5 / V5 / 벨 (Lemon Tang, 갑자기, Pop Off 등 8곡)
+  - retro: 신스 브라스 I5 / IV5 / V5 / 오케스트라 히트 (Genie, BANG, Boogie Woogie)
+- 파워코드(근음 + 5도)만 써서 장조 · 단조 어느 곡에도 틀린 3도가 안 나옴. 음이 있는 소리는 C로 만들고 게임에서 PlaybackSpeed 2^(key/12)로 곡의 조에 맞춤(key -5..6, 최대 1.41배).
+- 코드: `Shared/DanceScoreSounds.lua`(곡 → 키트 · 키, 키트 → 버튼 id), DanceScoreController는 도전을 시작하면 그 곡의 소리를 만들고 미리 불러옴. 목록에 없는 곡이나 id 0은 DanceScoreConfig.LaneSounds 그대로.
+- 미리듣기(곡 14초 + 박자마다 버튼 소리): D:\Roblox\영상\_work\dance_sfx\previews.
+- 업로드(사용자, Vantablack_Dev 2026-11-22): edm 94534290003998 / 128730510689808 / 71587213321541 / 102571832262476, trap 81428012535145 / 86166967685855 / 99896696073557 / 116814789238012, pop 123460051656462 / 95509574527107 / 121020367234510 / 78448919768904, retro 92070419550891 / 131721956835078 / 118994620182314 / 116911509566974. Studio Play(DanceSongOverride = BAD): 도전 시작 시 trap 키트 4 × 6개가 PlaybackSpeed 1.189(D#) / 1.0(스네어 · 클랩)으로 만들어지고 16개 모두 로드, 히트 때 소리 남, 스크립트 오류 없음.
+- (사용자 2026-11-22) "0.75로 해 봐": 키트 소리 크기 0.1125 → 0.75 (DanceScoreSounds.Volume; 0.1125는 크게 키운 무대 노래에 묻혀 안 들림). 목록에 없는 곡은 LaneSoundVolume 그대로.
+
+## D-1985 오늘의 곡 도전: 맞히면 진동 + ☰ 메뉴 📳 진동 켜기/끄기 (2026-11-22)
+- 사용자: "진동 효과 넣을까" → "응 진행해, 켜기/끄기 버튼도 넣어".
+- DanceScoreController: 판정이 GREAT / PERFECT일 때(judge의 맞힘 쪽, hitSwell 옆) HapticEffect 재생. GREAT = UIClick(짧고 약함), PERFECT = GameplayCollision(더 또렷). MISS · 빈 탭은 진동 없음. 폰 · 게임패드만(PC 키보드는 아무것도 안 함).
+- ☰ 메뉴 "📳 진동" 스위치(LayoutOrder 19, 환호성 위): 분홍 = 켜짐(기본). 플레이어 속성 NoVibrate, ClubShop "NoVibrate" → PlayerPrefsService.SetVibrate → wallet.noVibrate(PlayerDataService가 저장 유지).
+- 번역 16개: tools/i18n/tr/p20_vibrate1122.tsv → build.py.
+- Studio Play: HapticEffect 2개 생성, 메뉴 줄 보임, 스위치 켜고 끄기 → 속성 true / nil, CRASH 도전에서 히트 시 오류 없음. 실제 진동은 폰에서 확인 필요(Studio는 진동 없음).

@@ -1829,6 +1829,7 @@ return {
 	["📰 내 광고 시간이 늘어났어요!"] = "📰 Reklam süren uzadı!",
 	["📰 싫어요가 많아 광고 사진이 가려지고 닉네임만 보여요. 광고판에서 포즈나 코디를 바꿔 다시 찍으면 표가 새로 시작돼요."] = "📰 Çok fazla beğenmeme var; fotoğrafın gizlendi, sadece takma adın görünüyor. Panoda poz ya da kombinini değiştirip yeniden çek, oylar sıfırlanır.",
 	["📰 지금 광고가 끝나면 내 광고가 걸려요 (대기 {1}번째)."] = "📰 Mevcut reklam bitince seninki asılır ({1}. sırada).",
+	["📳 진동"] = "📳 Titreşim",
 	["📷 사진"] = "📷 Fotoğraf",
 	["📸 {1}초 후 촬영 시작 · {2}/{3}명 · {4}"] = "📸 Çekim {1} sn sonra · {2}/{3} kişi · {4}",
 	["📸 광고 사진 찍기"] = "📸 Reklam fotoğrafı çek",

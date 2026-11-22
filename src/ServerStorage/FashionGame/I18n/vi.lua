@@ -1829,6 +1829,7 @@ return {
 	["📰 내 광고 시간이 늘어났어요!"] = "📰 Thời gian quảng cáo đã tăng!",
 	["📰 싫어요가 많아 광고 사진이 가려지고 닉네임만 보여요. 광고판에서 포즈나 코디를 바꿔 다시 찍으면 표가 새로 시작돼요."] = "📰 Quá nhiều lượt không thích nên ảnh bị ẩn, chỉ hiện biệt danh. Đổi tư thế hoặc trang phục ở bảng và chụp lại để đặt lại phiếu.",
 	["📰 지금 광고가 끝나면 내 광고가 걸려요 (대기 {1}번째)."] = "📰 Quảng cáo của bạn sẽ lên khi cái hiện tại kết thúc (thứ {1}).",
+	["📳 진동"] = "📳 Rung",
 	["📷 사진"] = "📷 Ảnh",
 	["📸 {1}초 후 촬영 시작 · {2}/{3}명 · {4}"] = "📸 Bắt đầu chụp sau {1} giây · {2}/{3} người · {4}",
 	["📸 광고 사진 찍기"] = "📸 Chụp ảnh quảng cáo",

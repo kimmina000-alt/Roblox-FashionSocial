@@ -10,7 +10,8 @@
 --                       GUARD, VIP, DJ
 --   MuteCheer           wallet.muteCheer: (D-1709, user 2026-11-18: "환호성 끄기 버튼 추가") no ride cheer
 --                       (vikings / jumping star, RideWindController) on this player's screen
--- ClubShop remote actions "HideName" (true / false), "HideBadge" ({ role, on }) and "MuteCheer" (ServerMain).
+--   NoVibrate           wallet.noVibrate: (D-1985) no buzz on 오늘의 곡 도전 hits
+-- ClubShop remote actions "HideName" (true / false), "HideBadge" ({ role, on }), "MuteCheer" and "NoVibrate" (ServerMain).
 
 local Players = game:GetService("Players")
 
@@ -42,6 +43,17 @@ function PlayerPrefsService.SetCheer(player: Player, mute: boolean): (boolean, a
 	return true, mute
 end
 
+-- (D-1985) 📳 진동 off: no buzz on 오늘의 곡 도전 hits (DanceScoreController)
+function PlayerPrefsService.SetVibrate(player: Player, off: boolean): (boolean, any)
+	if not data then return false, nil end
+	local wallet = data.Wallet(player)
+	if not wallet then return false, nil end
+	wallet.noVibrate = if off then true else nil
+	data.MarkDirty(player)
+	player:SetAttribute("NoVibrate", if off then true else nil)
+	return true, off
+end
+
 function PlayerPrefsService.SetBadge(player: Player, role: any, on: boolean): (boolean, any)
 	if not data or typeof(role) ~= "string" or not isBadge[role] then return false, nil end
 	local wallet = data.Wallet(player)
@@ -62,6 +74,7 @@ function PlayerPrefsService.Start(playerData: any)
 			if not player.Parent or not wallet then return end
 			player:SetAttribute("HideName", if wallet.hideName == true then true else nil)
 			player:SetAttribute("MuteCheer", if wallet.muteCheer == true then true else nil)
+			player:SetAttribute("NoVibrate", if wallet.noVibrate == true then true else nil) -- (D-1985)
 			local hidden = wallet.hideBadges or {}
 			for _, role in ipairs(PlayerPrefsService.Badges) do
 				player:SetAttribute("HideBadge_" .. role, if hidden[role] == true then true else nil)
