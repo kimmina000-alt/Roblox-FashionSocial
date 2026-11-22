@@ -439,8 +439,8 @@ c43592	exact	우유식빵	1	src/ReplicatedStorage/FashionGame/Shared/OH24Product
 6d3bcc	exact	카스테라	1	src/ReplicatedStorage/FashionGame/Shared/OH24Products.lua:93
 389ef3	exact	생수	2	src/ReplicatedStorage/FashionGame/Shared/OH24Products.lua:96
 4d5b46	exact	이온음료	1	src/ReplicatedStorage/FashionGame/Shared/OH24Products.lua:97
-9a3583	tmpl	{1} 코인	1	src/ReplicatedStorage/FashionGame/Shared/OpeningEventConfig.lua:154
-eedf58	exact	한정 포토 프레임	1	src/ReplicatedStorage/FashionGame/Shared/OpeningEventConfig.lua:155
+9a3583	tmpl	{1} 코인	1	src/ReplicatedStorage/FashionGame/Shared/OpeningEventConfig.lua:156
+eedf58	exact	한정 포토 프레임	1	src/ReplicatedStorage/FashionGame/Shared/OpeningEventConfig.lua:157
 f3d2c5	exact	한국의 오후 · OHU GRAND OPENING	1	src/ReplicatedStorage/FashionGame/Shared/OpeningEventConfig.lua:48
 22f1c1	exact	출석 이벤트 💖	1	src/ReplicatedStorage/FashionGame/Shared/OpeningEventConfig.lua:48
 ea9fc7	exact	매일 오후에 놀러 오고, 특별한 선물 받아 가세요!	1	src/ReplicatedStorage/FashionGame/Shared/OpeningEventConfig.lua:48
@@ -469,41 +469,38 @@ eb2495	exact	피치	1	src/ReplicatedStorage/FashionGame/Shared/PhotoConfig.lua:1
 5efe2d	exact	세이지	1	src/ReplicatedStorage/FashionGame/Shared/PhotoConfig.lua:106
 64f5c2	exact	아쿠아	1	src/ReplicatedStorage/FashionGame/Shared/PhotoConfig.lua:107
 d81a27	exact	크림	1	src/ReplicatedStorage/FashionGame/Shared/PhotoConfig.lua:108
-f101f9	exact	겨울 첫눈	1	src/ReplicatedStorage/FashionGame/Shared/PhotoConfig.lua:113
-9d70a8	exact	🎁 겨울 출석 7회 보상	1	src/ReplicatedStorage/FashionGame/Shared/PhotoConfig.lua:116
-ba6cdc	exact	겨울 출석 이벤트 '오후의 첫눈'에서 7번 출석하면 받는 한정 프레임이에요.	1	src/ReplicatedStorage/FashionGame/Shared/PhotoConfig.lua:117
-093e91	exact	오픈 기념	1	src/ReplicatedStorage/FashionGame/Shared/PhotoConfig.lua:130
-6b9a45	exact	🎁 오픈 출석 7회 보상	1	src/ReplicatedStorage/FashionGame/Shared/PhotoConfig.lua:133
-4dd25b	exact	오픈 출석 이벤트에서 7번 출석하면 받는 한정 프레임이에요.	1	src/ReplicatedStorage/FashionGame/Shared/PhotoConfig.lua:134
-a6d633	exact	블랙 네온	1	src/ReplicatedStorage/FashionGame/Shared/PhotoConfig.lua:139
+093e91	exact	오픈 기념	1	src/ReplicatedStorage/FashionGame/Shared/PhotoConfig.lua:118
+6b9a45	exact	🎁 오픈 출석 7회 보상	1	src/ReplicatedStorage/FashionGame/Shared/PhotoConfig.lua:121
+4dd25b	exact	오픈 출석 이벤트에서 7번 출석하면 받는 한정 프레임이에요.	1	src/ReplicatedStorage/FashionGame/Shared/PhotoConfig.lua:122
+a6d633	exact	블랙 네온	1	src/ReplicatedStorage/FashionGame/Shared/PhotoConfig.lua:127
+39556e	exact	글로시 네온	1	src/ReplicatedStorage/FashionGame/Shared/PhotoConfig.lua:128
+89f430	exact	글로시 핑크	1	src/ReplicatedStorage/FashionGame/Shared/PhotoConfig.lua:129
+1d59aa	exact	반짝이 골드	1	src/ReplicatedStorage/FashionGame/Shared/PhotoConfig.lua:130
+5190ee	exact	반짝이 실버	1	src/ReplicatedStorage/FashionGame/Shared/PhotoConfig.lua:131
+892dc5	exact	강아지	1	src/ReplicatedStorage/FashionGame/Shared/PhotoConfig.lua:133
+253fa8	exact	고양이	1	src/ReplicatedStorage/FashionGame/Shared/PhotoConfig.lua:134
+e8dcea	exact	하트	1	src/ReplicatedStorage/FashionGame/Shared/PhotoConfig.lua:135
+03885c	exact	별	1	src/ReplicatedStorage/FashionGame/Shared/PhotoConfig.lua:136
+0385d0	exact	꽃	1	src/ReplicatedStorage/FashionGame/Shared/PhotoConfig.lua:137
+b7e982	exact	몽이	1	src/ReplicatedStorage/FashionGame/Shared/PhotoConfig.lua:138
+0605c5	exact	햄찌·토끼	1	src/ReplicatedStorage/FashionGame/Shared/PhotoConfig.lua:139
 deed99	exact	기본 1×4	1	src/ReplicatedStorage/FashionGame/Shared/PhotoConfig.lua:14
-39556e	exact	글로시 네온	1	src/ReplicatedStorage/FashionGame/Shared/PhotoConfig.lua:140
-89f430	exact	글로시 핑크	1	src/ReplicatedStorage/FashionGame/Shared/PhotoConfig.lua:141
-1d59aa	exact	반짝이 골드	1	src/ReplicatedStorage/FashionGame/Shared/PhotoConfig.lua:142
-5190ee	exact	반짝이 실버	1	src/ReplicatedStorage/FashionGame/Shared/PhotoConfig.lua:143
-892dc5	exact	강아지	1	src/ReplicatedStorage/FashionGame/Shared/PhotoConfig.lua:145
-253fa8	exact	고양이	1	src/ReplicatedStorage/FashionGame/Shared/PhotoConfig.lua:146
-e8dcea	exact	하트	1	src/ReplicatedStorage/FashionGame/Shared/PhotoConfig.lua:147
-03885c	exact	별	1	src/ReplicatedStorage/FashionGame/Shared/PhotoConfig.lua:148
-0385d0	exact	꽃	1	src/ReplicatedStorage/FashionGame/Shared/PhotoConfig.lua:149
+ca3bfc	exact	프레임 팩	1	src/ReplicatedStorage/FashionGame/Shared/PhotoConfig.lua:144
+54b749	exact	출석 7회	1	src/ReplicatedStorage/FashionGame/Shared/PhotoConfig.lua:145
+cffdfe	exact	무료	4	src/ReplicatedStorage/FashionGame/Shared/PhotoConfig.lua:146
 df61f6	exact	기본 2×2	1	src/ReplicatedStorage/FashionGame/Shared/PhotoConfig.lua:15
-b7e982	exact	몽이	1	src/ReplicatedStorage/FashionGame/Shared/PhotoConfig.lua:150
-0605c5	exact	햄찌·토끼	1	src/ReplicatedStorage/FashionGame/Shared/PhotoConfig.lua:151
-ca3bfc	exact	프레임 팩	1	src/ReplicatedStorage/FashionGame/Shared/PhotoConfig.lua:156
-54b749	exact	출석 7회	1	src/ReplicatedStorage/FashionGame/Shared/PhotoConfig.lua:157
-cffdfe	exact	무료	4	src/ReplicatedStorage/FashionGame/Shared/PhotoConfig.lua:158
-28ca03	exact	고양이 귀	1	src/ReplicatedStorage/FashionGame/Shared/PhotoConfig.lua:167
-9e1ea2	exact	토끼 귀	1	src/ReplicatedStorage/FashionGame/Shared/PhotoConfig.lua:168
-77d01c	exact	리본	1	src/ReplicatedStorage/FashionGame/Shared/PhotoConfig.lua:169
-6afecc	exact	왕관	1	src/ReplicatedStorage/FashionGame/Shared/PhotoConfig.lua:170
-aa2a56	exact	선글라스	1	src/ReplicatedStorage/FashionGame/Shared/PhotoConfig.lua:171
-2e7699	exact	하트 안경	1	src/ReplicatedStorage/FashionGame/Shared/PhotoConfig.lua:172
+28ca03	exact	고양이 귀	1	src/ReplicatedStorage/FashionGame/Shared/PhotoConfig.lua:155
+9e1ea2	exact	토끼 귀	1	src/ReplicatedStorage/FashionGame/Shared/PhotoConfig.lua:156
+77d01c	exact	리본	1	src/ReplicatedStorage/FashionGame/Shared/PhotoConfig.lua:157
+6afecc	exact	왕관	1	src/ReplicatedStorage/FashionGame/Shared/PhotoConfig.lua:158
+aa2a56	exact	선글라스	1	src/ReplicatedStorage/FashionGame/Shared/PhotoConfig.lua:159
+2e7699	exact	하트 안경	1	src/ReplicatedStorage/FashionGame/Shared/PhotoConfig.lua:160
 d194a2	exact	혼자만	1	src/ReplicatedStorage/FashionGame/Shared/PhotoConfig.lua:20
 b3adbe	exact	친구와	1	src/ReplicatedStorage/FashionGame/Shared/PhotoConfig.lua:21
 b532d6	exact	모두와	1	src/ReplicatedStorage/FashionGame/Shared/PhotoConfig.lua:22
 2f86d5	exact	색상	4	src/ReplicatedStorage/FashionGame/Shared/PhotoConfig.lua:93
 07a1cb	exact	파스텔	11	src/ReplicatedStorage/FashionGame/Shared/PhotoConfig.lua:93
-3c1392	exact	특별한	17	src/ReplicatedStorage/FashionGame/Shared/PhotoConfig.lua:93
+3c1392	exact	특별한	16	src/ReplicatedStorage/FashionGame/Shared/PhotoConfig.lua:93
 6a8b9d	exact	블랙	1	src/ReplicatedStorage/FashionGame/Shared/PhotoConfig.lua:95
 bbc900	exact	화이트	1	src/ReplicatedStorage/FashionGame/Shared/PhotoConfig.lua:96
 137ca1	exact	그레이	1	src/ReplicatedStorage/FashionGame/Shared/PhotoConfig.lua:97
@@ -522,6 +519,48 @@ c75023	exact	흰 소녀 2	1	src/ReplicatedStorage/FashionGame/Shared/Recommended
 1df555	exact	실버 스트라이더 방랑자	1	src/ReplicatedStorage/FashionGame/Shared/RecommendedLooks.lua:69
 9d14bb	exact	스케이터 스트리트 라이더	1	src/ReplicatedStorage/FashionGame/Shared/RecommendedLooks.lua:80
 543fa6	exact	고양이 귀 방랑자	1	src/ReplicatedStorage/FashionGame/Shared/RecommendedLooks.lua:91
+d84786	exact	미니 산타 찾기	1	src/ReplicatedStorage/FashionGame/Shared/SantaHuntConfig.lua:13
+13d95a	exact	2026 미니 산타 앨범	1	src/ReplicatedStorage/FashionGame/Shared/SantaHuntConfig.lua:14
+7be979	exact	첫눈 산타	1	src/ReplicatedStorage/FashionGame/Shared/SantaHuntConfig.lua:25
+a23d1b	exact	모두가 처음 도착하는 광장 근처를 찾아보세요.	1	src/ReplicatedStorage/FashionGame/Shared/SantaHuntConfig.lua:25
+3f77ad	exact	DJ 산타	1	src/ReplicatedStorage/FashionGame/Shared/SantaHuntConfig.lua:26
+81f170	exact	쿵쿵, 음악이 제일 크게 울리는 곳에 있어요.	1	src/ReplicatedStorage/FashionGame/Shared/SantaHuntConfig.lua:26
+eaa470	exact	바리스타 산타	1	src/ReplicatedStorage/FashionGame/Shared/SantaHuntConfig.lua:27
+79ce47	exact	바다가 보이는 카페에서 커피를 내리고 있어요.	1	src/ReplicatedStorage/FashionGame/Shared/SantaHuntConfig.lua:27
+996261	exact	네컷 산타	1	src/ReplicatedStorage/FashionGame/Shared/SantaHuntConfig.lua:28
+1f0a70	exact	찰칵! 친구랑 사진 찍는 가게에 숨어 있어요.	1	src/ReplicatedStorage/FashionGame/Shared/SantaHuntConfig.lua:28
+e0f871	exact	편의점 산타	1	src/ReplicatedStorage/FashionGame/Shared/SantaHuntConfig.lua:29
+7891ce	exact	24시간 불이 꺼지지 않는 가게에 있어요.	1	src/ReplicatedStorage/FashionGame/Shared/SantaHuntConfig.lua:29
+f7c5b2	exact	국밥 산타	1	src/ReplicatedStorage/FashionGame/Shared/SantaHuntConfig.lua:30
+ac57c7	exact	뜨끈한 국물 냄새가 나는 곳이에요.	1	src/ReplicatedStorage/FashionGame/Shared/SantaHuntConfig.lua:30
+9e4050	exact	한복 산타	1	src/ReplicatedStorage/FashionGame/Shared/SantaHuntConfig.lua:31
+519625	exact	기와 지붕 아래, 한옥 마을을 걸어 보세요.	1	src/ReplicatedStorage/FashionGame/Shared/SantaHuntConfig.lua:31
+d44091	exact	수문장 산타	1	src/ReplicatedStorage/FashionGame/Shared/SantaHuntConfig.lua:32
+0013c6	exact	커다란 문을 지키고 있어요.	1	src/ReplicatedStorage/FashionGame/Shared/SantaHuntConfig.lua:32
+114de9	exact	찻잔 산타	1	src/ReplicatedStorage/FashionGame/Shared/SantaHuntConfig.lua:33
+5c8b89	exact	빙글빙글 도는 찻잔 근처에 있어요.	1	src/ReplicatedStorage/FashionGame/Shared/SantaHuntConfig.lua:33
+08326e	exact	서퍼 산타	1	src/ReplicatedStorage/FashionGame/Shared/SantaHuntConfig.lua:34
+5e4888	exact	파도 소리가 들리는 튜브 더미 옆이에요.	1	src/ReplicatedStorage/FashionGame/Shared/SantaHuntConfig.lua:34
+8e8ddc	exact	빵집 산타	1	src/ReplicatedStorage/FashionGame/Shared/SantaHuntConfig.lua:35
+02ecf8	exact	갓 구운 빵 냄새를 따라가 보세요.	1	src/ReplicatedStorage/FashionGame/Shared/SantaHuntConfig.lua:35
+d54449	exact	버스 산타	1	src/ReplicatedStorage/FashionGame/Shared/SantaHuntConfig.lua:36
+fc9a58	exact	버스를 기다리는 정류장에 앉아 있어요.	1	src/ReplicatedStorage/FashionGame/Shared/SantaHuntConfig.lua:36
+4ec18d	exact	지하철 산타	1	src/ReplicatedStorage/FashionGame/Shared/SantaHuntConfig.lua:37
+2ac92c	exact	계단 아래로 내려가는 지하철 출구에 있어요.	1	src/ReplicatedStorage/FashionGame/Shared/SantaHuntConfig.lua:37
+58ab91	exact	관람차 산타	1	src/ReplicatedStorage/FashionGame/Shared/SantaHuntConfig.lua:38
+8c5819	exact	제일 높이 올라가는 관람차 타는 곳에 있어요.	1	src/ReplicatedStorage/FashionGame/Shared/SantaHuntConfig.lua:38
+e92fdd	exact	범퍼카 산타	1	src/ReplicatedStorage/FashionGame/Shared/SantaHuntConfig.lua:39
+dd996b	exact	쿵! 부딪히며 노는 곳에 있어요.	1	src/ReplicatedStorage/FashionGame/Shared/SantaHuntConfig.lua:39
+acdeab	exact	츄러스 산타	1	src/ReplicatedStorage/FashionGame/Shared/SantaHuntConfig.lua:40
+66dcad	exact	달콤한 간식을 파는 가게 앞이에요.	1	src/ReplicatedStorage/FashionGame/Shared/SantaHuntConfig.lua:40
+98e052	exact	VIP 산타	1	src/ReplicatedStorage/FashionGame/Shared/SantaHuntConfig.lua:41
+899bdb	exact	클럽 안, VIP만 올라가는 계단 아래예요.	1	src/ReplicatedStorage/FashionGame/Shared/SantaHuntConfig.lua:41
+0872ff	exact	바이킹 산타	1	src/ReplicatedStorage/FashionGame/Shared/SantaHuntConfig.lua:42
+6b7752	exact	하늘 높이 흔들리는 배 근처에 있어요.	1	src/ReplicatedStorage/FashionGame/Shared/SantaHuntConfig.lua:42
+73698f	exact	루돌프와 산타	1	src/ReplicatedStorage/FashionGame/Shared/SantaHuntConfig.lua:43
+6168e3	exact	네온 무대 위에서 루돌프랑 쉬고 있어요.	1	src/ReplicatedStorage/FashionGame/Shared/SantaHuntConfig.lua:43
+977239	exact	황금 산타	1	src/ReplicatedStorage/FashionGame/Shared/SantaHuntConfig.lua:44
+2259ff	exact	크리스마스의 주인공! 기린 키재기판 옆을 찾아보세요.	1	src/ReplicatedStorage/FashionGame/Shared/SantaHuntConfig.lua:44
 4449a0	exact	OHU 아이스크림 트럭	1	src/ReplicatedStorage/FashionGame/Shared/SnackConfig.lua:103
 4f2422	exact	아이스크림 사기	1	src/ReplicatedStorage/FashionGame/Shared/SnackConfig.lua:104
 ab0eff	exact	바닐라	1	src/ReplicatedStorage/FashionGame/Shared/SnackConfig.lua:107
@@ -644,21 +683,21 @@ c6b6d1	exact	클럽 입구	1	src/ReplicatedStorage/FashionGame/Shared/SpawnConfi
 0194c3	exact	빈 플라스틱 컵	1	src/ReplicatedStorage/FashionGame/Shared/TrashConfig.lua:24
 e2bab4	exact	구겨진 휴지	1	src/ReplicatedStorage/FashionGame/Shared/TrashConfig.lua:25
 60118c	exact	빈 과자 봉지	1	src/ReplicatedStorage/FashionGame/Shared/TrashConfig.lua:26
-ab2ab6	tmpl	🎫 DJ 이용권 1장을 받았어요! 밤(18:00~06:00)에 클럽 DJ 창에서 '🎧 DJ 시작'을 누르면 {1}분이 시작돼요.	1	src/ServerScriptService/FashionGame/ServerMain.server.lua:106
-1484bd	tmpl	지금부터 {1}분 동안 DJ예요! DJ 턴테이블 앞에서 🎵 버튼을 눌러 디제잉하세요.	1	src/ServerScriptService/FashionGame/ServerMain.server.lua:115
-bc0f54	exact	⏱ 코인 x2 부스트 1시간이 시작됐어요!	1	src/ServerScriptService/FashionGame/ServerMain.server.lua:130
-782623	tmpl	사진첩이 {1}장 늘어났어요!	1	src/ServerScriptService/FashionGame/ServerMain.server.lua:139
-c0af0e	exact	잘못된 요청입니다.	15	src/ServerScriptService/FashionGame/ServerMain.server.lua:147
-803110	exact	DJ 차례를 다음 사람에게 넘겼어요.	1	src/ServerScriptService/FashionGame/ServerMain.server.lua:192
-f22616	exact	지금 DJ 차례가 아니에요.	1	src/ServerScriptService/FashionGame/ServerMain.server.lua:194
-5524e0	exact	되돌릴 단계가 없어요.	1	src/ServerScriptService/FashionGame/ServerMain.server.lua:302
-aea147	exact	다시 할 단계가 없어요.	1	src/ServerScriptService/FashionGame/ServerMain.server.lua:302
-c45f14	exact	장바구니를 확인해 주세요.	1	src/ServerScriptService/FashionGame/ServerMain.server.lua:377
-51408e	exact	한 번에 사기를 열지 못했어요.	1	src/ServerScriptService/FashionGame/ServerMain.server.lua:393
-e5845f	exact	이 조합을 불러오지 못했어요.	1	src/ServerScriptService/FashionGame/ServerMain.server.lua:443
-6f6118	exact	저장된 코디를 찾을 수 없습니다. 이미 삭제되었을 수 있습니다.	1	src/ServerScriptService/FashionGame/ServerMain.server.lua:502
-c524ea	exact	이 코디를 불러오지 못했어요.	1	src/ServerScriptService/FashionGame/ServerMain.server.lua:516
-26addc	exact	원래 캐릭터를 아직 불러오지 못했어요.	1	src/ServerScriptService/FashionGame/ServerMain.server.lua:546
+ab2ab6	tmpl	🎫 DJ 이용권 1장을 받았어요! 밤(18:00~06:00)에 클럽 DJ 창에서 '🎧 DJ 시작'을 누르면 {1}분이 시작돼요.	1	src/ServerScriptService/FashionGame/ServerMain.server.lua:107
+1484bd	tmpl	지금부터 {1}분 동안 DJ예요! DJ 턴테이블 앞에서 🎵 버튼을 눌러 디제잉하세요.	1	src/ServerScriptService/FashionGame/ServerMain.server.lua:116
+bc0f54	exact	⏱ 코인 x2 부스트 1시간이 시작됐어요!	1	src/ServerScriptService/FashionGame/ServerMain.server.lua:131
+782623	tmpl	사진첩이 {1}장 늘어났어요!	1	src/ServerScriptService/FashionGame/ServerMain.server.lua:140
+c0af0e	exact	잘못된 요청입니다.	15	src/ServerScriptService/FashionGame/ServerMain.server.lua:148
+803110	exact	DJ 차례를 다음 사람에게 넘겼어요.	1	src/ServerScriptService/FashionGame/ServerMain.server.lua:193
+f22616	exact	지금 DJ 차례가 아니에요.	1	src/ServerScriptService/FashionGame/ServerMain.server.lua:195
+5524e0	exact	되돌릴 단계가 없어요.	1	src/ServerScriptService/FashionGame/ServerMain.server.lua:303
+aea147	exact	다시 할 단계가 없어요.	1	src/ServerScriptService/FashionGame/ServerMain.server.lua:303
+c45f14	exact	장바구니를 확인해 주세요.	1	src/ServerScriptService/FashionGame/ServerMain.server.lua:378
+51408e	exact	한 번에 사기를 열지 못했어요.	1	src/ServerScriptService/FashionGame/ServerMain.server.lua:394
+e5845f	exact	이 조합을 불러오지 못했어요.	1	src/ServerScriptService/FashionGame/ServerMain.server.lua:444
+6f6118	exact	저장된 코디를 찾을 수 없습니다. 이미 삭제되었을 수 있습니다.	1	src/ServerScriptService/FashionGame/ServerMain.server.lua:503
+c524ea	exact	이 코디를 불러오지 못했어요.	1	src/ServerScriptService/FashionGame/ServerMain.server.lua:517
+26addc	exact	원래 캐릭터를 아직 불러오지 못했어요.	1	src/ServerScriptService/FashionGame/ServerMain.server.lua:547
 e86707	exact	저장된 코디 데이터를 읽을 수 없습니다.	1	src/ServerScriptService/FashionGame/Services/AvatarService.lua:1554
 3298e4	exact	코디를 복원하지 못했습니다. 이전 모습은 그대로입니다.	1	src/ServerScriptService/FashionGame/Services/AvatarService.lua:1566
 d196a6	exact	복원 중 오류가 발생했습니다. 현재 아바타를 다시 불러와 확인해 주세요.	1	src/ServerScriptService/FashionGame/Services/AvatarService.lua:1567
@@ -959,22 +998,22 @@ b88e72	exact	사진은 처음 찍기를 시작한 사람이 골라요.	1	src/Ser
 b42434	exact	사진을 찾을 수 없어요.	2	src/ServerScriptService/FashionGame/Services/PhotoBoothService.lua:988
 9b8761	exact	이미 가방에 있는 사진이에요.	1	src/ServerScriptService/FashionGame/Services/PhotoBoothService.lua:991
 b62cba	exact	가방을 찾을 수 없어요.	1	src/ServerScriptService/FashionGame/Services/PhotoBoothService.lua:998
-79aa0a	exact	Studio API 접근이 꺼져 있어 이번 접속 동안만 유지됩니다.	1	src/ServerScriptService/FashionGame/Services/PlayerDataService.lua:297
-62d9d5	exact	저장 데이터를 불러오지 못해 이번 접속 동안만 유지됩니다.	1	src/ServerScriptService/FashionGame/Services/PlayerDataService.lua:298
-69fc13	exact	저장할 수 없는 데이터입니다.	1	src/ServerScriptService/FashionGame/Services/PlayerDataService.lua:414
-71fec7	exact	저장 데이터가 너무 큽니다.	1	src/ServerScriptService/FashionGame/Services/PlayerDataService.lua:417
-28fd21	exact	저장소에 기록하지 못했습니다. 잠시 후 다시 시도하세요.	1	src/ServerScriptService/FashionGame/Services/PlayerDataService.lua:447
-4397f3	exact	이름을 입력하세요.	5	src/ServerScriptService/FashionGame/Services/PlayerDataService.lua:456
-55b4e3	tmpl	이름은 {1}자 이하로 입력하세요.	2	src/ServerScriptService/FashionGame/Services/PlayerDataService.lua:466
-4a8555	exact	현재 외형을 읽지 못했습니다.	1	src/ServerScriptService/FashionGame/Services/PlayerDataService.lua:469
-688d9d	exact	이전 저장이 아직 진행 중입니다.	3	src/ServerScriptService/FashionGame/Services/PlayerDataService.lua:473
-075726	tmpl	옷장이 가득 찼습니다 ({1}개). 기존 코디를 삭제하세요.	2	src/ServerScriptService/FashionGame/Services/PlayerDataService.lua:476
-d8b4c1	exact	이미 삭제된 코디입니다.	2	src/ServerScriptService/FashionGame/Services/PlayerDataService.lua:520
-0b7c8d	exact	사진 데이터가 올바르지 않아요.	1	src/ServerScriptService/FashionGame/Services/PlayerDataService.lua:670
-f2b63d	exact	이전 저장이 아직 진행 중이에요. 잠시 후 다시 시도하세요.	1	src/ServerScriptService/FashionGame/Services/PlayerDataService.lua:674
-506409	tmpl	사진첩이 가득 찼어요 ({1}장). 사진첩에서 지우거나 포토월에 붙인 뒤 다시 저장하세요.	1	src/ServerScriptService/FashionGame/Services/PlayerDataService.lua:677
-4d261d	exact	이전 저장이 아직 진행 중이에요.	2	src/ServerScriptService/FashionGame/Services/PlayerDataService.lua:702
-34b12c	exact	이미 지운 사진이에요.	1	src/ServerScriptService/FashionGame/Services/PlayerDataService.lua:708
+79aa0a	exact	Studio API 접근이 꺼져 있어 이번 접속 동안만 유지됩니다.	1	src/ServerScriptService/FashionGame/Services/PlayerDataService.lua:301
+62d9d5	exact	저장 데이터를 불러오지 못해 이번 접속 동안만 유지됩니다.	1	src/ServerScriptService/FashionGame/Services/PlayerDataService.lua:302
+69fc13	exact	저장할 수 없는 데이터입니다.	1	src/ServerScriptService/FashionGame/Services/PlayerDataService.lua:418
+71fec7	exact	저장 데이터가 너무 큽니다.	1	src/ServerScriptService/FashionGame/Services/PlayerDataService.lua:421
+28fd21	exact	저장소에 기록하지 못했습니다. 잠시 후 다시 시도하세요.	1	src/ServerScriptService/FashionGame/Services/PlayerDataService.lua:451
+4397f3	exact	이름을 입력하세요.	5	src/ServerScriptService/FashionGame/Services/PlayerDataService.lua:460
+55b4e3	tmpl	이름은 {1}자 이하로 입력하세요.	2	src/ServerScriptService/FashionGame/Services/PlayerDataService.lua:470
+4a8555	exact	현재 외형을 읽지 못했습니다.	1	src/ServerScriptService/FashionGame/Services/PlayerDataService.lua:473
+688d9d	exact	이전 저장이 아직 진행 중입니다.	3	src/ServerScriptService/FashionGame/Services/PlayerDataService.lua:477
+075726	tmpl	옷장이 가득 찼습니다 ({1}개). 기존 코디를 삭제하세요.	2	src/ServerScriptService/FashionGame/Services/PlayerDataService.lua:480
+d8b4c1	exact	이미 삭제된 코디입니다.	2	src/ServerScriptService/FashionGame/Services/PlayerDataService.lua:524
+0b7c8d	exact	사진 데이터가 올바르지 않아요.	1	src/ServerScriptService/FashionGame/Services/PlayerDataService.lua:674
+f2b63d	exact	이전 저장이 아직 진행 중이에요. 잠시 후 다시 시도하세요.	1	src/ServerScriptService/FashionGame/Services/PlayerDataService.lua:678
+506409	tmpl	사진첩이 가득 찼어요 ({1}장). 사진첩에서 지우거나 포토월에 붙인 뒤 다시 저장하세요.	1	src/ServerScriptService/FashionGame/Services/PlayerDataService.lua:681
+4d261d	exact	이전 저장이 아직 진행 중이에요.	2	src/ServerScriptService/FashionGame/Services/PlayerDataService.lua:706
+34b12c	exact	이미 지운 사진이에요.	1	src/ServerScriptService/FashionGame/Services/PlayerDataService.lua:712
 8393de	exact	눌러서 뚜껑 열기	1	src/ServerScriptService/FashionGame/Services/RamenCup.lua:159
 97bcf7	exact	편의점 온수기를 눌러 물 붓기	1	src/ServerScriptService/FashionGame/Services/RamenCup.lua:207
 f31607	exact	뚜껑을 열었어요. 편의점 온수기를 눌러 뜨거운 물을 부어 주세요.	1	src/ServerScriptService/FashionGame/Services/RamenCup.lua:210
@@ -989,6 +1028,7 @@ e034e9	exact	이미 물을 부었어요.	1	src/ServerScriptService/FashionGame/S
 a4ff6e	exact	다 익었어요! 눌러서 열기	1	src/ServerScriptService/FashionGame/Services/RamenCup.lua:283
 f7a557	exact	👑 싫어요가 많아 오늘의 큰손 전광판에서 내 아바타가 가려지고 이름만 보여요. 코디를 바꾸면 표가 새로 시작돼요.	1	src/ServerScriptService/FashionGame/Services/RankingService.lua:384
 d9c057	exact	💝 싫어요가 많아 실시간 후원 전광판에서 내 아바타가 가려지고 이름만 보여요. 코디를 바꾸면 표가 새로 시작돼요.	1	src/ServerScriptService/FashionGame/Services/RankingService.lua:389
+a9ea01	exact	산타 찾기	1	src/ServerScriptService/FashionGame/Services/SantaHuntService.lua:89
 e8005e	exact	조각	1	src/ServerScriptService/FashionGame/Services/SnackService.lua:1400
 0389dc	exact	점	1	src/ServerScriptService/FashionGame/Services/SnackService.lua:1400
 4dc92a	tmpl	손에 {1}개까지 들 수 있어요. 먼저 드세요!	2	src/ServerScriptService/FashionGame/Services/SnackService.lua:1406
@@ -1419,34 +1459,34 @@ d43ab3	tmpl	🔗 {1}님과 같이 추기 · 상대가 쉬는 중	1	src/StarterPl
 1f99c0	tmpl	♪ 안무 · {1}	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/DanceController.client.lua:786
 f23a56	exact	님과	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/DanceController.client.lua:790
 03573f	tmpl	{1}님 기다리는 중	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/DanceController.client.lua:794
-7ac975	exact	🎵 오늘의 곡 도전	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/DanceScoreController.client.lua:104
-cfba8a	exact	오늘의 곡 도전 · 광장 네온 무대	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/DanceScoreController.client.lua:120
-4d6c12	exact	표시가 아래 선에 닿을 때 같은 버튼을 눌러요 (PC: D F J K)	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/DanceScoreController.client.lua:124
-0e9d96	exact	도전 시작	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/DanceScoreController.client.lua:130
-3df3c5	exact	X  그만하기	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/DanceScoreController.client.lua:143
-32f1b2	exact	최대 콤보	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/DanceScoreController.client.lua:191
-be2d0c	exact	다시 도전	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/DanceScoreController.client.lua:201
-a17a58	tmpl	{1} 콤보	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/DanceScoreController.client.lua:338
-feb964	tmpl	 · 오로라 {1}단계!	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/DanceScoreController.client.lua:338
-0de1d7	exact	🎉 내 최고 기록!	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/DanceScoreController.client.lua:473
-eceaef	tmpl	오늘 {1}위	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/DanceScoreController.client.lua:474
-05721e	tmpl	내 최고 {1}점	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/DanceScoreController.client.lua:475
-fea86f	tmpl	+{1} 코인	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/DanceScoreController.client.lua:476
-3c2c5a	exact	점수를 서버에 남기지 못했어요	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/DanceScoreController.client.lua:479
-455926	exact	지금은 도전할 수 없어요.	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/DanceScoreController.client.lua:497
-59d13d	exact	무대에서 내려가서 도전이 끝났어요.	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/DanceScoreController.client.lua:567
-1dbfbf	tmpl	{1} · 약 {2}분 · 전체 {3} 콤보 · {4} 콤보부터 오로라	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/DanceScoreController.client.lua:630
-15c147	tmpl	오늘 내 최고 {1}점 · 1~3위는 하루 칭호	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/DanceScoreController.client.lua:633
-ec4b54	exact	오늘의 TOP 10 · 1~3위는 하루 칭호 · 첫 도전 +	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/DanceScoreController.client.lua:634
-2d45ce	exact	 코인	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/DanceScoreController.client.lua:634
-3eafaf	exact	🎵 오늘의 곡에 도전하세요!	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/DanceScoreController.client.lua:659
-13bda4	tmpl	 · {1}콤보	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/DanceScoreController.client.lua:717
-7f1906	exact	첫 1위를 기다려요	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/DanceScoreController.client.lua:717
-79bde1	tmpl	  ·  {1}콤보	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/DanceScoreController.client.lua:724
-04e3a1	exact	오늘의 1위	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/DanceScoreController.client.lua:742
-4b4236	exact	오늘의 TOP 10	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/DanceScoreController.client.lua:748
-0bd2f5	exact	네온 무대에서\n🎵 오늘의 곡 도전	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/DanceScoreController.client.lua:751
-78056b	exact	아직 기록이 없어요. 첫 1위가 되어 보세요!	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/DanceScoreController.client.lua:753
+7ac975	exact	🎵 오늘의 곡 도전	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/DanceScoreController.client.lua:118
+cfba8a	exact	오늘의 곡 도전 · 광장 네온 무대	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/DanceScoreController.client.lua:146
+d62aea	exact	표시가 아래 선에 닿을 때 같은 버튼을 눌러요 (PC: A S D F)	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/DanceScoreController.client.lua:150
+0e9d96	exact	도전 시작	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/DanceScoreController.client.lua:156
+3df3c5	exact	X  그만하기	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/DanceScoreController.client.lua:169
+32f1b2	exact	최대 콤보	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/DanceScoreController.client.lua:223
+be2d0c	exact	다시 도전	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/DanceScoreController.client.lua:233
+a17a58	tmpl	{1} 콤보	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/DanceScoreController.client.lua:389
+feb964	tmpl	 · 오로라 {1}단계!	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/DanceScoreController.client.lua:389
+0de1d7	exact	🎉 내 최고 기록!	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/DanceScoreController.client.lua:567
+eceaef	tmpl	오늘 {1}위	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/DanceScoreController.client.lua:568
+05721e	tmpl	내 최고 {1}점	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/DanceScoreController.client.lua:569
+fea86f	tmpl	+{1} 코인	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/DanceScoreController.client.lua:570
+3c2c5a	exact	점수를 서버에 남기지 못했어요	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/DanceScoreController.client.lua:573
+455926	exact	지금은 도전할 수 없어요.	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/DanceScoreController.client.lua:591
+59d13d	exact	무대에서 내려가서 도전이 끝났어요.	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/DanceScoreController.client.lua:663
+1dbfbf	tmpl	{1} · 약 {2}분 · 전체 {3} 콤보 · {4} 콤보부터 오로라	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/DanceScoreController.client.lua:785
+15c147	tmpl	오늘 내 최고 {1}점 · 1~3위는 하루 칭호	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/DanceScoreController.client.lua:788
+ec4b54	exact	오늘의 TOP 10 · 1~3위는 하루 칭호 · 첫 도전 +	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/DanceScoreController.client.lua:789
+2d45ce	exact	 코인	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/DanceScoreController.client.lua:789
+3eafaf	exact	🎵 오늘의 곡에 도전하세요!	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/DanceScoreController.client.lua:814
+13bda4	tmpl	 · {1}콤보	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/DanceScoreController.client.lua:872
+7f1906	exact	첫 1위를 기다려요	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/DanceScoreController.client.lua:872
+79bde1	tmpl	  ·  {1}콤보	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/DanceScoreController.client.lua:879
+04e3a1	exact	오늘의 1위	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/DanceScoreController.client.lua:897
+4b4236	exact	오늘의 TOP 10	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/DanceScoreController.client.lua:903
+0bd2f5	exact	네온 무대에서\n🎵 오늘의 곡 도전	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/DanceScoreController.client.lua:906
+78056b	exact	아직 기록이 없어요. 첫 1위가 되어 보세요!	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/DanceScoreController.client.lua:908
 e2a92e	exact	DJ 시간을 더 사요. 기다리는 사람이 있으면 연장 대신 대기 순서에 들어가요.	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/DjHelp.lua:17
 e84cee	exact	지금 곡을 넘기고 다음 곡을 틀어요.	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/DjHelp.lua:18
 61b934	exact	아래 목록이 사람 목록으로 바뀌어요. 초대한 사람만 DJ 존(무대)에 올라올 수 있어요.	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/DjHelp.lua:19
@@ -1606,6 +1646,7 @@ d8165c	tmpl	장바구니 보기 ({1})	1	src/StarterPlayer/StarterPlayerScripts/F
 0cbc92	exact	판매하지 않는 아이템	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/ItemDetail.lua:70
 61b761	exact	🎢 환호성 · 폭죽 소리	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/MenuController.client.lua:111
 4a29e8	exact	👁 UI 숨기기	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/MenuController.client.lua:119
+60a354	exact	🎅 미니 산타 앨범	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/MenuController.client.lua:143
 1fdc5e	exact	확인	2	src/StarterPlayer/StarterPlayerScripts/FashionGame/MessagePrompt.lua:104
 a08356	tmpl	모두의 화면 위에 내 이름과 이 한마디가 떠요.{1}	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/MessagePrompt.lua:144
 8633a2	tmpl	\n[Studio 테스트] 결제 없이 {1} R$ 상품을 시험해요.	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/MessagePrompt.lua:145
@@ -1771,8 +1812,20 @@ b267fc	tmpl	✨ "{1}" 입었어요!	1	src/StarterPlayer/StarterPlayerScripts/Fas
 ce074b	exact	지금은 입을 수 없어요.	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/RecommendedLooksView.lua:72
 ecc8a0	exact	이미 전부 가지고 있어요!	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/RecommendedLooksView.lua:91
 bcf88b	exact	짜잔! 🎉	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/RewardReveal.lua:124
-475ac3	exact	모두에게 보이는 내 이름 위에 칭호가 생겼어요 👑	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/RewardReveal.lua:143
-71961e	exact	오후네컷에 가서 확인해 보세요 📸	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/RewardReveal.lua:159
+97caf2	tmpl	{1}를 찾았어요!	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/RewardReveal.lua:158
+332d8d	exact	산타	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/RewardReveal.lua:158
+947238	exact	산타 도감에 쏙! 🎅 버튼에서 인형으로 들 수 있어요	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/RewardReveal.lua:159
+475ac3	exact	모두에게 보이는 내 이름 위에 칭호가 생겼어요 👑	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/RewardReveal.lua:169
+71961e	exact	오후네컷에 가서 확인해 보세요 📸	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/RewardReveal.lua:185
+838258	exact	찾은 산타를 누르면 인형으로 들 수 있어요 🧸	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/SantaHuntController.client.lua:101
+22221d	tmpl	🧸 {1} 인형을 들었어요!	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/SantaHuntController.client.lua:147
+a69e16	tmpl	찾은 산타<br/><font size="22" color="#D62C40">{1}</font> / {2}	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/SantaHuntController.client.lua:157
+9663ba	tmpl	오늘의 산타 ({1}): {2}	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/SantaHuntController.client.lua:159
+0e8c60	exact	이벤트가 끝났어요. 찾은 산타는 언제든 인형으로 들 수 있어요!	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/SantaHuntController.client.lua:161
+d727a0	tmpl	{1}부터 매일 한 명씩 산타가 숨어요!	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/SantaHuntController.client.lua:163
+133974	exact	오늘!	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/SantaHuntController.client.lua:171
+d6c374	tmpl	🎅 오늘의 산타: {1}	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/SantaHuntController.client.lua:246
+338892	exact	OHU CHRISTMAS · 매일 한 명씩 숨어 있어요	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/SantaHuntController.client.lua:75
 1f4534	tmpl	💰 {1} 코인 · R$ {2}	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/ShopMenuUI.lua:132
 54a8d9	exact	🔒 개발 중이에요	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/ShopMenuUI.lua:174
 88ea76	exact	🔒 준비 중	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/ShopMenuUI.lua:175
