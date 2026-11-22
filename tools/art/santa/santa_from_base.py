@@ -75,8 +75,8 @@ def finish(o, color, sub=2):
     return o
 
 
-def sphere(loc, scale, color, rot=(0, 0, 0), sub=1):
-    bpy.ops.mesh.primitive_uv_sphere_add(segments=16, ring_count=8, radius=1, location=loc, rotation=rot)
+def sphere(loc, scale, color, rot=(0, 0, 0), sub=1, seg=16):
+    bpy.ops.mesh.primitive_uv_sphere_add(segments=seg, ring_count=max(4, seg // 2), radius=1, location=loc, rotation=rot)
     o = bpy.context.active_object
     o.scale = scale
     return finish(o, color, sub)
@@ -124,16 +124,18 @@ def prep_base():
         names = [m.name for m in o.data.materials if m]
         if "red" in names and "white" in names:
             hat = o
-        if not any(m.type == "SUBSURF" for m in o.modifiers):
-            small = max(o.dimensions) < 0.3
+        if o is not hat and len(o.data.polygons) > 400 and max(o.dimensions) > 1.3 and "red" in names and len(names) == 2:
+            hat = o
+        # (D-2018, user 2026-11-22: "산타 몸 매끈하지 않아도 됨. 모자도 폴리곤 줄일 수 있으면 줄여") lighter:
+        # one Subdivision step on the big shapes, none on the small ones and none on the hat (smooth shading only)
+        for m in list(o.modifiers):
+            if m.type == "SUBSURF":
+                o.modifiers.remove(m)
+        small = max(o.dimensions) < 0.3
+        if o is not hat and not small:
             mod = o.modifiers.new("sub", "SUBSURF")
-            mod.levels = 1 if small else 2
-            mod.render_levels = mod.levels
-        else:
-            for m in o.modifiers:
-                if m.type == "SUBSURF" and max(o.dimensions) >= 0.3:
-                    m.levels = 2
-                    m.render_levels = 2
+            mod.levels = 1
+            mod.render_levels = 1
         for p in o.data.polygons:
             p.use_smooth = True
     return hat
@@ -308,8 +310,8 @@ def _(hat):
         a0 = rnd.uniform(0, 1.2)
         for i in range(5):
             a = a0 + i * 2 * math.pi / 5
-            sphere(p + (t1 * math.cos(a) + t2 * math.sin(a)) * 0.075, (0.06, 0.06, 0.04), "white", sub=0)
-        sphere(p + n * 0.02, (0.04, 0.04, 0.04), "yellow", sub=0)
+            sphere(p + (t1 * math.cos(a) + t2 * math.sin(a)) * 0.075, (0.06, 0.06, 0.04), "white", sub=0, seg=6)
+        sphere(p + n * 0.02, (0.04, 0.04, 0.04), "yellow", sub=0, seg=6)
     box((0, FACE_Y - 0.03, EYES_Z), (0.62, 0.06, 0.14), "black")
     box((1.5, 0.35, 1.2), (0.6, 0.12, 2.4), "teal", rot=(0, math.radians(-8), 0), bevel=0.25)
 
@@ -376,12 +378,13 @@ def _(hat):
         d = Vector((math.sin(ang), 0, math.cos(ang)))
         cone(base + d * 0.3, 0.15, 0.02, 0.6, "cream", rot=(0, ang, 0))
     # (D-2017, user: "수염에 세모 두 개로 만든 리본 두 개") two bows on the beard, each two triangles tip to tip
-    for s in (-1, 1):
-        ctr = Vector((0.3 * s, -1.03, 1.3))
+    # (D-2018, user: "리본 크기 조금 줄이고 위 아래로 정렬") smaller, one above the other on the beard's front
+    for (y, z) in ((-0.96, 1.58), (-1.04, 1.32)):   # (on the beard's front; a ray cast here was fooled by the first bow)
+        ctr = Vector((0, y, z))
         for side in (-1, 1):
             # a flat triangle (3-sided cylinder, axis front-back), its tip pointing to the knot
-            cyl(ctr + Vector((0.17 * side, 0, 0)), 0.2, 0.07, "red", rot=(math.radians(90), math.radians(-90 if side > 0 else 90), 0), verts=3, bevel=0.025)
-        sphere(ctr + Vector((0, -0.04, 0)), (0.07, 0.05, 0.07), "red", sub=0)
+            cyl(ctr + Vector((0.12 * side, 0, 0)), 0.14, 0.06, "red", rot=(math.radians(90), math.radians(-90 if side > 0 else 90), 0), verts=3, bevel=0.02)
+        sphere(ctr + Vector((0, -0.03, 0)), (0.05, 0.04, 0.05), "red", sub=0, seg=8)
 
 @look("rudolph")
 def _(hat):
