@@ -92,6 +92,13 @@ def cyl(loc, radius, depth, color, rot=(0, 0, 0), verts=24, bevel=0.0):
     return finish(o, color, 0)
 
 
+def disc(loc, radius, normal, color, verts=10):
+    """(D-2019) a flat round piece facing `normal` (flower petals, badges, eyes): a thin 10-sided cylinder"""
+    rot = Vector(normal).normalized().to_track_quat("Z", "Y").to_euler()
+    bpy.ops.mesh.primitive_cylinder_add(vertices=verts, radius=radius, depth=0.012, location=loc, rotation=rot)
+    return finish(bpy.context.active_object, color, 0)
+
+
 def box(loc, size, color, rot=(0, 0, 0), bevel=0.04):
     bpy.ops.mesh.primitive_cube_add(size=1, location=loc, rotation=rot)
     o = bpy.context.active_object
@@ -310,8 +317,8 @@ def _(hat):
         a0 = rnd.uniform(0, 1.2)
         for i in range(5):
             a = a0 + i * 2 * math.pi / 5
-            sphere(p + (t1 * math.cos(a) + t2 * math.sin(a)) * 0.075, (0.06, 0.06, 0.04), "white", sub=0, seg=6)
-        sphere(p + n * 0.02, (0.04, 0.04, 0.04), "yellow", sub=0, seg=6)
+            disc(p + (t1 * math.cos(a) + t2 * math.sin(a)) * 0.07, 0.055, n, "white", verts=8)   # (D-2019: flat petals)
+        disc(p + n * 0.01, 0.04, n, "yellow", verts=8)
     box((0, FACE_Y - 0.03, EYES_Z), (0.62, 0.06, 0.14), "black")
     box((1.5, 0.35, 1.2), (0.6, 0.12, 2.4), "teal", rot=(0, math.radians(-8), 0), bevel=0.25)
 
@@ -337,7 +344,7 @@ def _(hat):
     remove_hat(hat)
     capdome("navy", "black")
     torus((0, 0.02, HEAD_TOP - 0.2), 0.62, 0.06, "green")
-    sphere((0, FACE_Y - 0.06, HEAD_TOP - 0.05), (0.1, 0.04, 0.1), "gold")
+    disc((0, FACE_Y - 0.07, HEAD_TOP - 0.05), 0.1, (0, -1, 0.15), "gold")   # (D-2019: a flat badge)
     cyl((0.25, -0.98, 1.55), 0.05, 0.25, "gold", rot=(0, math.radians(90), 0))
     car = Vector((0, -1.08, 1.05))
     box(car, (1.75, 0.46, 0.5), "white", bevel=0.12)
@@ -384,7 +391,7 @@ def _(hat):
         for side in (-1, 1):
             # a flat triangle (3-sided cylinder, axis front-back), its tip pointing to the knot
             cyl(ctr + Vector((0.12 * side, 0, 0)), 0.14, 0.06, "red", rot=(math.radians(90), math.radians(-90 if side > 0 else 90), 0), verts=3, bevel=0.02)
-        sphere(ctr + Vector((0, -0.03, 0)), (0.05, 0.04, 0.05), "red", sub=0, seg=8)
+        # (D-2019, user: "리본 가운데 동그라미 삭제") no knot ball
 
 @look("rudolph")
 def _(hat):
@@ -393,7 +400,7 @@ def _(hat):
     sphere(o + Vector((0, -0.6, 1.5)), (0.38, 0.4, 0.38), "deer")
     sphere(o + Vector((0, -0.98, 1.45)), (0.12, 0.12, 0.12), "rednose")
     for s in (-1, 1):
-        sphere(o + Vector((0.14 * s, -0.9, 1.6)), (0.04, 0.03, 0.04), "black", sub=0)
+        disc(o + Vector((0.14 * s, -0.93, 1.6)), 0.045, (0.25 * s, -1, 0.1), "black")   # (D-2019: flat eyes)
         cyl(o + Vector((0.2 * s, -0.5, 2.0)), 0.04, 0.5, "brown", rot=(0, math.radians(25 * s), 0))
         for z in (-0.4, 0.4):
             cyl(o + Vector((0.25 * s, z, 0.25)), 0.09, 0.5, "deer")
