@@ -198,13 +198,13 @@ local function lookCard(index: number, look: any)
 	if look.rec and not look.snapshot then
 		-- a Marketplace look: its outfit picture (the same as on the look's page)
 		corner(make("ImageLabel", {
-			Name = "Thumbnail", Position = UDim2.fromOffset(5, 5), Size = UDim2.new(1, -10, 1, -110),
+			Name = "Thumbnail", Position = UDim2.fromOffset(5, 5), Size = UDim2.new(1, -10, 1, -88),
 			BackgroundColor3 = COLORS.thumb, BorderSizePixel = 0, ScaleType = Enum.ScaleType.Fit,
 			Image = string.format("rbxthumb://type=Outfit&id=%d&w=420&h=420", look.outfitId),
 		}, content), 6)
 	else
 		local vp = make("ViewportFrame", {
-			Name = "Thumbnail", Position = UDim2.fromOffset(5, 5), Size = UDim2.new(1, -10, 1, -110),
+			Name = "Thumbnail", Position = UDim2.fromOffset(5, 5), Size = UDim2.new(1, -10, 1, -88),
 			BackgroundColor3 = COLORS.thumb, BorderSizePixel = 0, Ambient = Color3.fromRGB(200, 200, 200),
 			LightColor = Color3.fromRGB(255, 255, 255), LightDirection = Vector3.new(-0.3, -1, -0.6),
 		}, content) :: ViewportFrame
@@ -213,7 +213,7 @@ local function lookCard(index: number, look: any)
 	end
 	-- (D-1991) the picture and the name put the look on, like the item cards
 	local wearArea = make("TextButton", {
-		Name = "WearArea", Position = UDim2.fromOffset(0, 0), Size = UDim2.new(1, 0, 1, -62),
+		Name = "WearArea", Position = UDim2.fromOffset(0, 0), Size = UDim2.new(1, 0, 1, -58),
 		BackgroundTransparency = 1, Text = "", AutoButtonColor = false,
 	}, content) :: TextButton
 	wearArea.MouseButton1Click:Connect(function() wear(look, nil) end)
@@ -260,7 +260,7 @@ local function lookCard(index: number, look: any)
 		end)
 	end
 	if look.hidden and isOwner then
-		local un = button(content, { Name = "UnhideButton", Text = "숨김 풀기", Position = UDim2.new(0, 9, 1, -140), Size = UDim2.new(1, -18, 0, 24) })
+		local un = button(content, { Name = "UnhideButton", Text = "숨김 풀기", Position = UDim2.new(0, 9, 0, 38), Size = UDim2.new(1, -18, 0, 24) })
 		un.MouseButton1Click:Connect(function()
 			local ok, done = pcall(function() return Remote:InvokeServer("Unhide", look.key) end)
 			c.showToast(if ok and done then "다시 보이게 했어요." else "지금은 할 수 없어요.")
@@ -271,17 +271,17 @@ local function lookCard(index: number, look: any)
 		end)
 	end
 	make("TextLabel", {
-		Name = "Name", Position = UDim2.new(0, 6, 1, -102), Size = UDim2.new(1, -12, 0, 22), BackgroundTransparency = 1,
+		Name = "Name", Position = UDim2.new(0, 6, 1, -80), Size = UDim2.new(1, -12, 0, 22), BackgroundTransparency = 1,
 		Text = look.title, TextColor3 = COLORS.text, TextSize = 17, Font = Enum.Font.GothamMedium,
 		TextTruncate = Enum.TextTruncate.AtEnd, TextXAlignment = Enum.TextXAlignment.Left,
 	}, content)
 	make("TextLabel", {
-		Name = "By", Position = UDim2.new(0, 6, 1, -80), Size = UDim2.new(1, -12, 0, 16), BackgroundTransparency = 1,
+		Name = "By", Position = UDim2.new(0, 6, 1, -56), Size = UDim2.new(0.6, -6, 0, 18), BackgroundTransparency = 1,
 		Text = if look.rec then "★ 추천 코디" else "by " .. tostring(look.name), TextColor3 = if look.rec then COLORS.liked else COLORS.sub, TextSize = 13, Font = Enum.Font.GothamMedium,
 		TextTruncate = Enum.TextTruncate.AtEnd, TextXAlignment = Enum.TextXAlignment.Left,
 	}, content)
 	local likeButton = if look.rec then nil else button(content, {
-		Name = "LikeButton", Position = UDim2.new(0, 6, 1, -60), Size = UDim2.new(0.42, -6, 0, 24), Text = likeText(look),
+		Name = "LikeButton", Position = UDim2.new(0, 9, 1, -115), Size = UDim2.fromOffset(52, 24), Text = likeText(look),
 		TextColor3 = if look.liked then COLORS.liked else COLORS.text,
 	})
 	if likeButton then likeButton.MouseButton1Click:Connect(function()
@@ -297,7 +297,7 @@ local function lookCard(index: number, look: any)
 		end
 	end) end
 	make("TextLabel", {
-		Name = "Price", Position = UDim2.new(0.42, 4, 1, -60), Size = UDim2.new(0.58, -10, 0, 24), BackgroundTransparency = 1,
+		Name = "Price", Position = UDim2.new(0.6, 0, 1, -56), Size = UDim2.new(0.4, -6, 0, 18), BackgroundTransparency = 1,
 		Text = "R$ " .. tostring(look.price), TextColor3 = COLORS.sub, TextSize = 13,
 		Font = Enum.Font.GothamMedium, TextXAlignment = Enum.TextXAlignment.Right, TextTruncate = Enum.TextTruncate.AtEnd,
 	}, content)
@@ -359,7 +359,7 @@ function View.openDetail(look: any)
 		Text = "R$ " .. tostring(look.price), TextColor3 = COLORS.sub, TextSize = 13, Font = Enum.Font.GothamBold,
 		TextXAlignment = Enum.TextXAlignment.Right,
 	}, box)
-	local close = button(box, { Name = "CloseButton", Text = "✕", TextSize = 16, Position = UDim2.new(1, -42, 0, 10), Size = UDim2.fromOffset(32, 30) })
+	local close = button(box, { Name = "CloseButton", Text = "×", TextSize = 16, Position = UDim2.new(1, -42, 0, 10), Size = UDim2.fromOffset(32, 30) })
 	close.MouseButton1Click:Connect(closeDetail)
 	local list = make("ScrollingFrame", {
 		Name = "Items", Position = UDim2.fromOffset(10, 58), Size = UDim2.new(1, -20, 1, -114), BackgroundTransparency = 1,
@@ -500,20 +500,15 @@ end
 -- the grid
 --------------------------------------------------
 local function controlCard()
+	-- (D-1991) no header (the strip says 코디): [추천] [최신] / [인기] (+ [숨김]) on top, 📤 below (phone cards are small)
 	local content = shell(0, "CommunityControl")
-	make("TextLabel", {
-		Name = "Header", Position = UDim2.fromOffset(8, 8), Size = UDim2.new(1, -16, 0, 22), BackgroundTransparency = 1,
-		Text = "유저 코디", TextColor3 = COLORS.text, TextSize = 17, Font = Enum.Font.GothamBold,
-		TextXAlignment = Enum.TextXAlignment.Left,
-	}, content)
-	-- (D-1991) 추천 first; two a row
 	local sorts = { { "Picks", "추천" }, { "New", "최신" }, { "Top", "인기" } }
 	if isOwner then table.insert(sorts, { "Hidden", "숨김" }) end
 	for i, entry in ipairs(sorts) do
 		local col, row = (i - 1) % 2, math.floor((i - 1) / 2)
 		local b = button(content, {
-			Name = "Sort_" .. entry[1], Text = entry[2], Position = UDim2.new(0.5 * col, if col == 0 then 8 else 3, 0, 34 + row * 30),
-			Size = UDim2.new(0.5, -11, 0, 26),
+			Name = "Sort_" .. entry[1], Text = entry[2], Position = UDim2.new(0.5 * col, if col == 0 then 6 else 2, 0, 6 + row * 30),
+			Size = UDim2.new(0.5, -8, 0, 26),
 			BackgroundColor3 = if sort == entry[1] then COLORS.on else COLORS.off,
 		})
 		b.MouseButton1Click:Connect(function()
@@ -523,15 +518,10 @@ local function controlCard()
 		end)
 	end
 	local post = button(content, {
-		Name = "PostButton", Position = UDim2.fromOffset(8, 96), Size = UDim2.new(1, -16, 1, -134),
-		BackgroundColor3 = COLORS.wear, Text = "📤\n내 코디\n올리기", TextSize = 17, TextWrapped = true,
+		Name = "PostButton", Position = UDim2.fromOffset(6, 68), Size = UDim2.new(1, -12, 1, -74),
+		BackgroundColor3 = COLORS.wear, Text = "📤\n내 코디\n올리기", TextSize = 16, TextWrapped = true,
 	})
 	post.MouseButton1Click:Connect(openPost)
-	make("TextLabel", {
-		Name = "Hint", Position = UDim2.new(0, 8, 1, -34), Size = UDim2.new(1, -16, 0, 28), BackgroundTransparency = 1,
-		Text = "지금 입은 옷이 올라가요", TextColor3 = COLORS.sub, TextSize = 12, Font = Enum.Font.GothamMedium,
-		TextWrapped = true,
-	}, content)
 end
 
 -- a card with a line of text (loading, nothing yet, errors): the results message would cover the control card

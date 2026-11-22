@@ -1433,18 +1433,16 @@ f20bd9	exact	올리기	2	src/StarterPlayer/StarterPlayerScripts/FashionGame/Comm
 cb74de	exact	올리는 중...	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/CommunityLooksView.lua:481
 6b8a6b	exact	코디를 올렸어요!	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/CommunityLooksView.lua:490
 f1fe01	exact	올리지 못했어요.	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/CommunityLooksView.lua:494
-7d90ce	exact	유저 코디	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/CommunityLooksView.lua:506
-033b6c	exact	추천	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/CommunityLooksView.lua:510
-f8c22d	exact	최신	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/CommunityLooksView.lua:510
-8412e2	exact	숨김	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/CommunityLooksView.lua:511
-9baa12	exact	📤\n내 코디\n올리기	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/CommunityLooksView.lua:527
-32af27	exact	지금 입은 옷이 올라가요	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/CommunityLooksView.lua:532
-bd12bb	exact	코디를 불러오지 못했어요.	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/CommunityLooksView.lua:553
-82dad7	exact	숨긴 코디가 없어요.	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/CommunityLooksView.lua:562
-5f0b87	exact	아직 올라온 코디가 없어요. 첫 코디를 올려 보세요!	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/CommunityLooksView.lua:562
-70fdbd	exact	더 보기	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/CommunityLooksView.lua:567
-ba5bdb	exact	추천 조합이 아직 없어요.	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/CommunityLooksView.lua:597
-771bc3	exact	불러오는 중...	4	src/StarterPlayer/StarterPlayerScripts/FashionGame/CommunityLooksView.lua:611
+033b6c	exact	추천	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/CommunityLooksView.lua:505
+f8c22d	exact	최신	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/CommunityLooksView.lua:505
+8412e2	exact	숨김	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/CommunityLooksView.lua:506
+9baa12	exact	📤\n내 코디\n올리기	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/CommunityLooksView.lua:522
+bd12bb	exact	코디를 불러오지 못했어요.	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/CommunityLooksView.lua:543
+82dad7	exact	숨긴 코디가 없어요.	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/CommunityLooksView.lua:552
+5f0b87	exact	아직 올라온 코디가 없어요. 첫 코디를 올려 보세요!	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/CommunityLooksView.lua:552
+70fdbd	exact	더 보기	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/CommunityLooksView.lua:557
+ba5bdb	exact	추천 조합이 아직 없어요.	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/CommunityLooksView.lua:587
+771bc3	exact	불러오는 중...	4	src/StarterPlayer/StarterPlayerScripts/FashionGame/CommunityLooksView.lua:601
 d7e10c	exact	쉬는 중	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/DanceController.client.lua:1023
 09fa1c	exact	지금은 춤을 쉬는 중	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/DanceController.client.lua:1188
 88caf0	exact	같이 추기 해제	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/DanceController.client.lua:1190
