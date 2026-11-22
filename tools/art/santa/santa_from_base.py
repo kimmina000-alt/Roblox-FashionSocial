@@ -23,7 +23,7 @@ COL = {
     "pink": (1.0, 0.55, 0.68), "sky": (0.55, 0.78, 1.0), "blue": (0.15, 0.35, 0.85), "navy": (0.05, 0.1, 0.35),
     "grey": (0.42, 0.44, 0.5), "yellow": (1.0, 0.8, 0.15), "teal": (0.2, 0.75, 0.8), "cream": (0.95, 0.88, 0.7),
     "bread": (0.82, 0.55, 0.25), "deer": (0.55, 0.34, 0.18), "rednose": (1.0, 0.05, 0.05), "orange": (1.0, 0.5, 0.15),
-    "ivory": (1.0, 0.95, 0.82), "darkgreen": (0.02, 0.2, 0.09), "rice": (0.98, 0.97, 0.93), "lightpink": (1.0, 0.6, 0.72), "noodle": (0.96, 0.8, 0.38), "wood": (0.72, 0.5, 0.28), "ramenred": (0.85, 0.08, 0.1),
+    "ivory": (1.0, 0.95, 0.82), "darkgreen": (0.02, 0.2, 0.09), "rice": (0.98, 0.97, 0.93), "lightpink": (1.0, 0.6, 0.72), "noodle": (0.96, 0.8, 0.38), "wood": (0.72, 0.5, 0.28), "ramenred": (0.85, 0.08, 0.1), "darkgrey": (0.13, 0.13, 0.15), "leaf": (0.12, 0.5, 0.2),
 }
 
 # the base's landmarks (from its bounding boxes)
@@ -302,10 +302,13 @@ def _(hat):
     dg = bpy.context.evaluated_depsgraph_get()
     scn = bpy.context.scene
     # flowers where a ray from the front first meets the pink shirt (body and arms)
+    # (user 2026-11-22: "꽃 크기를 키우고 개수를 줄여 녹색 이파리도 넣어 하와이안 셔츠 느낌으로") fewer, bigger flowers
+    # with two long green leaves each, all flat
+    from mathutils import Matrix
     spots = []
-    for zi, z in enumerate((0.2, 0.42, 0.64, 0.86, 1.08, 1.3, 1.5)):
-        for x in (-1.0, -0.72, -0.44, -0.16, 0.12, 0.4, 0.68, 0.96):
-            spots.append((x + (0.14 if zi % 2 else 0) + rnd.uniform(-0.05, 0.05), z + rnd.uniform(-0.04, 0.04)))
+    for zi, z in enumerate((0.28, 0.66, 1.04, 1.4)):
+        for x in (-0.95, -0.45, 0.05, 0.55, 1.0):
+            spots.append((x + (0.25 if zi % 2 else 0) + rnd.uniform(-0.06, 0.06), z + rnd.uniform(-0.05, 0.05)))
     for (x, z) in spots:
         hit, loc, nrm, idx, obj, mtx = scn.ray_cast(dg, Vector((x, -4, z)), Vector((0, 1, 0)))
         if not hit or not obj or not obj.data.materials or obj.data.materials[0].name != "lightpink":
@@ -315,10 +318,20 @@ def _(hat):
         t1 = n.cross(Vector((0, 0, 1))).normalized()
         t2 = n.cross(t1).normalized()
         a0 = rnd.uniform(0, 1.2)
+        # leaves first (under the flower)
+        for k in range(2):
+            la = a0 + math.pi * 0.35 + k * math.pi * 0.9
+            d = (t1 * math.cos(la) + t2 * math.sin(la)).normalized()
+            X, Z = d, n
+            Y = Z.cross(X).normalized()
+            rot = Matrix((X, Y, Z)).transposed().to_euler()
+            bpy.ops.mesh.primitive_cylinder_add(vertices=10, radius=0.13, depth=0.01, location=p + d * 0.2 - n * 0.005, rotation=rot)
+            leaf = finish(bpy.context.active_object, "leaf", 0)
+            leaf.scale = (1.0, 0.42, 1.0)
         for i in range(5):
             a = a0 + i * 2 * math.pi / 5
-            disc(p + (t1 * math.cos(a) + t2 * math.sin(a)) * 0.07, 0.055, n, "white", verts=8)   # (D-2019: flat petals)
-        disc(p + n * 0.01, 0.04, n, "yellow", verts=8)
+            disc(p + (t1 * math.cos(a) + t2 * math.sin(a)) * 0.115, 0.095, n, "white", verts=8)
+        disc(p + n * 0.012, 0.06, n, "yellow", verts=8)
     box((0, FACE_Y - 0.03, EYES_Z), (0.62, 0.06, 0.14), "black")
     box((1.5, 0.35, 1.2), (0.6, 0.12, 2.4), "teal", rot=(0, math.radians(-8), 0), bevel=0.25)
 
@@ -390,7 +403,7 @@ def _(hat):
         ctr = Vector((0, y, z))
         for side in (-1, 1):
             # a flat triangle (3-sided cylinder, axis front-back), its tip pointing to the knot
-            cyl(ctr + Vector((0.12 * side, 0, 0)), 0.14, 0.06, "red", rot=(math.radians(90), math.radians(-90 if side > 0 else 90), 0), verts=3, bevel=0.02)
+            cyl(ctr + Vector((0.12 * side, 0, 0)), 0.14, 0.06, "darkgrey", rot=(math.radians(90), math.radians(-90 if side > 0 else 90), 0), verts=3, bevel=0.02)
         # (D-2019, user: "리본 가운데 동그라미 삭제") no knot ball
 
 @look("rudolph")
