@@ -7043,6 +7043,7 @@ Studio only (no script yet).
 - World Santa and plush: SantaFactory.build uses ServerStorage.ArtAssets.Santas.<look> (the game GLBs, ~2.7k triangles, imported as models; attribute Yaw turns one to face -Z; scaled to 2.6 studs x scale) and falls back to the part Santas when a model is missing.
 ## D-1847 미니 산타 찾기 문구 16개 언어 번역 (2026-11-22)
 - 메인 세션 요청: feat/event-santa-1122 df6ccaa1(D-1878, D-2010..)의 새 문구 57개를 tools/i18n/tr/p28_santa1122.tsv에: 이벤트 · 앨범 제목, 산타 19명 이름과 힌트, 찾음 연출("{1}를 찾았어요!" + 이름도 표에 있어서 같이 번역), 앨범 창(진행 칸, 오늘의 산타, 이벤트 끝 / 시작 안내, "오늘!"), ☰ 메뉴 "🎅 미니 산타 앨범", 댄스 점수 키 안내(A S D F로 바뀐 것). 날짜는 "12/6" 숫자라 그대로. 채팅 명령어는 번역하지 않음.
+- (c36ec651, D-2040..2043) 댄스 점수 곡 목록(DanceScoreSongs)의 한글 곡 제목 · 가수 5개는 번역 대신 공식 이름으로(tools/i18n/tr/p29_dancesongs1122.tsv): 키키 → KiiiKiii, 소녀시대 → Girls' Generation(일본어 · 중국어는 少女時代 / 少女时代), Call My Name, Genie, Catch Catch.
 
 ## D-2014 The day's attendance window right after the loading screen (2026-11-22)
 - User (through the main session): "오늘 첫 접속자는 접속하면 바로 출석 창 뜨게 해 몇 분 지난 후에 뜬다".
