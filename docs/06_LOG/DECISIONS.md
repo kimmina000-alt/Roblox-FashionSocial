@@ -6967,3 +6967,7 @@ Studio only (no script yet).
 - (D-1818 추가 19, 사용자 2026-11-21) "볼륨 그대로 7번으로 바꾸고 아래에서 내려오는 키 있을 때만 소리 나게 … 너무 간격 좁게 내려와서 누르면 소리 씹히더라": 소리 = edm_7_808(크기 0.15 그대로), 누른 순간 내려오는 표시가 판정 범위(0.18 s) 안에 있을 때만, 판정 전에 바로 재생(버튼마다 복사본 6개). 씹힘의 원인은 키 입력이 빠지던 것(추가 18에서 고침)으로 봄.
 - (D-1818 추가 20, 사용자 2026-11-21) "5번으로 하고 소리 반으로 더 줄여 봐": 버튼 소리 edm_5_stab, 크기 0.15 → 0.075.
 - (D-1818 추가 21, 사용자 2026-11-21) "줄인 거에서 반만 더 키우고 머지해": 버튼 소리 크기 0.075 → 0.1125, 그리고 catalog-ui-redesign에 머지.
+
+## D-1878 Winter attendance off; the mini Santa hunt after the opening event (2026-11-22)
+- User: "크리스마스 이벤트 미니 산타 찾기 (매일 특별한 산타 하나씩 등장)", then "겨울 출석 말고 미니 산타 찾기로 할 거"; picked: 12/6 ~ 12/25 (one Santa a day, the day turns at 05:00 KST), a fixed spot a day with a hint, only on its own day, a 산타 도감 kept after the event like an album, the found Santa as a plush to hold (a different one each day).
+- First step (this commit): the winter attendance event (D-1874) is off: OpeningEventConfig.Events = { opening } (the `winter` table stays defined), the `winter2026` frame entry is gone from PhotoConfig, the ☰ menu has no WINTER 2026 switch. The opening event, its extension (D-1875) and the window fix (D-1877) are unchanged; after 12/6 05:00 KST no attendance window and no 🎁.

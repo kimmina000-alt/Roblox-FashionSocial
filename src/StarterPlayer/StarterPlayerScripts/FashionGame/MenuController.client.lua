@@ -100,7 +100,7 @@ create("TextLabel", {
 	TextColor3 = Color3.new(1, 1, 1), TextXAlignment = Enum.TextXAlignment.Left, LayoutOrder = 2,
 }, card)
 -- (D-1874) + WINTER 2026 (the winter attendance event's title)
-for i, badge in ipairs({ { "Founding", "FOUNDING MEMBER" }, { "Winter", "WINTER 2026" }, { "Staff", "알바생" }, { "GUARD", "GUARD" }, { "VIP", "VIP" }, { "DJ", "DJ" } }) do
+for i, badge in ipairs({ { "Founding", "FOUNDING MEMBER" }, { "Staff", "알바생" }, { "GUARD", "GUARD" }, { "VIP", "VIP" }, { "DJ", "DJ" } }) do
 	switchRow(2 + i, badge[2], "HideBadge_" .. badge[1], function(hide)
 		remote:InvokeServer("HideBadge", { role = badge[1], on = hide })
 	end, true)
