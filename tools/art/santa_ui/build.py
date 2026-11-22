@@ -7,7 +7,7 @@
 import cv2, numpy as np, sys, os
 src = cv2.imread(sys.argv[1]); d = sys.argv[2]; out = sys.argv[3]; os.makedirs(out, exist_ok=True)
 AX, AY = 4, 14       # album_cut origin in the mock-up
-PX, PY = 1064, 206   # popup_cut origin
+PX, PY = 1064, 182   # popup_cut origin
 
 def inpaint_text(img, rect, pred, grow=3, r=5):
     x0, y0, x1, y1 = rect
@@ -84,6 +84,12 @@ cv2.imwrite(os.path.join(out, 'card_today.png'), np.dstack([img, al]))
 
 # ---- popup
 p = cv2.imread(os.path.join(d, 'popup_cut.png'), cv2.IMREAD_UNCHANGED)
+# dark town bits left between the snow cap and the frame's top corners
+top = p[:90].astype(int); tb, tg, tr = top[..., 0], top[..., 1], top[..., 2]
+dark = (np.maximum(np.maximum(tr, tg), tb) < 190) & (tb > tr - 15)
+dark[:, 60:400] = False                                             # (only by the corners: the confetti stays)
+dark = cv2.dilate(dark.astype(np.uint8), np.ones((3, 3), np.uint8)) > 0
+p[:90, :, 3][dark] = 0
 def P(x, y): return x - PX, y - PY
 poly = [(1210, 312), (1250, 342), (1350, 342), (1392, 312), (1396, 400), (1410, 480), (1406, 600), (1384, 638), (1212, 638), (1190, 600), (1186, 480), (1200, 400)]
 m = np.zeros(p.shape[:2], np.uint8); cv2.fillPoly(m, [np.array([P(*q) for q in poly], np.int32)], 255)
