@@ -12,13 +12,23 @@ local ClubConfig = require(ReplicatedStorage:WaitForChild("FashionGame"):WaitFor
 
 local DanceScoreConfig = {}
 
--- songs that can be today's song: beats (bpm, the first beat in song seconds) for the chart
--- (NEON-A2O LITE: 129.99 bpm, first beat at song -0.913; the stage video's onsets, video = song + 1.00
--- (D-898); each third of the song lands on the grid within 5 ms)
-DanceScoreConfig.Songs = {
-	[140713297574648] = { title = "NEON", artist = "A2O LITE", bpm = 129.99, firstBeat = -0.913 },
-}
-DanceScoreConfig.TodaySong = 140713297574648 -- (the fallback; todaySong picks one a day from Songs)
+-- songs that can be today's song: beats (bpm, the first beat in song seconds) for the chart.
+-- (D-1818x, user 2026-11-22: "내가 설정 안 해도 리듬 게임 알아서 안무 있는 곡으로 랜덤으로 달라지게") every
+-- choreographed stage song, its beats measured by tools/choreo/dance_beats.py from the original mp3
+-- (Shared/DanceScoreSongs, generated; NEON there: 130.007 bpm, the same grid as the stage video within
+-- 0.02 s). Was only NEON by hand (129.99, -0.913, D-1816). A new choreographed song: add its mp3 to the
+-- tool's SONGS and run it again.
+DanceScoreConfig.MinBeatScore = 0.09 -- (a song whose onsets sit loosely on the grid is left out)
+DanceScoreConfig.BeatOffset = 0 -- (seconds added to every first beat: + if hits feel early, - if late)
+DanceScoreConfig.HalfTimeFrom = 150 -- (from this bpm the notes go on every other beat: 150+ is too fast)
+DanceScoreConfig.Songs = {} :: {[number]: { title: string, artist: string, bpm: number, firstBeat: number }}
+for id, song in pairs(require(script.Parent:WaitForChild("DanceScoreSongs")) :: any) do
+	if song.score >= DanceScoreConfig.MinBeatScore then
+		DanceScoreConfig.Songs[id] = { title = song.title, artist = song.artist, bpm = song.bpm,
+			firstBeat = song.firstBeat + DanceScoreConfig.BeatOffset }
+	end
+end
+DanceScoreConfig.TodaySong = 140713297574648 -- (the fallback: NEON)
 
 -- (D-1817, step 2) the day: a KST day turning at 05:00 like the attendance event (D-1693)
 function DanceScoreConfig.dayKey(serverTime: number?): string
@@ -26,14 +36,37 @@ function DanceScoreConfig.dayKey(serverTime: number?): string
 	return os.date("!%Y%m%d", t) :: string
 end
 
--- today's song: one of Songs a day, in turn (only songs with measured beats can be picked)
-function DanceScoreConfig.todaySong(serverTime: number?): number
+-- today's song (D-1818x): a random one each day from Songs that the neon stage can play (a choreography,
+-- one file), the same on every server and screen (picked from the day's key), never yesterday's again.
+-- Studio test: FashionGame attribute DanceSongOverride = a soundId (Studio only).
+local candidates: {number}? = nil
+local function candidateIds(): {number}
+	if candidates then return candidates end
+	local NeonStageConfig = require(script.Parent:WaitForChild("NeonStageConfig")) :: any
 	local ids = {}
-	for id in pairs(DanceScoreConfig.Songs) do table.insert(ids, id) end
+	for _, track in ipairs(NeonStageConfig.tracks()) do
+		if DanceScoreConfig.Songs[track.soundId] then table.insert(ids, track.soundId) end
+	end
 	table.sort(ids)
+	candidates = ids
+	return ids
+end
+local function dayPick(key: string, count: number): number
+	-- (Random with the day as its seed: the same pick everywhere, no pattern from day to day)
+	return Random.new(tonumber(key) or 0):NextInteger(1, count)
+end
+function DanceScoreConfig.todaySong(serverTime: number?): number
+	if game:GetService("RunService"):IsStudio() then
+		local test = ReplicatedStorage:WaitForChild("FashionGame"):GetAttribute("DanceSongOverride")
+		if typeof(test) == "number" and DanceScoreConfig.Songs[test] then return test end
+	end
+	local ids = candidateIds()
 	if #ids == 0 then return DanceScoreConfig.TodaySong end
-	local t = math.floor(serverTime or workspace:GetServerTimeNow()) + 4 * 3600
-	return ids[math.floor(t / 86400) % #ids + 1]
+	if #ids == 1 then return ids[1] end
+	local t = serverTime or workspace:GetServerTimeNow()
+	local i = dayPick(DanceScoreConfig.dayKey(t), #ids)
+	if i == dayPick(DanceScoreConfig.dayKey(t - 86400), #ids) then i = i % #ids + 1 end
+	return ids[i]
 end
 
 -- (D-1817) rewards: coins once a day for finishing a run (EconomyService.Earn, its daily cap),
@@ -136,9 +169,11 @@ function DanceScoreConfig.chart(track: ClubConfig.Track): {Note}
 	local info = DanceScoreConfig.Songs[track.soundId]
 	if not info then return {} end
 	local beat = 60 / info.bpm
+	if info.bpm >= DanceScoreConfig.HalfTimeFrom then beat *= 2 end -- (D-1818x: a note every other beat)
 	local first = math.huge
 	for _, piece in ipairs(track.choreo or {}) do
-		if typeof(piece.at) == "number" then first = math.min(first, piece.at) end
+		-- (D-1818x: some songs list plain animation ids, with no `at`)
+		if typeof(piece) == "table" and typeof(piece.at) == "number" then first = math.min(first, piece.at) end
 	end
 	if first == math.huge then first = 0 end
 	-- (notes from 4 s at the latest: NEON's choreography starts at 14.4 s, too long a wait)

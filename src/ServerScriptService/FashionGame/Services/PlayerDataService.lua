@@ -63,7 +63,7 @@ export type JobRecord = { xp: number, served: number, cleaned: number }
 -- look = the last outfit worn (OutfitSnapshot), put back on the next visit (D-771)
 -- bag = the items carried when the player left (BagService, D-790): plain
 -- tables { k = kind, ... }, given back on the next visit
-export type Wallet = { coins: number, xp: number, frames: {string}, slots: number, daily: { day: string, counts: {[string]: number} }, jobs: {[string]: JobRecord}, boost: number, hair: {[string]: {number}}, tutorial: boolean, tips: {[string]: boolean}, welcome: boolean, look: any?, bag: {any}?, opening: { n: number, last: number, title: boolean, shownDay: number? }?, events: {[string]: { n: number, last: number, title: boolean, shownDay: number? }}?, santa: { found: number }?, hideName: boolean?, hideBadges: {[string]: boolean}?, muteCheer: boolean?, gifted: {[string]: boolean}?, djTickets: number?, djSeconds: number? }
+export type Wallet = { coins: number, xp: number, frames: {string}, slots: number, daily: { day: string, counts: {[string]: number} }, jobs: {[string]: JobRecord}, boost: number, hair: {[string]: {number}}, tutorial: boolean, tips: {[string]: boolean}, welcome: boolean, look: any?, bag: {any}?, opening: { n: number, last: number, title: boolean, shownDay: number? }?, events: {[string]: { n: number, last: number, title: boolean, shownDay: number? }}?, santa: { found: number }?, hideName: boolean?, hideBadges: {[string]: boolean}?, muteCheer: boolean?, noVibrate: boolean?, gifted: {[string]: boolean}?, djTickets: number?, djSeconds: number? }
 type Session = {
 	favorites: {Favorite},
 	outfits: {Outfit},
@@ -177,6 +177,7 @@ local function sanitizeWallet(raw: any): Wallet
 	-- (D-1377 / D-1378) the ☰ menu's 닉네임 숨기기 and each badge's 숨기기 (PlayerPrefsService)
 	if raw.hideName == true then wallet.hideName = true end
 	if raw.muteCheer == true then wallet.muteCheer = true end -- (D-1709: 놀이기구 환호성 off)
+	if raw.noVibrate == true then wallet.noVibrate = true end -- (D-1985: 📳 진동 off)
 	-- (D-1810) DJ tickets (DjService): unused 30-min tickets and saved DJ seconds
 	if typeof(raw.djTickets) == "number" and raw.djTickets == raw.djTickets and raw.djTickets >= 1 then
 		wallet.djTickets = math.clamp(math.floor(raw.djTickets), 1, 99)

@@ -69,8 +69,17 @@ tabStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
 tabStroke.Color = Color3.fromRGB(80, 80, 105)
 tabStroke.Parent = tab
 local lastDown: boolean? = nil
+-- (D-1992, user 2026-11-22: "핫바가 카탈로그 가리는 것도 고쳐 줘") while the catalog window is open the
+-- bar slides down like ▼ (on phones it covered the catalog's bottom card row) and comes back on close
+local catalogFrame: GuiObject? = nil
+local function catalogOpen(): boolean
+	local f = catalogFrame
+	if not f then return false end
+	local g = f:FindFirstAncestorWhichIsA("LayerCollector")
+	return f.Visible and (g == nil or g.Enabled)
+end
 local function place(size: number, instant: boolean?)
-	local down = folded and not Hotbar.bagOpen and not Hotbar.isDragging()
+	local down = (folded or catalogOpen()) and not Hotbar.bagOpen and not Hotbar.isDragging()
 	tab.Text = if down then "▲" else "▼"
 	local barAt = if down then UDim2.new(0.5, 0, 1, size + 12) else UDim2.new(0.5, 0, 1, -6)
 	local tabAt = if down then UDim2.new(0.5, 0, 1, -4) else UDim2.new(0.5, 0, 1, -6 - size - 3)
@@ -106,7 +115,7 @@ local function draw()
 	local backpack = player:FindFirstChildOfClass("Backpack")
 	if not any and backpack then any = backpack:FindFirstChildOfClass("Tool") ~= nil end
 	bar.Visible = any and (Hotbar.anyInBar() or Hotbar.bagOpen or Hotbar.isDragging())
-	tab.Visible = bar.Visible
+	tab.Visible = bar.Visible and not catalogOpen() -- (D-1992: no ▲ over the catalog)
 	place(size)
 	for i = 1, math.max(n, #cards) do
 		local card = cards[i]
@@ -230,4 +239,14 @@ UserInputService.InputBegan:Connect(function(input, processed)
 	if n >= 1 and n <= 9 and n <= Hotbar.count() then toggle(Hotbar.get(n)) end
 end)
 
+-- (D-1992) the catalog window: its main frame and ScreenGui
+task.spawn(function()
+	local cg = player:WaitForChild("PlayerGui"):WaitForChild("FashionCatalogGui", 60)
+	local frame = cg and cg:WaitForChild("MainFrame", 30)
+	if not (frame and frame:IsA("GuiObject")) then return end
+	catalogFrame = frame
+	frame:GetPropertyChangedSignal("Visible"):Connect(draw)
+	if cg:IsA("LayerCollector") then cg:GetPropertyChangedSignal("Enabled"):Connect(draw) end
+	draw()
+end)
 draw()

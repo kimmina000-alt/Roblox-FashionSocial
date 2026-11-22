@@ -213,7 +213,7 @@ round(result, 18)
 stroke(result, PINK, 2)
 make("UIPadding", { PaddingLeft = UDim.new(0, 20), PaddingRight = UDim.new(0, 20), PaddingTop = UDim.new(0, 14), PaddingBottom = UDim.new(0, 16) }, result)
 make("UIListLayout", { Padding = UDim.new(0, 8), SortOrder = Enum.SortOrder.LayoutOrder, HorizontalAlignment = Enum.HorizontalAlignment.Center }, result)
-label(result, "NEON · A2O LITE", 13, CYAN, BODY, { LayoutOrder = 1 })
+local resultSong = label(result, "", 13, CYAN, BODY, { LayoutOrder = 1 }) -- (D-1818x: today's song, set in showResult)
 local gradeLabel = label(result, "S", 76, YELLOW, BIG, { LayoutOrder = 2, Size = UDim2.new(1, 0, 0, 76), TextStrokeColor3 = PINK, TextStrokeTransparency = 0.2 })
 local resultScore = label(result, "0", 28, Color3.new(1, 1, 1), BIG, { LayoutOrder = 3, Size = UDim2.new(1, 0, 0, 32) })
 local resultNote = label(result, "", 13, Color3.fromRGB(255, 138, 208), BODY, { LayoutOrder = 4 })
@@ -295,6 +295,10 @@ local function setPlayMode(on: boolean)
 	if on then
 		hidden.touch = GuiService.TouchControlsEnabled
 		GuiService.TouchControlsEnabled = false
+		-- (D-1818w, user 2026-11-21: "게임 시작하면 자동으로 무대 카메라 켜지게 하자") the stage camera films the run
+		-- (StageCameraController, LocalPlayer attribute StageCamera); put back as it was afterwards
+		hidden.stageCam = player:GetAttribute("StageCamera") == true
+		player:SetAttribute("StageCamera", true)
 		if humanoid then hidden.walk = humanoid.WalkSpeed humanoid.WalkSpeed = 0 end
 		for _, name in ipairs({ "FashionHotbar", "NeonStageCamera" }) do
 			local g = playerGui:FindFirstChild(name)
@@ -307,6 +311,7 @@ local function setPlayMode(on: boolean)
 			false, Enum.ContextActionPriority.High.Value, Enum.KeyCode.A, Enum.KeyCode.S, Enum.KeyCode.D, Enum.KeyCode.F)
 	else
 		if hidden.touch ~= nil then GuiService.TouchControlsEnabled = hidden.touch end
+		if hidden.stageCam ~= nil then player:SetAttribute("StageCamera", if hidden.stageCam then true else nil) end
 		if humanoid and hidden.walk then humanoid.WalkSpeed = hidden.walk end
 		for _, name in ipairs({ "FashionHotbar", "NeonStageCamera" }) do
 			local g = hidden[name]
@@ -352,16 +357,33 @@ local SOUND = {
 -- MISS still shows on screen
 -- (D-1818m, user 2026-11-21: "6 빼고 3 5 7 8 차례대로 버튼 네 개에 하나씩") each button its own 0.5 s EDM sound on a
 -- hit (DanceScoreConfig.LaneSounds; 0 = not uploaded yet: silent), 3 copies each so quick hits never cut one off
+-- (D-1984, user 2026-11-22: "노래에 맞는 드럼 소리나 edm 소리") each song its own kit in its own key
+-- (Shared/DanceScoreSounds; songs not listed there keep DanceScoreConfig.LaneSounds): the 4 x 6 copies are
+-- made for the run's song as soon as a run starts (and preloaded during the 3 · 2 · 1)
+local DanceScoreSounds = require(Shared:WaitForChild("DanceScoreSounds"))
 local laneSounds: {{Sound}} = {}
+local laneSong: number? = nil
 local laneTurn = { 0, 0, 0, 0 }
-for i, id in ipairs(DanceScoreConfig.LaneSounds) do
-	laneSounds[i] = {}
-	if id ~= 0 then
-		-- (D-1818s) 6 copies: fast taps on one button each get their own sound
-		for _ = 1, 6 do table.insert(laneSounds[i], hitSound(id, DanceScoreConfig.LaneSoundVolume, 1)) end
+local function buildLaneSounds(soundId: number?)
+	if laneSong == soundId and #laneSounds > 0 then return end
+	for _, pool in ipairs(laneSounds) do
+		for _, s in ipairs(pool) do s:Destroy() end
 	end
+	laneSounds, laneSong = {}, soundId
+	local all: {Instance} = {}
+	for i, p in ipairs(DanceScoreSounds.lanes(soundId, DanceScoreConfig.LaneSoundVolume, DanceScoreConfig.LaneSounds)) do
+		laneSounds[i] = {}
+		if p.id ~= 0 then
+			-- (D-1818s) 6 copies: fast taps on one button each get their own sound
+			for _ = 1, 6 do table.insert(laneSounds[i], hitSound(p.id, p.volume, p.speed)) end
+			table.insert(all, laneSounds[i][1])
+		end
+	end
+	task.spawn(function() pcall(function() ContentProvider:PreloadAsync(all) end) end)
 end
 local function laneSound(lane: number)
+	local soundId = run and run.track.soundId
+	if laneSong ~= soundId or #laneSounds == 0 then buildLaneSounds(soundId) end
 	local pool = laneSounds[lane]
 	if not pool or #pool == 0 then return end
 	laneTurn[lane] = laneTurn[lane] % #pool + 1
@@ -369,12 +391,31 @@ local function laneSound(lane: number)
 	s.TimePosition = 0
 	s:Play()
 end
-task.spawn(function()
-	local all: {Instance} = { SOUND.BEEP }
-	for _, pool in ipairs(laneSounds) do
-		if pool[1] then table.insert(all, pool[1]) end
+-- (D-1985, user 2026-11-22: "진동 효과 넣을까" → "응 진행해, 켜기/끄기 버튼도 넣어") a hit buzzes the phone /
+-- gamepad (HapticEffect; PC keyboards: nothing): GREAT a light click, PERFECT a firmer knock. Off with the
+-- ☰ menu's 📳 진동 switch (player attribute NoVibrate, PlayerPrefsService)
+local hapticFx: {[string]: any} = {}
+pcall(function()
+	for kind, kindType in pairs({ GREAT = Enum.HapticEffectType.UIClick, PERFECT = Enum.HapticEffectType.GameplayCollision }) do
+		local h = Instance.new("HapticEffect")
+		h.Type = kindType
+		h.Parent = gui
+		hapticFx[kind] = h
 	end
-	pcall(function() ContentProvider:PreloadAsync(all) end)
+end)
+local function haptic(kind: string)
+	if player:GetAttribute("NoVibrate") == true then return end
+	local h = hapticFx[kind]
+	if h then pcall(function() h:Play() end) end
+end
+task.spawn(function()
+	pcall(function() ContentProvider:PreloadAsync({ SOUND.BEEP }) end)
+	-- build the run's song sounds as soon as a run starts (before its first note)
+	while true do
+		local soundId = run and run.track.soundId
+		if soundId and soundId ~= laneSong then buildLaneSounds(soundId) end
+		task.wait(0.25)
+	end
 end)
 
 local judgeTween: Tween? = nil
@@ -507,6 +548,7 @@ local function judge(r: Run, note: any, kind: string)
 			askServer("Freeze", false)
 		end
 		hitSwell(kind)
+		haptic(kind) -- (D-1985)
 		local level = DanceScoreConfig.auroraLevel(r.combo, r.total)
 		if level ~= r.auroraLevel then setAurora(r, level) end
 		-- (D-1818d, user 2026-11-21: "맞는 타이밍에 눌렀을 때 누르는 버튼 해당 컬러로 진동 확장하는 듯한 효과 … 버튼 그림")
@@ -561,6 +603,8 @@ local function showResult(r: Run, serverResult: any)
 		score, grade = serverResult.score, serverResult.grade
 	end
 	gradeLabel.Text = grade
+	local songInfo = DanceScoreConfig.Songs[r.track.soundId]
+	resultSong.Text = if songInfo then (songInfo.title .. " · " .. songInfo.artist) else tostring(r.track.title)
 	resultScore.Text = tostring(score)
 	if typeof(serverResult) == "table" then
 		local parts = {}
@@ -872,12 +916,16 @@ local function fillBoards()
 		b.champScore.Text = if list[1] then (tostring(list[1].s) .. (if typeof(list[1].c) == "number" then string.format(" · %d콤보", list[1].c) else "")) else "첫 1위를 기다려요"
 		for i, row in ipairs(b.rows) do
 			local e = list[i]
-			row.Text = if e then string.format("%2d  %s", i, tostring(e.n)) else ""
 			row.Visible = e ~= nil
+			local nameLabel = row:FindFirstChild("PlayerName") :: TextLabel?
+			if nameLabel then nameLabel.Text = if e then tostring(e.n) else "" end
 			local score = row:FindFirstChild("Score") :: TextLabel?
 			-- (D-1818d, user 2026-11-21: "순위표에 최대 콤보 수 표시")
 			if score then score.Text = if e then (tostring(e.s) .. (if typeof(e.c) == "number" then string.format("  ·  %d콤보", e.c) else "")) else "" end
-			row.TextColor3 = if i == 1 then YELLOW elseif i <= 3 then Color3.fromRGB(255, 160, 210) else Color3.new(1, 1, 1)
+			local color = if i == 1 then YELLOW elseif i <= 3 then Color3.fromRGB(255, 160, 210) else Color3.new(1, 1, 1)
+			for _, child in ipairs({ row:FindFirstChild("Rank"), nameLabel }) do
+				if child then (child :: TextLabel).TextColor3 = color end
+			end
 		end
 	end
 end
@@ -896,7 +944,8 @@ local function addBoard(part: Instance)
 	label(champ, "👑", 110, YELLOW, BIG, { Position = UDim2.fromOffset(0, 30), Size = UDim2.new(1, 0, 0, 120) })
 	label(champ, "오늘의 1위", 44, YELLOW, BIG, { Position = UDim2.fromOffset(0, 160), Size = UDim2.new(1, 0, 0, 52) })
 	local champName = label(champ, "", 58, Color3.new(1, 1, 1), BIG, { Name = "ChampName", Position = UDim2.fromOffset(16, 236), Size = UDim2.new(1, -32, 0, 140),
-		TextWrapped = true, TextStrokeColor3 = PINK, TextStrokeTransparency = 0 })
+		TextWrapped = true, TextScaled = true, TextStrokeColor3 = PINK, TextStrokeTransparency = 0 })
+	make("UITextSizeConstraint", { MaxTextSize = 58, MinTextSize = 28 }, champName) -- (D-1818y: a long name stays in the card)
 	local champScore = label(champ, "", 40, YELLOW, BIG, { Name = "ChampScore", Position = UDim2.fromOffset(0, 390), Size = UDim2.new(1, 0, 0, 60) })
 	local right = make("Frame", { BackgroundTransparency = 1, Position = UDim2.new(1 / 3, 20, 0, 20), Size = UDim2.new(2 / 3, -40, 1, -40) }, root)
 	local head = make("Frame", { BackgroundTransparency = 1, Size = UDim2.new(1, 0, 0, 110) }, right)
@@ -911,11 +960,18 @@ local function addBoard(part: Instance)
 		SortOrder = Enum.SortOrder.LayoutOrder }, listBox)
 	local rows = {}
 	for i = 1, 10 do
-		local row = label(listBox, "", 38, Color3.new(1, 1, 1), BODY, { LayoutOrder = i, TextXAlignment = Enum.TextXAlignment.Left,
+		-- (D-1818y, user 2026-11-22: "점수랑 닉네임 겹치는 거 수정") long names ran into the score: now the rank on the
+		-- left, the name on the top line (smaller to fit, then cut with …) and the score · combo on the line under it
+		local row = label(listBox, "", 38, Color3.new(1, 1, 1), BODY, { LayoutOrder = i,
 			BackgroundTransparency = if i <= 3 then 0.7 else 0.88, BackgroundColor3 = if i <= 3 then PINK else CARD })
 		round(row, 10)
-		make("UIPadding", { PaddingLeft = UDim.new(0, 18), PaddingRight = UDim.new(0, 18) }, row)
-		label(row, "", 30, YELLOW, BIG, { Name = "Score", Size = UDim2.fromScale(1, 1), TextXAlignment = Enum.TextXAlignment.Right })
+		make("UIPadding", { PaddingLeft = UDim.new(0, 14), PaddingRight = UDim.new(0, 14) }, row)
+		label(row, tostring(i), 40, Color3.new(1, 1, 1), BIG, { Name = "Rank", Size = UDim2.new(0, 46, 1, 0), TextXAlignment = Enum.TextXAlignment.Left })
+		local name = label(row, "", 34, Color3.new(1, 1, 1), BODY, { Name = "PlayerName", Position = UDim2.new(0, 52, 0, 2), Size = UDim2.new(1, -52, 0.56, -2),
+			TextXAlignment = Enum.TextXAlignment.Left, TextScaled = true, TextTruncate = Enum.TextTruncate.AtEnd, ClipsDescendants = true })
+		make("UITextSizeConstraint", { MaxTextSize = 34, MinTextSize = 20 }, name)
+		label(row, "", 26, YELLOW, BIG, { Name = "Score", Position = UDim2.new(0, 52, 0.56, 0), Size = UDim2.new(1, -52, 0.44, -2),
+			TextXAlignment = Enum.TextXAlignment.Left, TextTruncate = Enum.TextTruncate.AtEnd })
 		rows[i] = row
 	end
 	boards[part] = { rows = rows, title = title, empty = empty, champName = champName, champScore = champScore }

@@ -204,5 +204,8 @@ task.spawn(function()
 	local t0 = os.clock()
 	while playerGui:FindFirstChild("OHULoading") and os.clock() - t0 < 90 do task.wait(0.5) end
 	task.wait(1)
+	-- (D-2014) the day's attendance window opens right after the loading screen: the card comes once it is closed
+	while Popups.anyOpen() and os.clock() - t0 < 300 do task.wait(0.5) end
+	task.wait(0.5)
 	show()
 end)
