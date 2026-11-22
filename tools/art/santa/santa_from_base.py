@@ -23,7 +23,7 @@ COL = {
     "pink": (1.0, 0.55, 0.68), "sky": (0.55, 0.78, 1.0), "blue": (0.15, 0.35, 0.85), "navy": (0.05, 0.1, 0.35),
     "grey": (0.42, 0.44, 0.5), "yellow": (1.0, 0.8, 0.15), "teal": (0.2, 0.75, 0.8), "cream": (0.95, 0.88, 0.7),
     "bread": (0.82, 0.55, 0.25), "deer": (0.55, 0.34, 0.18), "rednose": (1.0, 0.05, 0.05), "orange": (1.0, 0.5, 0.15),
-    "ivory": (1.0, 0.95, 0.82),
+    "ivory": (1.0, 0.95, 0.82), "darkgreen": (0.02, 0.2, 0.09), "rice": (0.98, 0.97, 0.93),
 }
 
 # the base's landmarks (from its bounding boxes)
@@ -152,6 +152,50 @@ def remove_hat(hat):
                 bpy.data.objects.remove(o)
 
 
+def suit_only(colname):
+    """(D-2016) the suit (body and arms) in another colour, the red hat kept: the red-only shapes that are
+    not the hat get their own material"""
+    m = mat(colname)
+    for o in bpy.context.scene.objects:
+        if o.type == "MESH":
+            names = [x.name for x in o.data.materials if x]
+            if names == ["red"]:
+                o.data.materials.clear()
+                o.data.materials.append(m)
+
+
+def arms_object():
+    best = None
+    for o in bpy.context.scene.objects:
+        if o.type == "MESH" and [x.name for x in o.data.materials if x] == ["red"] and o.dimensions.x > 2.0 and o.dimensions.z < 1.2:
+            best = o
+    return best
+
+
+def raise_arms(lift_deg=60, inward_deg=30):
+    """(D-2016) both arms up in front of the face (taking a photo): the arms shape is split into its two
+    arms and each turned about its shoulder"""
+    from mathutils import Matrix
+    arms = arms_object()
+    if not arms:
+        return
+    bpy.ops.object.select_all(action="DESELECT")
+    arms.select_set(True)
+    bpy.context.view_layer.objects.active = arms
+    bpy.ops.object.mode_set(mode="EDIT")
+    bpy.ops.mesh.select_all(action="SELECT")
+    bpy.ops.mesh.separate(type="LOOSE")
+    bpy.ops.object.mode_set(mode="OBJECT")
+    for o in list(bpy.context.selected_objects):
+        vs = [o.matrix_world @ v.co for v in o.data.vertices]
+        cx = sum(v.x for v in vs) / len(vs)
+        side = 1 if cx > 0 else -1
+        pivot = Vector((0.8 * side, -0.1, 1.5))
+        rot = Matrix.Rotation(math.radians(-inward_deg * side), 4, "Z") @ Matrix.Rotation(math.radians(-lift_deg), 4, "X")
+        M = Matrix.Translation(pivot) @ rot @ Matrix.Translation(-pivot)
+        o.data.transform(o.matrix_world.inverted() @ M @ o.matrix_world)
+
+
 def capdome(color, visor):
     sphere((0, 0.02, HEAD_TOP - 0.18), (0.64, 0.62, 0.34), color)
     box((0, FACE_Y - 0.05, HEAD_TOP - 0.24), (0.58, 0.42, 0.06), visor)
@@ -185,19 +229,28 @@ def _(hat):
 
 @look("barista")
 def _(hat):
+    suit_only("darkgreen")   # (D-2016, user: "옷 몸통 진한 녹색으로")
     cyl(RHAND + Vector((0, -0.12, 0.18)), 0.17, 0.36, "white", bevel=0.03)
     cyl(RHAND + Vector((0, -0.12, 0.38)), 0.18, 0.05, "brown")
 
 @look("camera")
 def _(hat):
-    box(RHAND + Vector((-0.1, -0.18, 0.15)), (0.55, 0.3, 0.38), "pink", bevel=0.06)
-    cyl(RHAND + Vector((-0.1, -0.38, 0.15)), 0.13, 0.15, "black", rot=(math.radians(90), 0, 0))
+    # (D-2016, user: "팔 들고 카메라 찍고 있는 모습") both arms up, the camera held at the eyes' height, just under them
+    raise_arms(60, 30)
+    box((0, -0.98, 1.82), (0.78, 0.3, 0.42), "pink", bevel=0.07)
+    cyl((0.16, -1.17, 1.8), 0.15, 0.14, "black", rot=(math.radians(90), 0, 0))
+    cyl((0.16, -1.25, 1.8), 0.1, 0.03, "sky", rot=(math.radians(90), 0, 0))
+    box((-0.22, -1.0, 2.07), (0.16, 0.12, 0.1), "black", bevel=0.02)
 
 @look("store")
 def _(hat):
     remove_hat(hat)
     capdome("green", "green")
-    box(RHAND + Vector((0, -0.15, 0.25)), (0.4, 0.14, 0.52), "yellow", bevel=0.05)
+    # (D-2016, user: "손에 들고 있는 거 삼각김밥") a triangle kimbap: white rice, black nori band at the bottom
+    k = RHAND + Vector((-0.05, -0.2, 0.32))
+    cyl(k, 0.34, 0.16, "rice", rot=(math.radians(90), math.radians(-90), 0), verts=3, bevel=0.06)  # (tip up)
+    box(k + Vector((0, 0, -0.14)), (0.3, 0.18, 0.16), "black", bevel=0.02)
+    box(k + Vector((0, -0.09, 0.02)), (0.14, 0.01, 0.1), "red", bevel=0.0)
 
 @look("gukbap")
 def _(hat):
@@ -248,9 +301,20 @@ def _(hat):
 
 @look("subway")
 def _(hat):
-    box(RHAND + Vector((0, -0.15, 0.28)), (0.42, 0.04, 0.27), "green", bevel=0.02)
-    for s in (-1, 1):
-        sphere((0.62 * s, 0, 1.98), (0.18, 0.22, 0.22), "green")   # earmuffs
+    # (D-2016, user: "지하철 산타 더 개성있게") a subway conductor: navy cap with a line-2 green band and a gold
+    # badge, a whistle, and a mini subway car (white with a green stripe and windows) held in both hands
+    remove_hat(hat)
+    capdome("navy", "black")
+    torus((0, 0.02, HEAD_TOP - 0.2), 0.62, 0.06, "green")
+    sphere((0, FACE_Y - 0.06, HEAD_TOP - 0.05), (0.1, 0.04, 0.1), "gold")
+    cyl((0.25, -0.98, 1.55), 0.05, 0.25, "gold", rot=(0, math.radians(90), 0))
+    car = Vector((0, -1.08, 1.05))
+    box(car, (1.75, 0.46, 0.5), "white", bevel=0.12)
+    box(car + Vector((0, 0, -0.07)), (1.77, 0.48, 0.09), "green", bevel=0.02)
+    for x in (-0.55, -0.18, 0.18, 0.55):
+        box(car + Vector((x, -0.235, 0.1)), (0.24, 0.02, 0.15), "black", bevel=0.02)
+    for x in (-0.88, 0.88):
+        sphere(car + Vector((x, -0.2, -0.13)), (0.05, 0.03, 0.05), "yellow", sub=0)
 
 @look("wheel")
 def _(hat):
