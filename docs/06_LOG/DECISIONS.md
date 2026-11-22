@@ -6982,3 +6982,4 @@ Studio only (no script yet).
 - 코드: `Shared/DanceScoreSounds.lua`(곡 → 키트 · 키, 키트 → 버튼 id), DanceScoreController는 도전을 시작하면 그 곡의 소리를 만들고 미리 불러옴. 목록에 없는 곡이나 id 0은 DanceScoreConfig.LaneSounds 그대로.
 - 미리듣기(곡 14초 + 박자마다 버튼 소리): D:\Roblox\영상\_work\dance_sfx\previews.
 - 업로드(사용자, Vantablack_Dev 2026-11-22): edm 94534290003998 / 128730510689808 / 71587213321541 / 102571832262476, trap 81428012535145 / 86166967685855 / 99896696073557 / 116814789238012, pop 123460051656462 / 95509574527107 / 121020367234510 / 78448919768904, retro 92070419550891 / 131721956835078 / 118994620182314 / 116911509566974. Studio Play(DanceSongOverride = BAD): 도전 시작 시 trap 키트 4 × 6개가 PlaybackSpeed 1.189(D#) / 1.0(스네어 · 클랩)으로 만들어지고 16개 모두 로드, 히트 때 소리 남, 스크립트 오류 없음.
+- (사용자 2026-11-22) "0.75로 해 봐": 키트 소리 크기 0.1125 → 0.75 (DanceScoreSounds.Volume; 0.1125는 크게 키운 무대 노래에 묻혀 안 들림). 목록에 없는 곡은 LaneSoundVolume 그대로.

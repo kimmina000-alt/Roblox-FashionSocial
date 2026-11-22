@@ -26,7 +26,10 @@ DanceScoreSounds.Kits = {
 	retro = { { id = 92070419550891, pitched = true }, { id = 131721956835078, pitched = true }, { id = 118994620182314, pitched = true }, { id = 116911509566974, pitched = true } },
 } :: { [string]: { Lane } }
 
--- loudness of a kit next to DanceScoreConfig.LaneSoundVolume (the files are matched to edm_5_stab)
+-- (D-1984, user 2026-11-22: "0.75로 해 봐") the kit sounds' volume (0.1125 = DanceScoreConfig.LaneSoundVolume was
+-- lost under the loud stage song); a song not listed here keeps LaneSoundVolume
+DanceScoreSounds.Volume = 0.75
+-- loudness of one kit next to the others (the files are matched to edm_5_stab)
 DanceScoreSounds.KitGain = { edm = 1, trap = 1, pop = 1, retro = 1 } :: { [string]: number }
 
 -- soundId → kit and key (semitones from C: C 0, C# 1 .. F# 6, G -5 .. B -1); key measured from the
@@ -70,7 +73,7 @@ function DanceScoreSounds.lanes(soundId: number?, baseVolume: number, fallback: 
 		local k = kit and kit[lane]
 		if song and k and k.id ~= 0 then
 			local speed = if k.pitched then 2 ^ (song.key / 12) else 1
-			table.insert(out, { id = k.id, speed = speed, volume = baseVolume * (DanceScoreSounds.KitGain[song.kit] or 1) })
+			table.insert(out, { id = k.id, speed = speed, volume = DanceScoreSounds.Volume * (DanceScoreSounds.KitGain[song.kit] or 1) })
 		else
 			table.insert(out, { id = fallback[lane] or 0, speed = 1, volume = baseVolume })
 		end
