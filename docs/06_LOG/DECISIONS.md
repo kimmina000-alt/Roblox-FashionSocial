@@ -6993,3 +6993,22 @@ Studio only (no script yet).
 - ☰ 메뉴 "📳 진동" 스위치(LayoutOrder 19, 환호성 위): 분홍 = 켜짐(기본). 플레이어 속성 NoVibrate, ClubShop "NoVibrate" → PlayerPrefsService.SetVibrate → wallet.noVibrate(PlayerDataService가 저장 유지).
 - 번역 16개: tools/i18n/tr/p20_vibrate1122.tsv → build.py.
 - Studio Play: HapticEffect 2개 생성, 메뉴 줄 보임, 스위치 켜고 끄기 → 속성 true / nil, CRASH 도전에서 히트 시 오류 없음. 실제 진동은 폰에서 확인 필요(Studio는 진동 없음).
+## D-1990 카탈로그 "코디" 탭: 플레이어가 올린 코디 보기 · 입기 · 사기 (2026-11-22)
+- 사용자: "오후 카탈로그에 사람들이 캐릭터 꾸며서 올릴 수 있는 카테고리 추가하자". 고른 것: A(추천 옆 '코디' 버튼, 추천처럼 아이템칸 그리드 + [최신] [인기] + 📤 올리기), 올리기 개수 제한 없음(도배 막기로 1분 쿨타임만), 🚩 신고 3명이면 바로 숨김, 인기 = 👍 수(1인 1개, 다시 누르면 취소).
+- 올리기: 지금 입은 모습(AvatarService.CaptureSnapshot) + 제목 20자(TextService 필터를 통과해야 게시, 비우면 "<닉네임>의 코디"). 사기 목록 = 카탈로그 "입은 옷 모두 담기"와 같은 목록(번들은 번들로, itemDetail.view.collectWorn); 서버가 지금 입은 것인지(번들은 입은 부위가 들어 있는지) 확인하고 가격을 읽음.
+- 저장: DataStore CommunityLooks_v1("p<id>" 게시물, "next" 번호, "u<userId>" 누른 👍, "r<id>" 신고한 사람) + OrderedDataStore CommunityLooksNew_v1 / Top_v1 / Hidden_v1. Studio는 *_Studio_v1(라이브 목록에 섞이지 않음). 목록은 최신 / 인기 각각 100개까지, 한 번에 17장 + 더 보기.
+- 카드: 서버가 스냅숏으로 만든 아바타(ServerStorage.CommunityRigs, 40개까지)를 요청한 사람의 PlayerGui.CommunityRigs에만 복사 → ViewportFrame. 입기 = TryOnItem "WearPost"(무료 입어 보기), 사기 = Owned → BuyMany(가격 0 = 판매 안 함은 뺌, 20개까지).
+- 지우기: 올린 사람은 자기 것 🗑, 운영자(게임 주인, Studio는 모두)는 모든 카드 🗑 + [숨김] 목록에서 "숨김 풀기". 🚩 / 🗑은 한 번 더 눌러야 실행.
+- 코드: Services/CommunityLooksService.lua, CommunityLooksView.lua, Remotes.CommunityLooks; ServerMain(PostLook / WearPost), CatalogController(버튼 · 모드 · setup만). 16개 언어: tools/i18n/tr/p26_community1122.tsv.
+
+## D-1991 추천 탭을 코디 탭 안으로, 카드 누르면 입기, 버튼은 자세히 (2026-11-22)
+- 사용자(2인 테스트 후): "추천에 있는 거 코디로 옮기고 추천 삭제 / 코디에 있는 것도 아이템 칸 누르면 입는 걸로 수정 / 입기 버튼은 자세히로 수정".
+- 카탈로그 줄에서 추천 버튼을 없앰(코디가 첫 번째, 노란 글씨). 추천 조합(Shared/RecommendedLooks)은 코디 탭의 [추천] 목록(처음 열면 추천): 조작 카드의 버튼이 [추천] [최신] / [인기] (+ 운영자 [숨김]) 두 줄. 추천 카드는 "★ 추천 코디", 👍 · 🚩 · 🗑 없음. RecommendedLooksView.lua 삭제(그림 · 입기 방식은 CommunityLooksView로).
+- 카드의 그림과 이름을 누르면 그 코디를 입음(아이템 칸처럼, D-1806). 추천은 TryOnItem "WearLook"(첫 목표 LookWornAt 그대로), 유저 코디는 "WearPost".
+- 아래 버튼 = 자세히: 코디 창(제목 · 올린 사람 · 합계 R$, 아이템마다 그림 · 이름 · 가격, 아이템을 누르면 카탈로그의 아이템 상세; 아래 [입기] [모두 사기]).
+- 서버: CommunityLooks "Owner"(운영자인지) — 추천 목록에서도 [숨김]이 보이도록, 목록을 읽지 않고 물어봄.
+- 안내원 FAQ ⑥을 코디 탭 설명으로 바꿈(16개 언어).
+
+## D-1992 카탈로그가 열려 있으면 핫바를 내림, 코디 탭 분홍 버튼 없앰 (2026-11-22)
+- 사용자: "핫바가 카탈로그 가리는 것도 고쳐 줘" — 폰에서 아래 핫바가 카탈로그 맨 아래 줄 카드(자세히 · 사기)를 덮었음. HotbarController: 카탈로그 창(FashionCatalogGui.MainFrame)이 보이는 동안 ▼ 접기처럼 바를 화면 아래로 내리고 ▲ 탭도 숨김; 창을 닫으면 원래대로(사용자가 접어 둔 상태는 그대로). 가방이 열렸거나 끌기 중이면 바는 올라옴(전과 같음).
+- 사용자: "코디 안에 내 코디 올리기, 자세히 분홍색인 거 수정" — 분홍 없앰: 자세히 = 아이템 칸 버튼 색(70, 70, 85), 📤 올리기 · 자세히 창 입기 · 올리기 창 버튼 = 카탈로그 보라(🛒, 105, 85, 160).
