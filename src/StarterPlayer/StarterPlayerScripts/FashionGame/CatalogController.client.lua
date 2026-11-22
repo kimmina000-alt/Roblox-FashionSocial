@@ -1021,7 +1021,7 @@ local discoveryButtons = {}
 -- 버튼 최소화에 있는 위치로 수정. 통일.") the expanded catalog has them in the
 -- same strip now (they were ⚙ / ▣ in the corner of the avatar preview box).
 -- (D-1373) 추천 first (no ✨ since D-1375, user: "추천 앞에 별 빼고 텍스트만 둬"): the recommended looks window (RecommendedLooksView)
-for index, label in ipairs({"추천", "최근", "인기", "즐겨찾기", "착용 중", "⚙", "옷장"}) do
+for index, label in ipairs({"추천", "코디", "최근", "인기", "즐겨찾기", "착용 중", "⚙", "옷장"}) do
 	local b = create("TextButton", {
 		Name = "Discovery_" .. tostring(index),
 		Size = UDim2.fromOffset(86, 30),
@@ -1379,7 +1379,7 @@ subcategoryStrip.InputEnded:Connect(function(input)
 end)
 
 -- (D-1374) 추천 = the "Looks" mode: the recommended looks in the item grid (RecommendedLooksView)
-local MODE_BY_LABEL = { ["추천"] = "Looks", ["최근"] = "Recent", ["인기"] = "Popular", ["즐겨찾기"] = "Favorites", ["착용 중"] = "Wearing", ["옷장"] = "Wardrobe" }
+local MODE_BY_LABEL = { ["추천"] = "Looks", ["코디"] = "Community", ["최근"] = "Recent", ["인기"] = "Popular", ["즐겨찾기"] = "Favorites", ["착용 중"] = "Wearing", ["옷장"] = "Wardrobe" }
 local function updateDiscoveryHighlight()
 	for label, button in pairs(discoveryButtons) do
 		local active = MODE_BY_LABEL[label] ~= nil and MODE_BY_LABEL[label] == browseMode
@@ -2465,41 +2465,46 @@ end
 -- not for sale.
 do
 	local busy = false
+	-- (D-COMMUNITY) the worn items as cart entries (bundles as bundles), also for a 코디 post
+	itemDetail.view.collectWorn = function()
+		refreshWornItems() -- (what the server says is worn now)
+		local entries, inBundle = {}, {}
+		local seen = {}
+		local bundleIds = {}
+		for _, item in ipairs(recentItems) do
+			if item.ItemType == "Bundle" and typeof(item.Id) == "number" then table.insert(bundleIds, { id = item.Id, itemType = "Bundle" }) end
+		end
+		for _, favorite in ipairs(favoriteItems) do
+			if favorite.itemType == "Bundle" and typeof(favorite.id) == "number" then table.insert(bundleIds, { id = favorite.id, itemType = "Bundle" }) end
+		end
+		local bundleDetails = fetchItemDetails(bundleIds)
+		for _, entry in ipairs(bundleIds) do
+			local detail = bundleDetails[itemKey("Bundle", entry.id)]
+			local bundleType = detail and tostring(detail.BundleType)
+			if bundleType and WearableBundles.core[bundleType] and not seen[entry.id] then
+				seen[entry.id] = true
+				if not WearableBundles.coreAssets[entry.id] then
+					local loaded = false
+					loadShoeBundleAssets(entry.id, bundleType, function() loaded = true end)
+					local waited = 0
+					while not loaded and waited < 4 and not WearableBundles.coreAssets[entry.id] do waited += task.wait(0.1) end
+				end
+				if isShoeBundleWorn(entry.id) then
+					table.insert(entries, entry)
+					for _, id in ipairs(shoeBundleAssets[entry.id] or {}) do inBundle[id] = true end
+				end
+			end
+		end
+		for _, assetId in ipairs((getWornOrder())) do
+			if not inBundle[assetId] then table.insert(entries, { id = assetId, itemType = "Asset" }) end
+		end
+		return entries
+	end
 	itemDetail.view.onAddWorn = function()
 		if busy then return end
 		busy = true
 		task.spawn(function()
-			refreshWornItems() -- (what the server says is worn now)
-			local entries, inBundle = {}, {}
-			local seen = {}
-			local bundleIds = {}
-			for _, item in ipairs(recentItems) do
-				if item.ItemType == "Bundle" and typeof(item.Id) == "number" then table.insert(bundleIds, { id = item.Id, itemType = "Bundle" }) end
-			end
-			for _, favorite in ipairs(favoriteItems) do
-				if favorite.itemType == "Bundle" and typeof(favorite.id) == "number" then table.insert(bundleIds, { id = favorite.id, itemType = "Bundle" }) end
-			end
-			local bundleDetails = fetchItemDetails(bundleIds)
-			for _, entry in ipairs(bundleIds) do
-				local detail = bundleDetails[itemKey("Bundle", entry.id)]
-				local bundleType = detail and tostring(detail.BundleType)
-				if bundleType and WearableBundles.core[bundleType] and not seen[entry.id] then
-					seen[entry.id] = true
-					if not WearableBundles.coreAssets[entry.id] then
-						local loaded = false
-						loadShoeBundleAssets(entry.id, bundleType, function() loaded = true end)
-						local waited = 0
-						while not loaded and waited < 4 and not WearableBundles.coreAssets[entry.id] do waited += task.wait(0.1) end
-					end
-					if isShoeBundleWorn(entry.id) then
-						table.insert(entries, entry)
-						for _, id in ipairs(shoeBundleAssets[entry.id] or {}) do inBundle[id] = true end
-					end
-				end
-			end
-			for _, assetId in ipairs((getWornOrder())) do
-				if not inBundle[assetId] then table.insert(entries, { id = assetId, itemType = "Asset" }) end
-			end
+			local entries = itemDetail.view.collectWorn()
 			if #entries == 0 then
 				busy = false
 				showToast("입고 있는 아이템이 없어요.")
@@ -3078,6 +3083,10 @@ renderLocalMode = function()
 		require(script.Parent:WaitForChild("RecommendedLooksView")).render()
 		return
 	end
+	if mode == "Community" then -- (D-COMMUNITY) players' posted looks
+		require(script.Parent:WaitForChild("CommunityLooksView")).render()
+		return
+	end
 
 	local entries = {}
 	if mode == "Recent" then
@@ -3428,7 +3437,7 @@ selectCategory = function(name: string, assetTypes, bundleTypes)
 
 	-- Categories filter Recent/Favorites/Wearing, but mean nothing for saved
 	-- outfits: a category press in the Wardrobe goes back to the catalog.
-	if browseMode == "Wardrobe" or browseMode == "Looks" then
+	if browseMode == "Wardrobe" or browseMode == "Looks" or browseMode == "Community" then
 		browseMode = "Catalog"
 		updateDiscoveryHighlight()
 	end
@@ -3714,7 +3723,7 @@ end)
 --------------------------------------------------
 
 searchButton.MouseButton1Click:Connect(function()
-	if browseMode == "Wardrobe" or browseMode == "Looks" then
+	if browseMode == "Wardrobe" or browseMode == "Looks" or browseMode == "Community" then
 		browseMode = "Catalog"
 		updateDiscoveryHighlight()
 	end
@@ -3814,6 +3823,30 @@ require(script.Parent:WaitForChild("RecommendedLooksView")).setup({
 		refreshWornItems()
 		refreshAvatarPreview()
 	end,
+})
+
+-- (D-COMMUNITY) the 코디 tab's cards (posts of players), the same grid and card scale
+require(script.Parent:WaitForChild("CommunityLooksView")).setup({
+	container = resultsFrame,
+	TryOnItem = TryOnItem,
+	getCardScale = function() return cardContentScale end,
+	registerScale = function(uiScale) table.insert(cardContentUIScales, uiScale) end,
+	showToast = function(text) showToast(text) end,
+	setMessage = function(text) setResultsMessage(text) end,
+	canChangeAvatar = function()
+		if actionBusy then
+			showToast("다른 아바타 변경이 진행 중입니다.")
+			return false
+		end
+		return not editorBlocksAvatarChanges()
+	end,
+	setBusy = function(busy) actionBusy = busy end,
+	onWorn = function()
+		refreshWornItems()
+		refreshAvatarPreview()
+	end,
+	collectWorn = function() return itemDetail.view.collectWorn() end,
+	isShown = function() return browseMode == "Community" end,
 })
 
 -- ▣ always opens the Wardrobe (it does not toggle back like the discovery strip).

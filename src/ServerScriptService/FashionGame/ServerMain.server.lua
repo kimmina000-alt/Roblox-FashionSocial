@@ -19,6 +19,7 @@ PlayerDataService.Start()
 require(script.Parent.Services.HairFitService).Start(PlayerDataService)
 require(script.Parent.Services.GuideService).Start(PlayerDataService)
 require(script.Parent.Services.FeedbackService).Start() -- (💬 의견 보내기, D-725)
+require(script.Parent.Services.CommunityLooksService).Start() -- (catalog 코디 posts, D-COMMUNITY)
 require(script.Parent.Services.EdmService).Start() -- (DJ EDM effects, D-733)
 local MonetizationService = require(script.Parent.Services.MonetizationService)
 local DjService = require(script.Parent.Services.DjService)
@@ -519,6 +520,27 @@ TryOnItem.OnServerInvoke = function(
 		return runTracked(player, function()
 			return AvatarService.RestoreSnapshot(player, snapshot)
 		end)
+	end
+
+	-- (D-COMMUNITY) the catalog's 코디 tab: post the look worn now, and put a post's look on
+	if action == "PostLook" then
+		local ok, snapshot = runExclusive(player, function()
+			return AvatarService.CaptureSnapshot(player)
+		end)
+		if not ok then return false, snapshot end
+		local character = player.Character
+		local humanoid = character and character:FindFirstChildOfClass("Humanoid")
+		if not humanoid then return false, "Character is not ready." end
+		return require(script.Parent.Services.CommunityLooksService).post(player, payload, snapshot, humanoid:GetAppliedDescription())
+	end
+	if action == "WearPost" then
+		local snapshot = require(script.Parent.Services.CommunityLooksService).snapshotOf(payload)
+		if not snapshot then return false, "없는 코디예요." end
+		local ok, result = runTracked(player, function()
+			return AvatarService.RestoreSnapshot(player, snapshot)
+		end)
+		if ok then Analytics.interact(player, "Outfit") end
+		return ok, result
 	end
 
 	-- (D-1137) 코디 코드: the look worn now under a short code, and a code's look put on

@@ -6967,3 +6967,11 @@ Studio only (no script yet).
 - (D-1818 추가 19, 사용자 2026-11-21) "볼륨 그대로 7번으로 바꾸고 아래에서 내려오는 키 있을 때만 소리 나게 … 너무 간격 좁게 내려와서 누르면 소리 씹히더라": 소리 = edm_7_808(크기 0.15 그대로), 누른 순간 내려오는 표시가 판정 범위(0.18 s) 안에 있을 때만, 판정 전에 바로 재생(버튼마다 복사본 6개). 씹힘의 원인은 키 입력이 빠지던 것(추가 18에서 고침)으로 봄.
 - (D-1818 추가 20, 사용자 2026-11-21) "5번으로 하고 소리 반으로 더 줄여 봐": 버튼 소리 edm_5_stab, 크기 0.15 → 0.075.
 - (D-1818 추가 21, 사용자 2026-11-21) "줄인 거에서 반만 더 키우고 머지해": 버튼 소리 크기 0.075 → 0.1125, 그리고 catalog-ui-redesign에 머지.
+
+## D-1990 카탈로그 "코디" 탭: 플레이어가 올린 코디 보기 · 입기 · 사기 (2026-11-22)
+- 사용자: "오후 카탈로그에 사람들이 캐릭터 꾸며서 올릴 수 있는 카테고리 추가하자". 고른 것: A(추천 옆 '코디' 버튼, 추천처럼 아이템칸 그리드 + [최신] [인기] + 📤 올리기), 올리기 개수 제한 없음(도배 막기로 1분 쿨타임만), 🚩 신고 3명이면 바로 숨김, 인기 = 👍 수(1인 1개, 다시 누르면 취소).
+- 올리기: 지금 입은 모습(AvatarService.CaptureSnapshot) + 제목 20자(TextService 필터를 통과해야 게시, 비우면 "<닉네임>의 코디"). 사기 목록 = 카탈로그 "입은 옷 모두 담기"와 같은 목록(번들은 번들로, itemDetail.view.collectWorn); 서버가 지금 입은 것인지(번들은 입은 부위가 들어 있는지) 확인하고 가격을 읽음.
+- 저장: DataStore CommunityLooks_v1("p<id>" 게시물, "next" 번호, "u<userId>" 누른 👍, "r<id>" 신고한 사람) + OrderedDataStore CommunityLooksNew_v1 / Top_v1 / Hidden_v1. Studio는 *_Studio_v1(라이브 목록에 섞이지 않음). 목록은 최신 / 인기 각각 100개까지, 한 번에 17장 + 더 보기.
+- 카드: 서버가 스냅숏으로 만든 아바타(ServerStorage.CommunityRigs, 40개까지)를 요청한 사람의 PlayerGui.CommunityRigs에만 복사 → ViewportFrame. 입기 = TryOnItem "WearPost"(무료 입어 보기), 사기 = Owned → BuyMany(가격 0 = 판매 안 함은 뺌, 20개까지).
+- 지우기: 올린 사람은 자기 것 🗑, 운영자(게임 주인, Studio는 모두)는 모든 카드 🗑 + [숨김] 목록에서 "숨김 풀기". 🚩 / 🗑은 한 번 더 눌러야 실행.
+- 코드: Services/CommunityLooksService.lua, CommunityLooksView.lua, Remotes.CommunityLooks; ServerMain(PostLook / WearPost), CatalogController(버튼 · 모드 · setup만). 16개 언어: tools/i18n/tr/p26_community1122.tsv.
