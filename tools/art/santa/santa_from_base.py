@@ -277,7 +277,11 @@ def _(hat):
     remove_hat(hat)
     sphere((0, 0, HEAD_TOP - 0.15), (0.68, 0.64, 0.45), "grey")
     for s in (-1, 1):
-        cone((0.72 * s, 0, HEAD_TOP + 0.2), 0.12, 0.02, 0.6, "cream", rot=(0, math.radians(-30 * s), 0))
+        # (D-2015, user 2026-11-22: "모자에 뿔 떨어짐") each horn starts inside the helmet's side and leans out
+        ang = math.radians(40 * s)
+        base = Vector((0.52 * s, 0, HEAD_TOP - 0.05))
+        d = Vector((math.sin(ang), 0, math.cos(ang)))
+        cone(base + d * 0.3, 0.15, 0.02, 0.6, "cream", rot=(0, ang, 0))
 
 @look("rudolph")
 def _(hat):
