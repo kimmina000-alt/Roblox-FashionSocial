@@ -916,12 +916,16 @@ local function fillBoards()
 		b.champScore.Text = if list[1] then (tostring(list[1].s) .. (if typeof(list[1].c) == "number" then string.format(" · %d콤보", list[1].c) else "")) else "첫 1위를 기다려요"
 		for i, row in ipairs(b.rows) do
 			local e = list[i]
-			row.Text = if e then string.format("%2d  %s", i, tostring(e.n)) else ""
 			row.Visible = e ~= nil
+			local nameLabel = row:FindFirstChild("PlayerName") :: TextLabel?
+			if nameLabel then nameLabel.Text = if e then tostring(e.n) else "" end
 			local score = row:FindFirstChild("Score") :: TextLabel?
 			-- (D-1818d, user 2026-11-21: "순위표에 최대 콤보 수 표시")
 			if score then score.Text = if e then (tostring(e.s) .. (if typeof(e.c) == "number" then string.format("  ·  %d콤보", e.c) else "")) else "" end
-			row.TextColor3 = if i == 1 then YELLOW elseif i <= 3 then Color3.fromRGB(255, 160, 210) else Color3.new(1, 1, 1)
+			local color = if i == 1 then YELLOW elseif i <= 3 then Color3.fromRGB(255, 160, 210) else Color3.new(1, 1, 1)
+			for _, child in ipairs({ row:FindFirstChild("Rank"), nameLabel }) do
+				if child then (child :: TextLabel).TextColor3 = color end
+			end
 		end
 	end
 end
@@ -940,7 +944,8 @@ local function addBoard(part: Instance)
 	label(champ, "👑", 110, YELLOW, BIG, { Position = UDim2.fromOffset(0, 30), Size = UDim2.new(1, 0, 0, 120) })
 	label(champ, "오늘의 1위", 44, YELLOW, BIG, { Position = UDim2.fromOffset(0, 160), Size = UDim2.new(1, 0, 0, 52) })
 	local champName = label(champ, "", 58, Color3.new(1, 1, 1), BIG, { Name = "ChampName", Position = UDim2.fromOffset(16, 236), Size = UDim2.new(1, -32, 0, 140),
-		TextWrapped = true, TextStrokeColor3 = PINK, TextStrokeTransparency = 0 })
+		TextWrapped = true, TextScaled = true, TextStrokeColor3 = PINK, TextStrokeTransparency = 0 })
+	make("UITextSizeConstraint", { MaxTextSize = 58, MinTextSize = 28 }, champName) -- (D-1818y: a long name stays in the card)
 	local champScore = label(champ, "", 40, YELLOW, BIG, { Name = "ChampScore", Position = UDim2.fromOffset(0, 390), Size = UDim2.new(1, 0, 0, 60) })
 	local right = make("Frame", { BackgroundTransparency = 1, Position = UDim2.new(1 / 3, 20, 0, 20), Size = UDim2.new(2 / 3, -40, 1, -40) }, root)
 	local head = make("Frame", { BackgroundTransparency = 1, Size = UDim2.new(1, 0, 0, 110) }, right)
@@ -955,11 +960,18 @@ local function addBoard(part: Instance)
 		SortOrder = Enum.SortOrder.LayoutOrder }, listBox)
 	local rows = {}
 	for i = 1, 10 do
-		local row = label(listBox, "", 38, Color3.new(1, 1, 1), BODY, { LayoutOrder = i, TextXAlignment = Enum.TextXAlignment.Left,
+		-- (D-1818y, user 2026-11-22: "점수랑 닉네임 겹치는 거 수정") long names ran into the score: now the rank on the
+		-- left, the name on the top line (smaller to fit, then cut with …) and the score · combo on the line under it
+		local row = label(listBox, "", 38, Color3.new(1, 1, 1), BODY, { LayoutOrder = i,
 			BackgroundTransparency = if i <= 3 then 0.7 else 0.88, BackgroundColor3 = if i <= 3 then PINK else CARD })
 		round(row, 10)
-		make("UIPadding", { PaddingLeft = UDim.new(0, 18), PaddingRight = UDim.new(0, 18) }, row)
-		label(row, "", 30, YELLOW, BIG, { Name = "Score", Size = UDim2.fromScale(1, 1), TextXAlignment = Enum.TextXAlignment.Right })
+		make("UIPadding", { PaddingLeft = UDim.new(0, 14), PaddingRight = UDim.new(0, 14) }, row)
+		label(row, tostring(i), 40, Color3.new(1, 1, 1), BIG, { Name = "Rank", Size = UDim2.new(0, 46, 1, 0), TextXAlignment = Enum.TextXAlignment.Left })
+		local name = label(row, "", 34, Color3.new(1, 1, 1), BODY, { Name = "PlayerName", Position = UDim2.new(0, 52, 0, 2), Size = UDim2.new(1, -52, 0.56, -2),
+			TextXAlignment = Enum.TextXAlignment.Left, TextScaled = true, TextTruncate = Enum.TextTruncate.AtEnd, ClipsDescendants = true })
+		make("UITextSizeConstraint", { MaxTextSize = 34, MinTextSize = 20 }, name)
+		label(row, "", 26, YELLOW, BIG, { Name = "Score", Position = UDim2.new(0, 52, 0.56, 0), Size = UDim2.new(1, -52, 0.44, -2),
+			TextXAlignment = Enum.TextXAlignment.Left, TextTruncate = Enum.TextTruncate.AtEnd })
 		rows[i] = row
 	end
 	boards[part] = { rows = rows, title = title, empty = empty, champName = champName, champScore = champScore }

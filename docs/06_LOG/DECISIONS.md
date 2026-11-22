@@ -6972,6 +6972,7 @@ Studio only (no script yet).
 - 사용자: "네온 설정값" → "부스터 4를 2로 변경". boost4 없음(= 1) → 2, 들리는 크기 2배. 나머지 그대로. Play로 들어 보지는 않음.
 - (D-1818 추가 22, 사용자 2026-11-21) "게임 시작하면 자동으로 무대 카메라 켜지게 하자": 오늘의 곡 도전을 시작하면 무대 카메라(LocalPlayer 속성 StageCamera)를 켜고 끝나면 원래대로; StageCameraController는 도전 중이면 무대 곡 대신 도전 곡(DanceChallengeTrack)의 샷을 씀. Studio Play: 시작 8 s 뒤 CameraType Scriptable, 끝난 뒤 StageCamera nil · Custom.
 - (D-1818 추가 23, 사용자 2026-11-22) "내가 설정 안 해도 리듬 게임 알아서 안무 있는 곡으로 랜덤으로 달라지게": 오늘의 곡 = 네온 무대가 트는 안무 곡 25곡 중 하루 하나 무작위(Random에 날짜 키, 모든 서버 · 화면이 같음, 어제 곡은 피함; 05:00 KST에 바뀜). 곡마다 박자는 tools/choreo/dance_beats.py가 원곡 mp3(D:\Roblox\오후\음원)에서 자동으로 잼(스펙트럼 변화 → 템포 → 박자 격자 맞춤) → Shared/DanceScoreSongs.lua(생성 파일). 확인: NEON 130.007 bpm(전 129.99), 무대 영상으로 잰 격자와 0.02 s 차이. 150 bpm 이상(SHOCK · With · Call My Name)은 두 박자마다 표시. 결과 창 곡 이름도 오늘의 곡으로. Studio 테스트: FashionGame 속성 DanceSongOverride = soundId(Studio만). 전체 박자를 옮길 때는 DanceScoreConfig.BeatOffset. Studio Play: 오늘(11-22) CRASH, 표시 · 노래 · 무대 카메라 · 결과 창 확인.
+- (D-1818 추가 24, 사용자 2026-11-22: "점수랑 닉네임 겹치는 거 수정", 라이브 폰 사진) TOP 10 전광판 줄: 왼쪽 순위 숫자, 위 줄에 이름(칸에 맞게 작아지고 최소 20 px에서 … 로 자름), 아래 줄에 점수 · 콤보 — 이름과 점수가 같은 줄을 나눠 쓰지 않아 겹치지 않음; 1위 카드 이름도 칸에 맞게 줄어듦(58 → 최소 28). Studio Play: 20자 이름 10개 모두 TextFits, 글자 폭 ≤ 칸 폭(277 px).
 
 ## D-1984 오늘의 곡 도전: 곡마다 맞춘 버튼 소리 (2026-11-22)
 - 사용자: "노래에 맞는 드럼 소리나 edm 소리 ai로 만든 후 리듬 게임에 적용".
