@@ -6984,3 +6984,10 @@ Studio only (no script yet).
 - D-2015 Viking horns rooted in the helmet; D-2016 barista dark green suit (hat stays red), photo Santa with both arms up holding the camera, subway Santa = conductor (navy cap with a line-2 band and badge, whistle, mini subway car); D-2017 store Santa with an open cup ramen and chopsticks, Viking bows on the beard, surfer pink shirt with flowers; D-2018 (user: "산타 몸 매끈하지 않아도 됨. 모자도 폴리곤 줄일 수 있으면 줄여") one Subdivision step, none on the hat and small parts: ~12k triangles a Santa (was ~60k), Viking bows smaller and one above the other; D-2019 flat round pieces (flower petals, subway badge, Rudolph's eyes), no knot ball on the bows.
 - D-2040 (user: "꽃 크기를 키우고 개수를 줄여 녹색 이파리도 넣어 하와이안 셔츠 느낌으로", "바이킹 리본 진한 회색으로"): bigger, fewer flat flowers with two green leaves each; Viking bows dark grey.
 - Still to do before the game: game-ready versions at ~2-3k triangles (decimate the user's shapes too), album cards from the renders, upload and swap SantaFactory to the models.
+
+## D-2041 Game-ready Santas, ~2.7k triangles (2026-11-22)
+- User: "산타 전체 폴리곤 줄일 수 있는 거 확인하고 줄여. 각져도 괜찮음".
+- santa_from_base.py "low": no Subdivision, spheres at 10 segments, flat pieces at 6 sides, the hat split by colour before thinning (a clean red / white border), then a Decimate (collapse) on every shape over its budget (big shapes ~260 triangles, small ~90). docs/04_ART/models/santa/game/<look>.glb: 1,950 .. 5,180 triangles, 2,713 on average (was ~12k smooth, ~60k before). Sheet: docs/06_LOG/images/2026-11-22/santa_game_lowpoly.jpg.
+
+## D-2042 Album card pictures (2026-11-22)
+- User: "도감에 넣을 렌더 사진 제작해". tools/art/santa/album_render.py renders the smooth v3 Santas on a transparent background, 512 x 512, orthographic, framed to fit each one: docs/04_ART/models/santa/album/<look>.png. The album will show these as images (no 3D cost) once uploaded. Sheet: docs/06_LOG/images/2026-11-22/santa_album_cards.jpg.

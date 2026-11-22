@@ -15,6 +15,10 @@ from mathutils import Vector
 argv = sys.argv[sys.argv.index("--") + 1:]
 BASE, OUT = argv[0], argv[1]
 ONLY = set(argv[2:])
+# (D-2041, user 2026-11-22: "산타 전체 폴리곤 줄일 수 있는 거 확인하고 줄여. 각져도 괜찮음") "low": the game
+# version: no Subdivision anywhere, lower-poly props, and a Decimate on every shape with many triangles
+LOW = "low" in ONLY
+ONLY.discard("low")
 os.makedirs(os.path.join(OUT, "blend"), exist_ok=True)
 
 COL = {
@@ -64,6 +68,8 @@ def recolor(matname, colname):
 
 
 def finish(o, color, sub=2):
+    if LOW:
+        sub = 0
     o.data.materials.clear()
     o.data.materials.append(mat(color))
     if sub:
@@ -76,6 +82,8 @@ def finish(o, color, sub=2):
 
 
 def sphere(loc, scale, color, rot=(0, 0, 0), sub=1, seg=16):
+    if LOW:
+        seg = min(seg, 10)
     bpy.ops.mesh.primitive_uv_sphere_add(segments=seg, ring_count=max(4, seg // 2), radius=1, location=loc, rotation=rot)
     o = bpy.context.active_object
     o.scale = scale
@@ -94,6 +102,8 @@ def cyl(loc, radius, depth, color, rot=(0, 0, 0), verts=24, bevel=0.0):
 
 def disc(loc, radius, normal, color, verts=10):
     """(D-2019) a flat round piece facing `normal` (flower petals, badges, eyes): a thin 10-sided cylinder"""
+    if LOW:
+        verts = min(verts, 6)
     rot = Vector(normal).normalized().to_track_quat("Z", "Y").to_euler()
     bpy.ops.mesh.primitive_cylinder_add(vertices=verts, radius=radius, depth=0.012, location=loc, rotation=rot)
     return finish(bpy.context.active_object, color, 0)
@@ -139,7 +149,7 @@ def prep_base():
             if m.type == "SUBSURF":
                 o.modifiers.remove(m)
         small = max(o.dimensions) < 0.3
-        if o is not hat and not small:
+        if o is not hat and not small and not LOW:
             mod = o.modifiers.new("sub", "SUBSURF")
             mod.levels = 1
             mod.render_levels = 1
@@ -425,6 +435,30 @@ def export(name):
     for o in list(bpy.context.scene.objects):
         if o.type in ("CAMERA", "LIGHT"):
             bpy.data.objects.remove(o)
+    if LOW:
+        # the hat holds two colours: split it first, so the red / white border stays clean when thinned
+        for o in list(bpy.context.scene.objects):
+            if o.type == "MESH" and len(o.data.materials) > 1:
+                bpy.ops.object.select_all(action="DESELECT")
+                o.select_set(True)
+                bpy.context.view_layer.objects.active = o
+                bpy.ops.object.mode_set(mode="EDIT")
+                bpy.ops.mesh.select_all(action="SELECT")
+                bpy.ops.mesh.separate(type="MATERIAL")
+                bpy.ops.object.mode_set(mode="OBJECT")
+        # the user's base shapes are dense (the beard ~1,700 triangles): bring every shape down
+        dg = bpy.context.evaluated_depsgraph_get()
+        for o in bpy.context.scene.objects:
+            if o.type != "MESH":
+                continue
+            me = o.evaluated_get(dg).to_mesh()
+            tris = sum(len(p.vertices) - 2 for p in me.polygons)
+            o.evaluated_get(dg).to_mesh_clear()
+            target = 260 if max(o.dimensions) > 0.6 else 90
+            if tris > target * 1.3:
+                d = o.modifiers.new("dec", "DECIMATE")
+                d.decimate_type = "COLLAPSE"
+                d.ratio = max(0.08, target / tris)
     bpy.ops.object.select_all(action="SELECT")
     for o in list(bpy.context.selected_objects):
         bpy.context.view_layer.objects.active = o
