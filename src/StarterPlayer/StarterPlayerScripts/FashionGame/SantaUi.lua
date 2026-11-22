@@ -102,7 +102,7 @@ function SantaUi.card(parent: Instance, size: UDim2, position: UDim2): Frame
 	corner(panel, 22)
 	create("UIGradient", { Rotation = 90, Color = ColorSequence.new(SantaUi.PINK_TOP, SantaUi.PINK_BOTTOM) }, panel)
 	create("ImageLabel", {
-		Name = "Snow", AnchorPoint = Vector2.new(0.5, 0), Position = UDim2.new(0.5, 0, 0, -12), Size = UDim2.new(1, 8, 0, 30),
+		Name = "Snow", AnchorPoint = Vector2.new(0.5, 0), Position = UDim2.new(0.5, 0, 0, -12), Size = UDim2.new(1, -36, 0, 30),
 		BackgroundTransparency = 1, Image = IMG_SNOW, ScaleType = Enum.ScaleType.Stretch, ZIndex = 5,
 	}, holder)
 	return panel
@@ -200,15 +200,15 @@ function SantaUi.reveal(santa: any)
 	SantaUi.deco(panel, "🎄", UDim2.new(0, 26, 1, -40), 48, -6)
 	SantaUi.deco(panel, "🎄", UDim2.new(1, -26, 1, -40), 48, 6)
 	SantaUi.chunky(panel, {
-		AnchorPoint = Vector2.new(0.5, 0), Position = UDim2.new(0.5, 0, 0, 290), Size = UDim2.new(1, -40, 0, 32),
+		AnchorPoint = Vector2.new(0.5, 0), Position = UDim2.new(0.5, 0, 0, 282), Size = UDim2.new(1, -40, 0, 32),
 		TextSize = 24, TextColor3 = SantaUi.RED, Text = string.format("%s를 찾았어요!", santa.name or "산타"), TextScaled = true, ZIndex = 3,
 	}, 3)
 	create("TextLabel", {
-		AnchorPoint = Vector2.new(0.5, 0), Position = UDim2.new(0.5, 0, 0, 326), Size = UDim2.new(1, -60, 0, 20), BackgroundTransparency = 1,
+		AnchorPoint = Vector2.new(0.5, 0), Position = UDim2.new(0.5, 0, 0, 318), Size = UDim2.new(1, -60, 0, 20), BackgroundTransparency = 1,
 		FontFace = SEMI, TextScaled = true, TextColor3 = SantaUi.INK, Text = "산타 도감에 쏙! 🎅 버튼에서 인형으로 들 수 있어요", ZIndex = 3,
 	}, panel)
 	local ok = SantaUi.pill(panel, {
-		Class = "TextButton", AnchorPoint = Vector2.new(0.5, 1), Position = UDim2.new(0.5, 0, 1, -16), Size = UDim2.fromOffset(190, 46),
+		Class = "TextButton", AnchorPoint = Vector2.new(0.5, 1), Position = UDim2.new(0.5, 0, 1, -12), Size = UDim2.fromOffset(180, 42),
 		TextSize = 22, Text = "확인", ZIndex = 4, AutoButtonColor = true,
 	}, SantaUi.RED, SantaUi.WHITE) :: any
 	local closing = false
