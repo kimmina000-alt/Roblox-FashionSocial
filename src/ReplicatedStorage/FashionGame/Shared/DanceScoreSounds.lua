@@ -13,16 +13,17 @@ local DanceScoreSounds = {}
 export type Lane = { id: number, pitched: boolean }
 export type Play = { id: number, speed: number, volume: number }
 
--- lane 1 ◀/A, 2 ▼/S, 3 ▲/D, 4 ▶/F (ids: uploaded by Vantablack_Dev; 0 = not yet)
+-- lane 1 ◀/A, 2 ▼/S, 3 ▲/D, 4 ▶/F (ids: uploaded by Vantablack_Dev 2026-11-22, files docs/04_ART/sfx/kits
+-- <kit>_<lane>*.wav; 0 = not uploaded: that button uses DanceScoreConfig.LaneSounds)
 DanceScoreSounds.Kits = {
 	-- supersaw power-chord stabs, I5 / IV5 / V5 / I5 high (like edm_5_stab)
-	edm = { { id = 0, pitched = true }, { id = 0, pitched = true }, { id = 0, pitched = true }, { id = 0, pitched = true } },
+	edm = { { id = 94534290003998, pitched = true }, { id = 128730510689808, pitched = true }, { id = 71587213321541, pitched = true }, { id = 102571832262476, pitched = true } },
 	-- tuned 808 / snare / dark brass stab / clap (hip-hop songs)
-	trap = { { id = 0, pitched = true }, { id = 0, pitched = false }, { id = 0, pitched = true }, { id = 0, pitched = false } },
+	trap = { { id = 81428012535145, pitched = true }, { id = 86166967685855, pitched = false }, { id = 99896696073557, pitched = true }, { id = 116814789238012, pitched = false } },
 	-- bright plucks I5 / IV5 / V5 and a bell
-	pop = { { id = 0, pitched = true }, { id = 0, pitched = true }, { id = 0, pitched = true }, { id = 0, pitched = true } },
+	pop = { { id = 123460051656462, pitched = true }, { id = 95509574527107, pitched = true }, { id = 121020367234510, pitched = true }, { id = 78448919768904, pitched = true } },
 	-- synth-brass stabs I5 / IV5 / V5 and an orchestra hit (2009-2010 songs, funk)
-	retro = { { id = 0, pitched = true }, { id = 0, pitched = true }, { id = 0, pitched = true }, { id = 0, pitched = true } },
+	retro = { { id = 92070419550891, pitched = true }, { id = 131721956835078, pitched = true }, { id = 118994620182314, pitched = true }, { id = 116911509566974, pitched = true } },
 } :: { [string]: { Lane } }
 
 -- loudness of a kit next to DanceScoreConfig.LaneSoundVolume (the files are matched to edm_5_stab)
