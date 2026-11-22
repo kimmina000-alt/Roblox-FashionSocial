@@ -6969,3 +6969,15 @@ Studio only (no script yet).
 - (D-1818 추가 21, 사용자 2026-11-21) "줄인 거에서 반만 더 키우고 머지해": 버튼 소리 크기 0.075 → 0.1125, 그리고 catalog-ui-redesign에 머지.
 - (D-1818 추가 22, 사용자 2026-11-21) "게임 시작하면 자동으로 무대 카메라 켜지게 하자": 오늘의 곡 도전을 시작하면 무대 카메라(LocalPlayer 속성 StageCamera)를 켜고 끝나면 원래대로; StageCameraController는 도전 중이면 무대 곡 대신 도전 곡(DanceChallengeTrack)의 샷을 씀. Studio Play: 시작 8 s 뒤 CameraType Scriptable, 끝난 뒤 StageCamera nil · Custom.
 - (D-1818 추가 23, 사용자 2026-11-22) "내가 설정 안 해도 리듬 게임 알아서 안무 있는 곡으로 랜덤으로 달라지게": 오늘의 곡 = 네온 무대가 트는 안무 곡 25곡 중 하루 하나 무작위(Random에 날짜 키, 모든 서버 · 화면이 같음, 어제 곡은 피함; 05:00 KST에 바뀜). 곡마다 박자는 tools/choreo/dance_beats.py가 원곡 mp3(D:\Roblox\오후\음원)에서 자동으로 잼(스펙트럼 변화 → 템포 → 박자 격자 맞춤) → Shared/DanceScoreSongs.lua(생성 파일). 확인: NEON 130.007 bpm(전 129.99), 무대 영상으로 잰 격자와 0.02 s 차이. 150 bpm 이상(SHOCK · With · Call My Name)은 두 박자마다 표시. 결과 창 곡 이름도 오늘의 곡으로. Studio 테스트: FashionGame 속성 DanceSongOverride = soundId(Studio만). 전체 박자를 옮길 때는 DanceScoreConfig.BeatOffset. Studio Play: 오늘(11-22) CRASH, 표시 · 노래 · 무대 카메라 · 결과 창 확인.
+
+## D-1984 오늘의 곡 도전: 곡마다 맞춘 버튼 소리 (2026-11-22)
+- 사용자: "노래에 맞는 드럼 소리나 edm 소리 ai로 만든 후 리듬 게임에 적용".
+- 원곡 mp3(D:\Roblox\오후\음원)에서 곡마다 조(키)와 템포를 잼: `tools/art/song_key.py`(스펙트럼 피크 크로마 + Krumhansl 프로필, 결과 `docs/04_ART/sfx/kits/songs_key.json`; NEON 129.9 bpm = 무대 영상 129.99와 같음).
+- 소리는 직접 합성(샘플 없음): `tools/art/dance_kits.py` → `docs/04_ART/sfx/kits/` 16개(0.42 s, 어택 2~3 ms, 크기는 사용자가 맞춘 edm_5_stab과 같게). 키트 4개 × 버튼 4개:
+  - edm: 슈퍼소 파워코드 스탭 I5 / IV5 / V5 / 높은 I5 (NEON, CRASH, Looks Can Kill 등 10곡)
+  - trap: 808(곡 음에 맞춤) / 스네어 / 어두운 브라스 스탭 / 클랩 (BAD, REDRED, SHEESH 등 7곡)
+  - pop: 밝은 플럭 I5 / IV5 / V5 / 벨 (Lemon Tang, 갑자기, Pop Off 등 8곡)
+  - retro: 신스 브라스 I5 / IV5 / V5 / 오케스트라 히트 (Genie, BANG, Boogie Woogie)
+- 파워코드(근음 + 5도)만 써서 장조 · 단조 어느 곡에도 틀린 3도가 안 나옴. 음이 있는 소리는 C로 만들고 게임에서 PlaybackSpeed 2^(key/12)로 곡의 조에 맞춤(key -5..6, 최대 1.41배).
+- 코드: `Shared/DanceScoreSounds.lua`(곡 → 키트 · 키, 키트 → 버튼 id), DanceScoreController는 도전을 시작하면 그 곡의 소리를 만들고 미리 불러옴. 목록에 없는 곡이나 id 0은 DanceScoreConfig.LaneSounds 그대로.
+- 미리듣기(곡 14초 + 박자마다 버튼 소리): D:\Roblox\영상\_work\dance_sfx\previews.

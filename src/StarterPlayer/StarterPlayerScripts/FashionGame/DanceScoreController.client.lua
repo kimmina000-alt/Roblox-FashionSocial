@@ -357,16 +357,33 @@ local SOUND = {
 -- MISS still shows on screen
 -- (D-1818m, user 2026-11-21: "6 빼고 3 5 7 8 차례대로 버튼 네 개에 하나씩") each button its own 0.5 s EDM sound on a
 -- hit (DanceScoreConfig.LaneSounds; 0 = not uploaded yet: silent), 3 copies each so quick hits never cut one off
+-- (D-1984, user 2026-11-22: "노래에 맞는 드럼 소리나 edm 소리") each song its own kit in its own key
+-- (Shared/DanceScoreSounds; songs not listed there keep DanceScoreConfig.LaneSounds): the 4 x 6 copies are
+-- made for the run's song as soon as a run starts (and preloaded during the 3 · 2 · 1)
+local DanceScoreSounds = require(Shared:WaitForChild("DanceScoreSounds"))
 local laneSounds: {{Sound}} = {}
+local laneSong: number? = nil
 local laneTurn = { 0, 0, 0, 0 }
-for i, id in ipairs(DanceScoreConfig.LaneSounds) do
-	laneSounds[i] = {}
-	if id ~= 0 then
-		-- (D-1818s) 6 copies: fast taps on one button each get their own sound
-		for _ = 1, 6 do table.insert(laneSounds[i], hitSound(id, DanceScoreConfig.LaneSoundVolume, 1)) end
+local function buildLaneSounds(soundId: number?)
+	if laneSong == soundId and #laneSounds > 0 then return end
+	for _, pool in ipairs(laneSounds) do
+		for _, s in ipairs(pool) do s:Destroy() end
 	end
+	laneSounds, laneSong = {}, soundId
+	local all: {Instance} = {}
+	for i, p in ipairs(DanceScoreSounds.lanes(soundId, DanceScoreConfig.LaneSoundVolume, DanceScoreConfig.LaneSounds)) do
+		laneSounds[i] = {}
+		if p.id ~= 0 then
+			-- (D-1818s) 6 copies: fast taps on one button each get their own sound
+			for _ = 1, 6 do table.insert(laneSounds[i], hitSound(p.id, p.volume, p.speed)) end
+			table.insert(all, laneSounds[i][1])
+		end
+	end
+	task.spawn(function() pcall(function() ContentProvider:PreloadAsync(all) end) end)
 end
 local function laneSound(lane: number)
+	local soundId = run and run.track.soundId
+	if laneSong ~= soundId or #laneSounds == 0 then buildLaneSounds(soundId) end
 	local pool = laneSounds[lane]
 	if not pool or #pool == 0 then return end
 	laneTurn[lane] = laneTurn[lane] % #pool + 1
@@ -375,11 +392,13 @@ local function laneSound(lane: number)
 	s:Play()
 end
 task.spawn(function()
-	local all: {Instance} = { SOUND.BEEP }
-	for _, pool in ipairs(laneSounds) do
-		if pool[1] then table.insert(all, pool[1]) end
+	pcall(function() ContentProvider:PreloadAsync({ SOUND.BEEP }) end)
+	-- build the run's song sounds as soon as a run starts (before its first note)
+	while true do
+		local soundId = run and run.track.soundId
+		if soundId and soundId ~= laneSong then buildLaneSounds(soundId) end
+		task.wait(0.25)
 	end
-	pcall(function() ContentProvider:PreloadAsync(all) end)
 end)
 
 local judgeTween: Tween? = nil
