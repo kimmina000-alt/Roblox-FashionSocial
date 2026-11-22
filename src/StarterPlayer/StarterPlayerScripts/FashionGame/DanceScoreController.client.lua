@@ -213,7 +213,7 @@ round(result, 18)
 stroke(result, PINK, 2)
 make("UIPadding", { PaddingLeft = UDim.new(0, 20), PaddingRight = UDim.new(0, 20), PaddingTop = UDim.new(0, 14), PaddingBottom = UDim.new(0, 16) }, result)
 make("UIListLayout", { Padding = UDim.new(0, 8), SortOrder = Enum.SortOrder.LayoutOrder, HorizontalAlignment = Enum.HorizontalAlignment.Center }, result)
-label(result, "NEON · A2O LITE", 13, CYAN, BODY, { LayoutOrder = 1 })
+local resultSong = label(result, "", 13, CYAN, BODY, { LayoutOrder = 1 }) -- (D-1818x: today's song, set in showResult)
 local gradeLabel = label(result, "S", 76, YELLOW, BIG, { LayoutOrder = 2, Size = UDim2.new(1, 0, 0, 76), TextStrokeColor3 = PINK, TextStrokeTransparency = 0.2 })
 local resultScore = label(result, "0", 28, Color3.new(1, 1, 1), BIG, { LayoutOrder = 3, Size = UDim2.new(1, 0, 0, 32) })
 local resultNote = label(result, "", 13, Color3.fromRGB(255, 138, 208), BODY, { LayoutOrder = 4 })
@@ -566,6 +566,8 @@ local function showResult(r: Run, serverResult: any)
 		score, grade = serverResult.score, serverResult.grade
 	end
 	gradeLabel.Text = grade
+	local songInfo = DanceScoreConfig.Songs[r.track.soundId]
+	resultSong.Text = if songInfo then (songInfo.title .. " · " .. songInfo.artist) else tostring(r.track.title)
 	resultScore.Text = tostring(score)
 	if typeof(serverResult) == "table" then
 		local parts = {}
