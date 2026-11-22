@@ -1701,7 +1701,7 @@ d8165c	tmpl	장바구니 보기 ({1})	1	src/StarterPlayer/StarterPlayerScripts/F
 476cb5	exact	📳 진동	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/MenuController.client.lua:113
 4a29e8	exact	👁 UI 숨기기	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/MenuController.client.lua:121
 60a354	exact	🎅 미니 산타 앨범	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/MenuController.client.lua:145
-1fdc5e	exact	확인	2	src/StarterPlayer/StarterPlayerScripts/FashionGame/MessagePrompt.lua:104
+1fdc5e	exact	확인	3	src/StarterPlayer/StarterPlayerScripts/FashionGame/MessagePrompt.lua:104
 a08356	tmpl	모두의 화면 위에 내 이름과 이 한마디가 떠요.{1}	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/MessagePrompt.lua:144
 8633a2	tmpl	\n[Studio 테스트] 결제 없이 {1} R$ 상품을 시험해요.	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/MessagePrompt.lua:145
 f2bae9	exact	한마디 (30자, 비워도 돼요)	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/MessagePrompt.lua:72
@@ -1858,20 +1858,22 @@ b5973c	exact	🎆 무대 콜드 스파크로 오늘 밤을 밝혀 주세요	1	sr
 19b40b	tmpl	{1}위 {2} {3}	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/RankingBoards.client.lua:733
 8f131c	tmpl	💝 {1}님이 {2} R$ 기부하셨습니다{3}	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/RankingBoards.client.lua:793
 bcf88b	exact	짜잔! 🎉	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/RewardReveal.lua:124
-97caf2	tmpl	{1}를 찾았어요!	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/RewardReveal.lua:149
-332d8d	exact	산타	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/RewardReveal.lua:149
-947238	exact	산타 도감에 쏙! 🎅 버튼에서 인형으로 들 수 있어요	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/RewardReveal.lua:150
+97caf2	tmpl	{1}를 찾았어요!	2	src/StarterPlayer/StarterPlayerScripts/FashionGame/RewardReveal.lua:149
+332d8d	exact	산타	2	src/StarterPlayer/StarterPlayerScripts/FashionGame/RewardReveal.lua:149
+947238	exact	산타 도감에 쏙! 🎅 버튼에서 인형으로 들 수 있어요	2	src/StarterPlayer/StarterPlayerScripts/FashionGame/RewardReveal.lua:150
 475ac3	exact	모두에게 보이는 내 이름 위에 칭호가 생겼어요 👑	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/RewardReveal.lua:160
 71961e	exact	오후네컷에 가서 확인해 보세요 📸	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/RewardReveal.lua:176
-838258	exact	찾은 산타를 누르면 인형으로 들 수 있어요 🧸	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/SantaHuntController.client.lua:100
-22221d	tmpl	🧸 {1} 인형을 들었어요!	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/SantaHuntController.client.lua:140
-a69e16	tmpl	찾은 산타<br/><font size="22" color="#D62C40">{1}</font> / {2}	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/SantaHuntController.client.lua:150
-9663ba	tmpl	오늘의 산타 ({1}): {2}	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/SantaHuntController.client.lua:152
-0e8c60	exact	이벤트가 끝났어요. 찾은 산타는 언제든 인형으로 들 수 있어요!	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/SantaHuntController.client.lua:154
-d727a0	tmpl	{1}부터 매일 한 명씩 산타가 숨어요!	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/SantaHuntController.client.lua:156
-133974	exact	오늘!	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/SantaHuntController.client.lua:164
-d6c374	tmpl	🎅 오늘의 산타: {1}	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/SantaHuntController.client.lua:240
-338892	exact	OHU CHRISTMAS · 매일 한 명씩 숨어 있어요	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/SantaHuntController.client.lua:74
+133974	exact	오늘!	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/SantaHuntController.client.lua:128
+22221d	tmpl	🧸 {1} 인형을 들었어요!	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/SantaHuntController.client.lua:139
+50a748	exact	❄️  찾은 산타를 누르면 인형으로 들 수 있어요!  🎁	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/SantaHuntController.client.lua:146
+790875	exact	<font color="#E23442">2026 산타</font> <font color="#22965A">앨범</font>	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/SantaHuntController.client.lua:160
+ecd109	exact	<font color="#E23442">미니 산타</font> <font color="#22965A">찾기</font>	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/SantaHuntController.client.lua:161
+709f0b	tmpl	오늘의 산타 (<font color="#E23442">{1}</font>) : {2}	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/SantaHuntController.client.lua:165
+0e8c60	exact	이벤트가 끝났어요. 찾은 산타는 언제든 인형으로 들 수 있어요!	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/SantaHuntController.client.lua:167
+a02dbf	tmpl	<font color="#E23442">{1}</font>부터 매일 한 명씩 산타가 숨어요!	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/SantaHuntController.client.lua:169
+d6c374	tmpl	🎅 오늘의 산타: {1}	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/SantaHuntController.client.lua:252
+f4ebed	exact	찾은 산타	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/SantaHuntController.client.lua:83
+3bedcd	exact	짜잔!	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/SantaUi.lua:176
 1f4534	tmpl	💰 {1} 코인 · R$ {2}	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/ShopMenuUI.lua:132
 54a8d9	exact	🔒 개발 중이에요	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/ShopMenuUI.lua:174
 88ea76	exact	🔒 준비 중	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/ShopMenuUI.lua:175
