@@ -109,6 +109,8 @@ end
 -- (RideWindController) on this screen; pink = heard (attribute MuteCheer = off), saved like the others
 -- (D-1729: the park's firework bangs too, so the row says so)
 switchRow(20, "🎢 환호성 · 폭죽 소리", "MuteCheer", function(mute) remote:InvokeServer("MuteCheer", mute) end)
+-- (D-1985, user 2026-11-22: "켜기/끄기 버튼도 넣어") 📳 진동: the buzz on 오늘의 곡 도전 hits; pink = on (NoVibrate = off)
+switchRow(19, "📳 진동", "NoVibrate", function(off) remote:InvokeServer("NoVibrate", off) end)
 -- (D-1594, user 2026-11-17: "ui 숨기기 버튼 추가") 🙈 UI 숨기기: everything on the screen goes (HideUi), a 👁
 -- button at the top right brings it back
 do

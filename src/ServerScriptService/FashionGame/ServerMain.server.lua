@@ -163,6 +163,9 @@ ClubShop.OnServerInvoke = function(player: Player, action: any, payload: any)
 	elseif action == "MuteCheer" then
 		-- (D-1709) the ☰ menu's 놀이기구 환호성 switch
 		return require(script.Parent.Services.PlayerPrefsService).SetCheer(player, payload == true)
+	elseif action == "NoVibrate" then
+		-- (D-1985) the ☰ menu's 📳 진동 switch (오늘의 곡 도전 hits)
+		return require(script.Parent.Services.PlayerPrefsService).SetVibrate(player, payload == true)
 	elseif action == "HideBadge" then
 		-- (D-1378) one badge's 숨기기: payload { role, on }
 		if typeof(payload) ~= "table" then return false, nil end

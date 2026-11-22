@@ -6983,3 +6983,10 @@ Studio only (no script yet).
 - 미리듣기(곡 14초 + 박자마다 버튼 소리): D:\Roblox\영상\_work\dance_sfx\previews.
 - 업로드(사용자, Vantablack_Dev 2026-11-22): edm 94534290003998 / 128730510689808 / 71587213321541 / 102571832262476, trap 81428012535145 / 86166967685855 / 99896696073557 / 116814789238012, pop 123460051656462 / 95509574527107 / 121020367234510 / 78448919768904, retro 92070419550891 / 131721956835078 / 118994620182314 / 116911509566974. Studio Play(DanceSongOverride = BAD): 도전 시작 시 trap 키트 4 × 6개가 PlaybackSpeed 1.189(D#) / 1.0(스네어 · 클랩)으로 만들어지고 16개 모두 로드, 히트 때 소리 남, 스크립트 오류 없음.
 - (사용자 2026-11-22) "0.75로 해 봐": 키트 소리 크기 0.1125 → 0.75 (DanceScoreSounds.Volume; 0.1125는 크게 키운 무대 노래에 묻혀 안 들림). 목록에 없는 곡은 LaneSoundVolume 그대로.
+
+## D-1985 오늘의 곡 도전: 맞히면 진동 + ☰ 메뉴 📳 진동 켜기/끄기 (2026-11-22)
+- 사용자: "진동 효과 넣을까" → "응 진행해, 켜기/끄기 버튼도 넣어".
+- DanceScoreController: 판정이 GREAT / PERFECT일 때(judge의 맞힘 쪽, hitSwell 옆) HapticEffect 재생. GREAT = UIClick(짧고 약함), PERFECT = GameplayCollision(더 또렷). MISS · 빈 탭은 진동 없음. 폰 · 게임패드만(PC 키보드는 아무것도 안 함).
+- ☰ 메뉴 "📳 진동" 스위치(LayoutOrder 19, 환호성 위): 분홍 = 켜짐(기본). 플레이어 속성 NoVibrate, ClubShop "NoVibrate" → PlayerPrefsService.SetVibrate → wallet.noVibrate(PlayerDataService가 저장 유지).
+- 번역 16개: tools/i18n/tr/p20_vibrate1122.tsv → build.py.
+- Studio Play: HapticEffect 2개 생성, 메뉴 줄 보임, 스위치 켜고 끄기 → 속성 true / nil, CRASH 도전에서 히트 시 오류 없음. 실제 진동은 폰에서 확인 필요(Studio는 진동 없음).

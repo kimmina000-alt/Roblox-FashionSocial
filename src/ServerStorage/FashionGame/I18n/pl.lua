@@ -1829,6 +1829,7 @@ return {
 	["📰 내 광고 시간이 늘어났어요!"] = "📰 Czas reklamy przedłużony!",
 	["📰 싫어요가 많아 광고 사진이 가려지고 닉네임만 보여요. 광고판에서 포즈나 코디를 바꿔 다시 찍으면 표가 새로 시작돼요."] = "📰 Za dużo niepolubień: zdjęcie ukryte, widać tylko nick. Zmień pozę lub strój przy tablicy i zrób zdjęcie ponownie, by wyzerować głosy.",
 	["📰 지금 광고가 끝나면 내 광고가 걸려요 (대기 {1}번째)."] = "📰 Twoja reklama pojawi się po obecnej ({1}. w kolejce).",
+	["📳 진동"] = "📳 Wibracje",
 	["📷 사진"] = "📷 Zdjęcie",
 	["📸 {1}초 후 촬영 시작 · {2}/{3}명 · {4}"] = "📸 Sesja za {1} s · {2}/{3} os. · {4}",
 	["📸 광고 사진 찍기"] = "📸 Zrób zdjęcie reklamy",

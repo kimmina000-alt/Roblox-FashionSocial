@@ -391,6 +391,23 @@ local function laneSound(lane: number)
 	s.TimePosition = 0
 	s:Play()
 end
+-- (D-1985, user 2026-11-22: "진동 효과 넣을까" → "응 진행해, 켜기/끄기 버튼도 넣어") a hit buzzes the phone /
+-- gamepad (HapticEffect; PC keyboards: nothing): GREAT a light click, PERFECT a firmer knock. Off with the
+-- ☰ menu's 📳 진동 switch (player attribute NoVibrate, PlayerPrefsService)
+local hapticFx: {[string]: any} = {}
+pcall(function()
+	for kind, kindType in pairs({ GREAT = Enum.HapticEffectType.UIClick, PERFECT = Enum.HapticEffectType.GameplayCollision }) do
+		local h = Instance.new("HapticEffect")
+		h.Type = kindType
+		h.Parent = gui
+		hapticFx[kind] = h
+	end
+end)
+local function haptic(kind: string)
+	if player:GetAttribute("NoVibrate") == true then return end
+	local h = hapticFx[kind]
+	if h then pcall(function() h:Play() end) end
+end
 task.spawn(function()
 	pcall(function() ContentProvider:PreloadAsync({ SOUND.BEEP }) end)
 	-- build the run's song sounds as soon as a run starts (before its first note)
@@ -531,6 +548,7 @@ local function judge(r: Run, note: any, kind: string)
 			askServer("Freeze", false)
 		end
 		hitSwell(kind)
+		haptic(kind) -- (D-1985)
 		local level = DanceScoreConfig.auroraLevel(r.combo, r.total)
 		if level ~= r.auroraLevel then setAurora(r, level) end
 		-- (D-1818d, user 2026-11-21: "맞는 타이밍에 눌렀을 때 누르는 버튼 해당 컬러로 진동 확장하는 듯한 효과 … 버튼 그림")
