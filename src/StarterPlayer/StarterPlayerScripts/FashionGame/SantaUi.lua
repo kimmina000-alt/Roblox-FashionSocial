@@ -131,7 +131,7 @@ end
 -- the frames are the mock-up itself; only the changing parts (cards, count, hint, the Santa, its name) are
 -- drawn by the game at the mock-up's own pixel spots. Sizes below are the pictures' pixels (design units).
 SantaUi.IMG_ALBUM = "rbxassetid://81903005894610"   -- 1052 x 920, the card area see-through
-SantaUi.IMG_POPUP = "rbxassetid://71419768973622"   -- 466 x 686, the Santa and its name wiped
+SantaUi.IMG_POPUP = "rbxassetid://120424630359533"  -- 466 x 710, the Santa and its name wiped (D-2046: whole snow cap)
 SantaUi.IMG_CARD = "rbxassetid://140016866546848"   -- 83 x 222, body at (2, 2)..(80, 219)
 SantaUi.IMG_TODAY = "rbxassetid://94855431064391"   -- 118 x 250, body at (3, 29)..(104, 247), ! marks top right
 SantaUi.FRED = Font.new("rbxasset://fonts/families/FredokaOne.json")
@@ -140,7 +140,7 @@ SantaUi.TAG_RED = Color3.fromRGB(226, 44, 88)
 
 ---------------------------------------------------------------------------- the found-a-Santa popup
 local showing: ScreenGui? = nil
-local PW, PH = 466, 686
+local PW, PH = 466, 710
 
 -- santa = SantaHuntConfig.Santas[n]; the shaking black box first, then the popup
 function SantaUi.reveal(santa: any)
@@ -186,17 +186,17 @@ function SantaUi.reveal(santa: any)
 	local pop = create("UIScale", { Scale = 0.3 }, frame)
 	tween(pop, 0.45, { Scale = 1 }, Enum.EasingStyle.Back)
 	local pic = create("ImageLabel", {
-		AnchorPoint = Vector2.new(0.5, 1), Position = UDim2.fromOffset(234, 446), Size = UDim2.fromOffset(350, 350),
+		AnchorPoint = Vector2.new(0.5, 1), Position = UDim2.fromOffset(234, 470), Size = UDim2.fromOffset(350, 350),
 		BackgroundTransparency = 1, Image = santa.image or SantaUi.HEAD, ScaleType = Enum.ScaleType.Fit, ZIndex = 3,
 	}, frame)
 	local name = create("TextLabel", {
-		AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.fromOffset(234, 476), Size = UDim2.fromOffset(380, 40), BackgroundTransparency = 1,
+		AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.fromOffset(234, 500), Size = UDim2.fromOffset(380, 40), BackgroundTransparency = 1,
 		FontFace = BOLD, TextSize = 30, TextScaled = true, TextColor3 = SantaUi.TAG_RED, Text = string.format("%s를 찾았어요!", santa.name or "산타"), ZIndex = 4,
 	}, frame)
 	create("UITextSizeConstraint", { MaxTextSize = 30 }, name)
 	create("UIStroke", { Color = SantaUi.WHITE, Thickness = 2 }, name)
 	local ok = create("TextButton", {   -- over the frame's own 확인 button
-		Position = UDim2.fromOffset(108, 554), Size = UDim2.fromOffset(266, 80), BackgroundTransparency = 1, Text = "", ZIndex = 5,
+		Position = UDim2.fromOffset(108, 578), Size = UDim2.fromOffset(266, 80), BackgroundTransparency = 1, Text = "", ZIndex = 5,
 	}, frame)
 	local closing = false
 	local function close()
@@ -216,7 +216,7 @@ function SantaUi.reveal(santa: any)
 		while gui.Parent and not closing do
 			local t = os.clock() - s0
 			pic.Rotation = math.sin(t * 3) * 4
-			pic.Position = UDim2.fromOffset(234, 446 + math.sin(t * 2.4) * 4)
+			pic.Position = UDim2.fromOffset(234, 470 + math.sin(t * 2.4) * 4)
 			task.wait()
 		end
 	end)
