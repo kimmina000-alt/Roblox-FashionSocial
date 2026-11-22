@@ -131,7 +131,33 @@ function RewardReveal.show(kind: string, event: any?)
 		BackgroundTransparency = 1, ZIndex = 3,
 	}, card)
 	local name, guide
-	if kind == "title" then
+	if kind == "santa" then
+		-- (D-1878) the mini Santa found today, turning slowly in a viewport (ev = SantaHuntConfig.Theme
+		-- plus santaLook / santaName)
+		local SantaFactory = require(ReplicatedStorage:WaitForChild("FashionGame"):WaitForChild("Shared"):WaitForChild("SantaFactory"))
+		local vp = create("ViewportFrame", {
+			AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.fromScale(0.5, 0.5), Size = UDim2.fromOffset(190, 172),
+			BackgroundTransparency = 1, Ambient = Color3.fromRGB(200, 200, 200), LightColor = Color3.new(1, 1, 1),
+			LightDirection = Vector3.new(-1, -1, -1), ZIndex = 4,
+		}, show)
+		local model = SantaFactory.build(ev.santaLook or "classic", 1)
+		model.Parent = vp
+		local cam = Instance.new("Camera")
+		cam.FieldOfView = 30
+		cam.Parent = vp
+		vp.CurrentCamera = cam
+		task.spawn(function()
+			local t0 = os.clock()
+			while vp.Parent and gui.Parent do
+				local a = (os.clock() - t0) * 0.9
+				local focus = Vector3.new(0, 1.55, 0)
+				cam.CFrame = CFrame.lookAt(focus + Vector3.new(math.sin(a) * 7.2, 1.2, -math.cos(a) * 7.2), focus)
+				task.wait()
+			end
+		end)
+		name = string.format("%s를 찾았어요!", ev.santaName or "산타")
+		guide = "산타 도감에 쏙! 🎅 버튼에서 인형으로 들 수 있어요"
+	elseif kind == "title" then
 		local plate = create("TextLabel", {
 			AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.fromScale(0.5, 0.5), Size = UDim2.fromOffset(280, 54),
 			BackgroundColor3 = ev.plate, BackgroundTransparency = 0.05, FontFace = BOLD, TextSize = 27,

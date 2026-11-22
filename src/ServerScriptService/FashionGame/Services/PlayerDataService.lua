@@ -63,7 +63,7 @@ export type JobRecord = { xp: number, served: number, cleaned: number }
 -- look = the last outfit worn (OutfitSnapshot), put back on the next visit (D-771)
 -- bag = the items carried when the player left (BagService, D-790): plain
 -- tables { k = kind, ... }, given back on the next visit
-export type Wallet = { coins: number, xp: number, frames: {string}, slots: number, daily: { day: string, counts: {[string]: number} }, jobs: {[string]: JobRecord}, boost: number, hair: {[string]: {number}}, tutorial: boolean, tips: {[string]: boolean}, welcome: boolean, look: any?, bag: {any}?, opening: { n: number, last: number, title: boolean, shownDay: number? }?, events: {[string]: { n: number, last: number, title: boolean, shownDay: number? }}?, hideName: boolean?, hideBadges: {[string]: boolean}?, muteCheer: boolean?, noVibrate: boolean?, gifted: {[string]: boolean}?, djTickets: number?, djSeconds: number? }
+export type Wallet = { coins: number, xp: number, frames: {string}, slots: number, daily: { day: string, counts: {[string]: number} }, jobs: {[string]: JobRecord}, boost: number, hair: {[string]: {number}}, tutorial: boolean, tips: {[string]: boolean}, welcome: boolean, look: any?, bag: {any}?, opening: { n: number, last: number, title: boolean, shownDay: number? }?, events: {[string]: { n: number, last: number, title: boolean, shownDay: number? }}?, santa: { found: number }?, hideName: boolean?, hideBadges: {[string]: boolean}?, muteCheer: boolean?, noVibrate: boolean?, gifted: {[string]: boolean}?, djTickets: number?, djSeconds: number? }
 type Session = {
 	favorites: {Favorite},
 	outfits: {Outfit},
@@ -169,6 +169,10 @@ local function sanitizeWallet(raw: any): Wallet
 			end
 		end
 		if next(events) then wallet.events = events end
+	end
+	-- (D-1878) the mini Santa hunt: the days whose Santa was found (a bit mask, kept after the event as the album)
+	if typeof(raw.santa) == "table" and typeof(raw.santa.found) == "number" then
+		wallet.santa = { found = math.clamp(math.floor(raw.santa.found), 0, 2 ^ 31 - 1) }
 	end
 	-- (D-1377 / D-1378) the ☰ menu's 닉네임 숨기기 and each badge's 숨기기 (PlayerPrefsService)
 	if raw.hideName == true then wallet.hideName = true end

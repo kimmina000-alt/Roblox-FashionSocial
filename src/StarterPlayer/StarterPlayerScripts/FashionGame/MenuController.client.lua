@@ -100,7 +100,7 @@ create("TextLabel", {
 	TextColor3 = Color3.new(1, 1, 1), TextXAlignment = Enum.TextXAlignment.Left, LayoutOrder = 2,
 }, card)
 -- (D-1874) + WINTER 2026 (the winter attendance event's title)
-for i, badge in ipairs({ { "Founding", "FOUNDING MEMBER" }, { "Winter", "WINTER 2026" }, { "Staff", "알바생" }, { "GUARD", "GUARD" }, { "VIP", "VIP" }, { "DJ", "DJ" } }) do
+for i, badge in ipairs({ { "Founding", "FOUNDING MEMBER" }, { "Staff", "알바생" }, { "GUARD", "GUARD" }, { "VIP", "VIP" }, { "DJ", "DJ" } }) do
 	switchRow(2 + i, badge[2], "HideBadge_" .. badge[1], function(hide)
 		remote:InvokeServer("HideBadge", { role = badge[1], on = hide })
 	end, true)
@@ -135,6 +135,26 @@ do
 	b.Activated:Connect(function()
 		TopBar.setOpen(false)
 		UiBus.OpenSupport:Fire()
+	end)
+end
+-- (D-1878) 🎅 미니 산타 앨범: the Santa hunt's album (shown once the hunt has started; kept after it)
+do
+	local SantaHuntConfig = require(FashionGame:WaitForChild("Shared"):WaitForChild("SantaHuntConfig"))
+	local b = row(23)
+	create("TextLabel", {
+		Size = UDim2.fromScale(1, 1), BackgroundTransparency = 1, Text = "🎅 미니 산타 앨범", Font = Enum.Font.GothamBold, TextSize = 15,
+		TextColor3 = Color3.fromRGB(255, 200, 200), TextXAlignment = Enum.TextXAlignment.Left,
+	}, b)
+	b.Visible = SantaHuntConfig.started()
+	task.spawn(function()
+		while not b.Visible do
+			task.wait(30)
+			b.Visible = SantaHuntConfig.started()
+		end
+	end)
+	b.Activated:Connect(function()
+		TopBar.setOpen(false)
+		UiBus.OpenSantaAlbum:Fire()
 	end)
 end
 

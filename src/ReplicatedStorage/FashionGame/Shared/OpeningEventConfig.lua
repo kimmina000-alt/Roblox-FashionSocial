@@ -8,7 +8,7 @@
 -- (D-1874, user 2026-11-21: "겨울 출석 이벤트 오후의 첫눈 바로 만들어", right after the opening
 -- event) several events, one after another: `Events` in order, `current()` = the one running now.
 --   opening  OHU GRAND OPENING   2026-11-13 ~ 12-05   wallet.opening        FOUNDING MEMBER
---   winter   오후의 첫눈          2026-12-06 ~ 12-31   wallet.events.winter  WINTER 2026
+--   winter   오후의 첫눈          (off since D-1878: the mini Santa hunt instead)
 -- The top-level Start / Days / Goal / FrameKey / TitleText / Rewards / EndUnix / ended() stay the
 -- opening event's (EconomyConfig.welcomeGift ends with it).
 
@@ -75,7 +75,9 @@ local winter: Event = {
 	frameName = "겨울 한정 프레임 획득!", label = "겨울 출석 %d일차", titleName = "한정 칭호 WINTER 2026 획득!",
 }
 
-OpeningEventConfig.Events = { opening, winter } :: {Event}
+-- (D-1878, user 2026-11-22: "겨울 출석 말고 미니 산타 찾기로 할 거") the winter attendance event is off: after the
+-- opening event comes the mini Santa hunt (SantaHuntConfig). `winter` stays defined but is not in the list.
+OpeningEventConfig.Events = { opening } :: {Event}
 for _, ev in ipairs(OpeningEventConfig.Events) do
 	ev.EndUnix = ev.Start.UnixTimestamp + ev.Days * 86400
 end

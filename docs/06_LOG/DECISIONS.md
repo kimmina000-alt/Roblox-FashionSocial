@@ -7012,3 +7012,14 @@ Studio only (no script yet).
 ## D-1992 카탈로그가 열려 있으면 핫바를 내림, 코디 탭 분홍 버튼 없앰 (2026-11-22)
 - 사용자: "핫바가 카탈로그 가리는 것도 고쳐 줘" — 폰에서 아래 핫바가 카탈로그 맨 아래 줄 카드(자세히 · 사기)를 덮었음. HotbarController: 카탈로그 창(FashionCatalogGui.MainFrame)이 보이는 동안 ▼ 접기처럼 바를 화면 아래로 내리고 ▲ 탭도 숨김; 창을 닫으면 원래대로(사용자가 접어 둔 상태는 그대로). 가방이 열렸거나 끌기 중이면 바는 올라옴(전과 같음).
 - 사용자: "코디 안에 내 코디 올리기, 자세히 분홍색인 거 수정" — 분홍 없앰: 자세히 = 아이템 칸 버튼 색(70, 70, 85), 📤 올리기 · 자세히 창 입기 · 올리기 창 버튼 = 카탈로그 보라(🛒, 105, 85, 160).
+## D-1878 Winter attendance off; the mini Santa hunt after the opening event (2026-11-22)
+- User: "크리스마스 이벤트 미니 산타 찾기 (매일 특별한 산타 하나씩 등장)", then "겨울 출석 말고 미니 산타 찾기로 할 거"; picked: 12/6 ~ 12/25 (one Santa a day, the day turns at 05:00 KST), a fixed spot a day with a hint, only on its own day, a 산타 도감 kept after the event like an album, the found Santa as a plush to hold (a different one each day).
+- First step (this commit): the winter attendance event (D-1874) is off: OpeningEventConfig.Events = { opening } (the `winter` table stays defined), the `winter2026` frame entry is gone from PhotoConfig, the ☰ menu has no WINTER 2026 switch. The opening event, its extension (D-1875) and the window fix (D-1877) are unchanged; after 12/6 05:00 KST no attendance window and no 🎁.
+
+## D-1878 (cont.) Mini Santa hunt built and played in Studio (2026-11-22)
+- Shared/SantaHuntConfig (20 Santas 12/6..12/25, spot + hint + look; Theme; dayNow/started/ended; found = bit mask), Shared/SantaFactory (Santas from parts by look), SantaHuntService (today's Santa in Workspace.SantaHunt dropped on the floor below its point, ProximityPrompt 산타 찾기, wallet.santa.found / attribute SantaFound, remote SantaHunt "Hold" = plush Tool; Studio finds not saved unless SantaStudioSave), SantaHuntController (🎅 TopBar order 6 while the hunt runs, album window 10 x 2 cards, hint line on join, found Santa hidden locally, reveal), RewardReveal kind "santa" (turning Santa in a viewport), ☰ 🎅 미니 산타 앨범 row (UiBus.OpenSantaAlbum, shown once started).
+- Spots checked by raycasts in the place; ride spots moved (teacup deck, wheel station, viking base, bumper queue, churros front, VIP stair foot).
+- Play (EventNow = 12/7 05:01 KST, day 2 DJ 산타): the Santa stood on the DJ stage (120, -16, -140), the prompt found it (SantaFound 2), the shaking box → "DJ 산타를 찾았어요!", the album showed 12/6 silhouette / 12/7 found / later ?, a tap on the card put "DJ 산타" in the hand and the hotbar. Shots: docs/06_LOG/images/2026-11-22/santa_*.jpg (all 20 looks: santa_all20.jpg).
+
+## D-1847 미니 산타 찾기 문구 16개 언어 번역 (2026-11-22)
+- 메인 세션 요청: feat/event-santa-1122 df6ccaa1(D-1878, D-2010..)의 새 문구 57개를 tools/i18n/tr/p28_santa1122.tsv에: 이벤트 · 앨범 제목, 산타 19명 이름과 힌트, 찾음 연출("{1}를 찾았어요!" + 이름도 표에 있어서 같이 번역), 앨범 창(진행 칸, 오늘의 산타, 이벤트 끝 / 시작 안내, "오늘!"), ☰ 메뉴 "🎅 미니 산타 앨범", 댄스 점수 키 안내(A S D F로 바뀐 것). 날짜는 "12/6" 숫자라 그대로. 채팅 명령어는 번역하지 않음.
