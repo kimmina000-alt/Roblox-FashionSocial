@@ -28,11 +28,10 @@ SantaUi.INK = Color3.fromRGB(88, 40, 52)
 SantaUi.WHITE = Color3.new(1, 1, 1)
 SantaUi.GOLD = Color3.fromRGB(255, 205, 70)
 local IMG_STRIPE = "rbxassetid://107049811553805"
-local IMG_BURST = "rbxassetid://129144505336063"
+
 local IMG_SNOW = "rbxassetid://88417161374446"
 SantaUi.HEAD = "rbxassetid://70959554400964" -- (the classic Santa's picture, on the album's title)
 local BOLD = Font.new("rbxasset://fonts/families/GothamSSm.json", Enum.FontWeight.Heavy)
-local SEMI = Font.new("rbxasset://fonts/families/GothamSSm.json", Enum.FontWeight.Bold)
 SantaUi.BOLD = BOLD
 
 local function create(className: string, props: {[string]: any}, parent: Instance?): any
@@ -127,8 +126,21 @@ function SantaUi.fit(w: number, h: number): (number, number)
 	return s, top + room / 2
 end
 
+---------------------------------------------------------------------------- the mock-up's own pictures (D-2045)
+-- The user's mock-up (docs/04_ART/ui/santa/mockup.jpg) cut out by tools/art/santa_ui (matte.py, build.py):
+-- the frames are the mock-up itself; only the changing parts (cards, count, hint, the Santa, its name) are
+-- drawn by the game at the mock-up's own pixel spots. Sizes below are the pictures' pixels (design units).
+SantaUi.IMG_ALBUM = "rbxassetid://81903005894610"   -- 1052 x 920, the card area see-through
+SantaUi.IMG_POPUP = "rbxassetid://71419768973622"   -- 466 x 686, the Santa and its name wiped
+SantaUi.IMG_CARD = "rbxassetid://140016866546848"   -- 83 x 222, body at (2, 2)..(80, 219)
+SantaUi.IMG_TODAY = "rbxassetid://94855431064391"   -- 118 x 250, body at (3, 29)..(104, 247), ! marks top right
+SantaUi.FRED = Font.new("rbxasset://fonts/families/FredokaOne.json")
+SantaUi.PURPLE = Color3.fromRGB(78, 56, 92)
+SantaUi.TAG_RED = Color3.fromRGB(226, 44, 88)
+
 ---------------------------------------------------------------------------- the found-a-Santa popup
 local showing: ScreenGui? = nil
+local PW, PH = 466, 686
 
 -- santa = SantaHuntConfig.Santas[n]; the shaking black box first, then the popup
 function SantaUi.reveal(santa: any)
@@ -138,17 +150,17 @@ function SantaUi.reveal(santa: any)
 	showing = gui
 	local dim = create("TextButton", { Size = UDim2.fromScale(1, 1), BackgroundColor3 = Color3.new(0, 0, 0), BackgroundTransparency = 1, Text = "", AutoButtonColor = false }, gui)
 	tween(dim, 0.25, { BackgroundTransparency = 0.4 })
-	local s, cy = SantaUi.fit(360, 440)
-	local stage = create("Frame", { AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.new(0.5, 0, 0, cy), Size = UDim2.fromOffset(360, 440), BackgroundTransparency = 1 }, gui)
+	local s, cy = SantaUi.fit(PW, PH)
+	local stage = create("Frame", { AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.new(0.5, 0, 0, cy), Size = UDim2.fromOffset(PW, PH), BackgroundTransparency = 1 }, gui)
 	create("UIScale", { Scale = s }, stage)
 
 	-- 1. the black ? box pops in and shakes harder and harder (D-1870)
 	local box = create("TextLabel", {
-		AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.fromScale(0.5, 0.5), Size = UDim2.fromOffset(120, 120),
-		BackgroundColor3 = Color3.new(0, 0, 0), FontFace = BOLD, TextSize = 80, TextColor3 = SantaUi.WHITE, Text = "?",
+		AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.fromScale(0.5, 0.5), Size = UDim2.fromOffset(150, 150),
+		BackgroundColor3 = Color3.new(0, 0, 0), FontFace = SantaUi.FRED, TextSize = 100, TextColor3 = SantaUi.WHITE, Text = "?",
 	}, stage)
-	corner(box, 18)
-	local boxStroke = create("UIStroke", { ApplyStrokeMode = Enum.ApplyStrokeMode.Border, Color = SantaUi.WHITE, Thickness = 3 }, box)
+	corner(box, 22)
+	local boxStroke = create("UIStroke", { ApplyStrokeMode = Enum.ApplyStrokeMode.Border, Color = SantaUi.WHITE, Thickness = 4 }, box)
 	local boxScale = create("UIScale", { Scale = 0 }, box)
 	tween(boxScale, 0.35, { Scale = 1 }, Enum.EasingStyle.Back)
 	task.wait(0.45)
@@ -166,51 +178,26 @@ function SantaUi.reveal(santa: any)
 	local flash = create("Frame", { Size = UDim2.fromScale(1, 1), BackgroundColor3 = SantaUi.WHITE, BackgroundTransparency = 0.15, ZIndex = 20 }, gui)
 	tween(flash, 0.5, { BackgroundTransparency = 1 })
 
-	-- 2. the popup
-	local panel = SantaUi.card(stage, UDim2.fromOffset(340, 420), UDim2.fromScale(0.5, 0.5))
-	local cardRoot = panel.Parent :: Frame
-	local pop = create("UIScale", { Scale = 0.3 }, cardRoot)
+	-- 2. the popup: the mock-up's frame, the Santa on its snow hill, its name
+	local frame = create("ImageLabel", {
+		AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.fromScale(0.5, 0.5), Size = UDim2.fromOffset(PW, PH),
+		BackgroundTransparency = 1, Image = SantaUi.IMG_POPUP, ZIndex = 2,
+	}, stage)
+	local pop = create("UIScale", { Scale = 0.3 }, frame)
 	tween(pop, 0.45, { Scale = 1 }, Enum.EasingStyle.Back)
-	SantaUi.chunky(panel, {
-		AnchorPoint = Vector2.new(0.5, 0), Position = UDim2.new(0.5, -14, 0, 18), Size = UDim2.fromOffset(200, 50),
-		TextSize = 44, TextColor3 = SantaUi.RED, Text = "짜잔!", ZIndex = 3,
-	}, 5)
-	SantaUi.deco(panel, "🎉", UDim2.new(0.5, 92, 0, 40), 46, 10)
-	-- the glow, the snow hill and the Santa
-	local burst = create("ImageLabel", {
-		AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.new(0.5, 0, 0, 176), Size = UDim2.fromOffset(300, 300),
-		BackgroundTransparency = 1, Image = IMG_BURST, ZIndex = 2,
-	}, panel)
-	local hill = create("Frame", {
-		AnchorPoint = Vector2.new(0.5, 0), Position = UDim2.new(0.5, 0, 0, 244), Size = UDim2.fromOffset(250, 40),
-		BackgroundColor3 = SantaUi.WHITE, ZIndex = 2,
-	}, panel)
-	corner(hill, 999)
-	create("UIGradient", { Rotation = 90, Color = ColorSequence.new(SantaUi.WHITE, Color3.fromRGB(226, 234, 248)) }, hill)
 	local pic = create("ImageLabel", {
-		AnchorPoint = Vector2.new(0.5, 1), Position = UDim2.new(0.5, 0, 0, 270), Size = UDim2.fromOffset(200, 200),
+		AnchorPoint = Vector2.new(0.5, 1), Position = UDim2.fromOffset(234, 446), Size = UDim2.fromOffset(350, 350),
 		BackgroundTransparency = 1, Image = santa.image or SantaUi.HEAD, ScaleType = Enum.ScaleType.Fit, ZIndex = 3,
-	}, panel)
-	for _, sp in ipairs({ { -118, 118, 30 }, { 120, 100, 26 }, { -100, 220, 20 }, { 112, 214, 24 }, { 0, 72, 18 } }) do
-		local st = SantaUi.deco(panel, "✨", UDim2.new(0.5, sp[1], 0, sp[2]), sp[3], 0)
-		st.ZIndex = 4
-	end
-	SantaUi.deco(panel, "❄️", UDim2.new(0, 34, 0, 92), 26, -10, 0.25)
-	SantaUi.deco(panel, "❄️", UDim2.new(1, -30, 0, 70), 22, 12, 0.25)
-	SantaUi.deco(panel, "🎄", UDim2.new(0, 26, 1, -40), 48, -6)
-	SantaUi.deco(panel, "🎄", UDim2.new(1, -26, 1, -40), 48, 6)
-	SantaUi.chunky(panel, {
-		AnchorPoint = Vector2.new(0.5, 0), Position = UDim2.new(0.5, 0, 0, 282), Size = UDim2.new(1, -40, 0, 32),
-		TextSize = 24, TextColor3 = SantaUi.RED, Text = string.format("%s를 찾았어요!", santa.name or "산타"), TextScaled = true, ZIndex = 3,
-	}, 3)
-	create("TextLabel", {
-		AnchorPoint = Vector2.new(0.5, 0), Position = UDim2.new(0.5, 0, 0, 318), Size = UDim2.new(1, -60, 0, 20), BackgroundTransparency = 1,
-		FontFace = SEMI, TextScaled = true, TextColor3 = SantaUi.INK, Text = "산타 도감에 쏙! 🎅 버튼에서 인형으로 들 수 있어요", ZIndex = 3,
-	}, panel)
-	local ok = SantaUi.pill(panel, {
-		Class = "TextButton", AnchorPoint = Vector2.new(0.5, 1), Position = UDim2.new(0.5, 0, 1, -12), Size = UDim2.fromOffset(180, 42),
-		TextSize = 22, Text = "확인", ZIndex = 4, AutoButtonColor = true,
-	}, SantaUi.RED, SantaUi.WHITE) :: any
+	}, frame)
+	local name = create("TextLabel", {
+		AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.fromOffset(234, 476), Size = UDim2.fromOffset(380, 40), BackgroundTransparency = 1,
+		FontFace = BOLD, TextSize = 30, TextScaled = true, TextColor3 = SantaUi.TAG_RED, Text = string.format("%s를 찾았어요!", santa.name or "산타"), ZIndex = 4,
+	}, frame)
+	create("UITextSizeConstraint", { MaxTextSize = 30 }, name)
+	create("UIStroke", { Color = SantaUi.WHITE, Thickness = 2 }, name)
+	local ok = create("TextButton", {   -- over the frame's own 확인 button
+		Position = UDim2.fromOffset(108, 554), Size = UDim2.fromOffset(266, 80), BackgroundTransparency = 1, Text = "", ZIndex = 5,
+	}, frame)
 	local closing = false
 	local function close()
 		if closing then return end
@@ -228,9 +215,8 @@ function SantaUi.reveal(santa: any)
 		local s0 = os.clock()
 		while gui.Parent and not closing do
 			local t = os.clock() - s0
-			burst.Rotation = t * 18
-			pic.Rotation = math.sin(t * 3) * 5
-			pic.Position = UDim2.new(0.5, 0, 0, 270 + math.sin(t * 2.4) * 3)
+			pic.Rotation = math.sin(t * 3) * 4
+			pic.Position = UDim2.fromOffset(234, 446 + math.sin(t * 2.4) * 4)
 			task.wait()
 		end
 	end)
