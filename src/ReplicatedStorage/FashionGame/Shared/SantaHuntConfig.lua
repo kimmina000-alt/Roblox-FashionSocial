@@ -40,7 +40,7 @@ SantaHuntConfig.Santas = {
 	{ key = "bumper", name = "범퍼카 산타", hint = "쿵! 부딪히며 노는 곳에 있어요.", pos = Vector3.new(-112, 22, -600), look = "bumper", image = "rbxassetid://78670094756835" },
 	{ key = "churros", name = "츄러스 산타", hint = "달콤한 간식을 파는 가게 앞이에요.", pos = Vector3.new(-232, 22, -428), look = "churros", image = "rbxassetid://126608481294175" },
 	{ key = "vip", name = "VIP 산타", hint = "클럽 안, VIP만 올라가는 계단 아래예요.", pos = Vector3.new(186, -20, -282), look = "vip", image = "rbxassetid://94487535064165" },
-	{ key = "viking", name = "바이킹 산타", hint = "하늘 높이 흔들리는 배 근처에 있어요.", pos = Vector3.new(-70, 22, -518), look = "viking", image = "rbxassetid://125151267251187" },
+	{ key = "viking", name = "바이킹 산타", hint = "하늘 높이 흔들리는 배 근처에 있어요.", pos = Vector3.new(-65, 22, -518), look = "viking", image = "rbxassetid://125151267251187" },
 	{ key = "rudolph", name = "루돌프와 산타", hint = "네온 무대 위에서 루돌프랑 쉬고 있어요.", pos = Vector3.new(-98, 6, -137), look = "rudolph", image = "rbxassetid://113881079038825" },
 	{ key = "golden", name = "황금 산타", hint = "크리스마스의 주인공! 기린 키재기판 옆을 찾아보세요.", pos = Vector3.new(-71, 24, -331), look = "golden", image = "rbxassetid://85564698368142" },
 } :: {Santa}
