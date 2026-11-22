@@ -7065,3 +7065,4 @@ Studio only (no script yet).
 
 ## D-2046 Santa popup: the whole snow cap cut out (2026-11-22)
 - User (phone screenshot): the popup's top was cut flat with a dark strip of the town above the snow. matte.py's popup outline now follows the snow bumps (crop from y 182), build.py clears the dark town bits by the top corners only (the confetti stays). popup_frame.png = 120424630359533, 466 x 710; SantaUi's popup spots moved down 24.
+- Play check: docs/06_LOG/images/2026-11-22/santa_reveal_v4.jpg (DJ Santa, whole snow cap).
