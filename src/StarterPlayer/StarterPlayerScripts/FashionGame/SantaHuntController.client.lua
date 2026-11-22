@@ -18,7 +18,6 @@ local Workspace = game:GetService("Workspace")
 local FashionGame = ReplicatedStorage:WaitForChild("FashionGame")
 local Shared = FashionGame:WaitForChild("Shared")
 local Config = require(Shared:WaitForChild("SantaHuntConfig"))
-local SantaFactory = require(Shared:WaitForChild("SantaFactory"))
 local TopBar = require(script.Parent:WaitForChild("TopBar"))
 local Popups = require(script.Parent:WaitForChild("Popups"))
 local UiBus = require(script.Parent:WaitForChild("UiBus"))
@@ -103,7 +102,7 @@ local footer = create("TextLabel", {
 local grid = create("Frame", { Position = UDim2.fromOffset(0, 106), Size = UDim2.new(1, 0, 1, -128), BackgroundTransparency = 1 }, window)
 create("UIGridLayout", { CellSize = UDim2.new(0.1, -5, 0.5, -3), CellPadding = UDim2.fromOffset(5, 6), SortOrder = Enum.SortOrder.LayoutOrder }, grid)
 
-type Card = { button: TextButton, vp: ViewportFrame, label: TextLabel, mark: TextLabel, date: TextLabel }
+type Card = { button: TextButton, vp: ImageLabel, label: TextLabel, mark: TextLabel, date: TextLabel }
 local cards: {Card} = {}
 local remote = FashionGame:WaitForChild("Remotes"):WaitForChild("SantaHunt") :: RemoteFunction
 
@@ -117,18 +116,12 @@ for n, santa in ipairs(Config.Santas) do
 	}, b)
 	corner(date, 10)
 	create("UITextSizeConstraint", { MaxTextSize = 12 }, date)
-	local vp = create("ViewportFrame", {
+	-- (D-2043) the Santa's picture (rendered in Blender, SantaHuntConfig image): no 3D in the album; a
+	-- black ImageColor3 makes the silhouette of a Santa not found
+	local vp = create("ImageLabel", {
 		Position = UDim2.fromScale(0, 0.17), Size = UDim2.fromScale(1, 0.6), BackgroundTransparency = 1,
-		Ambient = Color3.fromRGB(200, 200, 200), LightColor = WHITE, LightDirection = Vector3.new(-1, -1, -1),
+		Image = santa.image or "", ScaleType = Enum.ScaleType.Fit,
 	}, b)
-	local model = SantaFactory.build(santa.look, 1)
-	model.Parent = vp
-	local cam = Instance.new("Camera")
-	cam.FieldOfView = 30
-	local focus = Vector3.new(if santa.look == "rudolph" then -0.7 else 0, 1.55, 0)
-	cam.CFrame = CFrame.lookAt(focus + Vector3.new(2.2, 1.0, -7.6), focus)
-	cam.Parent = vp
-	vp.CurrentCamera = cam
 	local mark = create("TextLabel", {
 		Position = UDim2.fromScale(0, 0.17), Size = UDim2.fromScale(1, 0.6), BackgroundTransparency = 1, FontFace = BOLD,
 		TextScaled = true, TextColor3 = T.accent, Text = "", ZIndex = 3,
@@ -229,6 +222,7 @@ player:GetAttributeChangedSignal("SantaJustFound"):Connect(function()
 	local ev = table.clone(T) :: any
 	ev.santaLook = santa.look
 	ev.santaName = santa.name
+	ev.santaImage = santa.image
 	task.spawn(RewardReveal.show, "santa", ev)
 end)
 

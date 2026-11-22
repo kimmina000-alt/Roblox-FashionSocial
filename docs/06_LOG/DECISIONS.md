@@ -6991,3 +6991,8 @@ Studio only (no script yet).
 
 ## D-2042 Album card pictures (2026-11-22)
 - User: "도감에 넣을 렌더 사진 제작해". tools/art/santa/album_render.py renders the smooth v3 Santas on a transparent background, 512 x 512, orthographic, framed to fit each one: docs/04_ART/models/santa/album/<look>.png. The album will show these as images (no 3D cost) once uploaded. Sheet: docs/06_LOG/images/2026-11-22/santa_album_cards.jpg.
+
+## D-2043 The Blender Santas in the game (2026-11-22)
+- User: "응 게임에 넣어".
+- Album / reveal: the 20 album pictures uploaded (SantaHuntConfig.Santas[n].image); the album cards and the "짜잔" reveal show the picture (ImageLabel; a black ImageColor3 = the silhouette of a Santa not found), no 3D viewports any more.
+- World Santa and plush: SantaFactory.build uses ServerStorage.ArtAssets.Santas.<look> (the game GLBs, ~2.7k triangles, imported as models; attribute Yaw turns one to face -Z; scaled to 2.6 studs x scale) and falls back to the part Santas when a model is missing.

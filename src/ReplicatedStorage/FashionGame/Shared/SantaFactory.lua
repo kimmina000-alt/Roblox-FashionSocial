@@ -140,7 +140,45 @@ function SantaFactory.looks(): {string}
 	return list
 end
 
+-- (D-2043) the Blender Santas (tools/art/santa, docs/04_ART/models/santa/game, ~2.7k triangles): models
+-- imported into ServerStorage.ArtAssets.Santas, one per look (its MeshParts coloured by the import). The
+-- server uses them when there; the parts below are the fallback (and the client's, which has no ServerStorage).
+-- A source model's attribute Yaw (degrees) turns it to face -Z; it is scaled to 2.6 studs x scale.
+local function fromAsset(look: string, s: number): Model?
+	if not game:GetService("RunService"):IsServer() then return nil end
+	local art = game:GetService("ServerStorage"):FindFirstChild("ArtAssets")
+	local folder = art and art:FindFirstChild("Santas")
+	local src = folder and folder:FindFirstChild(look)
+	if not src or not src:IsA("Model") then return nil end
+	local m = src:Clone()
+	m.Name = "MiniSanta_" .. look
+	local yaw = src:GetAttribute("Yaw")
+	for _, d in ipairs(m:GetDescendants()) do
+		if d:IsA("BasePart") then
+			d.Anchored = true
+			d.CanCollide = false
+			d.CanTouch = false
+			d.CastShadow = false
+		elseif d:IsA("Script") or d:IsA("LocalScript") then
+			d:Destroy()
+		end
+	end
+	local cf, size = m:GetBoundingBox()
+	local bottom = Vector3.new(cf.Position.X, cf.Position.Y - size.Y / 2, cf.Position.Z)
+	m.WorldPivot = CFrame.new(bottom) * CFrame.Angles(0, math.rad(if typeof(yaw) == "number" then yaw else 0), 0)
+	local biggest: BasePart? = nil
+	for _, d in ipairs(m:GetDescendants()) do
+		if d:IsA("BasePart") and (not biggest or d.Size.Magnitude > biggest.Size.Magnitude) then biggest = d end
+	end
+	m.PrimaryPart = biggest
+	m:ScaleTo(m:GetScale() * (2.6 * s) / size.Y)
+	m:PivotTo(CFrame.new())
+	return m
+end
+
 function SantaFactory.build(look: string, scale: number?): Model
+	local asset = fromAsset(look, scale or 1)
+	if asset then return asset end
 	local spec = LOOKS[look] or LOOKS.classic
 	local s = scale or 1
 	local model = Instance.new("Model")

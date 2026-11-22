@@ -134,24 +134,15 @@ function RewardReveal.show(kind: string, event: any?)
 	if kind == "santa" then
 		-- (D-1878) the mini Santa found today, turning slowly in a viewport (ev = SantaHuntConfig.Theme
 		-- plus santaLook / santaName)
-		local SantaFactory = require(ReplicatedStorage:WaitForChild("FashionGame"):WaitForChild("Shared"):WaitForChild("SantaFactory"))
-		local vp = create("ViewportFrame", {
-			AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.fromScale(0.5, 0.5), Size = UDim2.fromOffset(190, 172),
-			BackgroundTransparency = 1, Ambient = Color3.fromRGB(200, 200, 200), LightColor = Color3.new(1, 1, 1),
-			LightDirection = Vector3.new(-1, -1, -1), ZIndex = 4,
+		-- (D-2043) the Santa's picture (Blender render, SantaHuntConfig image), turning a little side to side
+		local pic = create("ImageLabel", {
+			AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.fromScale(0.5, 0.5), Size = UDim2.fromOffset(180, 172),
+			BackgroundTransparency = 1, Image = ev.santaImage or "", ScaleType = Enum.ScaleType.Fit, ZIndex = 4,
 		}, show)
-		local model = SantaFactory.build(ev.santaLook or "classic", 1)
-		model.Parent = vp
-		local cam = Instance.new("Camera")
-		cam.FieldOfView = 30
-		cam.Parent = vp
-		vp.CurrentCamera = cam
 		task.spawn(function()
 			local t0 = os.clock()
-			while vp.Parent and gui.Parent do
-				local a = (os.clock() - t0) * 0.9
-				local focus = Vector3.new(0, 1.55, 0)
-				cam.CFrame = CFrame.lookAt(focus + Vector3.new(math.sin(a) * 7.2, 1.2, -math.cos(a) * 7.2), focus)
+			while pic.Parent and gui.Parent do
+				pic.Rotation = math.sin((os.clock() - t0) * 3) * 6
 				task.wait()
 			end
 		end)
