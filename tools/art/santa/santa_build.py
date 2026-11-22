@@ -297,6 +297,9 @@ for name in list(LOOKS):
     bpy.ops.wm.read_factory_settings(use_empty=True)
     MATS.clear()
     LOOKS[name]()
+    # (D-2012) an editable .blend (modifiers kept) next to the exports, for the user to change by hand
+    os.makedirs(os.path.join(OUT, "blend"), exist_ok=True)
+    bpy.ops.wm.save_as_mainfile(filepath=os.path.join(OUT, "blend", name + ".blend"), copy=True)
     # export: apply modifiers, one object per colour (join by material colour)
     bpy.ops.object.select_all(action="SELECT")
     for o in bpy.context.selected_objects:
