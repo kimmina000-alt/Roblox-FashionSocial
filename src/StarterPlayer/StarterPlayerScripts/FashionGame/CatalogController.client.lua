@@ -1020,8 +1020,8 @@ local discoveryButtons = {}
 -- (D-1050, user 2026-11-09: "최대화 카탈로그에 있는 아바타 에디터 버튼이랑 저장
 -- 버튼 최소화에 있는 위치로 수정. 통일.") the expanded catalog has them in the
 -- same strip now (they were ⚙ / ▣ in the corner of the avatar preview box).
--- (D-1373) 추천 first (no ✨ since D-1375, user: "추천 앞에 별 빼고 텍스트만 둬"): the recommended looks window (RecommendedLooksView)
-for index, label in ipairs({"추천", "코디", "최근", "인기", "즐겨찾기", "착용 중", "⚙", "옷장"}) do
+-- (D-1991, user 2026-11-22: "추천에 있는 거 코디로 옮기고 추천 삭제") 코디 first; the 추천 looks are its [추천] list
+for index, label in ipairs({"코디", "최근", "인기", "즐겨찾기", "착용 중", "⚙", "옷장"}) do
 	local b = create("TextButton", {
 		Name = "Discovery_" .. tostring(index),
 		Size = UDim2.fromOffset(86, 30),
@@ -1379,7 +1379,7 @@ subcategoryStrip.InputEnded:Connect(function(input)
 end)
 
 -- (D-1374) 추천 = the "Looks" mode: the recommended looks in the item grid (RecommendedLooksView)
-local MODE_BY_LABEL = { ["추천"] = "Looks", ["코디"] = "Community", ["최근"] = "Recent", ["인기"] = "Popular", ["즐겨찾기"] = "Favorites", ["착용 중"] = "Wearing", ["옷장"] = "Wardrobe" }
+local MODE_BY_LABEL = { ["코디"] = "Community", ["최근"] = "Recent", ["인기"] = "Popular", ["즐겨찾기"] = "Favorites", ["착용 중"] = "Wearing", ["옷장"] = "Wardrobe" }
 local function updateDiscoveryHighlight()
 	for label, button in pairs(discoveryButtons) do
 		local active = MODE_BY_LABEL[label] ~= nil and MODE_BY_LABEL[label] == browseMode
@@ -1404,7 +1404,7 @@ end
 discoveryButtons["⚙"].MouseButton1Click:Connect(function()
 	openAvatarEditor()
 end)
-discoveryButtons["추천"].TextColor3 = Color3.fromRGB(255, 205, 110) -- (stands out a little)
+discoveryButtons["코디"].TextColor3 = Color3.fromRGB(255, 205, 110) -- (stands out a little; was 추천 until D-1991)
 fixedFilterButton.MouseButton1Click:Connect(function()
 	filterPanelOpen = not filterPanelOpen
 	updateCatalogLayout()
@@ -2465,7 +2465,7 @@ end
 -- not for sale.
 do
 	local busy = false
-	-- (D-COMMUNITY) the worn items as cart entries (bundles as bundles), also for a 코디 post
+	-- (D-1990) the worn items as cart entries (bundles as bundles), also for a 코디 post
 	itemDetail.view.collectWorn = function()
 		refreshWornItems() -- (what the server says is worn now)
 		local entries, inBundle = {}, {}
@@ -3079,11 +3079,7 @@ renderLocalMode = function()
 		if wardrobeView then wardrobeView:render() end
 		return
 	end
-	if mode == "Looks" then -- (D-1374)
-		require(script.Parent:WaitForChild("RecommendedLooksView")).render()
-		return
-	end
-	if mode == "Community" then -- (D-COMMUNITY) players' posted looks
+	if mode == "Community" then -- (D-1990) players' posted looks
 		require(script.Parent:WaitForChild("CommunityLooksView")).render()
 		return
 	end
@@ -3437,7 +3433,7 @@ selectCategory = function(name: string, assetTypes, bundleTypes)
 
 	-- Categories filter Recent/Favorites/Wearing, but mean nothing for saved
 	-- outfits: a category press in the Wardrobe goes back to the catalog.
-	if browseMode == "Wardrobe" or browseMode == "Looks" or browseMode == "Community" then
+	if browseMode == "Wardrobe" or browseMode == "Community" then
 		browseMode = "Catalog"
 		updateDiscoveryHighlight()
 	end
@@ -3723,7 +3719,7 @@ end)
 --------------------------------------------------
 
 searchButton.MouseButton1Click:Connect(function()
-	if browseMode == "Wardrobe" or browseMode == "Looks" or browseMode == "Community" then
+	if browseMode == "Wardrobe" or browseMode == "Community" then
 		browseMode = "Catalog"
 		updateDiscoveryHighlight()
 	end
@@ -3803,29 +3799,7 @@ wardrobeView = require(script.Parent:WaitForChild("WardrobeView")).new({
 	end,
 })
 
--- (D-1374) the recommended looks' cards, in the same grid and card scale as the wardrobe
-require(script.Parent:WaitForChild("RecommendedLooksView")).setup({
-	container = resultsFrame,
-	TryOnItem = TryOnItem,
-	getCardScale = function() return cardContentScale end,
-	registerScale = function(uiScale) table.insert(cardContentUIScales, uiScale) end,
-	showToast = function(text) showToast(text) end,
-	setMessage = function(text) setResultsMessage(text) end,
-	canChangeAvatar = function()
-		if actionBusy then
-			showToast("다른 아바타 변경이 진행 중입니다.")
-			return false
-		end
-		return not editorBlocksAvatarChanges()
-	end,
-	setBusy = function(busy) actionBusy = busy end,
-	onWorn = function()
-		refreshWornItems()
-		refreshAvatarPreview()
-	end,
-})
-
--- (D-COMMUNITY) the 코디 tab's cards (posts of players), the same grid and card scale
+-- (D-1990) the 코디 tab's cards (posts of players), the same grid and card scale
 require(script.Parent:WaitForChild("CommunityLooksView")).setup({
 	container = resultsFrame,
 	TryOnItem = TryOnItem,
@@ -3846,6 +3820,8 @@ require(script.Parent:WaitForChild("CommunityLooksView")).setup({
 		refreshAvatarPreview()
 	end,
 	collectWorn = function() return itemDetail.view.collectWorn() end,
+	fetchDetails = function(entries) return fetchItemDetails(entries) end,
+	openItem = function(detail) itemDetail.view:open(detail) end,
 	isShown = function() return browseMode == "Community" end,
 })
 

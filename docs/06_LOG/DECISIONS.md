@@ -6975,3 +6975,11 @@ Studio only (no script yet).
 - 카드: 서버가 스냅숏으로 만든 아바타(ServerStorage.CommunityRigs, 40개까지)를 요청한 사람의 PlayerGui.CommunityRigs에만 복사 → ViewportFrame. 입기 = TryOnItem "WearPost"(무료 입어 보기), 사기 = Owned → BuyMany(가격 0 = 판매 안 함은 뺌, 20개까지).
 - 지우기: 올린 사람은 자기 것 🗑, 운영자(게임 주인, Studio는 모두)는 모든 카드 🗑 + [숨김] 목록에서 "숨김 풀기". 🚩 / 🗑은 한 번 더 눌러야 실행.
 - 코드: Services/CommunityLooksService.lua, CommunityLooksView.lua, Remotes.CommunityLooks; ServerMain(PostLook / WearPost), CatalogController(버튼 · 모드 · setup만). 16개 언어: tools/i18n/tr/p26_community1122.tsv.
+
+## D-1991 추천 탭을 코디 탭 안으로, 카드 누르면 입기, 버튼은 자세히 (2026-11-22)
+- 사용자(2인 테스트 후): "추천에 있는 거 코디로 옮기고 추천 삭제 / 코디에 있는 것도 아이템 칸 누르면 입는 걸로 수정 / 입기 버튼은 자세히로 수정".
+- 카탈로그 줄에서 추천 버튼을 없앰(코디가 첫 번째, 노란 글씨). 추천 조합(Shared/RecommendedLooks)은 코디 탭의 [추천] 목록(처음 열면 추천): 조작 카드의 버튼이 [추천] [최신] / [인기] (+ 운영자 [숨김]) 두 줄. 추천 카드는 "★ 추천 코디", 👍 · 🚩 · 🗑 없음. RecommendedLooksView.lua 삭제(그림 · 입기 방식은 CommunityLooksView로).
+- 카드의 그림과 이름을 누르면 그 코디를 입음(아이템 칸처럼, D-1806). 추천은 TryOnItem "WearLook"(첫 목표 LookWornAt 그대로), 유저 코디는 "WearPost".
+- 아래 버튼 = 자세히: 코디 창(제목 · 올린 사람 · 합계 R$, 아이템마다 그림 · 이름 · 가격, 아이템을 누르면 카탈로그의 아이템 상세; 아래 [입기] [모두 사기]).
+- 서버: CommunityLooks "Owner"(운영자인지) — 추천 목록에서도 [숨김]이 보이도록, 목록을 읽지 않고 물어봄.
+- 안내원 FAQ ⑥을 코디 탭 설명으로 바꿈(16개 언어).

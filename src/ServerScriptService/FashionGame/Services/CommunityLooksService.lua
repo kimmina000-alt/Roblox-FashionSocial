@@ -1,5 +1,5 @@
 --!strict
--- (D-COMMUNITY, user 2026-11-22: "오후 카탈로그에 사람들이 캐릭터 꾸며서 올릴 수 있는 카테고리 추가하자")
+-- (D-1990, user 2026-11-22: "오후 카탈로그에 사람들이 캐릭터 꾸며서 올릴 수 있는 카테고리 추가하자")
 -- 코디 = players post the look they wear now; everyone browses the posts in the catalog's 코디 tab,
 -- tries a look on (입기, free like every try-on) and buys its items (사기, Roblox's one window).
 -- User picks 2026-11-22: a grid like 추천 with [최신] [인기] and 📤 올리기; no limit on the number of
@@ -496,6 +496,7 @@ function Service.Start()
 	local remote = FashionGame:WaitForChild("Remotes"):WaitForChild("CommunityLooks") :: RemoteFunction
 	remote.OnServerInvoke = function(player: Player, action: any, a: any, b: any)
 		if action == "List" then return list(player, a, b) end
+		if action == "Owner" then return true, isOwner(player) end -- (D-1991: [숨김] shows in the 추천 list too)
 		if action == "Like" then return like(player, a) end
 		if action == "Report" then return report(player, a) end
 		if action == "Delete" then return remove(player, a) end

@@ -250,7 +250,7 @@ b5d7cb	exact	순위표 · 안내원	1	src/ReplicatedStorage/FashionGame/Shared/G
 633a56	exact	기부·레벨 순위표가 있어요. 앞에서 돌아다니는 토끼 안내원에게 무엇이든 물어보세요!	1	src/ReplicatedStorage/FashionGame/Shared/GuideConfig.lua:37
 f688eb	exact	안내원	2	src/ReplicatedStorage/FashionGame/Shared/GuideConfig.lua:50
 0ae6c7	exact	👗 카탈로그는 어떻게 써요?	1	src/ReplicatedStorage/FashionGame/Shared/GuideConfig.lua:65
-a53dbe	exact	① 오른쪽 위 옷걸이 버튼을 누르면 카탈로그가 열려요.\n② 아이템 칸을 누르면 바로 입고, 한 번 더 누르면 벗어요. 게임 안에서는 사지 않아도 무료로 입고 다닐 수 있어요.\n③ 칸 아래 '자세히'를 누르면 아이템 정보와 가격을 보고, 구매하거나 🛒 담기로 장바구니에 넣을 수 있어요.\n④ '착용 중' 탭에서 지금 입은 아이템을 한눈에 보고 빼거나 순서를 바꿔요.\n⑤ '옷장' 탭에서 지금 코디를 저장해 두고 언제든 다시 입어요. 🔗 코디 코드로 친구와 코디를 나눌 수도 있어요.\n⑥ '추천' 탭에서는 완성된 코디를 통째로 입어 볼 수 있어요.\n⑦ 장바구니에서 👗 입은 옷 모두 담기 → 모두 구매로 한 번에 사고, 💾 코디 저장으로 내 Roblox 계정에도 저장해요.\n⑧ ⚙ 아바타 편집에서 장신구 위치·크기와 피부색을 바꿀 수 있어요.	1	src/ReplicatedStorage/FashionGame/Shared/GuideConfig.lua:65
+d5a641	exact	① 오른쪽 위 옷걸이 버튼을 누르면 카탈로그가 열려요.\n② 아이템 칸을 누르면 바로 입고, 한 번 더 누르면 벗어요. 게임 안에서는 사지 않아도 무료로 입고 다닐 수 있어요.\n③ 칸 아래 '자세히'를 누르면 아이템 정보와 가격을 보고, 구매하거나 🛒 담기로 장바구니에 넣을 수 있어요.\n④ '착용 중' 탭에서 지금 입은 아이템을 한눈에 보고 빼거나 순서를 바꿔요.\n⑤ '옷장' 탭에서 지금 코디를 저장해 두고 언제든 다시 입어요. 🔗 코디 코드로 친구와 코디를 나눌 수도 있어요.\n⑥ '코디' 탭에서는 추천 코디와 다른 사람이 올린 코디를 통째로 입어 보고, 📤 내 코디도 올릴 수 있어요.\n⑦ 장바구니에서 👗 입은 옷 모두 담기 → 모두 구매로 한 번에 사고, 💾 코디 저장으로 내 Roblox 계정에도 저장해요.\n⑧ ⚙ 아바타 편집에서 장신구 위치·크기와 피부색을 바꿀 수 있어요.	1	src/ReplicatedStorage/FashionGame/Shared/GuideConfig.lua:65
 40b5a0	exact	클럽은 어디 있고 언제 열어요?	1	src/ReplicatedStorage/FashionGame/Shared/GuideConfig.lua:66
 29186d	exact	큰길 동쪽의 검은 건물 OHU CLUB이에요. 밤 18:00~06:00에만 들어갈 수 있어요(게임 시간, 오른쪽 위 시계).	1	src/ReplicatedStorage/FashionGame/Shared/GuideConfig.lua:66
 c8276a	exact	춤은 어떻게 춰요?	1	src/ReplicatedStorage/FashionGame/Shared/GuideConfig.lua:67
@@ -1214,7 +1214,6 @@ c906e9	tmpl	이 기기에서는 사진 캡처를 쓸 수 없어요.{1}	1	src/Sta
 82b81d	exact	 Studio에서는 안 될 수 있어요.	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/CameraController.client.lua:230
 d4f048	exact	📷 사진	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/CameraController.client.lua:88
 4e308f	exact	🎥 동영상 (30초)	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/CameraController.client.lua:89
-033b6c	exact	추천	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/CatalogController.client.lua:1024
 65d888	exact	코디	2	src/StarterPlayer/StarterPlayerScripts/FashionGame/CatalogController.client.lua:1024
 f8c01b	exact	최근	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/CatalogController.client.lua:1024
 b34679	exact	인기	2	src/StarterPlayer/StarterPlayerScripts/FashionGame/CatalogController.client.lua:1024
@@ -1237,7 +1236,7 @@ b039fb	exact	× 해제	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/Cata
 53946b	tmpl	{1}개 담았어요	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/CatalogController.client.lua:2527
 261df7	tmpl	가진 아이템 {1}개	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/CatalogController.client.lua:2528
 acb14c	tmpl	판매 안 함 {1}개	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/CatalogController.client.lua:2529
-e5d444	exact	자세히	2	src/StarterPlayer/StarterPlayerScripts/FashionGame/CatalogController.client.lua:2711
+e5d444	exact	자세히	3	src/StarterPlayer/StarterPlayerScripts/FashionGame/CatalogController.client.lua:2711
 3ae0fc	exact	번들을 벗지 못했습니다.	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/CatalogController.client.lua:2784
 ad6583	exact	번들을 착용하지 못했습니다.	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/CatalogController.client.lua:2784
 1ed93e	exact	이 종류의 아이템은 아직 착용할 수 없습니다.	3	src/StarterPlayer/StarterPlayerScripts/FashionGame/CatalogController.client.lua:2802
@@ -1246,20 +1245,20 @@ bfec4f	exact	아이템을 착용하지 못했습니다.	1	src/StarterPlayer/Star
 97a825	exact	이번 접속에서 입어 본 아이템이 없습니다. 최근 목록은 다시 접속하면 비워집니다.	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/CatalogController.client.lua:3052
 e29fbb	exact	즐겨찾기한 아이템이 없습니다. 아이템 이미지를 두 번 눌러 추가하세요.	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/CatalogController.client.lua:3053
 abd0fc	exact	착용 중인 아이템이 없습니다.	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/CatalogController.client.lua:3054
-de1668	exact	검색어·카테고리에 맞는 아이템이 이 목록에 없습니다.	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/CatalogController.client.lua:3181
-773ea2	exact	그 ID의 아이템을 찾지 못했어요.	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/CatalogController.client.lua:3292
-d38e53	exact	인기: 지난 한 달 집계를 쓸 수 없어 전체 기간 기준으로 표시합니다.	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/CatalogController.client.lua:3392
-d1f991	exact	검색에 실패했습니다 (Roblox API 오류). 잠시 후 다시 시도하세요.	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/CatalogController.client.lua:3400
+de1668	exact	검색어·카테고리에 맞는 아이템이 이 목록에 없습니다.	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/CatalogController.client.lua:3177
+773ea2	exact	그 ID의 아이템을 찾지 못했어요.	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/CatalogController.client.lua:3288
+d38e53	exact	인기: 지난 한 달 집계를 쓸 수 없어 전체 기간 기준으로 표시합니다.	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/CatalogController.client.lua:3388
+d1f991	exact	검색에 실패했습니다 (Roblox API 오류). 잠시 후 다시 시도하세요.	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/CatalogController.client.lua:3396
+a1bd3c	exact	" 검색 결과가 없습니다.	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/CatalogController.client.lua:3418
+a87801	exact	이 카테고리에 표시할 아이템이 없습니다.	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/CatalogController.client.lua:3418
 e1ed40	exact	착용 중인 아이템	2	src/StarterPlayer/StarterPlayerScripts/FashionGame/CatalogController.client.lua:342
-a1bd3c	exact	" 검색 결과가 없습니다.	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/CatalogController.client.lua:3422
-a87801	exact	이 카테고리에 표시할 아이템이 없습니다.	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/CatalogController.client.lua:3422
-c6f12c	exact	이 카테고리는 현재 Roblox API에서 직접 검색할 수 없습니다.	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/CatalogController.client.lua:3433
-512e59	exact	이 카테고리는 Roblox 카탈로그 API로 검색할 수 없어 준비 중입니다.	2	src/StarterPlayer/StarterPlayerScripts/FashionGame/CatalogController.client.lua:3434
-2be71a	exact	상의	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/CatalogController.client.lua:3497
-e8db56	exact	하의	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/CatalogController.client.lua:3498
-0a2ab5	exact	 (준비 중)	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/CatalogController.client.lua:3528
-234695	exact	아이템을 더 불러오지 못했습니다. 잠시 후 다시 스크롤하세요.	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/CatalogController.client.lua:3616
-25a2b8	exact	다른 아바타 변경이 진행 중입니다.	3	src/StarterPlayer/StarterPlayerScripts/FashionGame/CatalogController.client.lua:3793
+c6f12c	exact	이 카테고리는 현재 Roblox API에서 직접 검색할 수 없습니다.	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/CatalogController.client.lua:3429
+512e59	exact	이 카테고리는 Roblox 카탈로그 API로 검색할 수 없어 준비 중입니다.	2	src/StarterPlayer/StarterPlayerScripts/FashionGame/CatalogController.client.lua:3430
+2be71a	exact	상의	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/CatalogController.client.lua:3493
+e8db56	exact	하의	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/CatalogController.client.lua:3494
+0a2ab5	exact	 (준비 중)	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/CatalogController.client.lua:3524
+234695	exact	아이템을 더 불러오지 못했습니다. 잠시 후 다시 스크롤하세요.	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/CatalogController.client.lua:3612
+25a2b8	exact	다른 아바타 변경이 진행 중입니다.	2	src/StarterPlayer/StarterPlayerScripts/FashionGame/CatalogController.client.lua:3789
 3ec90d	exact	← 애니메이션 팩	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/CatalogController.client.lua:936
 110f7e	exact	⏹ 그만 추기	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/ChoreoController.client.lua:1231
 ce10a3	exact	💃 안무 따라하기	3	src/StarterPlayer/StarterPlayerScripts/FashionGame/ChoreoController.client.lua:41
@@ -1407,41 +1406,45 @@ feaffc	exact	✅ 코인 x2 패스 적용 중 (영구)	1	src/StarterPlayer/Starte
 e3a14e	exact	 · [Studio 테스트 구매]	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/CoinShopController.client.lua:137
 cb80db	exact	패스가 있어서 필요 없어요	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/CoinShopController.client.lua:143
 9cc5b1	exact	💰 코인	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/CoinShopController.client.lua:55
-959057	exact	입는 중...	4	src/StarterPlayer/StarterPlayerScripts/FashionGame/CommunityLooksView.lua:136
-aa2f0d	exact	입기	10	src/StarterPlayer/StarterPlayerScripts/FashionGame/CommunityLooksView.lua:140
-b267fc	tmpl	✨ "{1}" 입었어요!	2	src/StarterPlayer/StarterPlayerScripts/FashionGame/CommunityLooksView.lua:142
-ce074b	exact	지금은 입을 수 없어요.	2	src/StarterPlayer/StarterPlayerScripts/FashionGame/CommunityLooksView.lua:144
-d71d75	exact	살 수 있는 아이템이 없어요.	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/CommunityLooksView.lua:157
-ecc8a0	exact	이미 전부 가지고 있어요!	2	src/StarterPlayer/StarterPlayerScripts/FashionGame/CommunityLooksView.lua:169
-4ac2fe	exact	구매 창을 열지 못했어요.	3	src/StarterPlayer/StarterPlayerScripts/FashionGame/CommunityLooksView.lua:174
-4ffd03	exact	지울까요?	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/CommunityLooksView.lua:193
-f08cc7	exact	코디를 지웠어요.	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/CommunityLooksView.lua:196
-78ed72	exact	지우지 못했어요.	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/CommunityLooksView.lua:200
-917c62	exact	신고할까요?	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/CommunityLooksView.lua:211
-a850e7	exact	이미 신고했어요.	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/CommunityLooksView.lua:215
-7cb200	exact	신고했어요. 고마워요!	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/CommunityLooksView.lua:217
-0f2266	exact	신고하지 못했어요.	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/CommunityLooksView.lua:224
-3f9a56	exact	숨김 풀기	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/CommunityLooksView.lua:232
-a204f0	exact	다시 보이게 했어요.	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/CommunityLooksView.lua:235
-0319f3	exact	내 코디에는 👍를 누를 수 없어요.	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/CommunityLooksView.lua:257
-315769	exact	사기	2	src/StarterPlayer/StarterPlayerScripts/FashionGame/CommunityLooksView.lua:279
-72b107	exact	📤 내 코디 올리기	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/CommunityLooksView.lua:312
-0bcf4a	exact	지금 입은 코디가 올라가요. 모두가 보고 입어 볼 수 있어요.	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/CommunityLooksView.lua:317
-0c37c4	exact	제목 (20자까지)	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/CommunityLooksView.lua:322
-f20bd9	exact	올리기	2	src/StarterPlayer/StarterPlayerScripts/FashionGame/CommunityLooksView.lua:334
-cb74de	exact	올리는 중...	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/CommunityLooksView.lua:344
-6b8a6b	exact	코디를 올렸어요!	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/CommunityLooksView.lua:353
-f1fe01	exact	올리지 못했어요.	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/CommunityLooksView.lua:357
-7d90ce	exact	유저 코디	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/CommunityLooksView.lua:369
-f8c22d	exact	최신	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/CommunityLooksView.lua:372
-8412e2	exact	숨김	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/CommunityLooksView.lua:373
-9baa12	exact	📤\n내 코디\n올리기	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/CommunityLooksView.lua:389
-32af27	exact	지금 입은 옷이 올라가요	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/CommunityLooksView.lua:394
-bd12bb	exact	코디를 불러오지 못했어요.	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/CommunityLooksView.lua:415
-82dad7	exact	숨긴 코디가 없어요.	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/CommunityLooksView.lua:424
-5f0b87	exact	아직 올라온 코디가 없어요. 첫 코디를 올려 보세요!	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/CommunityLooksView.lua:424
-70fdbd	exact	더 보기	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/CommunityLooksView.lua:429
-771bc3	exact	불러오는 중...	4	src/StarterPlayer/StarterPlayerScripts/FashionGame/CommunityLooksView.lua:450
+959057	exact	입는 중...	3	src/StarterPlayer/StarterPlayerScripts/FashionGame/CommunityLooksView.lua:148
+b267fc	tmpl	✨ "{1}" 입었어요!	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/CommunityLooksView.lua:156
+ce074b	exact	지금은 입을 수 없어요.	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/CommunityLooksView.lua:158
+d71d75	exact	살 수 있는 아이템이 없어요.	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/CommunityLooksView.lua:171
+ecc8a0	exact	이미 전부 가지고 있어요!	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/CommunityLooksView.lua:183
+4ac2fe	exact	구매 창을 열지 못했어요.	2	src/StarterPlayer/StarterPlayerScripts/FashionGame/CommunityLooksView.lua:188
+4ffd03	exact	지울까요?	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/CommunityLooksView.lua:224
+f08cc7	exact	코디를 지웠어요.	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/CommunityLooksView.lua:227
+78ed72	exact	지우지 못했어요.	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/CommunityLooksView.lua:231
+917c62	exact	신고할까요?	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/CommunityLooksView.lua:242
+a850e7	exact	이미 신고했어요.	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/CommunityLooksView.lua:246
+7cb200	exact	신고했어요. 고마워요!	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/CommunityLooksView.lua:248
+0f2266	exact	신고하지 못했어요.	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/CommunityLooksView.lua:255
+3f9a56	exact	숨김 풀기	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/CommunityLooksView.lua:263
+a204f0	exact	다시 보이게 했어요.	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/CommunityLooksView.lua:266
+ce382d	exact	★ 추천 코디	2	src/StarterPlayer/StarterPlayerScripts/FashionGame/CommunityLooksView.lua:280
+0319f3	exact	내 코디에는 👍를 누를 수 없어요.	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/CommunityLooksView.lua:288
+315769	exact	사기	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/CommunityLooksView.lua:310
+aa2f0d	exact	입기	7	src/StarterPlayer/StarterPlayerScripts/FashionGame/CommunityLooksView.lua:372
+9ab0f4	exact	모두 사기	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/CommunityLooksView.lua:376
+72b107	exact	📤 내 코디 올리기	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/CommunityLooksView.lua:449
+0bcf4a	exact	지금 입은 코디가 올라가요. 모두가 보고 입어 볼 수 있어요.	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/CommunityLooksView.lua:454
+0c37c4	exact	제목 (20자까지)	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/CommunityLooksView.lua:459
+f20bd9	exact	올리기	2	src/StarterPlayer/StarterPlayerScripts/FashionGame/CommunityLooksView.lua:471
+cb74de	exact	올리는 중...	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/CommunityLooksView.lua:481
+6b8a6b	exact	코디를 올렸어요!	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/CommunityLooksView.lua:490
+f1fe01	exact	올리지 못했어요.	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/CommunityLooksView.lua:494
+7d90ce	exact	유저 코디	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/CommunityLooksView.lua:506
+033b6c	exact	추천	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/CommunityLooksView.lua:510
+f8c22d	exact	최신	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/CommunityLooksView.lua:510
+8412e2	exact	숨김	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/CommunityLooksView.lua:511
+9baa12	exact	📤\n내 코디\n올리기	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/CommunityLooksView.lua:527
+32af27	exact	지금 입은 옷이 올라가요	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/CommunityLooksView.lua:532
+bd12bb	exact	코디를 불러오지 못했어요.	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/CommunityLooksView.lua:553
+82dad7	exact	숨긴 코디가 없어요.	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/CommunityLooksView.lua:562
+5f0b87	exact	아직 올라온 코디가 없어요. 첫 코디를 올려 보세요!	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/CommunityLooksView.lua:562
+70fdbd	exact	더 보기	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/CommunityLooksView.lua:567
+ba5bdb	exact	추천 조합이 아직 없어요.	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/CommunityLooksView.lua:597
+771bc3	exact	불러오는 중...	4	src/StarterPlayer/StarterPlayerScripts/FashionGame/CommunityLooksView.lua:611
 d7e10c	exact	쉬는 중	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/DanceController.client.lua:1023
 09fa1c	exact	지금은 춤을 쉬는 중	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/DanceController.client.lua:1188
 88caf0	exact	같이 추기 해제	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/DanceController.client.lua:1190
@@ -1809,8 +1812,6 @@ b5973c	exact	🎆 무대 콜드 스파크로 오늘 밤을 밝혀 주세요	1	sr
 7f8b76	exact	💝 기부 순위	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/RankingBoards.client.lua:729
 19b40b	tmpl	{1}위 {2} {3}	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/RankingBoards.client.lua:733
 8f131c	tmpl	💝 {1}님이 {2} R$ 기부하셨습니다{3}	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/RankingBoards.client.lua:793
-ba5bdb	exact	추천 조합이 아직 없어요.	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/RecommendedLooksView.lua:116
-b8854e	tmpl	아이템 {1}개 · R$ {2}	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/RecommendedLooksView.lua:159
 bcf88b	exact	짜잔! 🎉	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/RewardReveal.lua:124
 475ac3	exact	모두에게 보이는 내 이름 위에 칭호가 생겼어요 👑	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/RewardReveal.lua:143
 71961e	exact	오후네컷에 가서 확인해 보세요 📸	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/RewardReveal.lua:159

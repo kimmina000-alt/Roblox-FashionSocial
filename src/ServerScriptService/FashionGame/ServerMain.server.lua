@@ -19,7 +19,7 @@ PlayerDataService.Start()
 require(script.Parent.Services.HairFitService).Start(PlayerDataService)
 require(script.Parent.Services.GuideService).Start(PlayerDataService)
 require(script.Parent.Services.FeedbackService).Start() -- (💬 의견 보내기, D-725)
-require(script.Parent.Services.CommunityLooksService).Start() -- (catalog 코디 posts, D-COMMUNITY)
+require(script.Parent.Services.CommunityLooksService).Start() -- (catalog 코디 posts, D-1990)
 require(script.Parent.Services.EdmService).Start() -- (DJ EDM effects, D-733)
 local MonetizationService = require(script.Parent.Services.MonetizationService)
 local DjService = require(script.Parent.Services.DjService)
@@ -522,7 +522,7 @@ TryOnItem.OnServerInvoke = function(
 		end)
 	end
 
-	-- (D-COMMUNITY) the catalog's 코디 tab: post the look worn now, and put a post's look on
+	-- (D-1990) the catalog's 코디 tab: post the look worn now, and put a post's look on
 	if action == "PostLook" then
 		local ok, snapshot = runExclusive(player, function()
 			return AvatarService.CaptureSnapshot(player)
