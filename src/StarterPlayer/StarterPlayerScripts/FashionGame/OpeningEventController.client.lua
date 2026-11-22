@@ -313,13 +313,11 @@ task.spawn(function()
 	-- (D-1691 / D-1693) once each event day (the day turns at 05:00 KST): the server says when (OpeningShowWindow)
 	while not TEST and player:GetAttribute("OpeningShowWindow") ~= true and os.clock() - t0 < 30 do task.wait(0.5) end
 	if not TEST and player:GetAttribute("OpeningShowWindow") ~= true then return end
-	while playerGui:FindFirstChild("OHULoading") do task.wait(1) end
-	task.wait(4) -- (the first-visit tour starts 1.5 s after the loading screen: it goes first)
-	-- (D-1981, 2026-11-21: fewer windows in the first minute) only after the player's first move (20 studs)
-	-- or first interaction, both told by the server (Analytics: Moved / Interacted)
-	while player:GetAttribute("Moved") ~= true and player:GetAttribute("Interacted") ~= true do task.wait(1) end
-	task.wait(2)
-	while player:GetAttribute("TourActive") or Popups.anyOpen() do task.wait(1) end
-	task.wait(1)
+	-- (D-2014, user 2026-11-22: "오늘 첫 접속자는 접속하면 바로 출석 창 뜨게 해 몇 분 지난 후에 뜬다") right as the
+	-- loading screen goes, before anything else (D-1981 waited for the first move or tap); a new player's
+	-- first card (FirstCardController) waits until this window is closed
+	while playerGui:FindFirstChild("OHULoading") do task.wait(0.25) end
+	task.wait(0.3)
+	while player:GetAttribute("TourActive") or Popups.anyOpen() do task.wait(0.5) end
 	setOpen(true) -- (no sound as it opens: user 2026-11-17, "출석 창은 소리 넣지 말자")
 end)
