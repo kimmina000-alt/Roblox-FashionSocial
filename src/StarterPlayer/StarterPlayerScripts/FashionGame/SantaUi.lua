@@ -81,7 +81,7 @@ function SantaUi.pill(parent: Instance, props: {[string]: any}, bg: Color3, edge
 	if edge then create("UIStroke", { ApplyStrokeMode = Enum.ApplyStrokeMode.Border, Color = edge, Thickness = 2 }, p) end
 	create("UIGradient", {
 		Rotation = 90,
-		Color = ColorSequence.new(bg:Lerp(SantaUi.WHITE, 0.18), bg:Lerp(Color3.new(0, 0, 0), 0.08)),
+		Color = ColorSequence.new(SantaUi.WHITE, Color3.fromRGB(222, 222, 222)), -- (a shade only: BackgroundColor3 may change later)
 	}, p)
 	return p
 end

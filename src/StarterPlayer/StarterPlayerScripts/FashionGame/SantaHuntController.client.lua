@@ -88,7 +88,7 @@ local countText = create("TextLabel", {
 }, countBox)
 local close = Ui.pill(cardRoot, {
 	Class = "TextButton", AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.new(1, -14, 0, 18), Size = UDim2.fromOffset(44, 44),
-	TextSize = 24, Text = "✕", ZIndex = 9, AutoButtonColor = true,
+	TextSize = 24, Text = "X", ZIndex = 9, AutoButtonColor = true,
 }, Ui.RED, WHITE) :: any
 
 -- today's hint
