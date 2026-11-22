@@ -46,7 +46,10 @@ local COLORS = {
 	thumb = Color3.fromRGB(28, 28, 34),
 	text = Color3.fromRGB(240, 240, 245),
 	sub = Color3.fromRGB(175, 175, 190),
-	wear = Color3.fromRGB(255, 110, 170),
+	-- (D-1992, user 2026-11-22: "코디 안에 내 코디 올리기, 자세히 분홍색인 거 수정") no pink: the catalog's own
+	-- colours — 자세히 like the item cards' button, the main actions in the catalog's purple (🛒)
+	wear = Color3.fromRGB(105, 85, 160),
+	action = Color3.fromRGB(70, 70, 85),
 	buy = Color3.fromRGB(62, 62, 76),
 	on = Color3.fromRGB(78, 78, 94),
 	off = Color3.fromRGB(28, 28, 34),
@@ -303,7 +306,7 @@ local function lookCard(index: number, look: any)
 	}, content)
 	local detailButton = button(content, {
 		Name = "ActionButton", Position = UDim2.new(0, 6, 1, -32), Size = UDim2.new(0.6, -9, 0, 26),
-		BackgroundColor3 = COLORS.wear, Text = "자세히",
+		BackgroundColor3 = COLORS.action, Text = "자세히",
 	})
 	detailButton.MouseButton1Click:Connect(function() View.openDetail(look) end)
 	local buyButton = button(content, {
