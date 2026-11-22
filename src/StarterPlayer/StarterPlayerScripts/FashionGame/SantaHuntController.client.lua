@@ -110,8 +110,8 @@ for n, santa in ipairs(Config.Santas) do
 		FontFace = Ui.FRED, TextSize = 46, TextColor3 = Color3.fromRGB(36, 150, 104), Text = "?", ZIndex = 4, Visible = false,
 	}, cell)
 	local badge = Ui.pill(cell, {
-		AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.new(0.5, 0, 0, 118), Size = UDim2.fromOffset(84, 42), FontFace = Ui.BOLD,
-		TextSize = 21, Text = "오늘!", ZIndex = 5, Visible = false,
+		AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.new(0.5, 0, 0, 118), Size = UDim2.fromOffset(96, 50), FontFace = Ui.BOLD,
+		TextSize = 27, Text = "오늘!", ZIndex = 5, Visible = false,
 	}, Ui.TAG_RED, WHITE)
 	local label = create("TextLabel", {
 		AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.new(0.5, 0, 1, -22), Size = UDim2.new(1, -6, 0, 22), BackgroundTransparency = 1,
