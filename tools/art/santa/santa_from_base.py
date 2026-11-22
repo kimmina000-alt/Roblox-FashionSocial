@@ -302,7 +302,7 @@ def _(hat):
     dg = bpy.context.evaluated_depsgraph_get()
     scn = bpy.context.scene
     # flowers where a ray from the front first meets the pink shirt (body and arms)
-    # (user 2026-11-22: "꽃 크기를 키우고 개수를 줄여 녹색 이파리도 넣어 하와이안 셔츠 느낌으로") fewer, bigger flowers
+    # (D-2040, user 2026-11-22: "꽃 크기를 키우고 개수를 줄여 녹색 이파리도 넣어 하와이안 셔츠 느낌으로") fewer, bigger flowers
     # with two long green leaves each, all flat
     from mathutils import Matrix
     spots = []
