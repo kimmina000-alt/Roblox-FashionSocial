@@ -674,14 +674,14 @@ M.Playlist = {
 		-- (D-2060, user 2026-11-21: "매직 안무 추가" + 47 ids = centercut clips 2..48 of Secret_Magic_edit_mirrored.mp4; clip 1
 		-- 0-9.47 s has no upload: the default dance) video = song - 0.55 s (the original mp3 against the edit's sound, 14 clear
 		-- 20 s windows, -0.54 - 0.013 % fit), `at` = clip start + 0.55; clip 4 = 136070103362637 (the first upload 80419197890232
-		-- had no keyframes); 2nd review: 7 +0.10, 8 -0.13, 16 / 17 -0.15 (beats against the original), 35 / 37 slower ends; blends from the seam check, at most half a short piece; clips 12 / 26 / 33 / 34 / 36 / 42 (all blur, no dancer)
+		-- had no keyframes); 2nd review: 35 / 37 slower ends (beat shifts of 7 / 8 / 16 / 17 tried and taken back: the whole song's hits fell 40 -> 30 %); blends from the seam check, at most half a short piece; clips 12 / 26 / 33 / 34 / 36 / 42 (all blur, no dancer)
 		-- and 39 (a face close-up) left out: their captures are not a dance. The edit is mirrored: `mirror = true`
 		-- (user: "원래 안무 방향으로 해") dances the original's left / right
 		mirror = true,
 		choreo = {
-			{ id = 106479169380344, at = 10.02, blend = 0.5 }, { id = 138034484878865, at = 12.55, blend = 0.56 }, { id = 136070103362637, at = 13.68, blend = 0.65 }, { id = 94530159818141, at = 26.72 }, { id = 107045073303325, at = 37.35, blend = 0.56 }, { id = 81385184997344, at = 38.58, blend = 0.67 },
-			{ id = 120127733400995, at = 52.09, blend = 0.49 }, { id = 138769016130452, at = 65.98, blend = 0.3 }, { id = 74685903007766, at = 70.45, blend = 0.65 }, { id = 85150220334771, at = 73.78, blend = 0.54 },
-			{ id = 124110214940834, at = 77.55, blend = 0.44 }, { id = 120442573324181, at = 79.15, blend = 0.51 }, { id = 107935100685178, at = 81.45, blend = 0.91 }, { id = 130334910215443, at = 90.90 }, { id = 107671642558990, at = 104.07 },
+			{ id = 106479169380344, at = 10.02, blend = 0.5 }, { id = 138034484878865, at = 12.55, blend = 0.56 }, { id = 136070103362637, at = 13.68, blend = 0.65 }, { id = 94530159818141, at = 26.72 }, { id = 107045073303325, at = 37.35, blend = 0.56 }, { id = 81385184997344, at = 38.48, blend = 0.67 },
+			{ id = 120127733400995, at = 52.22, blend = 0.49 }, { id = 138769016130452, at = 65.98, blend = 0.3 }, { id = 74685903007766, at = 70.45, blend = 0.65 }, { id = 85150220334771, at = 73.78, blend = 0.54 },
+			{ id = 124110214940834, at = 77.55, blend = 0.44 }, { id = 120442573324181, at = 79.15, blend = 0.51 }, { id = 107935100685178, at = 81.45, blend = 0.91 }, { id = 130334910215443, at = 91.05 }, { id = 107671642558990, at = 104.22 },
 			{ id = 119577337207672, at = 118.72 }, { id = 71131667241071, at = 129.88, blend = 0.47 }, { id = 122472866696287, at = 133.35, blend = 0.69 }, { id = 77461875830759, at = 138.72, blend = 0.3 }, { id = 127709112703288, at = 139.85, blend = 1.00 },
 			{ id = 116014855770351, at = 143.18, blend = 0.70 }, { id = 112478906879249, at = 144.62, blend = 0.83 }, { id = 116299839332925, at = 146.62, blend = 0.66 }, { id = 93682748642768, at = 149.75, blend = 1.00 },
 			{ id = 114588636926173, at = 151.75, blend = 0.73 }, { id = 80457939976697, at = 155.12, blend = 0.62 }, { id = 108651805607066, at = 158.15, blend = 0.67 }, { id = 84142978583186, at = 162.45, blend = 0.58 }, { id = 85549589607121, at = 165.22, blend = 0.81, slowOut = { 0.5, 1.0 } },
