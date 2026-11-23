@@ -904,21 +904,32 @@ end)
 --------------------------------------------------------------------------
 -- (D-1817) the TOP 10 board on the bus stop's back wall (A 네온 클럽): drawn on this screen
 -- (SurfaceGui in PlayerGui, Adornee = the tagged part) from FashionGame attribute DanceTop
-local boards: {[BasePart]: { rows: {TextLabel}, title: TextLabel, empty: TextLabel, champName: TextLabel, champScore: TextLabel }} = {}
+local boards: {[BasePart]: { rows: {TextLabel}, title: TextLabel, empty: TextLabel, champName: TextLabel, champScore: TextLabel, champStreak: TextLabel? }} = {}
 local function fillBoards()
 	local ok, list = pcall(function() return HttpService:JSONDecode(FashionGame:GetAttribute("DanceTop") or "[]") end)
 	if not ok or typeof(list) ~= "table" then list = {} end
 	local info = DanceScoreConfig.Songs[FashionGame:GetAttribute("DanceTopSong") or DanceScoreConfig.todaySong()]
+	-- (D-1993) the win-streak holder (FashionGame DanceChamp = { id, n, k }): 🔥N after their name, and a line
+	-- under today's No. 1 while the streak lasts
+	local okC, champ = pcall(function() return HttpService:JSONDecode(FashionGame:GetAttribute("DanceChamp") or "null") end)
+	if not okC or typeof(champ) ~= "table" then champ = nil end
+	local function fire(e: any): string
+		return if e and typeof(e.k) == "number" then " 🔥" .. tostring(e.k) else ""
+	end
 	for _, b in pairs(boards) do
+		if b.champStreak then
+			b.champStreak.Visible = champ ~= nil
+			b.champStreak.Text = if champ then string.format("🔥 %s님 %d연속 1위 중", tostring(champ.n), champ.k) else ""
+		end
 		b.title.Text = if info then (info.title .. " · " .. info.artist) else ""
 		b.empty.Visible = #list == 0
-		b.champName.Text = if list[1] then tostring(list[1].n) else "?"
+		b.champName.Text = if list[1] then (tostring(list[1].n) .. fire(list[1])) else "?"
 		b.champScore.Text = if list[1] then (tostring(list[1].s) .. (if typeof(list[1].c) == "number" then string.format(" · %d콤보", list[1].c) else "")) else "첫 1위를 기다려요"
 		for i, row in ipairs(b.rows) do
 			local e = list[i]
 			row.Visible = e ~= nil
 			local nameLabel = row:FindFirstChild("PlayerName") :: TextLabel?
-			if nameLabel then nameLabel.Text = if e then tostring(e.n) else "" end
+			if nameLabel then nameLabel.Text = if e then (tostring(e.n) .. fire(e)) else "" end
 			local score = row:FindFirstChild("Score") :: TextLabel?
 			-- (D-1818d, user 2026-11-21: "순위표에 최대 콤보 수 표시")
 			if score then score.Text = if e then (tostring(e.s) .. (if typeof(e.c) == "number" then string.format("  ·  %d콤보", e.c) else "")) else "" end
@@ -947,6 +958,9 @@ local function addBoard(part: Instance)
 		TextWrapped = true, TextScaled = true, TextStrokeColor3 = PINK, TextStrokeTransparency = 0 })
 	make("UITextSizeConstraint", { MaxTextSize = 58, MinTextSize = 28 }, champName) -- (D-1818y: a long name stays in the card)
 	local champScore = label(champ, "", 40, YELLOW, BIG, { Name = "ChampScore", Position = UDim2.fromOffset(0, 390), Size = UDim2.new(1, 0, 0, 60) })
+	local champStreak = label(champ, "", 30, Color3.fromRGB(255, 214, 90), BIG, { Name = "ChampStreak", Position = UDim2.fromOffset(12, 460), Size = UDim2.new(1, -24, 0, 44),
+		TextScaled = true, Visible = false }) -- (D-1993)
+	make("UITextSizeConstraint", { MaxTextSize = 30, MinTextSize = 16 }, champStreak)
 	local right = make("Frame", { BackgroundTransparency = 1, Position = UDim2.new(1 / 3, 20, 0, 20), Size = UDim2.new(2 / 3, -40, 1, -40) }, root)
 	local head = make("Frame", { BackgroundTransparency = 1, Size = UDim2.new(1, 0, 0, 110) }, right)
 	label(head, "오늘의 TOP 10", 74, Color3.new(1, 1, 1), BIG, { Size = UDim2.new(0.62, 0, 0, 82), TextXAlignment = Enum.TextXAlignment.Left,
@@ -974,7 +988,7 @@ local function addBoard(part: Instance)
 			TextXAlignment = Enum.TextXAlignment.Left, TextTruncate = Enum.TextTruncate.AtEnd })
 		rows[i] = row
 	end
-	boards[part] = { rows = rows, title = title, empty = empty, champName = champName, champScore = champScore }
+	boards[part] = { rows = rows, title = title, empty = empty, champName = champName, champScore = champScore, champStreak = champStreak }
 	part.AncestryChanged:Connect(function()
 		if not part:IsDescendantOf(workspace) then
 			boards[part] = nil
@@ -986,3 +1000,4 @@ end
 for _, part in ipairs(CollectionService:GetTagged("DanceTopBoard")) do addBoard(part) end
 CollectionService:GetInstanceAddedSignal("DanceTopBoard"):Connect(addBoard)
 FashionGame:GetAttributeChangedSignal("DanceTop"):Connect(fillBoards)
+FashionGame:GetAttributeChangedSignal("DanceChamp"):Connect(fillBoards) -- (D-1993)

@@ -251,4 +251,42 @@ function DanceScoreConfig.grade(score: number): string
 	return "B"
 end
 
+-- (D-1993, user 2026-11-24: "오늘의 도전 연속 우승자 별도 표시" → "1위만 2연승부터 최고로 남겨") win streaks:
+-- only a day's No. 1 counts; shown from StreakFrom days in a row ("👑 N연속 1위" on the name tag, 🔥N on the
+-- board); after it breaks the best stays ("최고 N연속 1위"). A day is settled StreakGrace seconds after it ends
+-- (runs started before 05:00 can still finish and save).
+DanceScoreConfig.StreakFrom = 2
+DanceScoreConfig.StreakGrace = 15 * 60
+
+export type ChampState = { day: string, id: number, streak: number }
+
+-- the day to settle now (its key and a server time inside it)
+function DanceScoreConfig.settleTime(serverTime: number?): number
+	return (serverTime or workspace:GetServerTimeNow()) - DanceScoreConfig.StreakGrace - 86400
+end
+
+-- the state after `day` (its No. 1 = winner, nil = nobody played); `before` = the day before it.
+-- nil = already settled
+function DanceScoreConfig.nextStreak(old: ChampState?, day: string, before: string, winner: number?): ChampState?
+	if old and old.day >= day then return nil end
+	if not winner or winner == 0 then return { day = day, id = 0, streak = 0 } end
+	if old and old.id == winner and old.day == before then
+		return { day = day, id = winner, streak = (old.streak or 0) + 1 }
+	end
+	return { day = day, id = winner, streak = 1 }
+end
+
+-- the name tag's dance badge: today's rank and / or the streak (nil = no badge)
+function DanceScoreConfig.badgeText(rank: number?, streak: number?, best: number?): string?
+	local from = DanceScoreConfig.StreakFrom
+	local s = if typeof(streak) == "number" and streak >= from then streak else nil
+	local b = if typeof(best) == "number" and best >= from then best else nil
+	if rank and s then return string.format("DANCE #%d · 👑 %d연속 1위", rank, s) end
+	if rank and b then return string.format("DANCE #%d · 최고 %d연속 1위", rank, b) end
+	if rank then return "DANCE #" .. tostring(rank) end
+	if s then return string.format("👑 %d연속 1위", s) end
+	if b then return string.format("최고 %d연속 1위", b) end
+	return nil
+end
+
 return DanceScoreConfig

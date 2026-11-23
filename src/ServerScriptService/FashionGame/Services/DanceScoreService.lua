@@ -93,6 +93,151 @@ local function nameOf(userId: number): string
 	return "?"
 end
 
+-- (D-1993, user 2026-11-24: "1위만 2연승부터 최고로 남겨") win streaks: DataStore "DanceChamp1"
+--   "state"        { day, id, streak } = the last settled day's No. 1 and their days in a row
+--   "song_<day>"   the day's song (todaySong of that day if missing)
+--   "best_<id>"    a player's best streak
+-- Every server settles a day once its StreakGrace is over (UpdateAsync: the first server to get there
+-- writes it, the others see it done); up to 7 missed days are caught up in order. Attributes:
+-- FashionGame DanceChamp = JSON { id, n, k } of the streak holder (k >= StreakFrom) or nil; players get
+-- DanceStreak (their streak while it lasts) and DanceStreakBest (>= StreakFrom). Studio: a memory table;
+-- FashionGame attribute DanceChampTest = "streak,best" makes the first player the champion (Studio only).
+local champStore: DataStore? = nil
+local champMem: {[string]: any} = {}
+local champ: DanceScoreConfig.ChampState = { day = "", id = 0, streak = 0 }
+local songSaved: {[string]: boolean} = {}
+local bests: {[number]: number} = {}
+
+local function champGet(key: string): any
+	if STUDIO then return champMem[key] end
+	if not champStore then
+		local ok, s = pcall(function() return DataStoreService:GetDataStore("DanceChamp1") end)
+		if ok then champStore = s end
+	end
+	if not champStore then return nil end
+	local ok, v = pcall(function() return (champStore :: DataStore):GetAsync(key) end)
+	return if ok then v else nil
+end
+local function champUpdate(key: string, f: (any) -> any): any
+	if STUDIO then
+		local v = f(champMem[key])
+		if v ~= nil then champMem[key] = v end
+		return champMem[key]
+	end
+	if not champStore then champGet(key) end
+	if not champStore then return nil end
+	local ok, v = pcall(function() return (champStore :: DataStore):UpdateAsync(key, f) end)
+	return if ok then v else nil
+end
+
+-- the No. 1 of a finished day (nil = nobody played)
+local function winnerOf(day: string, time: number): number?
+	local song = champGet("song_" .. day)
+	if typeof(song) ~= "number" then song = DanceScoreConfig.todaySong(time) end
+	if STUDIO then
+		local best, bestId = -1, nil
+		for key, v in pairs(memory[storeName(day, song)] or {}) do
+			if v > best then best, bestId = v, tonumber(key) end
+		end
+		return bestId
+	end
+	local s = store(day, song)
+	if not s then return nil end
+	local id = nil
+	pcall(function()
+		local page = (s :: OrderedDataStore):GetSortedAsync(false, 1):GetCurrentPage()
+		if page[1] then id = tonumber(page[1].key) end
+	end)
+	return id
+end
+
+local function setStreakAttributes(player: Player)
+	local from = DanceScoreConfig.StreakFrom
+	local streak = if champ.id == player.UserId and champ.streak >= from then champ.streak else nil
+	if player:GetAttribute("DanceStreak") ~= streak then player:SetAttribute("DanceStreak", streak) end
+	local best = bests[player.UserId]
+	best = if best and best >= from then best else nil
+	if player:GetAttribute("DanceStreakBest") ~= best then player:SetAttribute("DanceStreakBest", best) end
+end
+
+local function publishChamp()
+	if champ.id ~= 0 and champ.streak >= DanceScoreConfig.StreakFrom then
+		FashionGame:SetAttribute("DanceChamp", HttpService:JSONEncode({ id = champ.id, n = names[champ.id] or "?", k = champ.streak }))
+	else
+		FashionGame:SetAttribute("DanceChamp", nil)
+	end
+	for _, p in ipairs(Players:GetPlayers()) do setStreakAttributes(p) end
+end
+
+-- settle the finished days not settled yet (cheap when nothing is new: no store call)
+local function settle()
+	local t = DanceScoreConfig.settleTime()
+	local target = DanceScoreConfig.dayKey(t)
+	if champ.day == target then return end
+	local state = champGet("state")
+	if typeof(state) == "table" and typeof(state.day) == "string" then
+		champ = { day = state.day, id = tonumber(state.id) or 0, streak = tonumber(state.streak) or 0 }
+	end
+	for k = 6, 0, -1 do
+		local dt = t - k * 86400
+		local day = DanceScoreConfig.dayKey(dt)
+		if champ.day < day then
+			local winner = winnerOf(day, dt)
+			local before = DanceScoreConfig.dayKey(dt - 86400)
+			local wrote: DanceScoreConfig.ChampState? = nil
+			local result = champUpdate("state", function(old)
+				local o = if typeof(old) == "table" and typeof(old.day) == "string" then old else nil
+				wrote = DanceScoreConfig.nextStreak(o, day, before, winner)
+				return wrote
+			end)
+			if typeof(result) == "table" and typeof(result.day) == "string" then
+				champ = { day = result.day, id = tonumber(result.id) or 0, streak = tonumber(result.streak) or 0 }
+			elseif wrote then
+				champ = wrote :: any
+			else
+				-- (another server settled it first: take theirs)
+				local now = champGet("state")
+				if typeof(now) == "table" and typeof(now.day) == "string" then
+					champ = { day = now.day, id = tonumber(now.id) or 0, streak = tonumber(now.streak) or 0 }
+				end
+			end
+			-- the one server that wrote this day keeps the winner's best
+			local w = wrote :: DanceScoreConfig.ChampState?
+			if w and w.id ~= 0 and w.streak >= DanceScoreConfig.StreakFrom then
+				local saved = champUpdate("best_" .. w.id, function(old)
+					local o = if typeof(old) == "number" then old else 0
+					if w.streak <= o then return nil end
+					return w.streak
+				end)
+				if typeof(saved) == "number" then bests[w.id] = saved end
+			end
+		end
+	end
+	if champ.id ~= 0 and not names[champ.id] and champ.id > 0 then
+		pcall(function()
+			for _, info in ipairs(UserService:GetUserInfosByUserIdsAsync({ champ.id })) do names[info.Id] = info.DisplayName end
+		end)
+	end
+	if champ.id ~= 0 and bests[champ.id] == nil then
+		local b = champGet("best_" .. champ.id)
+		bests[champ.id] = if typeof(b) == "number" then b else champ.streak
+	end
+	publishChamp()
+end
+
+-- Studio only: DanceChampTest = "streak,best" → the first player is the champion
+local function studioChampTest()
+	if not STUDIO then return end
+	local v = FashionGame:GetAttribute("DanceChampTest")
+	local p = Players:GetPlayers()[1]
+	if typeof(v) ~= "string" or not p then return end
+	local s, b = string.match(v, "^(%d+),(%d+)$")
+	if not s then return end
+	champ = { day = DanceScoreConfig.dayKey(DanceScoreConfig.settleTime()), id = if tonumber(s) > 0 then p.UserId else 0, streak = tonumber(s) :: number }
+	bests[p.UserId] = tonumber(b)
+	publishChamp()
+end
+
 -- today's top (100 read, 10 shown) → attributes, titles
 local function refresh()
 	local day = DanceScoreConfig.dayKey()
@@ -130,7 +275,14 @@ local function refresh()
 	local shown = {}
 	for i = 1, math.min(10, #list) do
 		local score, combo = DanceScoreConfig.unpack(list[i].s)
-		table.insert(shown, { n = nameOf(list[i].id), s = score, c = combo })
+		-- (D-1993) k = the streak of the streak holder
+		local k = if list[i].id == champ.id and champ.streak >= DanceScoreConfig.StreakFrom then champ.streak else nil
+		table.insert(shown, { n = nameOf(list[i].id), s = score, c = combo, k = k })
+	end
+	-- (D-1993) the day's song, kept for settling this day later
+	if not songSaved[day] then
+		songSaved[day] = true
+		champUpdate("song_" .. day, function(old) return if old == soundId then nil else soundId end)
 	end
 	FashionGame:SetAttribute("DanceTop", HttpService:JSONEncode(shown))
 	FashionGame:SetAttribute("DanceTopDay", day)
@@ -306,6 +458,12 @@ local function onJoin(player: Player)
 		end
 		local rank = rankIn(player.UserId)
 		if rank and rank <= DanceScoreConfig.TitleTop and player.Parent then player:SetAttribute("Title_Dance", rank) end
+		-- (D-1993) their best streak
+		if bests[player.UserId] == nil then
+			local b = champGet("best_" .. player.UserId)
+			bests[player.UserId] = if typeof(b) == "number" then b else 0
+		end
+		if player.Parent then setStreakAttributes(player) end
 	end)
 end
 
@@ -349,9 +507,11 @@ function DanceScoreService.Start()
 	Players.PlayerRemoving:Connect(function(player) runs[player] = nil end)
 	Players.PlayerAdded:Connect(onJoin)
 	for _, player in ipairs(Players:GetPlayers()) do onJoin(player) end
+	FashionGame:GetAttributeChangedSignal("DanceChampTest"):Connect(function() studioChampTest() pcall(refresh) end)
 	-- the ranking, now and every BoardRefresh seconds
 	task.spawn(function()
 		while true do
+			pcall(settle) -- (D-1993) before the board, so its 🔥 is up to date
 			pcall(refresh)
 			task.wait(DanceScoreConfig.BoardRefresh)
 		end
