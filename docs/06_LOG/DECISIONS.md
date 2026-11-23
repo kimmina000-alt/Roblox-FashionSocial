@@ -7068,3 +7068,10 @@ Studio only (no script yet).
 ## D-2046 Santa popup: the whole snow cap cut out (2026-11-22)
 - User (phone screenshot): the popup's top was cut flat with a dark strip of the town above the snow. matte.py's popup outline now follows the snow bumps (crop from y 182), build.py clears the dark town bits by the top corners only (the confetti stays). popup_frame.png = 120424630359533, 466 x 710; SantaUi's popup spots moved down 24.
 - Play check: docs/06_LOG/images/2026-11-22/santa_reveal_v4.jpg (DJ Santa, whole snow cap).
+
+## D-1993 오늘의 곡 도전: 연속 1위 표시 (2026-11-24)
+- 사용자: "오늘의 도전 연속 우승자 별도 표시 방법" → "1위만 2연승부터 최고로 남겨".
+- 그날 1위만 셈. 하루가 끝나고 15분(DanceScoreConfig.StreakGrace) 뒤 그 날을 정산: DataStore "DanceChamp1" "state" = { day, id, streak } (UpdateAsync라 서버가 여럿이어도 하루 한 번), 전날도 1위면 +1, 아니면 1. 놓친 날은 7일까지 순서대로 따라잡음. "song_<day>" = 그날의 곡, "best_<id>" = 그 사람의 최고 연승.
+- 표시(2연승부터, StreakFrom = 2): 이름표 댄스 칭호에 "👑 N연속 1위"(금색 글자, 오늘 순위가 있으면 "DANCE #r · 👑 N연속 1위"), 끊긴 뒤에는 "최고 N연속 1위"로 남음(분홍). TOP 10 순위표의 이름 옆 🔥N, 오늘의 1위 칸 아래 "🔥 ○○님 N연속 1위 중". ☰ 메뉴의 DANCE 칭호 숨기기로 같이 숨겨짐.
+- 속성: FashionGame DanceChamp = JSON { id, n, k }, 플레이어 DanceStreak / DanceStreakBest. Studio: 메모리 저장, FashionGame 속성 DanceChampTest = "연승,최고"(Studio만)로 첫 플레이어를 챔피언으로.
+- 번역 5개: tools/i18n/tr/p28_streak1124.tsv.

@@ -6,6 +6,7 @@
 
 local Players = game:GetService("Players")
 local FashionGame = game:GetService("ReplicatedStorage"):WaitForChild("FashionGame")
+local DanceScoreConfig = require(FashionGame:WaitForChild("Shared"):WaitForChild("DanceScoreConfig")) -- (D-1993)
 
 local NameTagService = {}
 
@@ -148,7 +149,8 @@ local function refreshRoles(player: Player)
 	local on = {
 		Founding = player:GetAttribute("Title_Founding") == true,
 		Winter = player:GetAttribute("Title_Winter") == true,
-		Dance = typeof(player:GetAttribute("Title_Dance")) == "number",
+		-- (D-1993) also a win streak (DanceStreak) or the best one (DanceStreakBest)
+		Dance = DanceScoreConfig.badgeText(player:GetAttribute("Title_Dance"), player:GetAttribute("DanceStreak"), player:GetAttribute("DanceStreakBest")) ~= nil,
 		Staff = cafeJob ~= nil and cafeJob ~= false and cafeJob ~= "",
 		GUARD = player:GetAttribute("Pass_Guard") == true,
 		VIP = player:GetAttribute("Pass_VIP") == true,
@@ -239,7 +241,13 @@ local function refreshRoles(player: Player)
 		if l and l:IsA("TextLabel") then l.Visible = shown end
 	end
 	local dance = (tag :: Instance):FindFirstChild("Dance")
-	if on.Dance and dance and dance:IsA("TextLabel") then dance.Text = "DANCE #" .. tostring(player:GetAttribute("Title_Dance")) end
+	if on.Dance and dance and dance:IsA("TextLabel") then
+		-- (D-1993) "DANCE #1", "👑 3연속 1위", "DANCE #2 · 최고 4연속 1위" …: the plate grows with the text
+		local text = DanceScoreConfig.badgeText(player:GetAttribute("Title_Dance"), player:GetAttribute("DanceStreak"), player:GetAttribute("DanceStreakBest")) or ""
+		dance.Text = text
+		dance.Size = UDim2.new(0, math.max(58, (utf8.len(text) or 8) * 7), 1, 0)
+		dance.TextColor3 = if player:GetAttribute("DanceStreak") then Color3.fromRGB(255, 214, 90) else Color3.fromRGB(255, 176, 222)
+	end
 end
 
 function NameTagService.StartRoles()
@@ -260,6 +268,8 @@ function NameTagService.StartRoles()
 		player:GetAttributeChangedSignal("Title_Founding"):Connect(function() refreshRoles(player) end) -- (D-1366)
 		player:GetAttributeChangedSignal("Title_Winter"):Connect(function() refreshRoles(player) end) -- (D-1874)
 		player:GetAttributeChangedSignal("Title_Dance"):Connect(function() refreshRoles(player) end) -- (D-1817)
+		player:GetAttributeChangedSignal("DanceStreak"):Connect(function() refreshRoles(player) end) -- (D-1993)
+		player:GetAttributeChangedSignal("DanceStreakBest"):Connect(function() refreshRoles(player) end) -- (D-1993)
 		-- (D-1378) each badge's 숨기기 in the ☰ menu
 		for _, role in ipairs({ "Founding", "Winter", "Dance", "Staff", "GUARD", "VIP", "DJ" }) do
 			player:GetAttributeChangedSignal("HideBadge_" .. role):Connect(function() refreshRoles(player) end)
