@@ -7068,3 +7068,8 @@ Studio only (no script yet).
 ## D-2046 Santa popup: the whole snow cap cut out (2026-11-22)
 - User (phone screenshot): the popup's top was cut flat with a dark strip of the town above the snow. matte.py's popup outline now follows the snow bumps (crop from y 182), build.py clears the dark town bits by the top corners only (the confetti stays). popup_frame.png = 120424630359533, 466 x 710; SantaUi's popup spots moved down 24.
 - Play check: docs/06_LOG/images/2026-11-22/santa_reveal_v4.jpg (DJ Santa, whole snow cap).
+
+## D-1807 관람차 칸 · 범퍼카 크게 (2026-11-24)
+- 계기: 플레이어 의견(manomano_099, 11-21) "관람차 너무 작아서 저 머리가 껴요 관람차 크기늘려달라". 사용자: "관람차 범퍼카 크기 수정"(관람차 칸과 범퍼카에 탄 사진 2장: 사람이 탈것보다 커 보임).
+- 관람차: tools/graybox/park_wheel_size_1124.lua가 칸 10개의 CabinMesh / CabinDoor / Floor를 칸 바닥(걸이점 -9.6)을 기준으로 앞뒤(축) 1.25 · 높이 1.14 · 좌우 1.25배. 바닥은 탑승 단상 바로 위 그대로, 지붕 -1.6 → -0.48(걸이 막대 아래), 칸 6.17 × 9.12 × 10.82. 바퀴 팔(축 ±4) 안쪽에 들어감. ParkConfig.CabinSeats y -7.35 → -7.04, z ±2.6 → ±3.25(메시 의자가 같이 움직임). 문 HingeRel / DoorRel은 커진 문에서 다시 계산.
+- 범퍼카: BumperCarConfig.Length 11.2 → 14(1.25배), SeatOffset도 1.25배(운전대는 좌석 기준이라 손 자리 그대로). 대기 자리 간격(30 / 15)은 그대로 충분.
