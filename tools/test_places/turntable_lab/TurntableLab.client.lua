@@ -187,6 +187,7 @@ local TRACKS = {
 	{ title = "Blue Valentine-NMIXX", id = 111032764768565 }, -- file 173.9 s, song 3:06
 	{ title = "빌려온 고양이 Do the Dance-ILLIT", id = 126150660776305 }, -- file 176.3 s, song 3:09
 	{ title = "Pretty Girl-RESCENE (2)", id = 140273876429390 }, -- user 2026-11-18, song 3:30 (old 3x file 70.01 s)
+	{ title = "Pop Off-키키", id = 131620527618857 }, -- 오후's x1 upload (2026-11-24 settings list)
 }
 -- a track's club value as a full lab table (nil for the Roblox tracks)
 local function clubValues(t: any): any
