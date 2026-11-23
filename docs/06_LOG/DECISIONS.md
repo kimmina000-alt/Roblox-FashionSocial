@@ -7068,3 +7068,14 @@ Studio only (no script yet).
 ## D-2046 Santa popup: the whole snow cap cut out (2026-11-22)
 - User (phone screenshot): the popup's top was cut flat with a dark strip of the town above the snow. matte.py's popup outline now follows the snow bumps (crop from y 182), build.py clears the dark town bits by the top corners only (the confetti stays). popup_frame.png = 120424630359533, 466 x 710; SantaUi's popup spots moved down 24.
 - Play check: docs/06_LOG/images/2026-11-22/santa_reveal_v4.jpg (DJ Santa, whole snow cap).
+
+## D-1866 7곡 lab 값 다시 맞춤 (2026-11-24)
+- 사용자가 사운드 랩에서 다시 맞춘 값(테스트 place DataStore, 음원 테스트 → 매니저 세션 전달). lab 줄만, soundId · length · fileSpeed · 안무 그대로.
+- 체포하겠어-ILLIT 139044453511745: { speed = 1, tempo = 0.333, volume = 10, boost = 10, boost2 = 5, octave = 0.5, low = -40, mid = -25, high = -40, engine = "sound" } → { speed = 1, tempo = 0.333, volume = 10, boost = 4.55, boost2 = 2, octave = 0.5, low = -22.5, mid = -24, high = -32.5, engine = "sound" }
+- 거리-URBAN ZAKAPA 132434943798296: { speed = 1, tempo = 0.952, volume = 10, boost = 10, boost2 = 5, boost3 = 5, octave = 1, low = -5.5, mid = -13.5, high = -31, engine = "sound" } → { speed = 1, tempo = 0.952, volume = 10, boost = 10, boost2 = 5, boost3 = 5, octave = 1, low = -11, mid = -21.5, high = -37.5, engine = "sound" }
+- 나는 너라서 120378159122290: { speed = 1, tempo = 0.952, volume = 10, boost = 10, boost2 = 5, boost3 = 5, octave = 1, low = -11, mid = -4, high = -21.5, engine = "sound" } → { speed = 1, tempo = 0.952, volume = 10, boost = 10, boost2 = 5, boost3 = 5, octave = 1, low = -6.5, mid = -17.5, high = -39.5, engine = "sound" }
+- Secret Us 82537293207913: { speed = 1, tempo = 0.955, volume = 10, boost = 10, boost2 = 5, boost3 = 5, octave = 1, low = -34, mid = -20, high = -34, engine = "sound" } → { speed = 1, tempo = 0.955, volume = 10, boost = 10, boost2 = 5, boost3 = 5, boost4 = 2, octave = 1, low = -11.5, mid = -7.5, high = -21, engine = "sound" }
+- Dragon-RESCENE 82349082640186: { speed = 1, tempo = 0.953, volume = 10, boost = 10, boost2 = 5, boost3 = 2, octave = 1, low = 0, mid = 0, high = 0, engine = "sound" } → { speed = 1, tempo = 0.953, volume = 10, boost = 10, boost2 = 5, boost3 = 2, octave = 1, low = -6.5, mid = -5, high = -20, engine = "sound" }
+- Magic-Secret 124810692241835: { speed = 1, tempo = 0.952, volume = 10, boost = 10, boost2 = 2, boost3 = 2, octave = 1, low = 0, mid = 0, high = -10, engine = "sound" } → { speed = 1, tempo = 0.952, volume = 10, boost = 10, boost2 = 2, boost3 = 2, boost4 = 2, octave = 1, low = 0, mid = 0, high = -10, engine = "sound" }
+- Magnetic-ILLIT 109036685956565: { speed = 1, tempo = 0.952, volume = 10, boost = 10, boost2 = 5, boost3 = 4, octave = 1, low = 0, mid = 0, high = -16, engine = "sound" } → { speed = 1, tempo = 0.952, volume = 10, boost = 10, boost2 = 5, boost3 = 2, octave = 1, low = -14.5, mid = -8.5, high = -33, engine = "sound" }
+- Play로 들어 보지는 않음.
