@@ -188,6 +188,8 @@ local TRACKS = {
 	{ title = "빌려온 고양이 Do the Dance-ILLIT", id = 126150660776305 }, -- file 176.3 s, song 3:09
 	{ title = "Pretty Girl-RESCENE (2)", id = 140273876429390 }, -- user 2026-11-18, song 3:30 (old 3x file 70.01 s)
 	{ title = "Pop Off-키키", id = 131620527618857 }, -- 오후's x1 upload (2026-11-24 settings list)
+	{ title = "Potion-AND2BLE", id = 88799517182805 }, -- user 2026-11-24
+	{ title = "GiiiRIP-BIGBANG", id = 84573541048803 }, -- user 2026-11-24
 }
 -- a track's club value as a full lab table (nil for the Roblox tracks)
 local function clubValues(t: any): any
