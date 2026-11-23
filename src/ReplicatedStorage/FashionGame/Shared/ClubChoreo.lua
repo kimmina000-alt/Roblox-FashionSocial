@@ -1381,7 +1381,9 @@ M.ChoreoFixes = {
 	[97906912240537] = { still = { from = 1.07, to = 1.8 } }, -- 5
 	-- Magic-Secret (D-2060, the mirrored edit Secret_Magic_edit_mirrored.mp4, stage videos + one cover): `still` where the
 	-- clip's member stands in the video (still_from_video.py; clip numbers)
-	[120127733400995] = { still = { from = 12.63, to = 13.4 } }, -- 8
+	[120127733400995] = { still = { from = 12.63, to = 13.4 }, -- 8
+		-- (2nd review: 1:05.3-1:06.1 the original raises one arm straight up, the game's left with mirror; the capture kept both down)
+		pose = { from = 12.95, to = 13.73, ease = 0.2, keys = { { t = 13.1, set = { LeftUpperArm = { 0, 0, -185 }, LeftLowerArm = { 15, 0, 0 } } }, { t = 13.7, set = { LeftUpperArm = { 0, 0, -185 }, LeftLowerArm = { 15, 0, 0 } } } } } },
 	[120442573324181] = { still = { from = 0.63, to = 1.93 } }, -- 14
 	[107671642558990] = { still = { from = 2.53, to = 3.5 } }, -- 17
 	[112478906879249] = { still = { from = 0.13, to = 1.13 } }, -- 24
@@ -1395,6 +1397,9 @@ M.ChoreoFixes = {
 	[94530159818141] = { spin = { { from = 0.7, to = 2.1, ease = "both" }, { from = 3.1, to = 4.2, ease = "both" } } }, -- 5
 	[81385184997344] = { still = { from = 0.13, to = 1.23 }, spin = { from = 4.5, to = 6.0, ease = "both" } }, -- 7
 	[130334910215443] = { spin = { from = 3.5, to = 4.8, ease = "both" } }, -- 16
+	-- (2nd review: 2:42.0-2:43.2 the original's arm goes up overhead, the game's left with mirror; the capture held it out to the side)
+	[108651805607066] = { pose = { from = 3.7, to = 4.27, ease = 0.2, keys = { { t = 3.95, set = { LeftUpperArm = { 0, 0, -185 }, LeftLowerArm = { 15, 0, 0 } } }, { t = 4.27, set = { LeftUpperArm = { 0, 0, -185 }, LeftLowerArm = { 15, 0, 0 } } } } } }, -- 30
+	[84142978583186] = { pose = { from = 0, to = 0.95, ease = 0.25, keys = { { t = 0, set = { LeftUpperArm = { 0, 0, -185 }, LeftLowerArm = { 15, 0, 0 } } }, { t = 0.7, set = { LeftUpperArm = { 0, 0, -185 }, LeftLowerArm = { 15, 0, 0 } } } } } }, -- 31
 	[122472866696287] = { spin = { from = 4.85, to = 5.33 } }, -- 20 (its last turn ends at speed and hands the exact yaw to 21)
 	[77461875830759] = { spin = { from = 0, to = 1.1, fromPrev = true, dir = -1, ease = "out" } }, -- 21 (2:18.7: carries 20's turn on, -245° more; "both" stalled at the seam, 978°/s after)
 	-- (D-1030, user: "ISPY 1:20 이 부근에 휙 도는 거") piece 15 starts in the middle of a
@@ -3920,6 +3925,30 @@ do
 	} do
 		for _, w in ipairs(wins) do addList(id, "still", { from = w[1], to = w[2] }) end
 		addList(id, "plant", { from = 0, to = 99, contact = 0.45 })
+	end
+end
+
+-- (D-2060, 2nd review of Magic-Secret: 139 planted-foot drags, up to 3.3 studs, 0:19.2-0:22.8) every Magic piece `plant`
+-- (contact 0.45; a foot the dance carries off is stepped). No formation windows: the edit is stage videos with cameras that
+-- follow the dancers, so the original's travel cannot be read (as Get A Guitar in D-1947); `still` / ChoreoSlideStill stay
+do
+	for _, id in ipairs({
+		106479169380344, 138034484878865, 136070103362637, 94530159818141,
+		107045073303325, 81385184997344, 120127733400995, 138769016130452,
+		74685903007766, 85150220334771, 124110214940834, 120442573324181,
+		107935100685178, 130334910215443, 107671642558990, 119577337207672,
+		71131667241071, 122472866696287, 77461875830759, 127709112703288,
+		116014855770351, 112478906879249, 116299839332925, 93682748642768,
+		114588636926173, 80457939976697, 108651805607066, 84142978583186,
+		85549589607121, 71562511860899, 101424106854015, 79063240284209,
+		103622390188129, 113790940397876, 100617098559537, 129505416090843,
+		103652697924559, 133867217569877, 128066062358433, 71156728272866,
+	}) do
+		local f = (M.ChoreoFixes[id] or {}) :: any
+		M.ChoreoFixes[id] = f
+		local list = if f.plant == nil then {} elseif f.plant.from then { f.plant } else table.clone(f.plant)
+		table.insert(list, { from = 0, to = 99, contact = 0.45 })
+		f.plant = list
 	end
 end
 
