@@ -26,8 +26,11 @@ BumperCarConfig.RootTag = "BumperCarRoot" -- the runtime root part the server bu
 -- (D-1414, user: "크기 원래대로 하면 두 명 탈 수 있나? 범퍼카 하나에 두 명 탈 수 있게 하고 먼저 탄 사람이
 -- 왼쪽에 탑승해서 운전권 가지게 해") the car at the size the user placed it (16.8 x 5.9 x 9.7), two seats
 -- side by side. Length (studs) scales every car to that length instead; nil keeps the place's size.
-BumperCarConfig.Length = 11.2 :: number? -- (D-1415, user: "둘이 타도 범퍼카 좀 크다 1/3만 줄이자": 2/3 of the placed 16.8)
-BumperCarConfig.SeatOffset = Vector3.new(-1.63, -0.61, 1.47) -- the seats in the body's space (back half; +X is the front); Z = each seat's distance from the middle
+-- (D-1807, user 2026-11-24: "관람차 범퍼카 크기 수정": the riders looked too big for the car) 11.2 → 14 (1.25x);
+-- the seats grow with the car (SeatOffset at 11.2 times the scale), the steering wheel stays at the driver's hands
+local SEAT_AT_11_2 = Vector3.new(-1.63, -0.61, 1.47)
+BumperCarConfig.Length = 14 :: number? -- (D-1415, user: "둘이 타도 범퍼카 좀 크다 1/3만 줄이자": 2/3 of the placed 16.8 = 11.2 until D-1807)
+BumperCarConfig.SeatOffset = SEAT_AT_11_2 * (14 / 11.2) -- the seats in the body's space (back half; +X is the front); Z = each seat's distance from the middle
 -- (D-1415, user: "운전자는 운전하는 모션 보여 줘") a steering wheel in front of the driver's seat (body space,
 -- from the seat), its hands on the rim (IK); the wheel turns with the drive wheel (x WheelTurn)
 BumperCarConfig.SteeringOffset = Vector3.new(1.45, 1.55, 0)

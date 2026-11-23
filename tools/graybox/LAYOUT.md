@@ -104,6 +104,7 @@
   - `park_perf_1116.lua` (D-1532) — 놀이공원 최적화 (체인 마지막): 범퍼카장 전선 파트 → Beam, 땅 밑 놀이터 → ServerStorage.ParkSeaNorthRemoved_1116, 작은 파트 그림자 끔. 다시 돌려도 됨.
   - `park_fixes3_1116.lua` (D-1545) — 놀이공원 피드백: 소방차 좌석, 회전목마 조명·말 귀, 점핑스타 하차 위치, 관람차 의자 블록 삭제, 범퍼카 펜스 겹침·12대 두 줄·벽 그림 한 장. park_perf_1116 앞에 실행.
   - `park_fixes4_1117.lua` (D-1564/D-1565) — 바이킹 두 대 번갈아 운행(Board/Offset), 관람차 바퀴 0.75로 줄이고 칸까지 흰 받침대(CabinBrackets), 칸 바닥 축소. park_fixes3_1116 다음에 실행.
+  - `park_wheel_size_1124.lua` (D-1807) — 관람차 칸(메시 · 문 · 바닥)을 칸 바닥 기준으로 1.25 × 1.14 × 1.25로 키움(머리 공간 +1.1, 지붕은 걸이 막대 아래). 문 경첩 속성 다시 계산, 처음 크기는 Base* 속성에 남겨 다시 돌려도 같다. ParkConfig.CabinSeats와 짝. park_fixes4_1117 다음(park_wheel_cabins_1115 / park_fixes4_1117를 다시 돌리면 이것도 다시).
   - `park_ride_lights_1117.lua` (D-1656/D-1657) — 회전컵 접시 둘레(SaucerGlow, 컵과 같이 돎) · 소방차 트랙 바깥(TrackGlow) · 잔디 둘레(LawnGlow) 네온 조명 줄. park_fixes4_1117 다음에 실행.
   - `park_neon_stage_1118.lua` (D-1792) — 놀이공원 앞 공터(포켓 파크 둥근 광장) 가운데 네온 무대 Workspace["네온무대"] (D-1793: 댄스봉 받침과 같은 은색 DiamondPlate; D-1820: 반지름 18 높이 1.2 한 층 + 얇은 연분홍 선 하나) (Hongdae_Layout 밖, 다시 돌려도 됨). 크기·높이는 Shared/NeonStageConfig와 같아야 함.
   - `park_bumper_track_1119.lua` (D-1826) — 범퍼카장 바닥 타원 레이스 트랙 + 가운데 원뿔 7개(태그 BumperCone), 범퍼.04_BumperCars.Track. park_bumper_big_1116 / park_bumper_dress_1115 다음에 실행.
