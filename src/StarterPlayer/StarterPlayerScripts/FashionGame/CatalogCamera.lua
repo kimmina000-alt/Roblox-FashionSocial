@@ -106,6 +106,45 @@ end
 -- character on the way in, stays on screen
 local pendingToken = 0
 local pendingModel: Model? = nil
+-- (D-2047, user 2026-11-24: "카탈로그 속 아바타 편집 눌러도 계속 춤추게 해") the real character keeps
+-- dancing (hidden on this screen); every frame its joints' animated pose (.Transform of the
+-- Motor6Ds, or of the AnimationConstraints of the new avatar joints: dances, choreography, emotes)
+-- is copied onto the draft copy's joints of the same name, so the copy dances along instead of
+-- standing still
+local mirrorConns: {RBXScriptConnection} = {}
+local mirrorMap: {[any]: any} = {}
+local mirrorFor: Model? = nil
+local function mirrorStep()
+	local copy = stageModel or pendingModel
+	local character = Players.LocalPlayer.Character
+	if not (copy and character) then return end
+	if mirrorFor ~= copy then
+		mirrorFor = copy
+		table.clear(mirrorMap)
+		for _, joint in ipairs(copy:GetDescendants()) do
+			if (joint:IsA("Motor6D") or joint:IsA("AnimationConstraint")) and joint.Parent then
+				local part = character:FindFirstChild(joint.Parent.Name, true)
+				local live = part and part:FindFirstChild(joint.Name)
+				if live and live.ClassName == joint.ClassName then mirrorMap[joint] = live end
+			end
+		end
+	end
+	for joint, live in pairs(mirrorMap) do
+		joint.Transform = live.Transform
+	end
+end
+local function setMirror(on: boolean)
+	if on and #mirrorConns == 0 then
+		-- after the animators (simulation) and again before drawing
+		table.insert(mirrorConns, RunService.PreSimulation:Connect(mirrorStep))
+		table.insert(mirrorConns, RunService.PreRender:Connect(mirrorStep))
+	elseif not on then
+		for _, conn in ipairs(mirrorConns) do conn:Disconnect() end
+		table.clear(mirrorConns)
+		table.clear(mirrorMap)
+		mirrorFor = nil
+	end
+end
 function CatalogCamera.stage(model: Model?)
 	if model == stageModel or (model ~= nil and model == pendingModel) then return end
 	pendingToken += 1
@@ -117,9 +156,11 @@ function CatalogCamera.stage(model: Model?)
 		stageModel = nil
 		if old and old:IsDescendantOf(workspace) then old:Destroy() end
 		setHidden(Players.LocalPlayer.Character, false)
+		setMirror(false)
 		return
 	end
 	pendingModel = model
+	setMirror(true)
 	task.spawn(function()
 		pcall(function() game:GetService("ContentProvider"):PreloadAsync({ model }) end)
 		for _ = 1, 6 do RunService.Heartbeat:Wait() end

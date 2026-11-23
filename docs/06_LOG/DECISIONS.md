@@ -7068,3 +7068,9 @@ Studio only (no script yet).
 ## D-2046 Santa popup: the whole snow cap cut out (2026-11-22)
 - User (phone screenshot): the popup's top was cut flat with a dark strip of the town above the snow. matte.py's popup outline now follows the snow bumps (crop from y 182), build.py clears the dark town bits by the top corners only (the confetti stays). popup_frame.png = 120424630359533, 466 x 710; SantaUi's popup spots moved down 24.
 - Play check: docs/06_LOG/images/2026-11-22/santa_reveal_v4.jpg (DJ Santa, whole snow cap).
+
+## D-2047 채팅을 눌러도 카탈로그 유지, 아바타 편집 중에도 춤, 최소화 창 안에서 편집 (2026-11-24)
+- 사용자: "채팅창 누르면 카탈로그 꺼지는 거 수정" — Popups의 바깥 탭 닫기: Roblox 채팅 창 · 채팅 입력줄(TextChatService ChatWindowConfiguration / ChatInputBarConfiguration의 AbsolutePosition · AbsoluteSize, 상단 인셋 포함 · 미포함 둘 다)과 Roblox 상단 바(y < 0)는 화면 UI로 봄 → 닫지 않음. 다른 팝업(춤 창 등)도 같음.
+- 사용자: "카탈로그 속 아바타 편집 눌러도 계속 춤추게 해" — 편집 중에는 진짜 캐릭터를 숨기고 편집용 복사본을 보여 주는데 복사본이 서 있기만 했음. CatalogCamera: 복사본이 있는 동안 매 프레임(PreSimulation · PreRender) 진짜 캐릭터 관절의 Transform(Motor6D와 새 아바타 관절 AnimationConstraint)을 같은 이름의 복사본 관절에 복사 → 춤 · 안무 · 이모트를 그대로 따라 춤. 진짜 캐릭터의 춤은 원래 멈추지 않음.
+- 사용자: "최소화 아바타편집도 아이템칸 안에 넣기 최대화 창 버전으로 가지 말고" — 아바타 편집을 열어도 최대화로 바뀌지 않음: 최소화 창의 아이템 칸 자리에 편집 화면, 카메라는 창 옆 빈 곳에 복사본을 앞에서 보여 줌(CatalogCamera.frame). ↗ / ↙는 편집을 닫지 않고 창 크기만 바꿈. 편집을 닫으면 복사본을 치우고 원래 카메라.
+- Studio 확인: 폰 화면(Play)에서 춤 틀고 ⚙ → 최소화 창 안에 편집, 복사본이 춤을 따라 함. 채팅 탭은 Studio의 MCP 클릭이 화면 바깥 탭으로 들어오지 않아 2인 테스트에서 확인 필요.

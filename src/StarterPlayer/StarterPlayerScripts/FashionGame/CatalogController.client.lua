@@ -1790,11 +1790,8 @@ updateCatalogLayout = function()
 
 	-- Avatar Editor mode: the right box shows the editor instead of catalog controls.
 	local editorOpen = avatarEditor ~= nil and avatarEditor:isOpen()
-	if editorOpen and not expandedPanel then
-		expandedPanel = true
-		updateCatalogLayout()
-		return
-	end
+	-- (D-2047, user 2026-11-24: "최소화 아바타편집도 아이템칸 안에 넣기 최대화 창 버전으로 가지 말고") the
+	-- editor opens inside the minimized window too (it no longer switches to the expanded one)
 	titleLabel.Text = if editorOpen then "AVATAR EDITOR" else "CATALOG"
 	if editorOpen then
 		for _, gui in ipairs({
@@ -1850,7 +1847,11 @@ updateCatalogLayout = function()
 			local s = math.min(r.h, r.w * 2)
 			if s > bestSize then best, bestSize = r, s end
 		end
-		if best and bestSize > 80 then
+		if not editorOpen then catalogCamera.stage(nil) end -- (D-2047: the editor's copy goes when it closes)
+		if best and bestSize > 80 and editorOpen then
+			-- (D-2047) the editor in the minimized window: the draft copy from the front in the free space
+			catalogCamera.frame({ x = best.x, y = best.y + (best.h - bestSize) / 2, w = best.w, h = bestSize })
+		elseif best and bestSize > 80 then
 			-- (D-1348) the usual camera, slid so the character stands in that space: walking works
 			catalogCamera.side({ x = best.x, y = best.y + (best.h - bestSize) / 2, w = best.w, h = bestSize })
 		else
@@ -1878,13 +1879,7 @@ workspace:GetPropertyChangedSignal("CurrentCamera"):Connect(function()
 end)
 
 expandButton.MouseButton1Click:Connect(function()
-	if expandedPanel and avatarEditor and avatarEditor:isOpen() then
-		avatarEditor:requestClose(function()
-			expandedPanel = false
-			updateCatalogLayout()
-		end)
-		return
-	end
+	-- (D-2047) ↗ / ↙ keep the avatar editor open (it fits both windows now)
 	expandedPanel = not expandedPanel
 	if expandedPanel then
 		previewManuallyClosed = false
@@ -1900,7 +1895,7 @@ expandButton:GetAttributeChangedSignal("Want"):Connect(function()
 	local want = expandButton:GetAttribute("Want")
 	if typeof(want) ~= "boolean" then return end
 	expandButton:SetAttribute("Want", nil)
-	if want == expandedPanel or (not want and avatarEditor and avatarEditor:isOpen()) then return end
+	if want == expandedPanel then return end
 	expandedPanel = want
 	if want then previewManuallyClosed = false end
 	updateCatalogLayout()
@@ -3754,7 +3749,8 @@ end)
 
 local function setPreviewDescription(description: HumanoidDescription?)
 	previewOverride = description
-	if previewFrame.Visible then
+	-- (D-2047) the minimized window has no preview box but the editor's copy stands in the world
+	if previewFrame.Visible or (avatarEditor ~= nil and avatarEditor:isOpen()) then
 		refreshAvatarPreview()
 	end
 end
@@ -3851,10 +3847,6 @@ openAvatarEditor = function()
 			refreshAvatarPreview()
 		end)
 		return
-	end
-	if not expandedPanel then
-		expandedPanel = true
-		previewManuallyClosed = false
 	end
 	updateCatalogLayout()
 	avatarEditor:open()

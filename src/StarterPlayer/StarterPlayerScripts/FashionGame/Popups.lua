@@ -60,6 +60,30 @@ do
 		end
 		return false
 	end
+	-- (D-2047, user 2026-11-24: "채팅창 누르면 카탈로그 꺼지는 거 수정") Roblox's own chat window, chat
+	-- input bar and top-bar buttons are drawn outside PlayerGui, so a tap on them looked like a tap
+	-- on the game: they count as UI now. (Their AbsolutePosition may or may not include the top-bar
+	-- inset, so both are tried.)
+	local TextChatService = game:GetService("TextChatService")
+	local GuiService = game:GetService("GuiService")
+	local function onRobloxUi(p: Vector3): boolean
+		if p.Y < 0 then return true end -- (the Roblox top bar: menu, chat button)
+		local inset = GuiService:GetGuiInset()
+		for _, name in ipairs({ "ChatWindowConfiguration", "ChatInputBarConfiguration" }) do
+			local config = TextChatService:FindFirstChild(name) :: any
+			if config and config.Enabled then
+				local ok, pos, size = pcall(function() return config.AbsolutePosition, config.AbsoluteSize end)
+				if ok and typeof(pos) == "Vector2" and typeof(size) == "Vector2" and size.X > 0 and size.Y > 0 then
+					for _, q in ipairs({ Vector2.new(p.X, p.Y), Vector2.new(p.X, p.Y) + inset }) do
+						if q.X >= pos.X - 6 and q.X <= pos.X + size.X + 6 and q.Y >= pos.Y - 6 and q.Y <= pos.Y + size.Y + 6 then
+							return true
+						end
+					end
+				end
+			end
+		end
+		return false
+	end
 	local downs: {[InputObject]: { t: number, p: Vector3, open: Entry }} = {}
 	UserInputService.InputBegan:Connect(function(input)
 		local t = input.UserInputType
@@ -83,6 +107,7 @@ do
 			if ok and dragging then return end
 		end
 		if onUi(d.p) or onUi(input.Position) then return end
+		if onRobloxUi(d.p) or onRobloxUi(input.Position) then return end -- (D-2047)
 		current = nil
 		local ok, err = pcall(open.close)
 		if not ok then warn("[Popups] outside tap closing " .. open.name .. ": " .. tostring(err)) end
