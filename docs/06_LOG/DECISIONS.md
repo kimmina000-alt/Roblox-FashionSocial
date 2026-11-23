@@ -7095,3 +7095,8 @@ Studio only (no script yet).
 - 속성: FashionGame DanceChamp = JSON { id, n, k }, 플레이어 DanceStreak / DanceStreakBest. Studio: 메모리 저장, FashionGame 속성 DanceChampTest = "연승,최고"(Studio만)로 첫 플레이어를 챔피언으로.
 - 번역 5개: tools/i18n/tr/p28_streak1124.tsv.
 - Studio Play: DanceChampTest "3,5" → 이름표 "👑 3연속 1위"(금색), 순위표 1위 칸 아래 "🔥 VANDI님 3연속 1위 중"; "0,4" → "최고 4연속 1위", DanceChamp 없음; 스크립트 오류 없음. nextStreak 규칙(연승 +1 / 다른 사람 1 / 하루 건너뛰면 1 / 같은 날 두 번 안 셈 / 아무도 없으면 0) 확인. 칭호 칸 폭은 글자 수(한글 · 이모지는 넓게)에 맞춤.
+
+## D-1831 무대 카메라: Magic-Secret (2026-11-24)
+- 사용자가 무대 영상을 보냄(MBC 쇼! 음악중심 2014 컴백 무대, youtube wA_fxf056gk). 안무 D-2060(feat/magic-choreo-1121)과 같은 노래 시간(원곡 초, fileSpeed 1.0502, 노래 끝 204.0초).
+- 영상 = 노래 - 1.10초: 원곡 mp3(Q5HKuivlwEo) 소리를 무대 소리에 맞춤, 10초 창 모두 -1.10. 첫 와이드 샷을 0초부터 씀.
+- 컷 129개 → shots_to_lua.py 1 -1.1 204.0, 129샷. ClubCamera.Songs[124810692241835]. 곡의 mirror = true는 안무에만 쓰이고 카메라는 그대로.

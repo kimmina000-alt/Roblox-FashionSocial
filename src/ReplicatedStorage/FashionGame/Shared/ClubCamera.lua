@@ -1315,4 +1315,48 @@ ClubCamera.Songs[94774089824958] = {
 		{ 136.28, "bust" }, { 138.33, "wide", 0, 5 },
 	}),
 }
+-- (D-1831) Magic-Secret: MBC Show! Music Core 2014-07 comeback stage, youtube wA_fxf056gk,
+-- video = song - 1.10 s (original mp3 Q5HKuivlwEo lined up with the stage sound, -1.10 in every
+-- 10 s window): the stage starts at song 1.1 s, so its first wide shot also covers 0..1.1.
+-- Shot list made by shots_to_lua.py (D-944), to the song's end at 204.0 s (length 194.251 x fileSpeed 1.0502;
+-- choreography D-2060).
+ClubCamera.Songs[124810692241835] = {
+	video = "MBC Show! Music Core 2014 comeback stage, youtube wA_fxf056gk",
+	offset = -1.1,
+	shots = cutList({
+		{ 0, "wide", 10, 5, { size = "xwide" } }, { 3.3, "bust" }, { 4.5, "full" }, { 5.67, "knee" },
+		{ 6.13, "full" }, { 6.86, "wide", 0, 5 }, { 8.2, "wide", 0, 5, { size = "xwide" } }, { 9.1, "xwide", 0, 8 },
+		{ 10.1, "bust", 15 }, { 12, "bust" }, { 12.37, "wide", 0, 5 }, { 13.46, "full" }, { 14.5, "bust" },
+		{ 16.8, "full", 0, 0, { size = "wide" } }, { 18.63, "full" }, { 19.17, "xwide", 0, 8 },
+		{ 21.27, "waist", -15 }, { 23.53, "wide", 0, 5 }, { 25.6, "knee", -5, 0, { size = "full" } },
+		{ 27.5, "bust" }, { 30.27, "wide", 0, 5, { size = "full" } }, { 32.43, "bust", -15 }, { 34.27, "waist" },
+		{ 35.37, "knee", 0, 0, { size = "full" } }, { 37.07, "xwide", 0, 8 }, { 38.22, "wide", 0, 5 },
+		{ 39.23, "bust", -15, 0, { size = "close" } }, { 41.43, "full" }, { 43.43, "xwide", 0, 8 },
+		{ 44.2, "wide", 0, 5 }, { 46.03, "waist" }, { 48.09, "full" }, { 49.05, "wide", 0, 5 }, { 50.37, "knee" },
+		{ 51.57, "knee", 5, 0, { size = "full" } }, { 52.77, "wide", 0, 5 },
+		{ 54.5, "waist", 0, 0, { size = "knee" } }, { 55.47, "wide", 0, 5 }, { 58.15, "xwide", 0, 8 },
+		{ 59.47, "bust" }, { 62.17, "wide", 0, 5 }, { 63.93, "full" }, { 65.06, "wide", 0, 5 }, { 66, "knee" },
+		{ 67.07, "wide", 0, 5 }, { 68.2, "wide", 0, 5, { size = "xwide" } }, { 69.13, "wide", 0, 5 },
+		{ 70.13, "xwide", 0, 8 }, { 70.63, "waist" }, { 72.27, "knee" }, { 73.97, "xwide", 0, 8 },
+		{ 74.6, "wide", 0, 5, { size = "xwide" } }, { 75.97, "wide", 0, 5 }, { 77.37, "bust", -20 },
+		{ 79.57, "wide", 0, 5 }, { 81.83, "bust" }, { 84.1, "xwide", 0, 8 },
+		{ 84.73, "xwide", 0, 8, { size = "wide" } }, { 86.4, "bust", 5 }, { 88.63, "wide", 0, 5 }, { 90.4, "bust" },
+		{ 92.16, "full" }, { 93.13, "bust" }, { 95.33, "full", 10, 0, { size = "knee" } }, { 97.57, "wide", 0, 5 },
+		{ 99.83, "bust" }, { 102, "full" }, { 102.67, "knee" }, { 103.77, "full", 0, 0, { size = "wide" } },
+		{ 105, "full", 5, 0, { size = "wide" } }, { 106.6, "bust" }, { 107.77, "wide", 0, 5 }, { 109.27, "bust" },
+		{ 111.07, "wide", 0, 5 }, { 113.48, "xwide", 0, 8 }, { 115.53, "bust" }, { 120.03, "waist" },
+		{ 121.74, "full" }, { 123.18, "wide", 0, 5 }, { 124.53, "bust" }, { 127.87, "wide", 0, 5 },
+		{ 128.6, "full" }, { 129.9, "wide", 0, 5 }, { 133.57, "bust" }, { 134.73, "wide", 0, 5 }, { 135.7, "waist" },
+		{ 137.83, "knee" }, { 138.78, "full" }, { 139.42, "wide", 0, 5 }, { 140.2, "xwide", 0, 8 },
+		{ 141.51, "wide", 0, 5 }, { 142.47, "bust" }, { 144.04, "knee" }, { 145.31, "bust" }, { 147, "full", 10 },
+		{ 149.23, "full", 0, 0, { size = "wide" } }, { 153.03, "full" }, { 153.8, "bust" }, { 155.22, "knee" },
+		{ 155.87, "bust" }, { 156.67, "full" }, { 158.76, "bust" }, { 159.63, "bust", 15 }, { 160.37, "bust" },
+		{ 160.87, "xwide", 0, 8 }, { 162.29, "wide", 0, 5 }, { 164.87, "waist" }, { 165.97, "knee" },
+		{ 168.8, "wide", 0, 5 }, { 169.37, "waist" }, { 170.1, "knee" }, { 171.65, "wide", 0, 5 },
+		{ 173.87, "full" }, { 175.13, "wide", 0, 5 }, { 176.13, "bust" }, { 178.3, "wide", 0, 5 },
+		{ 179.45, "bust" }, { 182.87, "full" }, { 183.99, "bust" }, { 185.16, "wide", 0, 5 }, { 188.12, "full" },
+		{ 189.19, "wide", 0, 5 }, { 191.83, "knee" }, { 193.73, "bust" }, { 196.2, "wide", 0, 5 },
+		{ 198.45, "bust" }, { 200.73, "wide", 0, 5 }, { 202.39, "full" }, { 203.23, "wide", 0, 5 },
+	}),
+}
 return ClubCamera
