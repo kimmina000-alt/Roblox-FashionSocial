@@ -1379,6 +1379,18 @@ M.ChoreoFixes = {
 	-- NCT WISH-I SPY (D-912, the mirrored practice video ILeBVk4x_XQ): `still` where
 	-- the clip's member stands in the video (still_from_video.py)
 	[97906912240537] = { still = { from = 1.07, to = 1.8 } }, -- 5
+	-- Magic-Secret (D-1990, the mirrored edit Secret_Magic_edit_mirrored.mp4, stage videos + one cover): `still` where the
+	-- clip's member stands in the video (still_from_video.py; clip numbers)
+	[81385184997344] = { still = { from = 0.13, to = 1.23 } }, -- 7
+	[120127733400995] = { still = { from = 12.63, to = 13.4 } }, -- 8
+	[120442573324181] = { still = { from = 0.63, to = 1.93 } }, -- 14
+	[107671642558990] = { still = { from = 2.53, to = 3.5 } }, -- 17
+	[112478906879249] = { still = { from = 0.13, to = 1.13 } }, -- 24
+	-- (choreo_motion_scan, checked on the clip frames) 9: a real turn with a hair flip, the capture lurches 74° in one
+	-- key: one even turn (blend 0.3 in ClubPlaylist so the spin takes); 22: another member passes in front at 1.2-2.1 s
+	-- and the capture turns half way and back (BACK): the pose held through it
+	[138769016130452] = { spin = { from = 0.1, to = 1.4, ease = "both" } }, -- 9 (1:06)
+	[127709112703288] = { hold = { from = 1.2, to = 2.1 } }, -- 22 (2:21)
 	-- (D-1030, user: "ISPY 1:20 이 부근에 휙 도는 거") piece 15 starts in the middle of a
 	-- turn (hips 152° → 326° over its first 0.67 s, piece 14 ended at 74° still turning
 	-- the same way); the cross-fade went the short way once the gap passed 180° and
@@ -1471,6 +1483,14 @@ M.ChoreoShake = { minSwing = 2, maxSwing = 25, maxGap = 0.2, count = 8, window =
 -- or more in 0.5 s, or wander 0.5 back and forth: the body slides while the legs
 -- stand. They become `still` stretches (no travel; added to ChoreoFixes below).
 M.ChoreoSlideStill = {
+	-- Magic-Secret (D-1990, choreo_slide_check)
+	[106479169380344] = { { 2.0, 2.6 } }, [138034484878865] = { { 0.6, 1.2 } }, [136070103362637] = { { 2.5, 3.1 }, { 3.6, 4.3 } }, [94530159818141] = { { 7.5, 8.3 } },
+	[120127733400995] = { { 0.9, 1.5 }, { 9.6, 10.2 } }, [107935100685178] = { { 2.5, 6.0 } }, [130334910215443] = { { 4.7, 5.3 } },
+	[119577337207672] = { { 8.2, 8.8 }, { 10.2, 10.9 } }, [122472866696287] = { { 4.2, 4.9 } }, [127709112703288] = { { 2.0, 2.7 } }, [112478906879249] = { { 1.2, 2.0 } },
+	[116299839332925] = { { 1.3, 2.1 } }, [93682748642768] = { { 0.7, 1.3 } }, [114588636926173] = { { 1.8, 3.3 } }, [108651805607066] = { { 1.0, 2.6 } },
+	[85549589607121] = { { 6.9, 10.0 }, { 10.3, 10.9 } }, [71562511860899] = { { 1.3, 1.9 } },
+	-- (choreo_motion_scan DRIFT) [107671642558990] 17, [80457939976697] 29, [84142978583186] 31, [103622390188129] 40
+	[107671642558990] = { { 6.2, 7.0 } }, [80457939976697] = { { 2.2, 2.9 } }, [84142978583186] = { { 0.1, 0.8 } }, [103622390188129] = { { 1.1, 1.9 } },
 	-- Unbelievable-H1 KEY (D-1672, choreo_slide_check + choreo_motion_scan DRIFT)
 	[127086942159592] = { { 2.6, 4.6 }, { 4.8, 5.8 } }, [110146513928585] = { { 1.1, 1.7 }, { 6.1, 7.0 }, { 7.4, 8.1 } }, [98575698595382] = { { 0.0, 0.5 }, { 1.0, 1.8 }, { 3.0, 3.9 } },
 	[97422868495252] = { { 1.2, 1.8 } }, [77667909738269] = { { 0.7, 1.3 } }, [106947840145982] = { { 0.5, 1.2 }, { 1.4, 2.0 }, { 4.7, 5.3 }, { 7.6, 8.3 }, { 10.2, 11.1 } },
