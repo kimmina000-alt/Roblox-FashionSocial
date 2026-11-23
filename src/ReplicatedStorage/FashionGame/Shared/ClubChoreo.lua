@@ -1379,9 +1379,8 @@ M.ChoreoFixes = {
 	-- NCT WISH-I SPY (D-912, the mirrored practice video ILeBVk4x_XQ): `still` where
 	-- the clip's member stands in the video (still_from_video.py)
 	[97906912240537] = { still = { from = 1.07, to = 1.8 } }, -- 5
-	-- Magic-Secret (D-1990, the mirrored edit Secret_Magic_edit_mirrored.mp4, stage videos + one cover): `still` where the
+	-- Magic-Secret (D-2060, the mirrored edit Secret_Magic_edit_mirrored.mp4, stage videos + one cover): `still` where the
 	-- clip's member stands in the video (still_from_video.py; clip numbers)
-	[81385184997344] = { still = { from = 0.13, to = 1.23 } }, -- 7
 	[120127733400995] = { still = { from = 12.63, to = 13.4 } }, -- 8
 	[120442573324181] = { still = { from = 0.63, to = 1.93 } }, -- 14
 	[107671642558990] = { still = { from = 2.53, to = 3.5 } }, -- 17
@@ -1389,8 +1388,15 @@ M.ChoreoFixes = {
 	-- (choreo_motion_scan, checked on the clip frames) 9: a real turn with a hair flip, the capture lurches 74° in one
 	-- key: one even turn (blend 0.3 in ClubPlaylist so the spin takes); 22: another member passes in front at 1.2-2.1 s
 	-- and the capture turns half way and back (BACK): the pose held through it
-	[138769016130452] = { spin = { from = 0.1, to = 1.4, ease = "both" } }, -- 9 (1:06)
+	[138769016130452] = { spin = { from = 0.1, to = 1.4, ease = "both" }, steady = { from = 0.1, to = 0.6, parts = { "Head", "UpperTorso" }, passes = 24 } }, -- 9 (1:06; guard_scan SHAKE 66.17)
 	[127709112703288] = { hold = { from = 1.2, to = 2.1 } }, -- 22 (2:21)
+	-- (play_record flagSong SPIN 612-662°/s: one even turn each, the turn spans from the capture's facing) 5 (0:27.9 and
+	-- the turn back), 7 (0:43.5), 16 (1:35.2, the turn back), 21 (2:19.1, blend 0.3 in ClubPlaylist)
+	[94530159818141] = { spin = { { from = 0.7, to = 2.1, ease = "both" }, { from = 3.1, to = 4.2, ease = "both" } } }, -- 5
+	[81385184997344] = { still = { from = 0.13, to = 1.23 }, spin = { from = 4.5, to = 6.0, ease = "both" } }, -- 7
+	[130334910215443] = { spin = { from = 3.5, to = 4.8, ease = "both" } }, -- 16
+	[122472866696287] = { spin = { from = 4.85, to = 5.33 } }, -- 20 (its last turn ends at speed and hands the exact yaw to 21)
+	[77461875830759] = { spin = { from = 0, to = 1.1, fromPrev = true, dir = -1, ease = "out" } }, -- 21 (2:18.7: carries 20's turn on, -245° more; "both" stalled at the seam, 978°/s after)
 	-- (D-1030, user: "ISPY 1:20 이 부근에 휙 도는 거") piece 15 starts in the middle of a
 	-- turn (hips 152° → 326° over its first 0.67 s, piece 14 ended at 74° still turning
 	-- the same way); the cross-fade went the short way once the gap passed 180° and
@@ -1483,14 +1489,14 @@ M.ChoreoShake = { minSwing = 2, maxSwing = 25, maxGap = 0.2, count = 8, window =
 -- or more in 0.5 s, or wander 0.5 back and forth: the body slides while the legs
 -- stand. They become `still` stretches (no travel; added to ChoreoFixes below).
 M.ChoreoSlideStill = {
-	-- Magic-Secret (D-1990, choreo_slide_check)
+	-- Magic-Secret (D-2060, choreo_slide_check)
 	[106479169380344] = { { 2.0, 2.6 } }, [138034484878865] = { { 0.6, 1.2 } }, [136070103362637] = { { 2.5, 3.1 }, { 3.6, 4.3 } }, [94530159818141] = { { 7.5, 8.3 } },
 	[120127733400995] = { { 0.9, 1.5 }, { 9.6, 10.2 } }, [107935100685178] = { { 2.5, 6.0 } }, [130334910215443] = { { 4.7, 5.3 } },
 	[119577337207672] = { { 8.2, 8.8 }, { 10.2, 10.9 } }, [122472866696287] = { { 4.2, 4.9 } }, [127709112703288] = { { 2.0, 2.7 } }, [112478906879249] = { { 1.2, 2.0 } },
-	[116299839332925] = { { 1.3, 2.1 } }, [93682748642768] = { { 0.7, 1.3 } }, [114588636926173] = { { 1.8, 3.3 } }, [108651805607066] = { { 1.0, 2.6 } },
+	[116299839332925] = { { 1.3, 2.1 } }, [93682748642768] = { { 0.7, 1.3 } }, [114588636926173] = { { 1.8, 3.3 } }, [108651805607066] = { { 1.0, 2.6 }, { 2.8, 3.5 } },
 	[85549589607121] = { { 6.9, 10.0 }, { 10.3, 10.9 } }, [71562511860899] = { { 1.3, 1.9 } },
 	-- (choreo_motion_scan DRIFT) [107671642558990] 17, [80457939976697] 29, [84142978583186] 31, [103622390188129] 40
-	[107671642558990] = { { 6.2, 7.0 } }, [80457939976697] = { { 2.2, 2.9 } }, [84142978583186] = { { 0.1, 0.8 } }, [103622390188129] = { { 1.1, 1.9 } },
+	[107671642558990] = { { 6.2, 7.0 } }, [80457939976697] = { { 2.2, 2.9 } }, [84142978583186] = { { 0.1, 1.3 } }, [103622390188129] = { { 1.1, 1.9 } },
 	-- Unbelievable-H1 KEY (D-1672, choreo_slide_check + choreo_motion_scan DRIFT)
 	[127086942159592] = { { 2.6, 4.6 }, { 4.8, 5.8 } }, [110146513928585] = { { 1.1, 1.7 }, { 6.1, 7.0 }, { 7.4, 8.1 } }, [98575698595382] = { { 0.0, 0.5 }, { 1.0, 1.8 }, { 3.0, 3.9 } },
 	[97422868495252] = { { 1.2, 1.8 } }, [77667909738269] = { { 0.7, 1.3 } }, [106947840145982] = { { 0.5, 1.2 }, { 1.4, 2.0 }, { 4.7, 5.3 }, { 7.6, 8.3 }, { 10.2, 11.1 } },
@@ -1806,7 +1812,7 @@ end
 -- capture was off by a steady amount (median off 6°+, spread under 20°), left alone
 -- where it only wobbles. Their own angled, side and back facings and turns stay.
 M.ChoreoFaceOffset = {
-	-- (D-1990) Magic-Secret (tools/choreo/faceoffset, game facing with mirror = true; |median| ≥ 6, MAD ≤ 20, 12+ front frames; 14 checked on frames: front)
+	-- (D-2060) Magic-Secret (tools/choreo/faceoffset, game facing with mirror = true; |median| ≥ 6, MAD ≤ 20, 12+ front frames; 14 checked on frames: front)
 	[106479169380344] = 6, [120442573324181] = 56, [80457939976697] = -21, [84142978583186] = 19, -- 2 / 14 / 29 / 31
 	-- (D-1672) Unbelievable-H1 KEY (tools/choreo/faceoffset; |median| ≥ 6, MAD ≤ 20, 12+ front frames; 11 / 16 checked on frames: front)
 	[98575698595382] = 8, [97422868495252] = 10, [77667909738269] = -15, [106947840145982] = 11, [121716323345976] = 11, [85861969329409] = -38, [132406634119258] = 12, -- 2
@@ -1949,7 +1955,7 @@ end
 -- or more, the head turns 0.8 of the gap more (at most 30 deg) about its own front axis,
 -- easing in and out over 0.2 s. Keys are { piece seconds, x, y, z } in degrees (ChoreoFixes `bend`)
 M.ChoreoHeadTilt = {
-	-- (D-1990) Magic-Secret: head_video.py → headMisses (mirror = true), keys 0.09 s early
+	-- (D-2060) Magic-Secret: head_video.py → headMisses (mirror = true), keys 0.09 s early
 	[81385184997344] = { { part = "Head", keys = { { 13.11, 0, 0, 0 }, { 13.31, 0, 0, -13 }, { 13.51, 0, 0, -16 }, { 13.58, 0, 0, 0 } } } }, -- MG 7
 	[120127733400995] = { { part = "Head", keys = { { 7.71, 0, 0, 0 }, { 7.91, 0, 0, -14 }, { 8.11, 0, 0, -11 }, { 8.31, 0, 0, -20 }, { 8.51, 0, 0, 0 } } } }, -- MG 8
 	[74685903007766] = { { part = "Head", keys = { { 2.51, 0, 0, 0 }, { 2.71, 0, 0, -10 }, { 2.91, 0, 0, -22 }, { 3.11, 0, 0, 0 } } } }, -- MG 10
@@ -2175,7 +2181,7 @@ M.ChoreoHeadTilt = {
 -- the hand turns about whichever of its own x / z axes moves the picture bend most, 0.8 of
 -- the gap (at most 40 deg), easing in and out over 0.2 s. Catch Catch: the other hand, z negated
 M.ChoreoWristBend = {
-	-- (D-1990) Magic-Secret: hand_video.py → wristMisses (mirror = true: the other hand), keys 0.09 s early
+	-- (D-2060) Magic-Secret: hand_video.py → wristMisses (mirror = true: the other hand), keys 0.09 s early
 	[107935100685178] = { { part = "LeftHand", keys = { { 0.91, 0, 0, 0 }, { 1.11, 0, 0, 40 }, { 1.31, 0, 0, 17 }, { 1.51, 0, 0, 0 } } } }, -- MG 15
 	[122472866696287] = { { part = "RightHand", keys = { { 1.51, 0, 0, 0 }, { 1.71, 32, 0, 0 }, { 1.91, 32, 0, 0 }, { 2.11, 40, 0, 0 }, { 2.31, 0, 0, 0 } } } }, -- MG 20
 	-- (D-1672, user: "언벌리버블 안무 추가") Unbelievable-H1 KEY: hand_moves.py → wristMisses, keys 0.09 s early; checked in Play (D-1263)

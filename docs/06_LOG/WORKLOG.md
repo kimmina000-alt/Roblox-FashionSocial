@@ -4082,3 +4082,8 @@ Player2 아이템 상점(밤 22시) · 클럽 안내 판매원 카메라(폰)
 - ChoreoSmooth.reduce: 튀는 키 되돌리기 → 모양을 만드는 키만 남기기(8° / 0.6초) → 3차 곡선으로 다시 채우기. ClubConfig.ChoreoReduce에서 값 조정, Studio 비교 속성 ChoreoReduceOff.
 - Play(Client)에서 TWS 조각 4개를 비교: 작은 왕복 3,561(원본) / 2,112(예전) / 704(새로), 동작 폭 63.8° → 63.7°, 큰 튐 111 → 95. 값은 spike 3 / tol 4부터 5 / 10까지 4단계로 비교한 뒤 4 / 8 / 0.6으로 정함.
 - 2차(post = true): 키를 줄인 곡선도 떨림 누르기 · 평균을 거침. 실제 재생 재측정(NEON · 레모네이드): 작은 떨림 -14 % / -11 %, 빠른 순간 -4 % / +3 %, 동작 폭 그대로, 발 끌림 55 → 45 / 91 → 86.
+
+## 2026-11-24 Magic-Secret 안무 (D-2060)
+- ID 47개 중 40개(흐림 · 얼굴만 7개 뺌), video = song − 0.55, mirror = true(사용자: 원래 안무 방향).
+- 검사: timing ok, slide / DRIFT / TELEPORT → still, jump_scan 후보 11곳 모두 카메라(점프 없음), guard_scan(SHAKE 1곳 steady), play_record(SPIN 4곳 spin, 2:19 이어 돌기 978 → 575°/s), 몸 바꾸기 방향 차이 0°, 고개 방향 Play 확인.
+- 남은 것: 2인 테스트, 0:10.1 첫 조각 시작 발 SNAP 12~13°(작음).
