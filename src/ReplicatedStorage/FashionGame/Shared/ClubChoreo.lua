@@ -1806,6 +1806,8 @@ end
 -- capture was off by a steady amount (median off 6°+, spread under 20°), left alone
 -- where it only wobbles. Their own angled, side and back facings and turns stay.
 M.ChoreoFaceOffset = {
+	-- (D-1990) Magic-Secret (tools/choreo/faceoffset, game facing with mirror = true; |median| ≥ 6, MAD ≤ 20, 12+ front frames; 14 checked on frames: front)
+	[106479169380344] = 6, [120442573324181] = 56, [80457939976697] = -21, [84142978583186] = 19, -- 2 / 14 / 29 / 31
 	-- (D-1672) Unbelievable-H1 KEY (tools/choreo/faceoffset; |median| ≥ 6, MAD ≤ 20, 12+ front frames; 11 / 16 checked on frames: front)
 	[98575698595382] = 8, [97422868495252] = 10, [77667909738269] = -15, [106947840145982] = 11, [121716323345976] = 11, [85861969329409] = -38, [132406634119258] = 12, -- 2
 	-- (D-1670) Boogie Woogie-NCT DREAM (tools/choreo/faceoffset; |median| ≥ 6, MAD ≤ 20, 12+ front frames; 16 checked on frames: the capture's
@@ -1947,6 +1949,17 @@ end
 -- or more, the head turns 0.8 of the gap more (at most 30 deg) about its own front axis,
 -- easing in and out over 0.2 s. Keys are { piece seconds, x, y, z } in degrees (ChoreoFixes `bend`)
 M.ChoreoHeadTilt = {
+	-- (D-1990) Magic-Secret: head_video.py → headMisses (mirror = true), keys 0.09 s early
+	[81385184997344] = { { part = "Head", keys = { { 13.11, 0, 0, 0 }, { 13.31, 0, 0, -13 }, { 13.51, 0, 0, -16 }, { 13.58, 0, 0, 0 } } } }, -- MG 7
+	[120127733400995] = { { part = "Head", keys = { { 7.71, 0, 0, 0 }, { 7.91, 0, 0, -14 }, { 8.11, 0, 0, -11 }, { 8.31, 0, 0, -20 }, { 8.51, 0, 0, 0 } } } }, -- MG 8
+	[74685903007766] = { { part = "Head", keys = { { 2.51, 0, 0, 0 }, { 2.71, 0, 0, -10 }, { 2.91, 0, 0, -22 }, { 3.11, 0, 0, 0 } } } }, -- MG 10
+	[107935100685178] = { { part = "Head", keys = { { 2.71, 0, 0, 0 }, { 2.91, 0, 0, -11 }, { 3.11, 0, 0, -9 }, { 3.31, 0, 0, -15 }, { 3.51, 0, 0, -10 }, { 3.71, 0, 0, 0 } } }, { part = "Head", keys = { { 8.31, 0, 0, 0 }, { 8.51, 0, 0, -15 }, { 8.71, 0, 0, -21 }, { 8.91, 0, 0, -19 }, { 9.11, 0, 0, -15 }, { 9.31, 0, 0, -16 }, { 9.48, 0, 0, 0 } } } }, -- MG 15
+	[130334910215443] = { { part = "Head", keys = { { 7.91, 0, 0, 0 }, { 8.11, 0, 0, -11 }, { 8.31, 0, 0, -17 }, { 8.51, 0, 0, 0 } } }, { part = "Head", keys = { { 9.91, 0, 0, 0 }, { 10.11, 0, 0, -23 }, { 10.31, 0, 0, -13 }, { 10.51, 0, 0, -21 }, { 10.71, 0, 0, -16 }, { 10.91, 0, 0, 0 } } } }, -- MG 16
+	[107671642558990] = { { part = "Head", keys = { { 13.71, 0, 0, 0 }, { 13.91, 0, 0, -18 }, { 14.11, 0, 0, -17 }, { 14.31, 0, 0, 0 } } } }, -- MG 17
+	[119577337207672] = { { part = "Head", keys = { { 8.11, 0, 0, 0 }, { 8.31, 0, 0, -20 }, { 8.51, 0, 0, -18 }, { 8.71, 0, 0, 0 } } } }, -- MG 18
+	[77461875830759] = { { part = "Head", keys = { { 0.31, 0, 0, 0 }, { 0.51, 0, 0, 18 }, { 0.71, 0, 0, 26 }, { 0.91, 0, 0, 25 }, { 0.98, 0, 0, 0 } } } }, -- MG 21
+	[84142978583186] = { { part = "Head", keys = { { 1.91, 0, 0, 0 }, { 2.11, 0, 0, 15 }, { 2.31, 0, 0, 14 }, { 2.51, 0, 0, 0 } } } }, -- MG 31
+	[85549589607121] = { { part = "Head", keys = { { 7.71, 0, 0, 0 }, { 7.91, 0, 0, -16 }, { 8.11, 0, 0, -15 }, { 8.31, 0, 0, 0 } } } }, -- MG 32
 	-- (D-1672) Unbelievable-H1 KEY: head_video.py → headMisses, keys 0.09 s early
 	[91684619142886] = { { part = "Head", keys = { { 3.51, 0, 0, 0 }, { 3.71, 0, 0, -15 }, { 3.91, 0, 0, -16 }, { 4.11, 0, 0, 0 } } } }, -- UB 3
 	[110146513928585] = { { part = "Head", keys = { { 3.51, 0, 0, 0 }, { 3.71, 0, 0, 20 }, { 3.91, 0, 0, 23 }, { 4.11, 0, 0, 0 } } } }, -- UB 8
@@ -2162,6 +2175,9 @@ M.ChoreoHeadTilt = {
 -- the hand turns about whichever of its own x / z axes moves the picture bend most, 0.8 of
 -- the gap (at most 40 deg), easing in and out over 0.2 s. Catch Catch: the other hand, z negated
 M.ChoreoWristBend = {
+	-- (D-1990) Magic-Secret: hand_video.py → wristMisses (mirror = true: the other hand), keys 0.09 s early
+	[107935100685178] = { { part = "LeftHand", keys = { { 0.91, 0, 0, 0 }, { 1.11, 0, 0, 40 }, { 1.31, 0, 0, 17 }, { 1.51, 0, 0, 0 } } } }, -- MG 15
+	[122472866696287] = { { part = "RightHand", keys = { { 1.51, 0, 0, 0 }, { 1.71, 32, 0, 0 }, { 1.91, 32, 0, 0 }, { 2.11, 40, 0, 0 }, { 2.31, 0, 0, 0 } } } }, -- MG 20
 	-- (D-1672, user: "언벌리버블 안무 추가") Unbelievable-H1 KEY: hand_moves.py → wristMisses, keys 0.09 s early; checked in Play (D-1263)
 	[126709034309523] = { { part = "LeftHand", keys = { { 6.11, 0, 0, 0 }, { 6.31, 38, 0, 0 }, { 6.51, 37, 0, 0 }, { 6.71, 0, 0, 0 } } } }, -- UB 7
 	[106947840145982] = { { part = "LeftHand", keys = { { 6.51, 0, 0, 0 }, { 6.71, 40, 0, 0 }, { 6.91, 38, 0, 0 }, { 7.11, 40, 0, 0 }, { 7.31, 0, 0, 0 } } },
