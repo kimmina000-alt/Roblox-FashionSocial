@@ -7075,3 +7075,4 @@ Studio only (no script yet).
 - 표시(2연승부터, StreakFrom = 2): 이름표 댄스 칭호에 "👑 N연속 1위"(금색 글자, 오늘 순위가 있으면 "DANCE #r · 👑 N연속 1위"), 끊긴 뒤에는 "최고 N연속 1위"로 남음(분홍). TOP 10 순위표의 이름 옆 🔥N, 오늘의 1위 칸 아래 "🔥 ○○님 N연속 1위 중". ☰ 메뉴의 DANCE 칭호 숨기기로 같이 숨겨짐.
 - 속성: FashionGame DanceChamp = JSON { id, n, k }, 플레이어 DanceStreak / DanceStreakBest. Studio: 메모리 저장, FashionGame 속성 DanceChampTest = "연승,최고"(Studio만)로 첫 플레이어를 챔피언으로.
 - 번역 5개: tools/i18n/tr/p28_streak1124.tsv.
+- Studio Play: DanceChampTest "3,5" → 이름표 "👑 3연속 1위"(금색), 순위표 1위 칸 아래 "🔥 VANDI님 3연속 1위 중"; "0,4" → "최고 4연속 1위", DanceChamp 없음; 스크립트 오류 없음. nextStreak 규칙(연승 +1 / 다른 사람 1 / 하루 건너뛰면 1 / 같은 날 두 번 안 셈 / 아무도 없으면 0) 확인. 칭호 칸 폭은 글자 수(한글 · 이모지는 넓게)에 맞춤.

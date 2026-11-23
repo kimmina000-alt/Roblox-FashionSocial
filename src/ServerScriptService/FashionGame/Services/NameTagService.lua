@@ -245,7 +245,9 @@ local function refreshRoles(player: Player)
 		-- (D-1993) "DANCE #1", "👑 3연속 1위", "DANCE #2 · 최고 4연속 1위" …: the plate grows with the text
 		local text = DanceScoreConfig.badgeText(player:GetAttribute("Title_Dance"), player:GetAttribute("DanceStreak"), player:GetAttribute("DanceStreakBest")) or ""
 		dance.Text = text
-		dance.Size = UDim2.new(0, math.max(58, (utf8.len(text) or 8) * 7), 1, 0)
+		local w = 8
+		for _, c in utf8.codes(text) do w += if c < 128 then 6.5 else 11 end -- (Hangul / emoji are wider)
+		dance.Size = UDim2.new(0, math.max(58, math.ceil(w)), 1, 0)
 		dance.TextColor3 = if player:GetAttribute("DanceStreak") then Color3.fromRGB(255, 214, 90) else Color3.fromRGB(255, 176, 222)
 	end
 end
