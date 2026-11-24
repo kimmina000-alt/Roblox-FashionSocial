@@ -1381,9 +1381,12 @@ M.ChoreoFixes = {
 	[97906912240537] = { still = { from = 1.07, to = 1.8 } }, -- 5
 	-- Abracadabra-Brown Eyed Girls (D-2080, BEG_Abracadabra_GIBT89OrXrk.mp4): `still` where the clip's member stands in the video
 	-- (still_from_video.py)
-	[84948460478681] = { still = { from = 0.1, to = 6.91 } }, -- 1
+	[84948460478681] = { still = { from = 0.1, to = 6.91 }, -- 1
+		-- (0:12.05 SNAP 164° in a frame: the capture folds the right wrist near 180° at 10.4-10.6 and the D-1958 wrist cap reads the turn
+		-- the other way round) the right wrist set straight there
+		pose = { from = 10.15, to = 10.9, ease = 0.15, keys = { { t = 10.3, set = { RightHand = { 0, 0, 0 } } }, { t = 10.75, set = { RightHand = { 0, 0, 0 } } } } } },
 	[124285508228695] = { still = { from = 0.87, to = 3.69 } }, -- 6
-	[81797984882504] = { still = { from = 0.7, to = 9.09 } }, -- 13
+	[81797984882504] = { still = { from = 0.7, to = 9.09 }, spin = { { from = 0.55, to = 1.15, ease = "both" }, { from = 1.15, to = 1.6, ease = "both" } } }, -- 13 (1:29.0 SPIN 609°/s: 150° round and back)
 	-- AND2BLE-Potion (D-2070, the practice video AND2BLE_Potion_pFx8c8C6PxU.mp4): `still` where the clip's member stands in the
 	-- video (still_from_video.py); 2 / 5 start where 1 / 4 left the hips (the seams were 178° / 123° off): one even turn on from there
 	[133318654819881] = { still = { { from = 0.1, to = 1.07 }, { from = 2.1, to = 6.04 } }, spin = { from = 1.9, to = 2.7, ease = "both" } }, -- 1 (0:02.4: the capture flips round at 2.1-2.3 and back: a 52° turn)

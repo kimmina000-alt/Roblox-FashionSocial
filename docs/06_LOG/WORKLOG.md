@@ -4093,3 +4093,7 @@ Player2 아이템 상점(밤 22시) · 클럽 안내 판매원 카메라(폰)
 - 사용자가 음악중심 무대(youtube wA_fxf056gk)를 보내 D:\Roblox\영상\Magic_stage\stage.mp4로 받음(작업 파일은 D:\Roblox\영상\_work\Magic).
 - 원곡 mp3와 무대 소리를 맞춰 영상 = 노래 - 1.1초. 컷 129개 → 129샷(shots_to_lua.py).
 - 브랜치 feat/stage-camera-magic-1124(worktree D:\Roblox\wt\stagecam-magic). 다음: Studio 반영, 모바일 2인 테스트.
+
+## 2026-11-24 Abracadabra-Brown Eyed Girls 안무 (D-2080)
+- 24조각, video = song − 1.50, feat/abracadabra-choreo-1124.
+- 검사: timing ok, slide / DRIFT → still, Play SPIN 1곳 spin · 오른손 뒤집힘 1곳 pose, 고개 방향 Play 확인, 몸 바꾸기 0.0°.
