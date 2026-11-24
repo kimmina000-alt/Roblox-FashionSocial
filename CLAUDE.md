@@ -117,6 +117,8 @@ Read `AGENTS.md` first (catalog UI rules). The user writes in Korean; report in 
 
 - 2026-11-24 (2): `fix/labs-3-1124` (D-1867 lab values for 만찬가 / Magic / Abracadabra, D-1868 Potion-AND2BLE + GiiiRIP-BIGBANG, 112 songs), `feat/potion-choreo-1124` (D-2070), `feat/itsme-choreo-1124` (D-2071) and `feat/stage-camera-magic-1124` (D-1831, Magic-Secret stage camera) merged into `catalog-ui-redesign` (user asked: 2인 테스트 후 머지; 2P passed: Potion / It's Me played and danced, no script errors). NOT merged: `feat/magic-choreo-1121` (2nd review failed, being re-edited; Studio already holds it, so don't publish until it is fixed). New work: branch off catalog-ui-redesign.
 
+- 2026-11-24 (3): `feat/abracadabra-choreo-1124` (D-2080, Abracadabra-Brown Eyed Girls 24 pieces, video = song - 1.50) and `feat/stage-camera-abracadabra-1125` (D-1832 stage cameras for ILLIT-It's Me / AND2BLE-Potion, D-1833 Abracadabra) merged into `catalog-ui-redesign` (user asked: 2인 테스트 후 머지; 2P passed: Abracadabra danced piece 1 -> 2 on both players, stage camera on / off, no script errors). Note from the choreo session: the D-1958 wrist cap can flip a wrist for one frame when the capture passes near 180°. `feat/magic-choreo-1121` is still not merged (being re-edited; don't publish until it is). New work: branch off catalog-ui-redesign.
+
 ## Key docs
 - `docs/00_PROJECT/PLAYER_FEEDBACK.md`: real player reactions by date + improvement ideas. Add new reactions there (user, 2026-11-10).
 - `docs/00_PROJECT/DEVELOPMENT_ORDER.md`: build order.
