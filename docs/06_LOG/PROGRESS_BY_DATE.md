@@ -1006,3 +1006,4 @@
 - 만찬가 / Magic-Secret / Abracadabra 설정값 (D-1867).
 - 새 곡 2곡: Potion-AND2BLE, GiiiRIP-BIGBANG (D-1868).
 - 2026-11-24: AND2BLE-Potion 안무 21조각, 회전 · 이동 · 정면 · 고개 · 손목 · 발 고정 (D-2070).
+- 2026-11-24: ILLIT-It's Me 안무 19조각, 정면 · 고개 · 회전 · 발 고정 (D-2071).

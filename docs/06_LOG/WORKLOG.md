@@ -4086,3 +4086,6 @@ Player2 아이템 상점(밤 22시) · 클럽 안내 판매원 카메라(폰)
 ## 2026-11-24 AND2BLE-Potion 안무 (D-2070)
 - 21조각, video = song − 0.20, fix/labs-3-1124의 곡 위에 feat/potion-choreo-1124.
 - 검사: timing ok, slide / DRIFT / TELEPORT → still, 회전 8곳 spin(전 607-1174°/s → 0), 고개 방향 Play 확인, 몸 바꾸기 0.4 / 1.4°, guard 작은 것만.
+## 2026-11-24 ILLIT-It's Me 안무 (D-2071)
+- 19조각, video = song + 1.95(클립 1 from 1.95), feat/itsme-choreo-1124.
+- 검사: timing ok, slide / DRIFT → still, Play SPIN 2곳 spin · GUARD 1곳 guardOff, 고개 방향 Play 확인, 몸 바꾸기 0.0 / 0.4°.
