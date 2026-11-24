@@ -45,6 +45,10 @@ M.ChoreoKeepDetail = { "LeftHand", "RightHand", "LeftFoot", "RightFoot" } :: {st
 -- (D-1956, 2nd review) post = false again: the shake / average clean-ups on top rubbed out small hits (BANG 0-60 s against the
 -- video: hits gone 76 -> 67, reduction off 62; pairs 162 -> 171, off 179); arms shake 5.85 -> 6.28 degrees RMS, legs 4.23 -> 4.34
 -- (before the edits 5.81 / 5.30)
+-- (D-2061, user 2026-11-24: "그 마지막 작업 전곡에서 제외하기. 전부 후들거림" → 발 고정 전부 끄기) the planted-feet hold
+-- (ChoreoFeet, D-1905..D-1955: the leg bent again by IK to keep a foot on its floor spot) made the legs tremble in every
+-- song (Magic, Love 119 ...): off for all songs. The `plant` windows stay in ChoreoFixes; true turns it back on.
+M.ChoreoFeet = false
 M.ChoreoReduce = { spike = 4, tol = 8, maxGap = 0.6, post = false, hit = 150, keep = { "Head", "LeftHand", "RightHand", "LeftFoot", "RightFoot" } } :: any
 M.ChoreoRetarget = true
 

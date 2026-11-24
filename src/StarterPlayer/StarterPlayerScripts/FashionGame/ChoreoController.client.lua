@@ -1028,6 +1028,7 @@ RunService.PreSimulation:Connect(function(dt)
 				do
 					local cached = floorCache[character]
 					local on, contact, noStep, landHold, kneeLift = ChoreoFeet.active(choreo, ChoreoSmooth.fixes)
+					if not ClubConfig.ChoreoFeet then on = false end -- (D-2061) the hold is off for every song
 					ChoreoFeet.apply(character, bodyJoints(character), on, cached and cached.y, dt, contact, noStep, landHold, kneeLift)
 				end
 				-- (D-1186) the mouth sings along in the song's sung stretches (ChoreoMouth)

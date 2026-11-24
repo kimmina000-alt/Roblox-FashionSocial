@@ -30,6 +30,7 @@ ClubConfig.ChoreoRetarget = ClubChoreo.ChoreoRetarget
 ClubConfig.ChoreoDejitter = ClubChoreo.ChoreoDejitter
 ClubConfig.ChoreoKeepDetail = ClubChoreo.ChoreoKeepDetail
 ClubConfig.ChoreoReduce = ClubChoreo.ChoreoReduce
+ClubConfig.ChoreoFeet = ClubChoreo.ChoreoFeet -- (D-2061)
 ClubConfig.ChoreoHome = ClubChoreo.ChoreoHome
 ClubConfig.ChoreoFrontLock = ClubChoreo.ChoreoFrontLock
 ClubConfig.ChoreoDriftReturn = ClubChoreo.ChoreoDriftReturn

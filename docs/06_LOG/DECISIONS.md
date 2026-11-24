@@ -7095,3 +7095,8 @@ Studio only (no script yet).
 - 속성: FashionGame DanceChamp = JSON { id, n, k }, 플레이어 DanceStreak / DanceStreakBest. Studio: 메모리 저장, FashionGame 속성 DanceChampTest = "연승,최고"(Studio만)로 첫 플레이어를 챔피언으로.
 - 번역 5개: tools/i18n/tr/p28_streak1124.tsv.
 - Studio Play: DanceChampTest "3,5" → 이름표 "👑 3연속 1위"(금색), 순위표 1위 칸 아래 "🔥 VANDI님 3연속 1위 중"; "0,4" → "최고 4연속 1위", DanceChamp 없음; 스크립트 오류 없음. nextStreak 규칙(연승 +1 / 다른 사람 1 / 하루 건너뛰면 1 / 같은 날 두 번 안 셈 / 아무도 없으면 0) 확인. 칭호 칸 폭은 글자 수(한글 · 이모지는 넓게)에 맞춤.
+
+## D-2061 디딘 발 고정 전부 끄기 (2026-11-24)
+- 사용자: 매직 보정 뒤 "처음에 넣었을 때보다 다리를 더 후들거려", 러브119 마지막 보정과 같은 작업인지 물음 → 공통 작업 = 디딘 발 고정(ChoreoFeet, D-1905~D-1955: 발을 바닥 자리에 붙잡고 다리를 IK로 다시 굽힘) → "그 마지막 작업 전곡에서 제외하기. 전부 후들거림", 선택: 발 고정 전부 끄기.
+- ClubChoreo `M.ChoreoFeet = false`(ClubConfig로 내보냄), ChoreoController가 이 값이 false면 발 고정을 안 함. ChoreoFixes의 `plant` 창과 ChoreoFeet 코드는 그대로(true로 되돌릴 수 있음).
+- Play 녹화 magic_feetoff_1m00: 매직 1:00-1:30 무릎 깜빡임 39 → 23(남은 것은 캡처 자체의 무릎 움직임). 디딘 발 밀림은 발 고정 전처럼 다시 생길 수 있음(still · ChoreoSlideStill · freeze 같은 다른 보정은 그대로).
