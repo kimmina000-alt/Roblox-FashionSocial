@@ -802,7 +802,16 @@ M.Playlist = {
 		lab = { speed = 1, tempo = 0.933, volume = 10, boost = 10, boost2 = 5, boost3 = 2, octave = 0.952, low = -2, mid = 0, high = -15.5, engine = "sound" } },
 	-- (D-1868, user 2026-11-24 via 음원 테스트: two x1 uploads with the user's lab values, no choreography) song 2:50
 	{ channel = "K-POP", title = "Potion-AND2BLE", soundId = 88799517182805, length = 161.979, fileSpeed = 1.0495,
-		lab = { speed = 1, tempo = 0.953, volume = 10, boost = 10, boost2 = 5, boost3 = 3, boost4 = 2, octave = 1, low = -8, mid = 0, high = -13.5, engine = "sound" } },
+		lab = { speed = 1, tempo = 0.953, volume = 10, boost = 10, boost2 = 5, boost3 = 3, boost4 = 2, octave = 1, low = -8, mid = 0, high = -13.5, engine = "sound" },
+		-- (D-2070, user 2026-11-24: "Potion_" + 21 ids = centercut clips 1..21 of the practice video AND2BLE_Potion_pFx8c8C6PxU.mp4)
+		-- video = song - 0.20 s (the original mp3 against the video's sound, 20 clear 20 s windows, no drift), `at` = clip start + 0.20;
+		-- blends from the seam check (2 and 5 start where 1 / 4 left the hips: spin fromPrev, blend 0.3)
+		choreo = {
+			{ id = 133318654819881, at = 0.20 }, { id = 130711084322752, at = 6.31, blend = 0.30 }, { id = 126577662119324, at = 16.28 }, { id = 103390008118494, at = 22.29, blend = 0.40 }, { id = 95673249740111, at = 28.56, blend = 0.30 },
+			{ id = 101462515949658, at = 38.24, blend = 0.89 }, { id = 120104884356350, at = 46.48, blend = 0.40 }, { id = 81060374021567, at = 55.19, blend = 0.61 }, { id = 103367592212025, at = 61.89, blend = 0.40 }, { id = 87481181692394, at = 68.74, blend = 0.77 },
+			{ id = 109105261149494, at = 78.71, blend = 0.87 }, { id = 82954950901794, at = 85.12, blend = 0.76 }, { id = 79447997870020, at = 92.93, blend = 0.96 }, { id = 90931443555959, at = 101.17, blend = 0.50 }, { id = 125912203000946, at = 112.11, blend = 0.50 },
+			{ id = 131065498394717, at = 116.02, blend = 0.33 }, { id = 72318461434570, at = 124.86, blend = 0.56 }, { id = 90109383769163, at = 132.13, blend = 0.69 }, { id = 126059736361594, at = 141.81, blend = 0.88 }, { id = 129776441704888, at = 149.55, blend = 0.62 },
+			{ id = 140702968960287, at = 161.53 } }, autoChoreo = true },
 	-- (D-1868) song 2:44
 	{ channel = "K-POP", title = "GiiiRIP-BIGBANG", soundId = 84573541048803, length = 156.658, fileSpeed = 1.0469,
 		lab = { speed = 1, tempo = 0.955, volume = 10, boost = 10, boost2 = 5, boost3 = 2, boost4 = 2, octave = 1, low = -8, mid = 0, high = -13, engine = "sound" } },
