@@ -4089,3 +4089,7 @@ Player2 아이템 상점(밤 22시) · 클럽 안내 판매원 카메라(폰)
 ## 2026-11-24 ILLIT-It's Me 안무 (D-2071)
 - 19조각, video = song + 1.95(클립 1 from 1.95), feat/itsme-choreo-1124.
 - 검사: timing ok, slide / DRIFT → still, Play SPIN 2곳 spin · GUARD 1곳 guardOff, 고개 방향 Play 확인, 몸 바꾸기 0.0 / 0.4°.
+## 2026-11-24 Magic 무대 카메라 (D-1831)
+- 사용자가 음악중심 무대(youtube wA_fxf056gk)를 보내 D:\Roblox\영상\Magic_stage\stage.mp4로 받음(작업 파일은 D:\Roblox\영상\_work\Magic).
+- 원곡 mp3와 무대 소리를 맞춰 영상 = 노래 - 1.1초. 컷 129개 → 129샷(shots_to_lua.py).
+- 브랜치 feat/stage-camera-magic-1124(worktree D:\Roblox\wt\stagecam-magic). 다음: Studio 반영, 모바일 2인 테스트.

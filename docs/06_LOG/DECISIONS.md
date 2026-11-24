@@ -7123,3 +7123,7 @@ Studio only (no script yet).
 - 이음새 blend, 영상 서 있기 3조각 `still`, slide check 10조각 + motion scan DRIFT → ChoreoSlideStill. 점프 후보 1곳(클립 9)은 교차 편집 화면 전환(점프 아님).
 - 정면 11조각(4 +20, 6 −15, 8 +29, 10 +13, 11 −18, 12 −13, 13 +12, 14 +12, 16 +16, 17 −25, 19 −8), 고개 10조각(head_video → headMisses, 키 0.09초 앞; 클립 1 0-0.8초는 `from` 앞이라 뺌), 손목은 차이 없음. 19조각 모두 `plant`.
 - Play 곡 전체: SPIN 1:01.3 625°/s(9, 갔다 오는 회전 둘로) · 2:06.4 669°/s(18) → spin, 고친 뒤 473 / 450°/s. GUARD 1:23.3 왼팔 0.30 rad → 12 `guardOff`. SNAP · TELEPORT · SHAKE 0. 고개 방향 3곳 같은 쪽(−21/+21/−21, 영상 −27/+27/−26), 몸 바꾸기 0.0 / 0.4°.
+## D-1831 무대 카메라: Magic-Secret (2026-11-24)
+- 사용자가 무대 영상을 보냄(MBC 쇼! 음악중심 2014 컴백 무대, youtube wA_fxf056gk). 안무 D-2060(feat/magic-choreo-1121)과 같은 노래 시간(원곡 초, fileSpeed 1.0502, 노래 끝 204.0초).
+- 영상 = 노래 - 1.10초: 원곡 mp3(Q5HKuivlwEo) 소리를 무대 소리에 맞춤, 10초 창 모두 -1.10. 첫 와이드 샷을 0초부터 씀.
+- 컷 129개 → shots_to_lua.py 1 -1.1 204.0, 129샷. ClubCamera.Songs[124810692241835]. 곡의 mirror = true는 안무에만 쓰이고 카메라는 그대로.
