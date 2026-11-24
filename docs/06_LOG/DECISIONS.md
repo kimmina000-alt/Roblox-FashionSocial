@@ -7095,3 +7095,10 @@ Studio only (no script yet).
 - 속성: FashionGame DanceChamp = JSON { id, n, k }, 플레이어 DanceStreak / DanceStreakBest. Studio: 메모리 저장, FashionGame 속성 DanceChampTest = "연승,최고"(Studio만)로 첫 플레이어를 챔피언으로.
 - 번역 5개: tools/i18n/tr/p28_streak1124.tsv.
 - Studio Play: DanceChampTest "3,5" → 이름표 "👑 3연속 1위"(금색), 순위표 1위 칸 아래 "🔥 VANDI님 3연속 1위 중"; "0,4" → "최고 4연속 1위", DanceChamp 없음; 스크립트 오류 없음. nextStreak 규칙(연승 +1 / 다른 사람 1 / 하루 건너뛰면 1 / 같은 날 두 번 안 셈 / 아무도 없으면 0) 확인. 칭호 칸 폭은 글자 수(한글 · 이모지는 넓게)에 맞춤.
+
+## D-2071 ILLIT-It's Me 안무 (2026-11-24)
+- 사용자: "it's me" + ID 19개 = 센터컷 ILLIT_ItsMe_v2_centercut 클립 1~19(무대 교차 편집 ILLIT_ItsMe_SI22DIl-Pow.mp4, 반전 아님).
+- 시간: 원곡 mp3와 영상 소리 20초 창 16개, video = song + 1.95초(기울기 0). `at` = 클립 시작 − 1.95, 클립 1은 `from = 1.95`로 곡 0초부터, 마지막 조각은 곡 끝(135.0)에서 `stop`. timing check ok.
+- 이음새 blend, 영상 서 있기 3조각 `still`, slide check 10조각 + motion scan DRIFT → ChoreoSlideStill. 점프 후보 1곳(클립 9)은 교차 편집 화면 전환(점프 아님).
+- 정면 11조각(4 +20, 6 −15, 8 +29, 10 +13, 11 −18, 12 −13, 13 +12, 14 +12, 16 +16, 17 −25, 19 −8), 고개 10조각(head_video → headMisses, 키 0.09초 앞; 클립 1 0-0.8초는 `from` 앞이라 뺌), 손목은 차이 없음. 19조각 모두 `plant`.
+- Play 곡 전체: SPIN 1:01.3 625°/s(9, 갔다 오는 회전 둘로) · 2:06.4 669°/s(18) → spin, 고친 뒤 473 / 450°/s. GUARD 1:23.3 왼팔 0.30 rad → 12 `guardOff`. SNAP · TELEPORT · SHAKE 0. 고개 방향 3곳 같은 쪽(−21/+21/−21, 영상 −27/+27/−26), 몸 바꾸기 0.0 / 0.4°.

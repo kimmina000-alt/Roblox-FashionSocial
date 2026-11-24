@@ -1383,7 +1383,11 @@ M.ChoreoFixes = {
 	-- video (still_from_video.py; clip 1 plays from 1.95)
 	[114536010136920] = { still = { { from = 1.95, to = 2.47 }, { from = 4.55, to = 5.92 } } }, -- 1
 	[81568891729334] = { still = { { from = 0.12, to = 0.87 }, { from = 2.2, to = 2.88 } } }, -- 10
-	[73159033431986] = { still = { from = 3.97, to = 8.93 } }, -- 18
+	[73159033431986] = { still = { from = 3.97, to = 8.93 }, spin = { from = 3.7, to = 4.4, ease = "both" } }, -- 18 (2:06.4 SPIN 669°/s: a quick look round and back)
+	-- (Play flagSong) 9: 1:01.3 SPIN 625°/s, out and back (+130° then -170°): two even turns; 12: 1:23.3 the body guard flicked the left
+	-- arm out 0.30 rad and let it go
+	[117993086220024] = { spin = { { from = 6.2, to = 6.9, ease = "both" }, { from = 6.9, to = 7.6, ease = "both" } } }, -- 9
+	[134070700021165] = { guardOff = { from = 4.8, to = 5.6, side = "Left" } }, -- 12
 	-- (D-1030, user: "ISPY 1:20 이 부근에 휙 도는 거") piece 15 starts in the middle of a
 	-- turn (hips 152° → 326° over its first 0.67 s, piece 14 ended at 74° still turning
 	-- the same way); the cross-fade went the short way once the gap passed 180° and

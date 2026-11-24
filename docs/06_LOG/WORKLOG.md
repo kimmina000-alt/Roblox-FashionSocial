@@ -4082,3 +4082,7 @@ Player2 아이템 상점(밤 22시) · 클럽 안내 판매원 카메라(폰)
 - ChoreoSmooth.reduce: 튀는 키 되돌리기 → 모양을 만드는 키만 남기기(8° / 0.6초) → 3차 곡선으로 다시 채우기. ClubConfig.ChoreoReduce에서 값 조정, Studio 비교 속성 ChoreoReduceOff.
 - Play(Client)에서 TWS 조각 4개를 비교: 작은 왕복 3,561(원본) / 2,112(예전) / 704(새로), 동작 폭 63.8° → 63.7°, 큰 튐 111 → 95. 값은 spike 3 / tol 4부터 5 / 10까지 4단계로 비교한 뒤 4 / 8 / 0.6으로 정함.
 - 2차(post = true): 키를 줄인 곡선도 떨림 누르기 · 평균을 거침. 실제 재생 재측정(NEON · 레모네이드): 작은 떨림 -14 % / -11 %, 빠른 순간 -4 % / +3 %, 동작 폭 그대로, 발 끌림 55 → 45 / 91 → 86.
+
+## 2026-11-24 ILLIT-It's Me 안무 (D-2071)
+- 19조각, video = song + 1.95(클립 1 from 1.95), feat/itsme-choreo-1124.
+- 검사: timing ok, slide / DRIFT → still, Play SPIN 2곳 spin · GUARD 1곳 guardOff, 고개 방향 Play 확인, 몸 바꾸기 0.0 / 0.4°.
