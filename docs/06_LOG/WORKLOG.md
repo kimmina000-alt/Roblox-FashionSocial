@@ -4097,3 +4097,11 @@ Player2 아이템 상점(밤 22시) · 클럽 안내 판매원 카메라(폰)
 ## 2026-11-24 Abracadabra-Brown Eyed Girls 안무 (D-2080)
 - 24조각, video = song − 1.50, feat/abracadabra-choreo-1124.
 - 검사: timing ok, slide / DRIFT → still, Play SPIN 1곳 spin · 오른손 뒤집힘 1곳 pose, 고개 방향 Play 확인, 몸 바꾸기 0.0°.
+## 2026-11-25 무대 카메라 It's Me, Potion (D-1832)
+- 영상 = 노래 + 3.0초(It's Me, 스튜디오 춤) / + 8.2초(Potion, 더쇼). 113 / 118샷.
+- 처음엔 안무 세션의 _work\ItsMe, _work\Potion 폴더에 분석 파일을 넣었다가 _cam 폴더로 옮김(안무 세션에 알림).
+- 브랜치 feat/stage-camera-itsme-potion-1124(worktree D:\Roblox\wt\stagecam-2songs). 다음: Studio 반영, 모바일 2인 테스트.
+
+## 2026-11-25 Abracadabra 무대 카메라 (D-1833)
+- 음악중심 2014 컴백 무대(youtube gKZ2BsYK3VM)를 D:\Roblox\영상\Abracadabra_stage\stage.mp4로 받음. 영상 = 노래 - 0.2초, 컷 142개 → 103샷.
+- 브랜치 feat/stage-camera-abracadabra-1125(It's Me / Potion 카메라 브랜치 위). 다음: Studio 반영, 모바일 2인 테스트.

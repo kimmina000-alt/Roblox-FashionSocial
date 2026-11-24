@@ -7135,3 +7135,13 @@ Studio only (no script yet).
 - 정면 9조각(2 +10, 3 −20, 6 +13, 7 −15, 9 −16, 13 −6, 20 +19, 22 +10, 24 +49 — 24는 프레임으로 정면 확인), 고개 5조각, 손목 차이 없음. 24조각 모두 `plant`.
 - Play 곡 전체: 0:12.05 오른손 한 프레임 164° → 캡처 손목이 180° 가까이 꺾여 D-1958 손목 제한이 방향을 반대로 읽음: 1번 10.15-10.9 오른손목 곧게 `pose set`(164 → 12°/프레임). 1:29.0 SPIN 609°/s(13, 150° 갔다 오기) → spin 두 번(651 → 437°/s). 3:04.8은 곡이 끝난 뒤(다음 곡으로 넘어감). GUARD 1곳 0.13(작음). 고개 방향 3곳 같은 쪽(+19/+26/+29, 영상 +24/+34/+34), 몸 바꾸기 0.0°.
 - 남은 것(다른 세션 몫): D-1958 손목 제한(ChoreoController WRIST_SOFT/MAX)이 손목 회전이 180° 근처를 지나면 축을 반대로 읽어 한 프레임에 뒤집힐 수 있음.
+## D-1832 무대 카메라 2곡: ILLIT-It's Me, AND2BLE-Potion (2026-11-25)
+- 사용자가 영상 2개를 보냄. 원곡 mp3 소리를 영상 소리에 맞춰 시작점을 정함.
+- ILLIT-It's Me: STUDIO CHOOM ORIGINAL(SToSz9n0TfI), 영상 = 노래 + 3.00초(10초 창 모두 +3.00), 113샷, 노래 끝 135.0초(fileSpeed 1.05, 안무 D-2071).
+- AND2BLE-Potion: 더쇼 11-03(WoHmLaL7HV4), 영상 = 노래 + 8.20초(10초 창 대부분 +8.20, 몇 창은 한 마디 옆 +10.1이라 버림), 118샷, 노래 끝 170.0초(fileSpeed 1.0495, 안무 D-2070).
+- 샷 목록은 shots_to_lua.py(D-944). ClubCamera.Songs[80492816031335 / 88799517182805]. 작업 파일: D:\Roblox\영상\_work\ItsMe_cam, Potion_cam(안무 세션 폴더와 분리).
+
+## D-1833 무대 카메라: Abracadabra-Brown Eyed Girls (2026-11-25)
+- 사용자가 무대 영상을 보냄(MBC 음악중심 2014 컴백 무대, youtube gKZ2BsYK3VM). 안무 D-2080(feat/abracadabra-choreo-1124)과 같은 노래 시간(fileSpeed 1.0507, 노래 끝 184.0초).
+- 영상 = 노래 - 0.20초: 원곡 mp3(dWsWbd7xauA) 소리를 무대 소리에 맞춤, 10초 창 모두 -0.20.
+- 컷 142개 → shots_to_lua.py 1 -0.2 184.0, 103샷. ClubCamera.Songs[84753987256309]. 작업 파일 D:\Roblox\영상\_work\Abracadabra_cam.
