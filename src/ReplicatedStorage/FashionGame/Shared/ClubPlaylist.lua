@@ -698,7 +698,15 @@ M.Playlist = {
 		lab = { speed = 1, tempo = 0.95, volume = 10, boost = 10, boost2 = 5, boost3 = 4, octave = 1, low = 0, mid = 0, high = -14, engine = "sound" } },
 	-- (D-1867, user 2026-11-24: EQ 0 / -5 / -25)
 	{ channel = "K-POP", title = "Abracadabra-Brown Eyed Girls", soundId = 84753987256309, length = 175.124, fileSpeed = 1.0507,
-		lab = { speed = 1, tempo = 0.952, volume = 10, boost = 10, boost2 = 5, boost3 = 4, octave = 1, low = 0, mid = -5, high = -25, engine = "sound" } },
+		lab = { speed = 1, tempo = 0.952, volume = 10, boost = 10, boost2 = 5, boost3 = 4, octave = 1, low = 0, mid = -5, high = -25, engine = "sound" },
+		-- (D-2080, user 2026-11-24: "Abracadabra_" + 24 ids = centercut clips 1..24 of BEG_Abracadabra_GIBT89OrXrk.mp4, not mirrored)
+		-- video = song - 1.50 s (the original mp3 against the video's sound, 22 clear 20 s windows, no drift), `at` = clip start + 1.50
+		choreo = {
+			{ id = 84948460478681, at = 1.50 }, { id = 72165996918532, at = 13.13, blend = 1.00 }, { id = 83771706051102, at = 24.40, blend = 0.86 }, { id = 83548904337256, at = 31.91, blend = 1.00 }, { id = 107558817738930, at = 40.29, blend = 0.96 },
+			{ id = 124285508228695, at = 43.14, blend = 0.78 }, { id = 127350473391000, at = 46.90, blend = 0.88 }, { id = 95176358593151, at = 56.79 }, { id = 75507263939428, at = 61.89, blend = 1.00 }, { id = 124742189184260, at = 69.40, blend = 1.00 },
+			{ id = 71153555401783, at = 80.66, blend = 1.00 }, { id = 77087314935776, at = 84.38, blend = 1.00 }, { id = 81797984882504, at = 88.14, blend = 0.51 }, { id = 87766782876540, at = 97.29 }, { id = 121801747843762, at = 106.91, blend = 0.86 },
+			{ id = 119374607813624, at = 113.86 }, { id = 94834101789323, at = 121.90, blend = 1.00 }, { id = 84986038812006, at = 132.06 }, { id = 137196704822292, at = 136.89, blend = 1.00 }, { id = 72143183459414, at = 142.32 },
+			{ id = 137870501620877, at = 151.91, blend = 0.99 }, { id = 130683944486771, at = 159.39, blend = 0.67 }, { id = 138548853009311, at = 166.90, blend = 1.00 }, { id = 75956008247672, at = 175.55 } }, autoChoreo = true },
 	-- (D-1382, user 2026-11-13: 17 uploads as sent, entries with the lab values and fileSpeed; the title "Famous-Allday Project" had a line break inside, removed)
 	{ channel = "K-POP", title = "Focus-Hearts2Hearts", soundId = 100664272955386, length = 165.474, fileSpeed = 1.0515,
 		lab = { speed = 1, tempo = 0.951, volume = 10, boost = 10, boost2 = 5, boost3 = 4, octave = 1, low = 0, mid = 0, high = -7, engine = "sound" } },
