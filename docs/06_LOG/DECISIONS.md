@@ -7127,3 +7127,9 @@ Studio only (no script yet).
 - 사용자가 무대 영상을 보냄(MBC 쇼! 음악중심 2014 컴백 무대, youtube wA_fxf056gk). 안무 D-2060(feat/magic-choreo-1121)과 같은 노래 시간(원곡 초, fileSpeed 1.0502, 노래 끝 204.0초).
 - 영상 = 노래 - 1.10초: 원곡 mp3(Q5HKuivlwEo) 소리를 무대 소리에 맞춤, 10초 창 모두 -1.10. 첫 와이드 샷을 0초부터 씀.
 - 컷 129개 → shots_to_lua.py 1 -1.1 204.0, 129샷. ClubCamera.Songs[124810692241835]. 곡의 mirror = true는 안무에만 쓰이고 카메라는 그대로.
+
+## D-1832 무대 카메라 2곡: ILLIT-It's Me, AND2BLE-Potion (2026-11-25)
+- 사용자가 영상 2개를 보냄. 원곡 mp3 소리를 영상 소리에 맞춰 시작점을 정함.
+- ILLIT-It's Me: STUDIO CHOOM ORIGINAL(SToSz9n0TfI), 영상 = 노래 + 3.00초(10초 창 모두 +3.00), 113샷, 노래 끝 135.0초(fileSpeed 1.05, 안무 D-2071).
+- AND2BLE-Potion: 더쇼 11-03(WoHmLaL7HV4), 영상 = 노래 + 8.20초(10초 창 대부분 +8.20, 몇 창은 한 마디 옆 +10.1이라 버림), 118샷, 노래 끝 170.0초(fileSpeed 1.0495, 안무 D-2070).
+- 샷 목록은 shots_to_lua.py(D-944). ClubCamera.Songs[80492816031335 / 88799517182805]. 작업 파일: D:\Roblox\영상\_work\ItsMe_cam, Potion_cam(안무 세션 폴더와 분리).

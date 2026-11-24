@@ -4093,3 +4093,8 @@ Player2 아이템 상점(밤 22시) · 클럽 안내 판매원 카메라(폰)
 - 사용자가 음악중심 무대(youtube wA_fxf056gk)를 보내 D:\Roblox\영상\Magic_stage\stage.mp4로 받음(작업 파일은 D:\Roblox\영상\_work\Magic).
 - 원곡 mp3와 무대 소리를 맞춰 영상 = 노래 - 1.1초. 컷 129개 → 129샷(shots_to_lua.py).
 - 브랜치 feat/stage-camera-magic-1124(worktree D:\Roblox\wt\stagecam-magic). 다음: Studio 반영, 모바일 2인 테스트.
+
+## 2026-11-25 무대 카메라 It's Me, Potion (D-1832)
+- 영상 = 노래 + 3.0초(It's Me, 스튜디오 춤) / + 8.2초(Potion, 더쇼). 113 / 118샷.
+- 처음엔 안무 세션의 _work\ItsMe, _work\Potion 폴더에 분석 파일을 넣었다가 _cam 폴더로 옮김(안무 세션에 알림).
+- 브랜치 feat/stage-camera-itsme-potion-1124(worktree D:\Roblox\wt\stagecam-2songs). 다음: Studio 반영, 모바일 2인 테스트.
