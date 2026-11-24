@@ -7108,3 +7108,12 @@ Studio only (no script yet).
 - Potion-AND2BLE 88799517182805: 161.979 s(Studio에서 잼), fileSpeed 1.0495 (곡 2:50), tempo 0.953, boost 10/5/3/2, EQ -8/0/-13.5.
 - GiiiRIP-BIGBANG 84573541048803: 156.658 s, fileSpeed 1.0469 (곡 2:44), tempo 0.955, boost 10/5/2/2, EQ -8/0/-13.
 - Play로 들어 보지는 않음.
+
+## D-2070 AND2BLE-Potion 안무 (2026-11-24)
+- 사용자: "Potion_" + ID 21개(센터컷 클립 1~21, 연습 영상 AND2BLE_Potion_pFx8c8C6PxU.mp4). 곡은 음원 테스트가 같은 날 넣은 Potion-AND2BLE(fix/labs-3-1124, D-1868)이라 이 브랜치는 그 위에서 시작.
+- 시간: 원곡 mp3와 영상 소리 20초 창 20개, video = song − 0.20초(기울기 0). `at` = 클립 시작 + 0.20. 원곡 170.0초 = 161.979 × 1.0495. timing check ok.
+- 이음새 blend(짧은 조각은 길이 절반 이하), 1→2(178°) · 4→5(123°)는 앞 조각이 남긴 방향에서 이어 도는 spin fromPrev(blend 0.3).
+- 영상 서 있기 3곳(클립 1 두 곳, 9) `still`, choreo_slide_check 11조각 + motion scan DRIFT → ChoreoSlideStill, Play TELEPORT 4곳(0:38.9 / 1:18.0 / 1:41.7 / 1:48.9) → `still`. 점프 후보 없음.
+- 회전: Play SPIN 607-1174°/s 8곳 → spin(0:02.4는 캡처가 잠깐 뒤집힌 것: 52°만, 0:14.7 한 바퀴 반, 0:24.9 · 0:48.8 · 1:43.1 · 2:44.8 한 바퀴, 1:01.0 갔다 오기 둘로, 1:17.4). 고친 뒤 곡 전체 Play: SPIN · SNAP · TELEPORT · SHAKE 0, GUARD 7곳 0.13-0.15 rad(작음, 그대로).
+- 정면 9조각(3 −8, 6 +8, 7 +14, 8 +11, 9 −18, 10 +19, 16 +17, 17 −6, 20 −7), 고개 10조각 · 손목 8조각(head_video / hand_video → headMisses / wristMisses, 키 0.09초 앞). Play 고개 방향: 0:16.8 +23(영상 +27), 1:22.6 −13(−22), 2:11.8 −22(−26), 2:17.8 +18(+22) 모두 같은 쪽.
+- 21조각 모두 `plant`(contact 0.45, D-2060처럼). 몸 바꾸기(Torso · 팔 · 다리 0) 1:00 / 2:00 방향 차이 0.4° / 1.4°.

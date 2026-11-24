@@ -1381,10 +1381,19 @@ M.ChoreoFixes = {
 	[97906912240537] = { still = { from = 1.07, to = 1.8 } }, -- 5
 	-- AND2BLE-Potion (D-2070, the practice video AND2BLE_Potion_pFx8c8C6PxU.mp4): `still` where the clip's member stands in the
 	-- video (still_from_video.py); 2 / 5 start where 1 / 4 left the hips (the seams were 178° / 123° off): one even turn on from there
-	[133318654819881] = { still = { { from = 0.1, to = 1.07 }, { from = 2.1, to = 6.04 } } }, -- 1
+	[133318654819881] = { still = { { from = 0.1, to = 1.07 }, { from = 2.1, to = 6.04 } }, spin = { from = 1.9, to = 2.7, ease = "both" } }, -- 1 (0:02.4: the capture flips round at 2.1-2.3 and back: a 52° turn)
 	[103367592212025] = { still = { from = 0.8, to = 2.07 } }, -- 9
-	[130711084322752] = { spin = { from = 0, to = 1.0, fromPrev = true, ease = "both" } }, -- 2 (0:06.3)
+	[130711084322752] = { spin = { { from = 0, to = 1.0, fromPrev = true, ease = "both" }, { from = 8.1, to = 9.9, ease = "both" } } }, -- 2 (0:06.3; 0:14.7 a turn and a quarter)
 	[95673249740111] = { spin = { from = 0, to = 1.8, fromPrev = true, ease = "both" } }, -- 5 (0:28.6)
+	-- (Play flagSong SPIN 607-1174°/s: each one even turn over the capture's own turn) 4 (0:24.9), 7 (0:48.8), 8 (1:01.0 out and back),
+	-- 10 (1:17.4), 14 (1:43.1), 21 (2:44.8); TELEPORT 0:38.9 / 1:18.0 / 1:41.7 / 1:48.9 -> `still`
+	[103390008118494] = { spin = { from = 1.8, to = 3.3, ease = "both" } }, -- 4
+	[120104884356350] = { spin = { from = 1.6, to = 3.2, ease = "both" } }, -- 7
+	[81060374021567] = { spin = { { from = 5.0, to = 5.7, ease = "both" }, { from = 5.7, to = 6.6, ease = "both" } } }, -- 8
+	[87481181692394] = { spin = { from = 8.3, to = 9.9, ease = "both" }, still = { from = 9.0, to = 9.6 } }, -- 10
+	[90931443555959] = { spin = { from = 1.4, to = 2.7, ease = "both" }, still = { { from = 0.4, to = 1.0 }, { from = 7.5, to = 8.2 } } }, -- 14
+	[140702968960287] = { spin = { from = 2.4, to = 3.8, ease = "both" } }, -- 21
+	[101462515949658] = { still = { from = 0.5, to = 1.3 } }, -- 6
 	-- (D-1030, user: "ISPY 1:20 이 부근에 휙 도는 거") piece 15 starts in the middle of a
 	-- turn (hips 152° → 326° over its first 0.67 s, piece 14 ended at 74° still turning
 	-- the same way); the cross-fade went the short way once the gap passed 180° and
