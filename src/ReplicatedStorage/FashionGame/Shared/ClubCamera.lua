@@ -1436,4 +1436,38 @@ ClubCamera.Songs[88799517182805] = {
 		{ 163.8, "wide", 0, 5 },
 	}),
 }
+-- (D-1833) Brown Eyed Girls-Abracadabra: MBC Music Core 2014-07 comeback stage, youtube gKZ2BsYK3VM,
+-- video = song - 0.20 s (original mp3 dWsWbd7xauA lined up with the stage sound, -0.20 in every 10 s window).
+-- Shot list made by shots_to_lua.py (D-944), to the song's end at 184.0 s (length 175.124 x fileSpeed 1.0507;
+-- choreography D-2080).
+ClubCamera.Songs[84753987256309] = {
+	video = "MBC Music Core 2014 comeback stage, youtube gKZ2BsYK3VM",
+	offset = -0.2,
+	shots = cutList({
+		{ 0, "waist" }, { 6.83, "full" }, { 8.1, "wide", 0, 5 }, { 10.83, "waist" }, { 11.73, "wide", 0, 5 },
+		{ 12.57, "knee" }, { 13.57, "waist" }, { 13.97, "knee" }, { 14.77, "wide", 0, 5 }, { 15.63, "full" },
+		{ 17.5, "bust" }, { 19, "waist" }, { 20.97, "full" }, { 21.83, "bust" }, { 24.83, "waist" },
+		{ 26.13, "bust" }, { 27.13, "full" }, { 27.67, "knee" }, { 28.37, "bust" }, { 29.43, "full" },
+		{ 30.07, "wide", 0, 5 }, { 33.13, "waist" }, { 35.93, "bust" }, { 37.13, "bust", -5 },
+		{ 37.9, "wide", 0, 5 }, { 39.28, "full" }, { 43.3, "bust", -10 }, { 45.3, "wide", 0, 5 }, { 47.37, "waist" },
+		{ 49.1, "knee", -15, 0, { size = "waist" } }, { 51.03, "bust" }, { 52.87, "wide", 0, 5 }, { 56.77, "bust" },
+		{ 59.61, "wide", 0, 5 }, { 62.4, "full" }, { 63.6, "bust" }, { 64.43, "waist" }, { 65.4, "full" },
+		{ 66.47, "knee" }, { 67.5, "bust" }, { 68.1, "waist" }, { 69.9, "bust", 0, 0, { size = "waist" } },
+		{ 70.5, "waist", -10 }, { 71.43, "bust" }, { 72.1, "knee" }, { 73.47, "wide", 0, 5 }, { 75.13, "knee" },
+		{ 77.2, "waist" }, { 79.1, "knee" }, { 81.07, "waist" }, { 82.9, "bust" }, { 84.67, "full" },
+		{ 86.63, "bust" }, { 88.37, "wide", 0, 5 }, { 94.07, "waist" }, { 96.37, "bust" }, { 97.87, "full" },
+		{ 99, "waist" }, { 99.93, "wide", 0, 5 }, { 100.53, "full" }, { 101.97, "bust" }, { 103.6, "waist" },
+		{ 105, "wide", 0, 5 }, { 108.9, "bust" }, { 110.6, "waist", -15 }, { 112.9, "bust" }, { 114.7, "full" },
+		{ 115.77, "waist" }, { 116.57, "full" }, { 118.47, "waist", -5 },
+		{ 119.07, "bust", 0, 0, { size = "close" } }, { 120.4, "knee" }, { 124.07, "bust", -10 },
+		{ 126.2, "wide", 0, 5 }, { 127.77, "knee" }, { 129.77, "wide", 0, 5 }, { 132.17, "wide", 10, 5 },
+		{ 137.4, "wide", 0, 5 }, { 139.13, "bust" }, { 141.37, "wide", 0, 5 }, { 142.37, "knee" },
+		{ 143.41, "bust" }, { 144.3, "bust", -5 }, { 146.47, "wide", 0, 5 }, { 148.47, "bust" }, { 150.24, "full" },
+		{ 153.8, "waist" }, { 155.27, "bust" }, { 157.03, "waist", 0, 0, { size = "knee" } },
+		{ 158.3, "wide", 0, 5 }, { 160.9, "knee" }, { 162.53, "bust", 5 }, { 163.67, "full" },
+		{ 165.3, "wide", 0, 5 }, { 166.28, "full" }, { 167.1, "waist" }, { 169.3, "full" }, { 171.8, "bust", 5 },
+		{ 173.33, "waist", -5, 0, { size = "knee" } }, { 174.73, "full" }, { 176.17, "bust" },
+		{ 177.07, "wide", 0, 5 }, { 180.68, "knee" },
+	}),
+}
 return ClubCamera

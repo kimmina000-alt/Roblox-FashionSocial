@@ -7133,3 +7133,8 @@ Studio only (no script yet).
 - ILLIT-It's Me: STUDIO CHOOM ORIGINAL(SToSz9n0TfI), 영상 = 노래 + 3.00초(10초 창 모두 +3.00), 113샷, 노래 끝 135.0초(fileSpeed 1.05, 안무 D-2071).
 - AND2BLE-Potion: 더쇼 11-03(WoHmLaL7HV4), 영상 = 노래 + 8.20초(10초 창 대부분 +8.20, 몇 창은 한 마디 옆 +10.1이라 버림), 118샷, 노래 끝 170.0초(fileSpeed 1.0495, 안무 D-2070).
 - 샷 목록은 shots_to_lua.py(D-944). ClubCamera.Songs[80492816031335 / 88799517182805]. 작업 파일: D:\Roblox\영상\_work\ItsMe_cam, Potion_cam(안무 세션 폴더와 분리).
+
+## D-1833 무대 카메라: Abracadabra-Brown Eyed Girls (2026-11-25)
+- 사용자가 무대 영상을 보냄(MBC 음악중심 2014 컴백 무대, youtube gKZ2BsYK3VM). 안무 D-2080(feat/abracadabra-choreo-1124)과 같은 노래 시간(fileSpeed 1.0507, 노래 끝 184.0초).
+- 영상 = 노래 - 0.20초: 원곡 mp3(dWsWbd7xauA) 소리를 무대 소리에 맞춤, 10초 창 모두 -0.20.
+- 컷 142개 → shots_to_lua.py 1 -0.2 184.0, 103샷. ClubCamera.Songs[84753987256309]. 작업 파일 D:\Roblox\영상\_work\Abracadabra_cam.
