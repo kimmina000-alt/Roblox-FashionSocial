@@ -1379,6 +1379,11 @@ M.ChoreoFixes = {
 	-- NCT WISH-I SPY (D-912, the mirrored practice video ILeBVk4x_XQ): `still` where
 	-- the clip's member stands in the video (still_from_video.py)
 	[97906912240537] = { still = { from = 1.07, to = 1.8 } }, -- 5
+	-- Abracadabra-Brown Eyed Girls (D-2080, BEG_Abracadabra_GIBT89OrXrk.mp4): `still` where the clip's member stands in the video
+	-- (still_from_video.py)
+	[84948460478681] = { still = { from = 0.1, to = 6.91 } }, -- 1
+	[124285508228695] = { still = { from = 0.87, to = 3.69 } }, -- 6
+	[81797984882504] = { still = { from = 0.7, to = 9.09 } }, -- 13
 	-- AND2BLE-Potion (D-2070, the practice video AND2BLE_Potion_pFx8c8C6PxU.mp4): `still` where the clip's member stands in the
 	-- video (still_from_video.py); 2 / 5 start where 1 / 4 left the hips (the seams were 178° / 123° off): one even turn on from there
 	[133318654819881] = { still = { { from = 0.1, to = 1.07 }, { from = 2.1, to = 6.04 } }, spin = { from = 1.9, to = 2.7, ease = "both" } }, -- 1 (0:02.4: the capture flips round at 2.1-2.3 and back: a 52° turn)
@@ -1495,6 +1500,11 @@ M.ChoreoShake = { minSwing = 2, maxSwing = 25, maxGap = 0.2, count = 8, window =
 -- or more in 0.5 s, or wander 0.5 back and forth: the body slides while the legs
 -- stand. They become `still` stretches (no travel; added to ChoreoFixes below).
 M.ChoreoSlideStill = {
+	-- Abracadabra-Brown Eyed Girls (D-2080, choreo_slide_check + motion scan DRIFT)
+	[72165996918532] = { { 1.7, 2.6 } }, [83771706051102] = { { 6.0, 6.6 } }, [83548904337256] = { { 0.2, 1.1 }, { 6.7, 7.6 } }, [127350473391000] = { { 6.4, 7.8 }, { 9.1, 10.0 } },
+	[75507263939428] = { { 4.0, 4.9 } }, [124742189184260] = { { 3.7, 4.3 } }, [81797984882504] = { { 2.6, 3.2 }, { 3.3, 3.9 } }, [87766782876540] = { { 1.5, 2.4 }, { 3.7, 4.6 } },
+	[121801747843762] = { { 3.6, 4.5 }, { 6.4, 7.0 } }, [119374607813624] = { { 2.8, 3.4 }, { 7.1, 8.0 } }, [94834101789323] = { { 8.9, 9.8 } }, [137196704822292] = { { 1.4, 4.2 } },
+	[72143183459414] = { { 0.4, 1.3 }, { 3.1, 4.0 } }, [137870501620877] = { { 4.1, 4.7 } }, [130683944486771] = { { 3.1, 3.7 } }, [75956008247672] = { { 2.3, 3.4 } },
 	-- AND2BLE-Potion (D-2070, choreo_slide_check + motion scan DRIFT)
 	[133318654819881] = { { 1.2, 2.1 } }, [130711084322752] = { { 2.0, 3.0 }, { 6.0, 6.9 } }, [103390008118494] = { { 0.1, 0.8 } }, [95673249740111] = { { 1.5, 2.2 }, { 8.1, 8.9 } },
 	[120104884356350] = { { 6.8, 7.6 } }, [81060374021567] = { { 4.0, 4.7 } }, [109105261149494] = { { 1.3, 2.1 } }, [82954950901794] = { { 0.7, 1.3 }, { 3.9, 4.5 } },
@@ -1819,6 +1829,9 @@ end
 -- capture was off by a steady amount (median off 6°+, spread under 20°), left alone
 -- where it only wobbles. Their own angled, side and back facings and turns stay.
 M.ChoreoFaceOffset = {
+	-- (D-2080) Abracadabra-Brown Eyed Girls (tools/choreo/faceoffset; |median| ≥ 6, MAD ≤ 20, 12+ front frames; 24 checked on frames: front)
+	[72165996918532] = 10, [83771706051102] = -20, [124285508228695] = 13, [127350473391000] = -15, [75507263939428] = -16, [81797984882504] = -6,
+	[72143183459414] = 19, [130683944486771] = 10, [75956008247672] = 49, -- 2 / 3 / 6 / 7 / 9 / 13 / 20 / 22 / 24
 	-- (D-2070) AND2BLE-Potion (tools/choreo/faceoffset; |median| ≥ 6, MAD ≤ 20, 12+ front frames)
 	[126577662119324] = -8, [101462515949658] = 8, [120104884356350] = 14, [81060374021567] = 11, [103367592212025] = -18, [87481181692394] = 19,
 	[131065498394717] = 17, [72318461434570] = -6, [129776441704888] = -7, -- 3 / 6 / 7 / 8 / 9 / 10 / 16 / 17 / 20
@@ -1966,6 +1979,12 @@ end
 -- or more, the head turns 0.8 of the gap more (at most 30 deg) about its own front axis,
 -- easing in and out over 0.2 s. Keys are { piece seconds, x, y, z } in degrees (ChoreoFixes `bend`)
 M.ChoreoHeadTilt = {
+	-- (D-2080) Abracadabra-Brown Eyed Girls: head_video.py → headMisses, keys 0.09 s early
+	[84948460478681] = { { part = "Head", keys = { { 7.31, 0, 0, 0 }, { 7.51, 0, 0, 19 }, { 7.71, 0, 0, 20 }, { 7.91, 0, 0, 14 }, { 8.11, 0, 0, 19 }, { 8.31, 0, 0, 13 }, { 8.51, 0, 0, 0 } } } }, -- AB 1
+	[95176358593151] = { { part = "Head", keys = { { 3.51, 0, 0, 0 }, { 3.71, 0, 0, 12 }, { 3.91, 0, 0, 14 }, { 4.11, 0, 0, 0 } } } }, -- AB 8
+	[75507263939428] = { { part = "Head", keys = { { 2.51, 0, 0, 0 }, { 2.71, 0, 0, 7 }, { 2.91, 0, 0, 7 }, { 3.11, 0, 0, 0 } } } }, -- AB 9
+	[71153555401783] = { { part = "Head", keys = { { 0.00, 0, 0, 0 }, { 0.11, 0, 0, 16 }, { 0.31, 0, 0, 18 }, { 0.51, 0, 0, 0 } } } }, -- AB 11
+	[87766782876540] = { { part = "Head", keys = { { 8.11, 0, 0, 0 }, { 8.31, 0, 0, 14 }, { 8.51, 0, 0, 16 }, { 8.71, 0, 0, 0 } } }, { part = "Head", keys = { { 8.71, 0, 0, 0 }, { 8.91, 0, 0, 12 }, { 9.11, 0, 0, 14 }, { 9.31, 0, 0, 0 } } } }, -- AB 14
 	-- (D-2070) AND2BLE-Potion: head_video.py → headMisses, keys 0.09 s early
 	[126577662119324] = { { part = "Head", keys = { { 0.11, 0, 0, 0 }, { 0.31, 0, 0, 13 }, { 0.51, 0, 0, 19 }, { 0.71, 0, 0, 13 }, { 0.91, 0, 0, 0 } } } }, -- PT 3
 	[103390008118494] = { { part = "Head", keys = { { 3.71, 0, 0, 0 }, { 3.91, 0, 0, 18 }, { 4.11, 0, 0, 17 }, { 4.31, 0, 0, 0 } } } }, -- PT 4
@@ -3968,6 +3987,24 @@ do
 		117993086220024, 81568891729334, 115153572280504, 134070700021165,
 		74249351083442, 95973678135715, 91164599224585, 127876941649874,
 		85806895345522, 73159033431986, 92379882661394,
+	}) do
+		local f = (M.ChoreoFixes[id] or {}) :: any
+		M.ChoreoFixes[id] = f
+		local list = if f.plant == nil then {} elseif f.plant.from then { f.plant } else table.clone(f.plant)
+		table.insert(list, { from = 0, to = 99, contact = 0.45 })
+		f.plant = list
+	end
+end
+
+-- (D-2080, Abracadabra-Brown Eyed Girls) every piece `plant` (contact 0.45; a foot the dance carries off is stepped), as Magic-Secret (D-2060)
+do
+	for _, id in ipairs({
+		84948460478681, 72165996918532, 83771706051102, 83548904337256,
+		107558817738930, 124285508228695, 127350473391000, 95176358593151,
+		75507263939428, 124742189184260, 71153555401783, 77087314935776,
+		81797984882504, 87766782876540, 121801747843762, 119374607813624,
+		94834101789323, 84986038812006, 137196704822292, 72143183459414,
+		137870501620877, 130683944486771, 138548853009311, 75956008247672,
 	}) do
 		local f = (M.ChoreoFixes[id] or {}) :: any
 		M.ChoreoFixes[id] = f
