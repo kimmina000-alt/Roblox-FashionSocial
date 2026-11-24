@@ -1379,6 +1379,11 @@ M.ChoreoFixes = {
 	-- NCT WISH-I SPY (D-912, the mirrored practice video ILeBVk4x_XQ): `still` where
 	-- the clip's member stands in the video (still_from_video.py)
 	[97906912240537] = { still = { from = 1.07, to = 1.8 } }, -- 5
+	-- ILLIT-It's Me (D-2071, the stage cross-edit ILLIT_ItsMe_SI22DIl-Pow.mp4): `still` where the clip's member stands in the
+	-- video (still_from_video.py; clip 1 plays from 1.95)
+	[114536010136920] = { still = { { from = 1.95, to = 2.47 }, { from = 4.55, to = 5.92 } } }, -- 1
+	[81568891729334] = { still = { { from = 0.12, to = 0.87 }, { from = 2.2, to = 2.88 } } }, -- 10
+	[73159033431986] = { still = { from = 3.97, to = 8.93 } }, -- 18
 	-- (D-1030, user: "ISPY 1:20 이 부근에 휙 도는 거") piece 15 starts in the middle of a
 	-- turn (hips 152° → 326° over its first 0.67 s, piece 14 ended at 74° still turning
 	-- the same way); the cross-fade went the short way once the gap passed 180° and
@@ -1471,6 +1476,10 @@ M.ChoreoShake = { minSwing = 2, maxSwing = 25, maxGap = 0.2, count = 8, window =
 -- or more in 0.5 s, or wander 0.5 back and forth: the body slides while the legs
 -- stand. They become `still` stretches (no travel; added to ChoreoFixes below).
 M.ChoreoSlideStill = {
+	-- ILLIT-It's Me (D-2071, choreo_slide_check + motion scan DRIFT)
+	[114536010136920] = { { 6.4, 7.0 } }, [137400923288167] = { { 1.3, 2.4 }, { 5.3, 6.1 } }, [92512766209766] = { { 1.2, 3.1 }, { 5.1, 5.9 } }, [97821283727781] = { { 0.0, 0.7 } },
+	[84767858976240] = { { 0.5, 1.0 }, { 3.2, 3.8 } }, [117993086220024] = { { 0.0, 0.7 }, { 7.7, 8.4 } }, [81568891729334] = { { 3.9, 4.6 } }, [134070700021165] = { { 0.5, 1.3 } },
+	[74249351083442] = { { 1.4, 2.2 }, { 3.6, 4.5 } }, [95973678135715] = { { 3.0, 3.8 }, { 4.4, 5.2 } }, [127876941649874] = { { 0.6, 2.0 } }, [73159033431986] = { { 0.5, 1.3 }, { 5.5, 6.3 } },
 	-- Unbelievable-H1 KEY (D-1672, choreo_slide_check + choreo_motion_scan DRIFT)
 	[127086942159592] = { { 2.6, 4.6 }, { 4.8, 5.8 } }, [110146513928585] = { { 1.1, 1.7 }, { 6.1, 7.0 }, { 7.4, 8.1 } }, [98575698595382] = { { 0.0, 0.5 }, { 1.0, 1.8 }, { 3.0, 3.9 } },
 	[97422868495252] = { { 1.2, 1.8 } }, [77667909738269] = { { 0.7, 1.3 } }, [106947840145982] = { { 0.5, 1.2 }, { 1.4, 2.0 }, { 4.7, 5.3 }, { 7.6, 8.3 }, { 10.2, 11.1 } },
@@ -1786,6 +1795,9 @@ end
 -- capture was off by a steady amount (median off 6°+, spread under 20°), left alone
 -- where it only wobbles. Their own angled, side and back facings and turns stay.
 M.ChoreoFaceOffset = {
+	-- (D-2071) ILLIT-It's Me (tools/choreo/faceoffset; |median| ≥ 6, MAD ≤ 20, 12+ front frames)
+	[92512766209766] = 20, [97821283727781] = -15, [84767858976240] = 29, [81568891729334] = 13, [115153572280504] = -18, [134070700021165] = -13,
+	[74249351083442] = 12, [95973678135715] = 12, [127876941649874] = 16, [85806895345522] = -25, [92379882661394] = -8, -- 4 / 6 / 8 / 10 / 11 / 12 / 13 / 14 / 16 / 17 / 19
 	-- (D-1672) Unbelievable-H1 KEY (tools/choreo/faceoffset; |median| ≥ 6, MAD ≤ 20, 12+ front frames; 11 / 16 checked on frames: front)
 	[98575698595382] = 8, [97422868495252] = 10, [77667909738269] = -15, [106947840145982] = 11, [121716323345976] = 11, [85861969329409] = -38, [132406634119258] = 12, -- 2
 	-- (D-1670) Boogie Woogie-NCT DREAM (tools/choreo/faceoffset; |median| ≥ 6, MAD ≤ 20, 12+ front frames; 16 checked on frames: the capture's
@@ -1927,6 +1939,17 @@ end
 -- or more, the head turns 0.8 of the gap more (at most 30 deg) about its own front axis,
 -- easing in and out over 0.2 s. Keys are { piece seconds, x, y, z } in degrees (ChoreoFixes `bend`)
 M.ChoreoHeadTilt = {
+	-- (D-2071) ILLIT-It's Me: head_video.py → headMisses, keys 0.09 s early
+	[84810215427749] = { { part = "Head", keys = { { 1.51, 0, 0, 0 }, { 1.71, 0, 0, -10 }, { 1.91, 0, 0, -20 }, { 2.11, 0, 0, 0 } } }, { part = "Head", keys = { { 2.91, 0, 0, 0 }, { 3.11, 0, 0, -14 }, { 3.31, 0, 0, -15 }, { 3.51, 0, 0, 0 } } } }, -- IM 2
+	[137374435124337] = { { part = "Head", keys = { { 2.11, 0, 0, 0 }, { 2.31, 0, 0, -18 }, { 2.51, 0, 0, -16 }, { 2.71, 0, 0, 0 } } } }, -- IM 5
+	[97821283727781] = { { part = "Head", keys = { { 3.51, 0, 0, 0 }, { 3.71, 0, 0, -16 }, { 3.91, 0, 0, -16 }, { 4.11, 0, 0, -17 }, { 4.31, 0, 0, 0 } } } }, -- IM 6
+	[104624038900168] = { { part = "Head", keys = { { 4.51, 0, 0, 0 }, { 4.71, 0, 0, 12 }, { 4.91, 0, 0, 12 }, { 5.11, 0, 0, 17 }, { 5.31, 0, 0, 0 } } } }, -- IM 7
+	[84767858976240] = { { part = "Head", keys = { { 0.00, 0, 0, 0 }, { 0.11, 0, 0, -19 }, { 0.31, 0, 0, -13 }, { 0.51, 0, 0, 0 } } }, { part = "Head", keys = { { 0.91, 0, 0, 0 }, { 1.11, 0, 0, -19 }, { 1.31, 0, 0, -20 }, { 1.51, 0, 0, 0 } } }, { part = "Head", keys = { { 4.71, 0, 0, 0 }, { 4.91, 0, 0, -23 }, { 5.11, 0, 0, -10 }, { 5.31, 0, 0, -20 }, { 5.51, 0, 0, 0 } } } }, -- IM 8
+	[81568891729334] = { { part = "Head", keys = { { 0.11, 0, 0, 0 }, { 0.31, 0, 0, -12 }, { 0.51, 0, 0, -10 }, { 0.71, 0, 0, 0 } } } }, -- IM 10
+	[115153572280504] = { { part = "Head", keys = { { 2.91, 0, 0, 0 }, { 3.11, 0, 0, 15 }, { 3.31, 0, 0, 17 }, { 3.51, 0, 0, 0 } } } }, -- IM 11
+	[134070700021165] = { { part = "Head", keys = { { 0.31, 0, 0, 0 }, { 0.51, 0, 0, 18 }, { 0.71, 0, 0, 17 }, { 0.91, 0, 0, 0 } } }, { part = "Head", keys = { { 4.11, 0, 0, 0 }, { 4.31, 0, 0, 16 }, { 4.51, 0, 0, 12 }, { 4.71, 0, 0, 0 } } } }, -- IM 12
+	[91164599224585] = { { part = "Head", keys = { { 5.71, 0, 0, 0 }, { 5.91, 0, 0, 18 }, { 6.11, 0, 0, 24 }, { 6.31, 0, 0, 0 } } } }, -- IM 15
+	[127876941649874] = { { part = "Head", keys = { { 0.00, 0, 0, 25 }, { 0.11, 0, 0, 19 }, { 0.31, 0, 0, 0 } } }, { part = "Head", keys = { { 0.51, 0, 0, 0 }, { 0.71, 0, 0, -13 }, { 0.91, 0, 0, -13 }, { 1.11, 0, 0, -17 }, { 1.31, 0, 0, -12 }, { 1.51, 0, 0, 0 } } }, { part = "Head", keys = { { 5.71, 0, 0, 0 }, { 5.91, 0, 0, -22 }, { 6.11, 0, 0, -16 }, { 6.31, 0, 0, -17 }, { 6.51, 0, 0, 0 } } } }, -- IM 16
 	-- (D-1672) Unbelievable-H1 KEY: head_video.py → headMisses, keys 0.09 s early
 	[91684619142886] = { { part = "Head", keys = { { 3.51, 0, 0, 0 }, { 3.71, 0, 0, -15 }, { 3.91, 0, 0, -16 }, { 4.11, 0, 0, 0 } } } }, -- UB 3
 	[110146513928585] = { { part = "Head", keys = { { 3.51, 0, 0, 0 }, { 3.71, 0, 0, 20 }, { 3.91, 0, 0, 23 }, { 4.11, 0, 0, 0 } } } }, -- UB 8
@@ -3878,6 +3901,23 @@ do
 	} do
 		for _, w in ipairs(wins) do addList(id, "still", { from = w[1], to = w[2] }) end
 		addList(id, "plant", { from = 0, to = 99, contact = 0.45 })
+	end
+end
+
+-- (D-2071, ILLIT-It's Me) every piece `plant` (contact 0.45; a foot the dance carries off is stepped), as Magic-Secret (D-2060)
+do
+	for _, id in ipairs({
+		114536010136920, 84810215427749, 137400923288167, 92512766209766,
+		137374435124337, 97821283727781, 104624038900168, 84767858976240,
+		117993086220024, 81568891729334, 115153572280504, 134070700021165,
+		74249351083442, 95973678135715, 91164599224585, 127876941649874,
+		85806895345522, 73159033431986, 92379882661394,
+	}) do
+		local f = (M.ChoreoFixes[id] or {}) :: any
+		M.ChoreoFixes[id] = f
+		local list = if f.plant == nil then {} elseif f.plant.from then { f.plant } else table.clone(f.plant)
+		table.insert(list, { from = 0, to = 99, contact = 0.45 })
+		f.plant = list
 	end
 end
 
