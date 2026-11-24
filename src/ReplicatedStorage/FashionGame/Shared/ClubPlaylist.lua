@@ -800,6 +800,12 @@ M.Playlist = {
 	-- (D-1602) song 3:09
 	{ channel = "K-POP", title = "빌려온 고양이 Do the Dance-ILLIT", soundId = 126150660776305, length = 176.341, fileSpeed = 1.0718,
 		lab = { speed = 1, tempo = 0.933, volume = 10, boost = 10, boost2 = 5, boost3 = 2, octave = 0.952, low = -2, mid = 0, high = -15.5, engine = "sound" } },
+	-- (D-1868, user 2026-11-24 via 음원 테스트: two x1 uploads with the user's lab values, no choreography) song 2:50
+	{ channel = "K-POP", title = "Potion-AND2BLE", soundId = 88799517182805, length = 161.979, fileSpeed = 1.0495,
+		lab = { speed = 1, tempo = 0.953, volume = 10, boost = 10, boost2 = 5, boost3 = 3, boost4 = 2, octave = 1, low = -8, mid = 0, high = -13.5, engine = "sound" } },
+	-- (D-1868) song 2:44
+	{ channel = "K-POP", title = "GiiiRIP-BIGBANG", soundId = 84573541048803, length = 156.658, fileSpeed = 1.0469,
+		lab = { speed = 1, tempo = 0.955, volume = 10, boost = 10, boost2 = 5, boost3 = 2, boost4 = 2, octave = 1, low = -8, mid = 0, high = -13, engine = "sound" } },
 
 } :: {Track}
 

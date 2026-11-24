@@ -7102,3 +7102,9 @@ Studio only (no script yet).
 - Magic-Secret: { speed = 1, tempo = 0.952, volume = 10, boost = 10, boost2 = 2, boost3 = 2, boost4 = 2, octave = 1, low = 0, mid = 0, high = -10, engine = "sound" } → { speed = 1, tempo = 0.952, volume = 10, boost = 10, boost2 = 4, boost3 = 2, boost4 = 2, octave = 1, low = 0, mid = 0, high = -10, engine = "sound"  }
 - Abracadabra-Brown Eyed Girls: { speed = 1, tempo = 0.952, volume = 10, boost = 10, boost2 = 5, boost3 = 4, octave = 1, low = 0, mid = 0, high = -9, engine = "sound" } → { speed = 1, tempo = 0.952, volume = 10, boost = 10, boost2 = 5, boost3 = 4, octave = 1, low = 0, mid = -5, high = -25, engine = "sound"  }
 - Play로 들어 보지는 않음.
+
+## D-1868 새 곡 2곡: Potion-AND2BLE, GiiiRIP-BIGBANG (2026-11-24)
+- 사용자 요청(음원 테스트 → 매니저 세션 전달), 사용자 lab 값. 둘 다 x1 업로드, 안무 없음, 목록 끝.
+- Potion-AND2BLE 88799517182805: 161.979 s(Studio에서 잼), fileSpeed 1.0495 (곡 2:50), tempo 0.953, boost 10/5/3/2, EQ -8/0/-13.5.
+- GiiiRIP-BIGBANG 84573541048803: 156.658 s, fileSpeed 1.0469 (곡 2:44), tempo 0.955, boost 10/5/2/2, EQ -8/0/-13.
+- Play로 들어 보지는 않음.

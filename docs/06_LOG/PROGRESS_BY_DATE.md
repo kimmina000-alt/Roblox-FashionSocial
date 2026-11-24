@@ -1004,3 +1004,4 @@
 ## 2026-11-24
 - 클럽 7곡 lab 값(체포하겠어, 거리, 나는 너라서, Secret Us, Dragon, Magic, Magnetic) (D-1866).
 - 만찬가 / Magic-Secret / Abracadabra 설정값 (D-1867).
+- 새 곡 2곡: Potion-AND2BLE, GiiiRIP-BIGBANG (D-1868).
