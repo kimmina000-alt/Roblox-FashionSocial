@@ -4452,13 +4452,28 @@ do
 
 	-- 0:00 왼손바닥 볼에, 오른손 손목 꺾어 손가락으로 정수리 / 0:01 발바닥 고정 / 0:02 합장 / 0:03 손목 안으로 손가락끼리
 	-- 0:04 팔 뻗을 때 허리 완전히 펴고 고개 들고 손목 바깥으로
-	poseS(I1, 0.00, 3.95, 0.2, { { t = 0.05, set = merge(CHEEK_L, HEADTOP_R) }, { t = 1.45, set = merge(CHEEK_L, HEADTOP_R) },
-		{ t = 1.95, set = PRAY }, { t = 2.60, set = PRAY }, { t = 2.95, set = TOUCH }, { t = 3.70, set = TOUCH } })
 	holdW(I1, "RightHand", 0.05, 1.45, 0, 0, IN_R - 15)
 	holdW(I1, "LeftHand", 2.95, 3.70, 0, 0, IN_L + 10) holdW(I1, "RightHand", 2.95, 3.70, 0, 0, IN_R - 10)
-	lowerHold(I1, 0.00, 5.40) -- (2nd list: 0:02-0:06 too)
-	-- (the capture bends 40-54 degrees at 2.8-4.0; the video stands: upright from 2.6)
-	winS(I1, "upright", 2.60, 5.20, { ease = 0.25 }) winS(I1, "torsoUp", 2.60, 5.20, { ease = 0.25 })
+	-- (5th list: 0:03 다리 모으고 서서 다리 고정, 상체만 살짝 숙였다 일으키기) legs held as at 0:00 to 2.5, then set
+	-- together and held to 5.4; the hips level 2.6-5.2 (the capture bends 40-54 degrees at 2.8-4.0); the chest set straight,
+	-- 15 degrees down at 3.15 and up by 3.6 (torsoUp only from 3.8, or it would undo the bend)
+	lowerHold(I1, 0.00, 2.50)
+	do
+		-- (the hips set straight too: with the capture's hips the bend read 35-42 degrees and the feet moved 0.97; straight
+		-- legs put the hips at the rest height, so no `move`)
+		local TOGETHER = { LowerTorso = { 0, 0, 0 }, LeftUpperLeg = { 0, 0, 2 }, LeftLowerLeg = { 0, 0, 0 }, LeftFoot = { 0, 0, -2 },
+			RightUpperLeg = { 0, 0, -2 }, RightLowerLeg = { 0, 0, 0 }, RightFoot = { 0, 0, 2 } }
+		-- (one pose window with the 0:00-0:03 arms: of two overlapping windows only the first counted)
+		local UT0, UT15 = { UpperTorso = { 0, 0, 0 } }, { UpperTorso = { -28, 0, 0 } } -- (15 showed as 10 at the shoulders)
+		poseS(I1, 0.00, 5.40, 0.2, { { t = 0.05, set = merge(CHEEK_L, HEADTOP_R) }, { t = 1.45, set = merge(CHEEK_L, HEADTOP_R) },
+			{ t = 1.95, set = PRAY }, { t = 2.40, set = PRAY }, { t = 2.70, set = merge(PRAY, TOGETHER, UT0) },
+			{ t = 2.95, set = merge(TOUCH, TOGETHER, UT0) }, { t = 3.15, set = merge(TOUCH, TOGETHER, UT15) },
+			{ t = 3.60, set = merge(TOUCH, TOGETHER, UT0) }, { t = 3.70, set = merge(TOUCH, TOGETHER) },
+			{ t = 3.90, set = TOGETHER }, { t = 5.15, set = TOGETHER } })
+		winS(I1, "still", 2.40, 5.40)
+	end
+	-- (the hips are set straight above; `upright` there took the chest bend out too: 5 degrees)
+	winS(I1, "upright", 3.80, 5.20, { ease = 0.25 }) winS(I1, "torsoUp", 3.80, 5.20, { ease = 0.25 })
 	bendS(I1, "Head", { { 3.90, 0, 0, 0 }, { 4.15, 22, 0, 0 }, { 4.95, 22, 0, 0 }, { 5.25, 0, 0, 0 } })
 	holdW(I1, "LeftHand", 4.15, 5.05, 0, 0, OUT_L) holdW(I1, "RightHand", 4.15, 5.05, 0, 0, OUT_R)
 
@@ -4519,6 +4534,9 @@ do
 		poseS(I4, 23.55, 25.40, 0.15, keys)
 	end
 	-- (3rd list: 0:26-0:29 as the capture had it)
+	-- (5th list: 0:26-0:28 뒷짐 고정) only the arms
+	poseS(I4, 25.70, 27.13, 0.2, { { t = 25.95, set = BACKX }, { t = 27.13, set = BACKX } })
+	poseS(I5, 27.13, 28.40, 0.2, { { t = 27.13, set = BACKX }, { t = 28.15, set = BACKX } })
 	-- 0:30 양팔 벌릴 때 손목 밖으로 까딱까딱 크게
 	for _, t in ipairs({ beat(77) - 0.09, beat(78) - 0.09, beat(79) - 0.09 }) do
 		flickW(I5, "LeftHand", t, 0, 0, OUT_L - 10) flickW(I5, "RightHand", t, 0, 0, OUT_R + 10)
@@ -4527,6 +4545,9 @@ do
 	-- (3rd list: 0:31 뻗었다가 바로 내리기)
 	poseS(I5, 31.50, 32.05, 0.15, { { t = 31.70, set = { RightUpperLeg = { 65, 0, 4 }, RightLowerLeg = { 0, 0, 0 }, RightFoot = { 10, 0, 0 } } } })
 	addList(I6, "walk", { from = 32.45 - LOC[I6], to = 33.05 - LOC[I6], dist = 0.7, dir = 180 })
+	-- (5th list: 0:32 오른팔 떨림) the right arm smoothed hard
+	winS(I5, "steady", 31.40, 32.43, { parts = { "RightUpperArm", "RightLowerArm", "RightHand" }, passes = 8 })
+	winS(I6, "steady", 32.43, 33.20, { parts = { "RightUpperArm", "RightLowerArm", "RightHand" }, passes = 8 })
 	-- 0:33-0:35 위치 고정, 손목 겹쳐 X, 오른손목부터 안으로 까딱 크게 번갈아, 고개 왼쪽으로 꺾기 반복, 손목 꺾을 때 발도
 	-- 번갈아 들어 바닥 찍고 엉덩이 반대쪽으로
 	do
