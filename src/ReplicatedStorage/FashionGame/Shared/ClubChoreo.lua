@@ -4354,10 +4354,14 @@ do
 	local LOC = {
 		[114536010136920] = -1.95, [84810215427749] = 5.48, [137400923288167] = 11.65, [92512766209766] = 20.05,
 		[137374435124337] = 27.13, [97821283727781] = 32.43, [104624038900168] = 39.33, [84767858976240] = 47.55,
-		[117993086220024] = 54.07, [81568891729334] = 63.35,
+		[117993086220024] = 54.07, [81568891729334] = 63.35, [115153572280504] = 73.23, [134070700021165] = 78.15,
+		[74249351083442] = 83.87, [95973678135715] = 93.25, [91164599224585] = 98.50, [127876941649874] = 105.35,
+		[85806895345522] = 114.45,
 	}
 	local I1, I2, I3, I4, I5 = 114536010136920, 84810215427749, 137400923288167, 92512766209766, 137374435124337
 	local I6, I7, I8, I9, I10 = 97821283727781, 104624038900168, 84767858976240, 117993086220024, 81568891729334
+	local I11, I12, I13, I14, I15, I16, I17 = 115153572280504, 134070700021165, 74249351083442, 95973678135715, 91164599224585,
+		127876941649874, 85806895345522
 	local BEAT = 0.40816
 	local function beat(k: number): number return -1.85 + k * BEAT end
 	local function fx(id: number): any
@@ -4452,7 +4456,7 @@ do
 		{ t = 1.95, set = PRAY }, { t = 2.60, set = PRAY }, { t = 2.95, set = TOUCH }, { t = 3.70, set = TOUCH } })
 	holdW(I1, "RightHand", 0.05, 1.45, 0, 0, IN_R - 15)
 	holdW(I1, "LeftHand", 2.95, 3.70, 0, 0, IN_L + 10) holdW(I1, "RightHand", 2.95, 3.70, 0, 0, IN_R - 10)
-	lowerHold(I1, 0.00, 2.90)
+	lowerHold(I1, 0.00, 5.40) -- (2nd list: 0:02-0:06 too)
 	-- (the capture bends 40-54 degrees at 2.8-4.0; the video stands: upright from 2.6)
 	winS(I1, "upright", 2.60, 5.20, { ease = 0.25 }) winS(I1, "torsoUp", 2.60, 5.20, { ease = 0.25 })
 	bendS(I1, "Head", { { 3.90, 0, 0, 0 }, { 4.15, 22, 0, 0 }, { 4.95, 22, 0, 0 }, { 5.25, 0, 0, 0 } })
@@ -4482,10 +4486,11 @@ do
 	poseS(I3, 11.65, 13.00, 0.15, { { t = 11.80, set = FWDHI }, { t = 12.75, set = FWDHI } })
 	do
 		local L, R = { { 11.85, 0, 0, 0 } }, { { 11.85, 0, 0, 0 } }
-		for i = 0, 3 do
-			local t = 11.95 + i * 0.2
-			table.insert(L, { t, 0, 0, -25 }) table.insert(R, { t, 0, 0, 25 })
-			table.insert(L, { t + 0.1, -20, 0, 0 }) table.insert(R, { t + 0.1, -20, 0, 0 })
+		-- (2nd list: 0:11 팔 좌우로 빠르게 흔들기) both arms swing left and right together, 0.1 s a side
+		for i = 0, 7 do
+			local t = 11.95 + i * 0.1
+			local a = if i % 2 == 0 then 22 else -22
+			table.insert(L, { t, 0, a, 0 }) table.insert(R, { t, 0, a, 0 })
 		end
 		table.insert(L, { 12.85, 0, 0, 0 }) table.insert(R, { 12.85, 0, 0, 0 })
 		bendS(I3, "LeftUpperArm", L) bendS(I3, "RightUpperArm", R)
@@ -4496,17 +4501,31 @@ do
 		for k = 36, 39 do
 			local b = beat(k) - 0.09
 			table.insert(UT, { b, 0, 0, 10 * s })
-			table.insert(RL, { b, if s > 0 then 25 else 0, 0, 0 }) table.insert(RK, { b, if s > 0 then -45 else 0, 0, 0 })
+			-- (2nd list) left foot down while leaning left; leaning right the left foot lifts, the right stays down
+			table.insert(RL, { b, 0, 0, 0 }) table.insert(RK, { b, 0, 0, 0 })
 			table.insert(LL, { b, if s < 0 then 25 else 0, 0, 0 }) table.insert(LK, { b, if s < 0 then -45 else 0, 0, 0 })
 			s = -s
 		end
 		for _, k in ipairs({ UT, RL, RK, LL, LK }) do table.insert(k, { 14.30, 0, 0, 0 }) end
 		bendS(I3, "UpperTorso", UT) bendS(I3, "RightUpperLeg", RL) bendS(I3, "RightLowerLeg", RK)
 		bendS(I3, "LeftUpperLeg", LL) bendS(I3, "LeftLowerLeg", LK)
+		winS(I3, "still", 12.95, 14.00)
 	end
 	-- 0:14-0:17 다리 A자 고정, 팔 뒤로 교차한 채 뒤로 세 번 점프 (마지막에 측면으로), 손 등허리 · 다리 고정하고 허리 빠르게
 	-- 두 번 굽혔다 펴기 (then the ㄴ ㄱ hands and the arms forward stay as the capture has them)
-	poseS(I3, 12.90, 17.30, 0.2, { { t = 13.10, set = BACKX }, { t = 14.05, set = merge(BACKX, A_LEGS) }, { t = 17.05, set = merge(BACKX, A_LEGS) } })
+	do
+		local TUCK = { LeftUpperLeg = { 35, 0, -12 }, LeftLowerLeg = { -75, 0, 0 }, LeftFoot = { 35, 0, 12 },
+			RightUpperLeg = { 35, 0, 12 }, RightLowerLeg = { -75, 0, 0 }, RightFoot = { 35, 0, -12 } }
+		local keys = { { t = 13.10, set = BACKX }, { t = 13.85, set = merge(BACKX, A_LEGS) } }
+		for _, k in ipairs({ 39, 41, 43 }) do
+			table.insert(keys, { t = beat(k) - 0.12, set = merge(BACKX, A_LEGS) })
+			table.insert(keys, { t = beat(k), set = merge(BACKX, TUCK) })
+			table.insert(keys, { t = beat(k) + 0.14, set = merge(BACKX, A_LEGS) })
+		end
+		table.insert(keys, { t = 17.05, set = merge(BACKX, A_LEGS) })
+		poseS(I3, 12.90, 17.30, 0.2, keys)
+		winS(I3, "still", 15.95, 17.10)
+	end
 	for _, k in ipairs({ 39, 41, 43 }) do jumpS(I3, beat(k) - 0.14, beat(k) + 0.12, 0.6) end
 	addList(I3, "walk", { from = beat(39) - 0.15 - LOC[I3], to = beat(43) + 0.15 - LOC[I3], dist = 0.9, dir = 180 })
 	bendS(I3, "UpperTorso", { { 16.10, 0, 0, 0 }, { 16.30, -40, 0, 0 }, { 16.50, 0, 0, 0 }, { 16.70, -40, 0, 0 }, { 16.95, 0, 0, 0 } })
@@ -4533,27 +4552,32 @@ do
 		poseS(I4, 23.55, 25.40, 0.15, keys)
 	end
 	-- 0:26 왼발 한 걸음 앞으로, 다리 고정, 뒷짐 지고 허리 숙이기 / 0:27 허리 들 때 앞발 뒤로
-	poseS(I4, 25.70, 27.10, 0.25, { { t = 25.95, set = merge(BACKX, { LeftUpperLeg = { 28, 0, -4 }, LeftLowerLeg = { -8, 0, 0 }, LeftFoot = { -20, 0, 4 } }) },
-		{ t = 26.75, set = merge(BACKX, { LeftUpperLeg = { 28, 0, -4 }, LeftLowerLeg = { -8, 0, 0 }, LeftFoot = { -20, 0, 4 } }) } })
+	-- (2nd list: 0:26-0:29 오른쪽 다리 떨림, 왼팔 앞으로 뻗고 발 바닥 고정)
+	local ARMS26 = { LeftUpperArm = { 85, 0, 12 }, LeftLowerArm = { 0, 0, 0 }, RightUpperArm = { -131, 52, 90 }, RightLowerArm = { 94, 0, 0 } }
+	local LEGS26 = { LeftUpperLeg = { 28, 0, -4 }, LeftLowerLeg = { -8, 0, 0 }, LeftFoot = { -20, 0, 4 },
+		RightUpperLeg = { 0, 0, 4 }, RightLowerLeg = { -6, 0, 0 }, RightFoot = { 6, 0, -4 } }
+	poseS(I4, 25.70, 27.13, 0.25, { { t = 25.95, set = merge(ARMS26, LEGS26) }, { t = 27.13, set = merge(ARMS26, LEGS26) } })
 	bendS(I4, "UpperTorso", { { 25.85, 0, 0, 0 }, { 26.15, -40, 0, 0 }, { 26.70, -40, 0, 0 }, { 27.05, 0, 0, 0 } })
 	winS(I4, "still", 25.70, 27.10)
 	-- 0:28 왼발 옆으로 A자, 다리 고정, 허리만 숙여 크게 원 그리기
-	poseS(I5, 27.75, 29.90, 0.25, { { t = 28.00, set = A_LEGS }, { t = 29.65, set = A_LEGS } })
+	poseS(I5, 27.13, 29.90, 0.25, { { t = 27.40, set = merge(ARMS26, A_LEGS) }, { t = 29.65, set = merge(ARMS26, A_LEGS) } })
 	bendS(I5, "UpperTorso", { { 27.95, 0, 0, 0 }, { 28.30, -35, 0, 0 }, { 28.70, -15, 0, 30 }, { 29.10, 10, 0, 0 }, { 29.50, -15, 0, -30 }, { 29.80, 0, 0, 0 } })
-	winS(I5, "still", 27.75, 29.90)
+	winS(I5, "still", 27.13, 29.90)
 	-- 0:30 양팔 벌릴 때 손목 밖으로 까딱까딱 크게
 	for _, t in ipairs({ beat(77) - 0.09, beat(78) - 0.09, beat(79) - 0.09 }) do
 		flickW(I5, "LeftHand", t, 0, 0, OUT_L - 10) flickW(I5, "RightHand", t, 0, 0, OUT_R + 10)
 	end
-	-- 0:32 발 버벅거리는 거 그냥 가만히
-	lowerHold(I5, 31.55, 32.40)
-	-- (piece 6 blends in over 0:32: its legs held too, or the feet still moved 1.5 studs)
-	lowerHold(I6, 32.43, 33.00)
+	-- 0:32-0:33 (2nd list) 오른 다리 들 때 앞으로 무릎까지 쭉, 내리며 뒷걸음 두어 번
+	poseS(I5, 31.60, 32.43, 0.15, { { t = 31.85, set = { RightUpperLeg = { 65, 0, 4 }, RightLowerLeg = { 0, 0, 0 }, RightFoot = { 10, 0, 0 } } },
+		{ t = 32.05, set = { RightUpperLeg = { 65, 0, 4 }, RightLowerLeg = { 0, 0, 0 }, RightFoot = { 10, 0, 0 } } } })
+	addList(I6, "walk", { from = 32.45 - LOC[I6], to = 33.05 - LOC[I6], dist = 0.7, dir = 180 })
 	-- 0:33-0:35 위치 고정, 손목 겹쳐 X, 오른손목부터 안으로 까딱 크게 번갈아, 고개 왼쪽으로 꺾기 반복, 손목 꺾을 때 발도
 	-- 번갈아 들어 바닥 찍고 엉덩이 반대쪽으로
 	do
-		poseS(I6, 32.75, 35.95, 0.2, { { t = 33.00, set = XCROSS }, { t = 35.75, set = XCROSS } })
-		winS(I6, "still", 32.75, 35.95)
+		-- (2nd list: the forearms cross below the wrists, the hands just under the face, higher)
+		local XCROSS2 = { LeftUpperArm = { 18, -74, -18 }, LeftLowerArm = { 120, 0, 0 }, RightUpperArm = { 9, 72, 26 }, RightLowerArm = { 119, 0, 0 } }
+		poseS(I6, 32.95, 35.95, 0.2, { { t = 33.20, set = XCROSS2 }, { t = 35.75, set = XCROSS2 } })
+		winS(I6, "still", 33.05, 35.95)
 		local HD, LT, LL, LK, RL, RK = { { 32.95, 0, 0, 0 } }, { { 32.95, 0, 0, 0 } }, { { 32.95, 0, 0, 0 } }, { { 32.95, 0, 0, 0 } }, { { 32.95, 0, 0, 0 } }, { { 32.95, 0, 0, 0 } }
 		local right = true
 		for k = 86, 92 do
@@ -4562,8 +4586,9 @@ do
 			table.insert(HD, { b, 0, 0, 16 }) table.insert(HD, { b + 0.2, 0, 0, 0 })
 			-- the foot on that side lifts and stamps, the hips go out the other way
 			table.insert(LT, { b, 0, 0, if right then 7 else -7 })
-			table.insert(RL, { b, if right then 30 else 0, 0, 0 }) table.insert(RK, { b, if right then -50 else 0, 0, 0 })
-			table.insert(LL, { b, if right then 0 else 30, 0, 0 }) table.insert(LK, { b, if right then 0 else -50, 0, 0 })
+			-- (2nd list: both feet nearly fixed; the bending knee's heel only comes up)
+			table.insert(RL, { b, if right then 8 else 0, 0, 0 }) table.insert(RK, { b, if right then -22 else 0, 0, 0 })
+			table.insert(LL, { b, if right then 0 else 8, 0, 0 }) table.insert(LK, { b, if right then 0 else -22, 0, 0 })
 			table.insert(RL, { b + 0.2, 0, 0, 0 }) table.insert(RK, { b + 0.2, 0, 0, 0 })
 			table.insert(LL, { b + 0.2, 0, 0, 0 }) table.insert(LK, { b + 0.2, 0, 0, 0 })
 			right = not right
@@ -4586,48 +4611,66 @@ do
 	-- 0:44-0:48 약하게 점프하며 A자, 왼팔 들며 고개 왼쪽 > 엉덩이 오른쪽 · 상체 왼쪽 > 상체 세우며 얼굴 들기 >
 	-- (오른팔 드는 안무 그대로) 위치 고정 > 고개 오른쪽으로 빠르게 까딱까딱 > 위치 고정
 	jumpS(I7, 43.95, 44.20, 0.5)
-	poseS(I7, 44.10, 45.40, 0.2, { { t = 44.30, set = A_LEGS }, { t = 45.20, set = A_LEGS } })
+	poseS(I7, 44.10, 46.00, 0.2, { { t = 44.30, set = A_LEGS }, { t = 45.80, set = A_LEGS } })
+	winS(I7, "still", 44.25, 45.90)
 	bendS(I7, "Head", { { 44.05, 0, 0, 0 }, { 44.30, 0, 0, 18 }, { 44.75, 0, 0, 18 }, { 45.40, 18, 0, 0 }, { 45.90, 0, 0, 0 } })
 	bendS(I7, "LowerTorso", { { 44.70, 0, 0, 0 }, { 44.95, 0, 0, -8 }, { 45.30, 0, 0, 0 } })
 	bendS(I7, "UpperTorso", { { 44.70, 0, 0, 0 }, { 44.95, 0, 0, 16 }, { 45.30, 0, 0, 0 } })
 	winS(I7, "still", 45.90, 47.55)
 	bendS(I7, "Head", { { 46.55, 0, 0, 0 }, { 46.65, 0, 0, -16 }, { 46.80, 0, 0, 0 }, { 46.90, 0, 0, -16 }, { 47.05, 0, 0, 0 } })
 	winS(I8, "still", 47.55, 49.00)
-	-- 0:49-0:53 왼다리 고정 · 오른다리 옆으로 · 오른팔 뻗고 상체 오른쪽 > 왼팔 뒷짐, 오른팔 ㄴ, 오른다리 골반 높이까지 (사진)
-	-- 두 번 들었다 내리기, 손가락이 얼굴 쪽으로 손목 꺾기 > 다음 두 번은 손목 돌려 반대로 / 0:51 고개 왼쪽 꺾었다 세우기 > 같은 것
-	do
-		local DOWN = { RightUpperLeg = { 0, 0, 25 }, RightLowerLeg = { 0, 0, 0 }, RightFoot = { 0, 0, -25 } }
-		local UP = { RightUpperLeg = { 0, 0, 80 }, RightLowerLeg = { 0, 0, 0 }, RightFoot = { 0, 0, -20 } }
-		local keys = { { t = 49.10, set = merge(DOWN, { RightUpperArm = { 0, 0, 80 }, RightLowerArm = { 0, 0, 0 } }) },
-			{ t = 49.35, set = merge(DOWN, BACK_L, LSHAPE_R) } }
-		local W = { { 49.35, 0, 0, 0 } }
-		local lifts = { 126, 127, 128, 129, 132, 133, 134, 135 }
-		for i, k in ipairs(lifts) do
-			local b = beat(k) - 0.09
-			table.insert(keys, { t = b, set = merge(UP, BACK_L, LSHAPE_R) })
-			table.insert(keys, { t = b + 0.22, set = merge(DOWN, BACK_L, LSHAPE_R) })
-			local toFace = ((i - 1) % 4) < 2
-			table.insert(W, { b, 0, 0, if toFace then IN_R else OUT_R })
+	poseS(I8, 47.60, 49.05, 0.2, { { t = 47.80, set = { LeftUpperLeg = { 0, 0, -4 }, LeftLowerLeg = { -6, 0, 0 }, LeftFoot = { 6, 0, 4 } } },
+		{ t = 48.90, set = { LeftUpperLeg = { 0, 0, -4 }, LeftLowerLeg = { -6, 0, 0 }, LeftFoot = { 6, 0, 4 } } } })
+	-- 0:49-0:53 (and the same at 1:47-1:52, piece 16) 왼다리 고정 · 오른다리 옆으로 · 오른팔 뻗고 상체 오른쪽 > 왼팔 뒷짐,
+	-- 오른팔 ㄴ (2nd list: 아예 ㄴ 모양 되도록 더 들기), 오른다리 골반 높이까지 (사진) 박자마다: 0:49 / 0:52 손목 안으로 (손가락
+	-- 얼굴 쪽), 0:50 / 0:53 바깥으로; 0:51 고개 왼쪽 꺾었다 세우고 오른다리 뒤로 뻗어 발로 바닥 찍고 다시 앞으로
+	local LSHAPE2_R = { RightUpperArm = { 56, -26, 52 }, RightLowerArm = { 111, 0, 0 } }
+	local LEFT_STAND = { LeftUpperLeg = { 0, 0, -4 }, LeftLowerLeg = { -6, 0, 0 }, LeftFoot = { 6, 0, 4 } }
+	local function legSeq(id: number, kShift: number, gap: number)
+		-- gap = extra beats before the second set (0:49: 0, 1:47: 2)
+		local function bk(k: number): number return beat(k + kShift + (if k >= 130 then (if k >= 132 then gap else gap // 2) else 0)) end
+		local DOWN = merge(LEFT_STAND, { RightUpperLeg = { 0, 0, 25 }, RightLowerLeg = { 0, 0, 0 }, RightFoot = { 0, 0, -25 } })
+		local UP = merge(LEFT_STAND, { RightUpperLeg = { 0, 0, 80 }, RightLowerLeg = { 0, 0, 0 }, RightFoot = { 0, 0, -20 } })
+		local BACKTAP = merge(LEFT_STAND, { RightUpperLeg = { -35, 0, 6 }, RightLowerLeg = { 0, 0, 0 }, RightFoot = { 30, 0, 0 } })
+		local ARMS = merge(BACK_L, LSHAPE2_R)
+		local t0 = bk(125) - 0.15
+		local keys = { { t = t0, set = merge(DOWN, { RightUpperArm = { 0, 0, 80 }, RightLowerArm = { 0, 0, 0 } }) },
+			{ t = t0 + 0.25, set = merge(DOWN, ARMS) } }
+		local W = { { t0 + 0.25, 0, 0, 0 } }
+		for i, k in ipairs({ 126, 127, 128, 129, 132, 133, 134, 135 }) do
+			local b = bk(k) - 0.09
+			table.insert(keys, { t = b, set = merge(UP, ARMS) })
+			table.insert(keys, { t = b + 0.22, set = merge(DOWN, ARMS) })
+			table.insert(W, { b, 0, 0, if ((i - 1) % 4) < 2 then IN_R else OUT_R })
+			table.insert(W, { b + 0.35, 0, 0, if ((i - 1) % 4) < 2 then IN_R else OUT_R })
 		end
-		table.insert(W, { 53.60, 0, 0, 0 })
-		poseS(I8, 48.90, 53.70, 0.2, keys)
-		bendS(I8, "RightHand", W)
-		bendS(I8, "UpperTorso", { { 48.95, 0, 0, 0 }, { 49.20, 0, 0, -14 }, { 49.40, 0, 0, -6 }, { 53.55, 0, 0, -6 }, { 53.75, 0, 0, 0 } })
-		bendS(I8, "Head", { { 51.10, 0, 0, 0 }, { 51.30, 0, 0, 20 }, { 51.70, 0, 0, 20 }, { 51.95, 0, 0, 0 } })
-		winS(I8, "still", 48.90, 53.70)
+		-- the back tap between the sets (beats 130-131)
+		table.insert(keys, { t = bk(130) - 0.09, set = merge(BACKTAP, ARMS) })
+		table.insert(keys, { t = bk(131) - 0.09, set = merge(DOWN, ARMS) })
+		table.sort(keys, function(a, b) return a.t < b.t end)
+		table.sort(W, function(a, b) return a[1] < b[1] end)
+		local t1 = bk(135) + 0.45
+		table.insert(W, { t1 - 0.1, 0, 0, 0 })
+		poseS(id, t0 - 0.2, t1, 0.2, keys)
+		bendS(id, "RightHand", W)
+		bendS(id, "UpperTorso", { { t0 - 0.15, 0, 0, 0 }, { t0 + 0.1, 0, 0, -14 }, { t0 + 0.3, 0, 0, -6 }, { t1 - 0.15, 0, 0, -6 }, { t1 + 0.05, 0, 0, 0 } })
+		bendS(id, "Head", { { bk(130) - 0.3, 0, 0, 0 }, { bk(130) - 0.1, 0, 0, 20 }, { bk(131) - 0.1, 0, 0, 20 }, { bk(131) + 0.15, 0, 0, 0 } })
+		winS(id, "still", t0 - 0.2, t1)
 	end
-	-- 0:54 팔 교차하지 말고 각자 앞으로 팔꿈치 접고, 다리 나비 모양으로 무릎 접으며 크게 점프 두 번
+	legSeq(I8, 0, 0)
+	-- 0:54 (2nd list) 점프 두 번: 점프 사이에 무릎 펴서 바닥 밟았다가 다시 무릎 접고 점프
 	do
 		local BUTTERFLY = { LeftUpperLeg = { 30, 0, -30 }, LeftLowerLeg = { -75, 0, 0 }, RightUpperLeg = { 30, 0, 30 }, RightLowerLeg = { -75, 0, 0 } }
+		local STRAIGHT = { LeftUpperLeg = { 0, 0, -4 }, LeftLowerLeg = { 0, 0, 0 }, LeftFoot = { 0, 0, 4 }, RightUpperLeg = { 0, 0, 4 }, RightLowerLeg = { 0, 0, 0 }, RightFoot = { 0, 0, -4 } }
 		local keys = { { t = 53.90, set = FWDB } }
 		for _, k in ipairs({ 137, 139 }) do
 			local b = beat(k)
 			jumpS(I9, b - 0.18, b + 0.18, 1.3)
 			table.insert(keys, { t = b - 0.12, set = FWDB })
 			table.insert(keys, { t = b, set = merge(FWDB, BUTTERFLY) })
-			table.insert(keys, { t = b + 0.16, set = FWDB })
+			table.insert(keys, { t = b + 0.2, set = merge(FWDB, STRAIGHT) })
+			table.insert(keys, { t = b + 0.5, set = merge(FWDB, STRAIGHT) })
 		end
-		table.insert(keys, { t = beat(140), set = FWDB })
 		poseS(I9, 54.07, beat(140) + 0.2, 0.15, keys)
 	end
 	-- 0:56-0:57 다리 바꾸며 뛸 때마다 점프, 고개 오른쪽 > 반대 다리 들 때 왼쪽
@@ -4641,17 +4684,58 @@ do
 		table.insert(H, { beat(146), 0, 0, 0 })
 		bendS(I9, "Head", H)
 	end
-	-- 0:58-1:00 양팔 쭉 뻗은 채 회전, 고개 왼쪽으로 기울여 있기
-	poseS(I9, 57.85, 60.10, 0.2, { { t = 58.05, set = { LeftLowerArm = { 0, 0, 0 }, RightLowerArm = { 0, 0, 0 } } }, { t = 59.90, set = { LeftLowerArm = { 0, 0, 0 }, RightLowerArm = { 0, 0, 0 } } } })
-	bendS(I9, "Head", { { 57.85, 0, 0, 0 }, { 58.10, 0, 0, 18 }, { 59.85, 0, 0, 18 }, { 60.10, 0, 0, 0 } })
-	-- 1:00-1:03 한 바퀴 천천히, 정면쯤에서 다리 고정하고 상체 뒤로 기울였다 스무스하게, 팔꿈치 허리에 붙이고 접어 올린 채
-	poseS(I9, 60.00, 63.30, 0.25, { { t = 60.25, set = ELBOW }, { t = 63.10, set = ELBOW } })
-	lowerHold(I9, 61.30, 63.05)
-	bendS(I9, "UpperTorso", { { 61.40, 0, 0, 0 }, { 61.90, 25, 0, 0 }, { 62.30, 25, 0, 0 }, { 62.95, 0, 0, 0 } })
-	-- 1:04 손목 안으로 까딱까딱하며 목 부근에서 머리 끝까지
+	-- 0:57 (2nd list) 오른팔 뻗었다 접고 왼팔 뻗었다 접기
+	poseS(I9, 56.85, 57.95, 0.12, { { t = 57.05, set = { RightUpperArm = { 85, 0, -12 }, RightLowerArm = { 0, 0, 0 } } },
+		{ t = 57.30, set = { RightUpperArm = { -48, 42, 19 }, RightLowerArm = { 149, 0, 0 } } },
+		{ t = 57.50, set = { LeftUpperArm = { 85, 0, 12 }, LeftLowerArm = { 0, 0, 0 }, RightUpperArm = { -48, 42, 19 }, RightLowerArm = { 149, 0, 0 } } },
+		{ t = 57.75, set = { LeftUpperArm = { -48, -42, -19 }, LeftLowerArm = { 149, 0, 0 }, RightUpperArm = { -48, 42, 19 }, RightLowerArm = { 149, 0, 0 } } } })
+	-- 0:58 팔 쭉 뻗은 채 회전 · 발바닥 밟은 채 고정 · 고개 왼쪽 / 0:59 (2nd list) 다리 수직 · 상체만 숙임 > 오른발 고정, 양팔
+	-- 일자로 앞으로 > 오른발 떼고 다리 뻗으며 왼발 고정
+	do
+		local STAND2 = { LeftUpperLeg = { 0, 0, -4 }, LeftLowerLeg = { -4, 0, 0 }, LeftFoot = { 4, 0, 4 }, RightUpperLeg = { 0, 0, 4 }, RightLowerLeg = { -4, 0, 0 }, RightFoot = { 4, 0, -4 } }
+		local ST = { LeftLowerArm = { 0, 0, 0 }, RightLowerArm = { 0, 0, 0 } }
+		poseS(I9, 57.95, 60.10, 0.2, { { t = 58.10, set = merge(ST, STAND2) }, { t = 58.95, set = merge(ST, STAND2) },
+			{ t = 59.40, set = merge(EXT, STAND2) }, { t = 59.65, set = merge(EXT, STAND2) },
+			{ t = 59.90, set = merge(EXT, { LeftUpperLeg = { 0, 0, -4 }, LeftLowerLeg = { -4, 0, 0 }, LeftFoot = { 4, 0, 4 }, RightUpperLeg = { 35, 0, 6 }, RightLowerLeg = { 0, 0, 0 }, RightFoot = { 10, 0, 0 } }) } })
+		winS(I9, "still", 57.95, 60.10)
+		bendS(I9, "Head", { { 57.85, 0, 0, 0 }, { 58.10, 0, 0, 18 }, { 58.90, 0, 0, 18 }, { 59.15, 0, 0, 0 } })
+		bendS(I9, "UpperTorso", { { 58.95, 0, 0, 0 }, { 59.15, -30, 0, 0 }, { 59.35, -30, 0, 0 }, { 59.55, 0, 0, 0 } })
+	end
+	-- 1:00-1:03 (2nd list: 1:01 한 바퀴 돌다가 마는데 한 바퀴 돌기) the capture turns 193 degrees and back to 109: one even
+	-- whole turn from 60.1 to the front at 63.2; elbows on the waist; legs set (a freeze would stop the turn), then
+	-- 1:02 상체 뒤로 숙였다가 부드럽게 올라와 일자로
+	poseS(I9, 60.00, 63.35, 0.25, { { t = 60.25, set = ELBOW }, { t = 63.10, set = merge(ELBOW, { LeftUpperLeg = { 0, 0, -4 }, LeftLowerLeg = { -4, 0, 0 }, LeftFoot = { 4, 0, 4 }, RightUpperLeg = { 0, 0, 4 }, RightLowerLeg = { -4, 0, 0 }, RightFoot = { 4, 0, -4 } }) } })
+	-- (put first: D-2071's two spins on this piece (its turn there and back) matched first and the turn went back;
+	-- `turns` 1 = one turn the capture's own way round (Play: -1 turned +343 degrees, -3 +1064, so +1 = -377))
+	do
+		local f = fx(I9)
+		local list = if f.spin == nil then {} elseif f.spin.from then { f.spin } else table.clone(f.spin)
+		table.insert(list, 1, { from = 60.10 - LOC[I9], to = 63.20 - LOC[I9], turns = 1, ease = "both" })
+		f.spin = list
+	end
+	winS(I9, "still", 60.00, 63.35)
+	bendS(I9, "UpperTorso", { { 61.90, 0, 0, 0 }, { 62.40, 25, 0, 0 }, { 62.70, 25, 0, 0 }, { 63.25, 0, 0, 0 } })
+	-- 1:04 손목 안으로 까딱까딱하며 목 부근에서 머리 끝까지 (2nd list: 상체 뒤로 기울지 않게 똑바로 서서 앞으로 걸어가기)
 	poseS(I10, 63.45, 65.30, 0.45, { { t = 63.65, set = NECK }, { t = 64.70, set = TOP } })
 	for k = 160, 162 do
 		flickW(I10, "LeftHand", beat(k) - 0.09, 0, 0, IN_L) flickW(I10, "RightHand", beat(k) - 0.09, 0, 0, IN_R)
+	end
+	addList(I10, "walk", { from = 63.55 - LOC[I10], to = 64.85 - LOC[I10], dist = 1.2 })
+	winS(I10, "upright", 63.45, 66.75, { ease = 0.25 }) winS(I10, "torsoUp", 63.45, 66.75, { ease = 0.25 })
+	-- 1:05 상체 일자, 발 위치 고정: 왼다리 쭉 펴고 바닥 고정, 오른다리 무릎 살짝 굽혀 발꿈치 들기 / 1:06 무릎 굽히는 다리만 번갈아
+	do
+		local LSTR = { LeftUpperLeg = { 0, 0, -4 }, LeftLowerLeg = { 0, 0, 0 }, LeftFoot = { 0, 0, 4 } }
+		local RSTR = { RightUpperLeg = { 0, 0, 4 }, RightLowerLeg = { 0, 0, 0 }, RightFoot = { 0, 0, -4 } }
+		local LBENT = { LeftUpperLeg = { 12, 0, -4 }, LeftLowerLeg = { -28, 0, 0 }, LeftFoot = { -5, 0, 4 } }
+		local RBENT = { RightUpperLeg = { 12, 0, 4 }, RightLowerLeg = { -28, 0, 0 }, RightFoot = { -5, 0, -4 } }
+		local keys = { { t = 65.05, set = merge(LSTR, RBENT) } }
+		local right = true
+		for k = 164, 167 do
+			table.insert(keys, { t = beat(k) - 0.09, set = if right then merge(LSTR, RBENT) else merge(RSTR, LBENT) })
+			right = not right
+		end
+		poseS(I10, 64.85, 66.70, 0.2, keys)
+		winS(I10, "still", 64.85, 66.70)
 	end
 	-- 1:06 왼쪽 손목 두 바퀴
 	bendS(I10, "LeftHand", wristCircles(65.65, 66.45, 0.40, 40))
@@ -4667,11 +4751,155 @@ do
 			table.insert(keys, { t = b, set = set })
 			table.insert(keys, { t = b + 0.25, set = set })
 		end
-		poseS(I10, beat(168) - 0.35, beat(171) + 0.55, 0.15, keys)
+		poseS(I10, beat(168) - 0.35, beat(171) + 0.25, 0.15, keys)
 		holdW(I10, "LeftHand", beat(168) - 0.09, beat(169) + 0.2, 0, 0, IN_L)
 		holdW(I10, "RightHand", beat(168) - 0.09, beat(169) + 0.2, 0, 0, IN_R)
-		winS(I10, "still", beat(168) - 0.35, beat(171) + 0.55)
+		winS(I10, "still", beat(168) - 0.35, beat(171) + 0.25)
 	end
+
+	-- (2nd list, 1:08-1:54) arm sets solved the same way
+	local GRAB = { LeftUpperArm = { -66, -60, -101 }, LeftLowerArm = { 112, 0, 0 }, RightUpperArm = { -66, 81, 90 }, RightLowerArm = { 91, 0, 0 } }
+	local KNEES = { LeftUpperArm = { 21, -28, 15 }, LeftLowerArm = { 0, 0, 0 }, RightUpperArm = { 21, 28, -15 }, RightLowerArm = { 0, 0, 0 } }
+	local ARMSMID = { LeftUpperArm = { 52, -30, -18 }, LeftLowerArm = { 101, 0, 0 }, RightUpperArm = { 52, 30, 18 }, RightLowerArm = { 101, 0, 0 } }
+	local ARMSUP = { LeftUpperArm = { 124, -52, -18 }, LeftLowerArm = { 32, 0, 0 }, RightUpperArm = { 124, 52, 18 }, RightLowerArm = { 32, 0, 0 } }
+	local NECKBACK = { LeftUpperArm = { 36, -41, -78 }, LeftLowerArm = { 150, 0, 0 }, RightUpperArm = { 36, 41, 78 }, RightLowerArm = { 150, 0, 0 } }
+	local LSIDE = { LeftUpperArm = { 0, 0, -80 }, LeftLowerArm = { 0, 0, 0 } }
+	local RSHOULDER_L = { RightUpperArm = { 21, 98, 6 }, RightLowerArm = { 111, 0, 0 } }
+	local SWEEP1_L = { LeftUpperArm = { -65, -45, -62 }, LeftLowerArm = { 145, 0, 0 } }
+	local SWEEP2_L = { LeftUpperArm = { -78, -38, -75 }, LeftLowerArm = { 105, 0, 0 } }
+	local LUP_L = { LeftUpperArm = { 59, -26, -29 }, LeftLowerArm = { 100, 0, 0 } }
+	local LCHEEKR = { LeftUpperArm = { 82, -75, 36 }, LeftLowerArm = { 118, 0, 0 } }
+	local FACEUP_L = { LeftUpperArm = { 25, -39, -19 }, LeftLowerArm = { 129, 0, 0 } }
+	local FACEUP_R = { RightUpperArm = { 25, 39, 19 }, RightLowerArm = { 129, 0, 0 } }
+	local FACEDN_L = { LeftUpperArm = { -48, -38, -26 }, LeftLowerArm = { 142, 0, 0 } }
+	local FACEDN_R = { RightUpperArm = { -48, 38, 26 }, RightLowerArm = { 142, 0, 0 } }
+	local PHOTO2 = { LeftUpperArm = { -40, -28, -80 }, LeftLowerArm = { 130, 0, 0 }, RightUpperArm = { -40, 28, 80 }, RightLowerArm = { 130, 0, 0 } }
+	local DNFWD_L = { LeftUpperArm = { 0, -48, -15 }, LeftLowerArm = { 38, 0, 0 } }
+	local DNFWD_R = { RightUpperArm = { 0, 48, 15 }, RightLowerArm = { 38, 0, 0 } }
+	local SHUP = { LeftUpperArm = { 25, -10, -32 }, LeftLowerArm = { 144, 0, 0 }, RightUpperArm = { 25, 10, 32 }, RightLowerArm = { 144, 0, 0 } }
+	local XDOWN = { LeftUpperArm = { -86, -62, -99 }, LeftLowerArm = { 75, 0, 0 }, RightUpperArm = { -79, 64, 91 }, RightLowerArm = { 76, 0, 0 } }
+	local TEMPLE = { LeftUpperArm = { 29, -5, -66 }, LeftLowerArm = { 141, 0, 0 }, RightUpperArm = { 28, 2, 69 }, RightLowerArm = { 141, 0, 0 } }
+	local ESIDE_R = { RightUpperArm = { -20, -55, -30 }, RightLowerArm = { 81, 0, 0 } }
+	local EFRONT_R = { RightUpperArm = { -28, 14, 10 }, RightLowerArm = { 90, 0, 0 } }
+	local ESIDE_L = { LeftUpperArm = { -20, 55, 30 }, LeftLowerArm = { 81, 0, 0 } }
+	local EFRONT_L = { LeftUpperArm = { -29, -15, -14 }, LeftLowerArm = { 89, 0, 0 } }
+	local STRAIGHT = { LeftUpperLeg = { 0, 0, -4 }, LeftLowerLeg = { -4, 0, 0 }, LeftFoot = { 4, 0, 4 }, RightUpperLeg = { 0, 0, 4 }, RightLowerLeg = { -4, 0, 0 }, RightFoot = { 4, 0, -4 } }
+	local HIP_L = { LeftUpperArm = { -94, -15, -72 }, LeftLowerArm = { 88, 0, 0 } }
+	local HIP_R = { RightUpperArm = { -94, 15, 72 }, RightLowerArm = { 88, 0, 0 } }
+
+	-- 1:08 오른손으로 왼 팔꿈치 잡기, 오른발 바닥 고정, 왼다리 앞으로 쭉, 왼 손목 바깥으로 꺾었다가 안으로
+	poseS(I10, 67.95, 69.05, 0.2, { { t = 68.15, set = merge(GRAB, { LeftUpperLeg = { 35, 0, -4 }, LeftLowerLeg = { 0, 0, 0 }, LeftFoot = { 10, 0, 4 } }) },
+		{ t = 68.85, set = merge(GRAB, { LeftUpperLeg = { 35, 0, -4 }, LeftLowerLeg = { 0, 0, 0 }, LeftFoot = { 10, 0, 4 } }) } })
+	bendS(I10, "LeftHand", { { 68.15, 0, 0, 0 }, { 68.30, 0, 0, OUT_L }, { 68.55, 0, 0, OUT_L }, { 68.70, 0, 0, IN_L }, { 68.90, 0, 0, IN_L }, { 69.05, 0, 0, 0 } })
+	winS(I10, "still", 67.95, 69.05)
+	-- 1:09 45도 돌기 · 왼발 오른발 옆에 붙이고 무릎 살짝 · 양손 무릎 위로 쭉 > 양손 가슴 위로 올리며 오른다리 뒤로 뻗어 바닥 짚기,
+	-- 두 번 더 하며 팔 위로 쭉, 손목은 안쪽으로
+	do
+		local TOGETHER = { LeftUpperLeg = { 12, 0, 0 }, LeftLowerLeg = { -24, 0, 0 }, LeftFoot = { 12, 0, 0 }, RightUpperLeg = { 12, 0, 0 }, RightLowerLeg = { -24, 0, 0 }, RightFoot = { 12, 0, 0 } }
+		local RBACK = { LeftUpperLeg = { 12, 0, 0 }, LeftLowerLeg = { -24, 0, 0 }, LeftFoot = { 12, 0, 0 }, RightUpperLeg = { -35, 0, 6 }, RightLowerLeg = { 0, 0, 0 }, RightFoot = { 30, 0, 0 } }
+		local keys = { { t = 69.25, set = merge(KNEES, TOGETHER) }, { t = 69.75, set = merge(KNEES, TOGETHER) } }
+		local arms = { CHEST, ARMSMID, ARMSUP }
+		for i, k in ipairs({ 177, 179, 181 }) do
+			local b = beat(k) - 0.09
+			table.insert(keys, { t = b, set = merge(arms[i], RBACK) })
+			table.insert(keys, { t = b + 0.4, set = merge(arms[i], TOGETHER) })
+		end
+		poseS(I10, 69.05, 72.40, 0.2, keys)
+		bendS(I10, "UpperTorso", { { 69.05, 0, 0, 0 }, { 69.30, -20, 0, 0 }, { 69.75, -20, 0, 0 }, { 70.10, 0, 0, 0 } })
+		bendS(I10, "LowerTorso", { { 69.00, 0, 0, 0 }, { 69.25, 0, 45, 0 }, { 72.20, 0, 45, 0 }, { 72.50, 0, 0, 0 } })
+		holdW(I10, "LeftHand", 70.10, 72.20, 0, 0, IN_L) holdW(I10, "RightHand", 70.10, 72.20, 0, 0, IN_R)
+		winS(I10, "still", 69.05, 72.40)
+	end
+	-- 1:12 앞으로 걸어가며 양손바닥으로 뒷목 감싸고 팔 내리며 정면
+	poseS(I10, 72.30, 73.23, 0.2, { { t = 72.55, set = NECKBACK }, { t = 72.95, set = NECKBACK } })
+	addList(I10, "walk", { from = 72.35 - LOC[I10], to = 73.20 - LOC[I10], dist = 0.9 })
+	-- 1:14-1:17 오른다리 벌려 A자, 엉덩이 왼쪽, 왼팔 옆으로 쭉, 오른손바닥 머리 위, 고개 왼쪽 > 무릎 굽혀 몸 내려가며 왼팔은 몸 따라
+	-- 내려오기만, 오른손 왼쪽 어깨 위로 > 엉덩이 가운데 · 몸 세우고 오른팔 내리고 왼손으로 가슴부터 쓸어내리기 > 양발 가운데로 모아
+	-- 고정, 무릎 굽혀 상체 살짝 앞으로, 왼팔 들며 손목 돌리기 (1:16 세 바퀴 빠르게), 고개 왼쪽 > 1:17 왼손으로 오른쪽 볼 감싸기
+	do
+		local AWIDE = { LeftUpperLeg = { 0, 0, -6 }, LeftLowerLeg = { -4, 0, 0 }, LeftFoot = { 4, 0, 6 }, RightUpperLeg = { 0, 0, 18 }, RightLowerLeg = { -4, 0, 0 }, RightFoot = { 4, 0, -18 } }
+		local ABENT = { LeftUpperLeg = { 18, 0, -6 }, LeftLowerLeg = { -36, 0, 0 }, LeftFoot = { 18, 0, 6 }, RightUpperLeg = { 18, 0, 18 }, RightLowerLeg = { -36, 0, 0 }, RightFoot = { 18, 0, -18 } }
+		local TOG = { LeftUpperLeg = { 16, 0, 0 }, LeftLowerLeg = { -32, 0, 0 }, LeftFoot = { 16, 0, 0 }, RightUpperLeg = { 16, 0, 0 }, RightLowerLeg = { -32, 0, 0 }, RightFoot = { 16, 0, 0 } }
+		poseS(I11, 73.30, 77.80, 0.2, {
+			{ t = 73.60, set = merge(LSIDE, HEADTOP_R, AWIDE) }, { t = 74.30, set = merge(LSIDE, HEADTOP_R, AWIDE) },
+			{ t = 74.75, set = merge(LSIDE, RSHOULDER_L, ABENT), move = { LowerTorso = { 0, -0.25, 0 } } },
+			{ t = 75.10, set = merge(LSIDE, RSHOULDER_L, ABENT), move = { LowerTorso = { 0, -0.25, 0 } } },
+			{ t = 75.40, set = merge(SWEEP1_L, AWIDE) }, { t = 75.75, set = merge(SWEEP2_L, AWIDE) },
+			{ t = 76.05, set = merge(LUP_L, TOG) }, { t = 76.75, set = merge(LUP_L, TOG) },
+			{ t = 77.05, set = merge(LCHEEKR, TOG) }, { t = 77.55, set = merge(LCHEEKR, TOG) } })
+		bendS(I11, "LowerTorso", { { 73.35, 0, 0, 0 }, { 73.60, 0, 0, 8 }, { 75.10, 0, 0, 8 }, { 75.40, 0, 0, 0 } })
+		bendS(I11, "Head", { { 73.35, 0, 0, 0 }, { 73.60, 0, 0, 18 }, { 74.60, 0, 0, 18 }, { 74.90, 0, 0, 0 }, { 75.90, 0, 0, 0 }, { 76.10, 0, 0, 18 }, { 76.80, 0, 0, 18 }, { 77.05, 0, 0, 0 } })
+		bendS(I11, "UpperTorso", { { 75.85, 0, 0, 0 }, { 76.05, -15, 0, 0 }, { 76.80, -15, 0, 0 }, { 77.05, 0, 0, 0 } })
+		bendS(I11, "LeftHand", wristCircles(76.05, 76.70, 0.22, 40))
+		winS(I11, "still", 73.30, 77.80)
+	end
+	-- 1:18 앞으로 걸어가며 손등 보인 채 (사진 1) 양팔 위아래 번갈아
+	do
+		local keys = {}
+		for i, k in ipairs({ 196, 197, 198, 199 }) do
+			table.insert(keys, { t = beat(k) - 0.09, set = if i % 2 == 1 then merge(FACEUP_L, FACEDN_R) else merge(FACEDN_L, FACEUP_R) })
+		end
+		poseS(I12, 78.15, 79.75, 0.15, keys)
+		addList(I12, "walk", { from = 78.20 - LOC[I12], to = 79.60 - LOC[I12], dist = 1.0 })
+		holdW(I12, "LeftHand", 78.30, 79.55, 0, 0, OUT_L) holdW(I12, "RightHand", 78.30, 79.55, 0, 0, OUT_R)
+	end
+	-- 1:20 오른 손목 빠르게 세 바퀴
+	bendS(I12, "RightHand", wristCircles(80.00, 80.75, 0.25, 40))
+	-- 1:21 왼팔 위아래 들썩이는 거 위로 고정하고 옆으로만
+	do
+		local keys, s = {}, 1
+		for k = 203, 205 do table.insert(keys, { t = beat(k) - 0.09, set = { LeftUpperArm = { 59, -26 + 18 * s, -29 }, LeftLowerArm = { 100, 0, 0 } } }) s = -s end
+		poseS(I12, 80.85, 82.05, 0.2, keys)
+	end
+	-- 1:22 왼팔꿈치 접은 채, 오른팔 앞 아래로 뻗어 내렸다 팔꿈치 접으며 1:23 자세 (사진 2) / 1:23 왼팔 앞 아래로 내렸다가 크게
+	-- 돌려 사진 2 자세로
+	poseS(I12, 82.05, 83.87, 0.2, { { t = 82.30, set = merge(PHOTO2, DNFWD_R) }, { t = 82.70, set = PHOTO2 }, { t = 83.20, set = merge(PHOTO2, DNFWD_L) },
+		{ t = 83.50, set = merge(PHOTO2, { LeftUpperArm = { 0, 0, -150 }, LeftLowerArm = { 20, 0, 0 } }) }, { t = 83.80, set = PHOTO2 } })
+	-- 1:25 팔 더 위로 · 교차 없이 앞으로 뻗었다 어깨 위로 손, 왼발 앞으로 밟고 오른발 붙이며 앞으로 / 1:26 팔 아래로 교차하며 내리기
+	poseS(I13, 84.80, 86.70, 0.2, { { t = 85.05, set = EXT }, { t = 85.45, set = SHUP }, { t = 85.90, set = SHUP }, { t = 86.40, set = XDOWN } })
+	addList(I13, "walk", { from = 84.95 - LOC[I13], to = 86.00 - LOC[I13], dist = 1.0 })
+	-- 1:27 손바닥으로 양 관자놀이 잡고 머리 돌리기, 발 고정
+	poseS(I13, 86.80, 88.80, 0.2, { { t = 87.00, set = TEMPLE }, { t = 88.55, set = TEMPLE } })
+	bendS(I13, "Head", { { 87.00, 0, 0, 0 }, { 87.25, -15, 0, 0 }, { 87.55, 0, 0, 18 }, { 87.85, 15, 0, 0 }, { 88.15, 0, 0, -18 }, { 88.45, 0, 0, 0 } })
+	lowerHold(I13, 86.80, 88.80)
+	-- 1:31 / 1:34 발 다리 고정, 상체만 앞으로 숙였다 올리기 / 1:35 상체만 회전
+	lowerHold(I13, 90.90, 92.10)
+	bendS(I13, "UpperTorso", { { 91.00, 0, 0, 0 }, { 91.35, -35, 0, 0 }, { 91.65, -35, 0, 0 }, { 92.00, 0, 0, 0 } })
+	lowerHold(I14, 93.90, 96.60)
+	bendS(I14, "UpperTorso", { { 94.00, 0, 0, 0 }, { 94.35, -35, 0, 0 }, { 94.65, -35, 0, 0 }, { 95.00, 0, 0, 0 }, { 95.35, 0, 30, 0 }, { 95.85, 0, -30, 0 }, { 96.45, 0, 0, 0 } })
+	-- 1:37 오른손 위로 들썩들썩
+	bendS(I14, "RightUpperArm", { { 96.75, 0, 0, 0 }, { beat(242) - 0.09, 0, 0, 20 }, { beat(242) + 0.12, 0, 0, 0 }, { beat(243) - 0.09, 0, 0, 20 }, { beat(243) + 0.12, 0, 0, 0 } })
+	-- 1:38 (사진 3) 오른팔 ㄴ, 팔꿈치 허리에 붙이고 손을 옆 → 정면으로 회전, 오른다리 ㄱ 모양으로 들기, 왼발 · 다리 고정, 어깨 들썩
+	-- > 왼쪽으로 같은 것 (piece 15 from 98.50)
+	do
+		local RLEG = { RightUpperLeg = { 45, 0, 40 }, RightLowerLeg = { -100, 0, 0 }, RightFoot = { 20, 0, -20 }, LeftUpperLeg = { 0, 0, -4 }, LeftLowerLeg = { -4, 0, 0 }, LeftFoot = { 4, 0, 4 } }
+		local LLEG = { LeftUpperLeg = { 45, 0, -40 }, LeftLowerLeg = { -100, 0, 0 }, LeftFoot = { 20, 0, 20 }, RightUpperLeg = { 0, 0, 4 }, RightLowerLeg = { -4, 0, 0 }, RightFoot = { 4, 0, -4 } }
+		local keys, UT = {}, { { 98.55, 0, 0, 0 } }
+		for i, k in ipairs({ 246, 247, 248, 249 }) do
+			local b = beat(k) - 0.09
+			table.insert(keys, { t = b, set = merge(HIP_L, if i % 2 == 1 then ESIDE_R else EFRONT_R, RLEG) })
+			table.insert(UT, { b, 0, 0, 0 }) table.insert(UT, { b + 0.12, 0, 0, 0 })
+		end
+		for i, k in ipairs({ 251, 252, 253, 254 }) do
+			local b = beat(k) - 0.09
+			table.insert(keys, { t = b, set = merge(HIP_R, if i % 2 == 1 then ESIDE_L else EFRONT_L, LLEG) })
+		end
+		poseS(I15, 98.55, beat(254) + 0.35, 0.2, keys)
+		-- the shoulders bounce on each beat
+		local L, R = { { 98.60, 0, 0, 0 } }, { { 98.60, 0, 0, 0 } }
+		for k = 246, 254 do
+			table.insert(L, { beat(k) - 0.09, 0, 0, -8 }) table.insert(R, { beat(k) - 0.09, 0, 0, 8 })
+			table.insert(L, { beat(k) + 0.1, 0, 0, 0 }) table.insert(R, { beat(k) + 0.1, 0, 0, 0 })
+		end
+		bendS(I15, "LeftUpperArm", L) bendS(I15, "RightUpperArm", R)
+		winS(I15, "still", 98.55, beat(254) + 0.35)
+	end
+	-- 1:44 발과 다리 고정
+	lowerHold(I15, 103.60, 104.70)
+	-- 1:47-1:48 / 1:51-1:52 = 0:49-0:53 (the video: kicks at 107.6-109.0 and 110.8-112.2)
+	legSeq(I16, 142, 2)
+	-- 1:54 무릎 접을 때마다 점프
+	for _, k in ipairs({ 285, 286, 287, 288 }) do jumpS(I17, beat(k) - 0.12, beat(k) + 0.10, 0.6) end
 end
 
 return M
