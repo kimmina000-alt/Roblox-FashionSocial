@@ -591,6 +591,8 @@ local function turnHips(joint: Motor6D | AnimationConstraint, tracks: {Animation
 					elseif spin.ease == "out" then f * (2 - f)
 					else f * f * (2 - f)
 				local yaw = a + (b - a) * e
+				-- (D-2081) a spin inside a `mirror` stretch turns the mirrored way
+				if spin.mirror then yaw = -yaw end
 				local tilt, _, roll = joint.Transform:ToEulerAnglesYXZ()
 				joint.Transform = CFrame.new(joint.Transform.Position) * CFrame.fromEulerAnglesYXZ(tilt, yaw, roll)
 				spinMemory[joint] = { yaw = yaw, id = id, at = os.clock() }
@@ -791,6 +793,36 @@ RunService.PreSimulation:Connect(function(dt)
 					for part, j in pairs(joints) do
 						local other = poses[ChoreoSmooth.otherSide(part)]
 						if other then j.Transform = ChoreoSmooth.mirrorPose(other) end
+					end
+				end
+				-- (D-2081, user 2026-11-24 Abracadabra "1:28-1:30 좌우 반전") a piece's ChoreoFixes
+				-- `mirror = { { from, to, ease } }` (piece seconds): its pose seen in a mirror over
+				-- that stretch, eased in and out over `ease` s (0.2 if not given); over a seam both
+				-- pieces carry a window and the larger one counts (mirrored once, before the
+				-- smoothing and the pose fixes, so those land on the mirrored pose)
+				do
+					local w = 0
+					for _, t in ipairs(choreo) do
+						local fx = t.Animation and ChoreoSmooth.fixes(t.Animation.AnimationId)
+						local list = fx and fx.mirror
+						if list and t.WeightCurrent > 0.01 then
+							local tp = t.TimePosition
+							for _, m in ipairs(if list.from then { list } else list) do
+								local e = m.ease or 0.2
+								w = math.max(w, math.clamp(math.min((tp - m.from) / e, (m.to - tp) / e), 0, 1))
+							end
+						end
+					end
+					do
+						if w > 0.001 then
+							local joints = bodyJoints(character)
+							local poses = {}
+							for part, j in pairs(joints) do poses[part] = j.Transform end
+							for part, j in pairs(joints) do
+								local other = poses[ChoreoSmooth.otherSide(part)]
+								if other then j.Transform = poses[part]:Lerp(ChoreoSmooth.mirrorPose(other), w) end
+							end
+						end
 					end
 				end
 				if p == player and following then moveAlong(character, joint, choreo, dt) end

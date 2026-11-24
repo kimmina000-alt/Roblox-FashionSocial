@@ -4843,4 +4843,292 @@ do
 	for _, k in ipairs({ 285, 286, 287, 288 }) do jumpS(I17, beat(k) - 0.12, beat(k) + 0.10, 0.6) end
 end
 
+
+-- (D-2081, user 2026-11-24, Abracadabra-Brown Eyed Girls list 0:00-3:00) Abracadabra fixes. Times are SONG seconds (play bar);
+-- piece seconds = song - (at - from) (AT below). Beats: 128 bpm, song 1.90 + k x 0.46875 (centercut beats.json, video = song - 1.50).
+-- Arm sets solved on the avatar's own joints (FK in Studio, UpperTorso space): hands behind the back, right hand behind the
+-- head, hand on the hip, hand on the knee, the back of the left hand on the right cheek, A arms, hands on the knees, arms
+-- over the head, the left arm straight up / forward / out to the side, the side fold, the right arm forward and folded,
+-- the crossed arms of 0:18 (two sways). Wrist words as before: 한 바퀴 = wristCircles, 반 바퀴 = wristFlip, 까딱 = a flick.
+-- 0:23-0:26 (repeat 0:18-0:20 with a turn): piece 2 plays its 0:18 stretch again at 0:23-0:24.4 (warp); piece 3's first
+-- 1.6 s are the crossed-arm sway of 0:18 (two sets, a beat apart) with one even turn (spin fromPrev). The turn sits in
+-- piece 3 only: fixes read the animation's own clock, so a spin inside the warp would also play at 0:18.
+-- The stand at 0:00: ClubPlaylist slowIn { 1.5, 1.5 } on piece 1 (song 0-3 plays its first 1.5 s) and one pose window.
+-- 1:28-1:30 좌우 반전 = ChoreoFixes `mirror` (ChoreoController, new). 2:17-2:34 (다른 영상) waits for the user's pick.
+do
+	local AT = {
+		[84948460478681] = 1.50, [72165996918532] = 13.13, [83771706051102] = 24.40, [83548904337256] = 31.91,
+		[107558817738930] = 40.29, [124285508228695] = 43.14, [127350473391000] = 46.90, [95176358593151] = 56.79,
+		[75507263939428] = 61.89, [124742189184260] = 69.40, [71153555401783] = 80.66, [77087314935776] = 84.38,
+		[81797984882504] = 88.14, [87766782876540] = 97.29, [121801747843762] = 106.91, [119374607813624] = 113.86,
+		[94834101789323] = 121.90, [84986038812006] = 132.06, [137196704822292] = 136.89, [72143183459414] = 142.32,
+		[137870501620877] = 151.91, [130683944486771] = 159.39, [138548853009311] = 166.90, [75956008247672] = 175.55,
+	}
+	local ORDER = {}
+	for id, at in pairs(AT) do table.insert(ORDER, { id = id, at = at }) end
+	table.sort(ORDER, function(a, b) return a.at < b.at end)
+	-- the piece playing at song second t
+	local function pc(t: number): number
+		local id = ORDER[1].id
+		for _, o in ipairs(ORDER) do if o.at <= t + 1e-6 then id = o.id end end
+		return id
+	end
+	local A1, A2, A3 = 84948460478681, 72165996918532, 83771706051102
+	local function beat(k: number): number return 1.90 + k * 0.46875 end
+	local function fx(id: number): any
+		local f = M.ChoreoFixes[id] or {}
+		M.ChoreoFixes[id] = f
+		return f
+	end
+	local function addList(id: number, key: string, item: any)
+		local f = fx(id)
+		local list = if f[key] == nil then {} elseif f[key].from then { f[key] } else table.clone(f[key])
+		table.insert(list, item)
+		f[key] = list
+	end
+	-- every piece that plays during song seconds a..b: its own stretch and the next piece's first second (the
+	-- seams cross-fade, and a fix counts by its piece's weight: on one piece only it showed at half strength)
+	local function pieces(a: number, b: number): { number }
+		local out = {}
+		for i, o in ipairs(ORDER) do
+			local nextAt = if ORDER[i + 1] then ORDER[i + 1].at else math.huge
+			if a < nextAt + 1.0 and b > o.at then table.insert(out, o.id) end
+		end
+		return out
+	end
+	-- song-time keys { t, x, y, z } -> piece time
+	local function bendS(part: string, keys: any, id: number?)
+		for _, pid in ipairs(if id then { id } else pieces(keys[1][1], keys[#keys][1])) do
+			local out = {}
+			for _, k in ipairs(keys) do table.insert(out, { k[1] - AT[pid], k[2], k[3], k[4] }) end
+			local f = fx(pid)
+			f.bend = f.bend or {}
+			table.insert(f.bend, { part = part, keys = out })
+		end
+	end
+	local function poseS(from: number, to: number, ease: number, keys: any, id: number?)
+		for _, pid in ipairs(if id then { id } else pieces(from, to)) do
+			local out = {}
+			for _, k in ipairs(keys) do
+				local c = table.clone(k)
+				c.t = k.t - AT[pid]
+				table.insert(out, c)
+			end
+			addList(pid, "pose", { from = from - AT[pid], to = to - AT[pid], ease = ease, keys = out })
+		end
+	end
+	local function winS(key: string, from: number, to: number, extra: any?, id: number?)
+		local pid = id or pc(from)
+		local item = { from = from - AT[pid], to = to - AT[pid] }
+		for k, v in pairs(extra or {}) do item[k] = v end
+		addList(pid, key, item)
+	end
+	local function merge(...): any
+		local out = {}
+		for _, t in ipairs({ ... }) do for k, v in pairs(t) do out[k] = v end end
+		return out
+	end
+	local function circle(part: string, t0: number, t1: number, n: number?)
+		local per = (t1 - t0) / (n or 1)
+		bendS(part, wristCircles(t0, t1, per, 40))
+	end
+	-- a set held from t0 to t1, eased in / out over e (one pose window)
+	local function hold(t0: number, t1: number, set: any, e: number?)
+		local ee = e or 0.15
+		poseS(t0 - ee, t1 + ee, ee, { { t = t0, set = set }, { t = t1, set = set } })
+	end
+	local IN_L, IN_R = 45, -45
+
+	-- arm sets (FK in Studio, UpperTorso space: x right, y up, z forward)
+	local BACKX = { LeftUpperArm = { -129, -54, -91 }, LeftLowerArm = { 91, 0, 0 }, RightUpperArm = { -131, 52, 90 }, RightLowerArm = { 94, 0, 0 } }
+	local HEADTOP_R = { RightUpperArm = { 65, 35, 68 }, RightLowerArm = { 100, 0, 0 } }
+	local HIP_L = { LeftUpperArm = { -94, -15, -72 }, LeftLowerArm = { 88, 0, 0 } }
+	local HIP_R = { RightUpperArm = { -94, 15, 72 }, RightLowerArm = { 88, 0, 0 } }
+	local DIAGUP_R = { RightUpperArm = { 1, -4, 120 }, RightLowerArm = { 18, 0, 0 } }
+	local DIAGDN_L = { LeftUpperArm = { -12, -6, -28 }, LeftLowerArm = { 19, 0, 0 } }
+	local KNEE_L = { LeftUpperArm = { -38, -69, -62 }, LeftLowerArm = { 79, 0, 0 } } -- (the squat turns the torso: the knee is in front)
+	local CHEEKR_L = { LeftUpperArm = { 124, -60, 32 }, LeftLowerArm = { 79, 0, 0 } }
+	local A_ARMS = { LeftUpperArm = { 25, 44, -11 }, LeftLowerArm = { 15, 0, 0 }, RightUpperArm = { 25, -44, 11 }, RightLowerArm = { 15, 0, 0 } }
+	local KNEES = { LeftUpperArm = { 31, -50, 16 }, LeftLowerArm = { 0, 0, 0 }, RightUpperArm = { 31, 50, -16 }, RightLowerArm = { 0, 0, 0 } }
+	local OVER = { LeftUpperArm = { 124, -71, -22 }, LeftLowerArm = { 35, 0, 0 }, RightUpperArm = { 124, 71, 22 }, RightLowerArm = { 35, 0, 0 } }
+	local UPSTR_L = { LeftUpperArm = { 112, -74, -38 }, LeftLowerArm = { 11, 0, 0 } }
+	local FWD_L = { LeftUpperArm = { 84, 8, 24 }, LeftLowerArm = { 5, 0, 0 } }
+	local FWD_R = { RightUpperArm = { 84, -8, -24 }, RightLowerArm = { 5, 0, 0 } }
+	local SIDE_L = { LeftUpperArm = { 0, 0, -70 }, LeftLowerArm = { 0, 0, 0 } }
+	local FOLDSIDE_L = { LeftUpperArm = { 54, 6, -64 }, LeftLowerArm = { 96, 0, 0 } }
+	local FOLDFWD_R = { RightUpperArm = { 19, 62, 10 }, RightLowerArm = { 145, 0, 0 } }
+	local ROCKA = { LeftUpperArm = { -162, -54, -191 }, LeftLowerArm = { 55, 0, 0 }, RightUpperArm = { 138, 78, -109 }, RightLowerArm = { 79, 0, 0 } }
+	local ROCKB = { LeftUpperArm = { -175, -51, 162 }, LeftLowerArm = { 65, 0, 0 }, RightUpperArm = { 112, 78, -96 }, RightLowerArm = { 74, 0, 0 } }
+	local LEGS_WIDE = { LeftUpperLeg = { 0, 0, -14 }, LeftLowerLeg = { 0, 0, 0 }, LeftFoot = { 0, 0, 14 },
+		RightUpperLeg = { 0, 0, 14 }, RightLowerLeg = { 0, 0, 0 }, RightFoot = { 0, 0, -14 } }
+
+	-- 뒷짐 지고 서서 시작 (ClubPlaylist slowIn on piece 1: song 0-3 plays its first 1.5 s, so the stand starts at 0) and
+	-- 0:04-0:09 from the stage video (MBC 2014, video = song - 0.20): the right hand goes behind the head and the left hand
+	-- to the hip, the hips sway on the beat; 0:08 a wide stance leaning left, the right arm up and out, the left down and out
+	do
+		local KEYS = {
+			{ t = 1.50, set = BACKX }, { t = 4.25, set = BACKX },
+			{ t = 4.75, set = merge(HEADTOP_R, HIP_L) }, { t = 7.70, set = merge(HEADTOP_R, HIP_L) },
+			{ t = 8.15, set = merge(DIAGUP_R, DIAGDN_L, LEGS_WIDE, { UpperTorso = { 0, 0, 14 } }) },
+			{ t = 8.95, set = merge(DIAGUP_R, DIAGDN_L, LEGS_WIDE, { UpperTorso = { 0, 0, 14 } }) },
+		}
+		poseS(1.10, 9.60, 0.4, KEYS, A1)
+		local H, U = { { 4.70, 0, 0, 0 } }, { { 4.70, 0, 0, 0 } }
+		local s = 1
+		for k = 6, 12 do
+			table.insert(H, { beat(k) - 0.09, 0, 0, 9 * s })
+			table.insert(U, { beat(k) - 0.09, 0, 0, -9 * s })
+			s = -s
+		end
+		table.insert(H, { 7.75, 0, 0, 0 }) table.insert(U, { 7.75, 0, 0, 0 })
+		bendS("LowerTorso", H, A1)
+		bendS("UpperTorso", U, A1)
+	end
+	-- 0:11 왼손 왼쪽 무릎 위에, 오른손목 곧게 (the squat 11.3-12.0); 0:11-0:14 떨림 줄이기
+	-- (D-2080's right-wrist window 0:11.65-0:12.4 now starts at 0:12.0: two windows over each other, only the first counts)
+	do
+		local f1 = fx(A1)
+		for _, w in ipairs(if f1.pose == nil then {} elseif f1.pose.from then { f1.pose } else f1.pose) do
+			if math.abs(w.from - 10.15) < 0.01 then w.from = 10.50 end
+		end
+	end
+	poseS(10.95, 12.00, 0.15, { { t = 11.25, set = merge(KNEE_L, { RightHand = { 0, 0, 0 } }) }, { t = 11.85, set = merge(KNEE_L, { RightHand = { 0, 0, 0 } }) } }, A1)
+	winS("steady", 11.00, 13.12, { passes = 16 }, A1)
+	winS("steady", 13.13, 14.20, { passes = 16 }, A2)
+	-- 0:23-0:26 0:18-0:20 반복하며 한 바퀴: piece 2 plays 0:18.0-0:19.4 again at 0:23.0-0:24.4
+	addList(A2, "warp", { from = 23.00 - AT[A2], to = 24.40 - AT[A2], play = { 18.00 - AT[A2], 19.40 - AT[A2] }, ease = 0.2 })
+	do
+		local KEYS = {}
+		local t, a = 24.45, true
+		while t <= 25.90 do
+			table.insert(KEYS, { t = t, set = merge(if a then ROCKA else ROCKB, { RightHand = { 0, 0, 0 }, LeftHand = { 0, 0, 0 } }) })
+			t += 0.40
+			a = not a
+		end
+		poseS(24.40, 26.45, 0.25, KEYS, A3)
+		addList(A3, "spin", { from = 0, to = 1.55, turns = -1, ease = "both", fromPrev = true }) -- (the capture starts this way: turns 1 went 60° out and back first)
+	end
+	-- 0:29 오른쪽 어깨 앞으로 밀었다가 당기기 두 번 (the chest turns the right shoulder forward, the head held)
+	bendS("UpperTorso", { { 28.80, 0, 0, 0 }, { 29.02, 0, 18, 0 }, { 29.26, 0, 0, 0 }, { 29.49, 0, 18, 0 }, { 29.73, 0, 0, 0 } })
+	bendS("Head", { { 28.80, 0, 0, 0 }, { 29.02, 0, -14, 0 }, { 29.26, 0, 0, 0 }, { 29.49, 0, -14, 0 }, { 29.73, 0, 0, 0 } })
+	-- 0:37-0:40 걷는 발에 맞춰 양팔 번갈아 팔꿈치 접었다 펴기 (a beat each)
+	do
+		local L, R = { { 36.85, 0, 0, 0 } }, { { 36.85, 0, 0, 0 } }
+		for k = 75, 82 do
+			local on = (k % 2 == 0)
+			table.insert(L, { beat(k) - 0.09, if on then 85 else 0, 0, 0 })
+			table.insert(R, { beat(k) - 0.09, if on then 0 else 85, 0, 0 })
+		end
+		table.insert(L, { 40.25, 0, 0, 0 }) table.insert(R, { 40.25, 0, 0, 0 })
+		bendS("LeftLowerArm", L)
+		bendS("RightLowerArm", R)
+	end
+	-- 0:41 왼팔 쭉 뻗고 손목 반 바퀴
+	hold(40.95, 41.65, { LeftLowerArm = { 0, 0, 0 } })
+	bendS("LeftHand", wristFlip(41.00, 41.60, 0.3, 150))
+	-- 0:44 왼손목 안으로 꺾으며 손등으로 오른쪽 볼 쓸기
+	poseS(44.00, 45.05, 0.3, { { t = 44.30, set = merge(CHEEKR_L, { LeftHand = { 0, 0, IN_L } }) },
+		{ t = 44.70, set = merge(CHEEKR_L, { LeftHand = { 0, 0, IN_L } }) } })
+	-- 0:45 / 0:52 왼손목 한 바퀴, 0:47 / 0:54 왼팔 앞으로 뻗고 한 바퀴
+	circle("LeftHand", 45.05, 45.55)
+	hold(46.95, 47.60, FWD_L)
+	circle("LeftHand", 47.00, 47.50)
+	circle("LeftHand", 52.05, 52.55)
+	hold(53.95, 54.65, FWD_L)
+	circle("LeftHand", 54.00, 54.50)
+	-- 1:03 팔꿈치 더 위로 (both elbows up to the shoulders), 오른손 반 바퀴씩 두 번
+	bendS("LeftUpperArm", { { 62.75, 0, 0, 0 }, { 63.00, 0, 0, -28 }, { 63.85, 0, 0, -28 }, { 64.10, 0, 0, 0 } })
+	bendS("RightUpperArm", { { 62.75, 0, 0, 0 }, { 63.00, 0, 0, 28 }, { 63.85, 0, 0, 28 }, { 64.10, 0, 0, 0 } })
+	bendS("RightHand", wristFlip(63.00, 64.00, 0.25, 150))
+	-- 1:07 고개 왼쪽으로 한 번 꺾기
+	bendS("Head", { { 66.85, 0, 0, 0 }, { 67.10, 0, 0, 24 }, { 67.40, 0, 0, 24 }, { 67.65, 0, 0, 0 } })
+	-- 1:10 양팔 A자로 내리고 왼쪽 어깨 앞으로 털기 (두 번), 1:11 왼손 한 바퀴, 1:13 오른손목 까딱까딱
+	hold(70.00, 71.05, A_ARMS)
+	bendS("UpperTorso", { { 70.25, 0, 0, 0 }, { 70.40, 0, -16, 0 }, { 70.55, 0, 0, 0 }, { 70.70, 0, -16, 0 }, { 70.88, 0, 0, 0 } })
+	circle("LeftHand", 71.10, 71.60)
+	bendS("RightHand", { { 72.95, 0, 0, 0 }, { 73.07, 0, 0, IN_R }, { 73.22, 0, 0, 0 }, { 73.42, 0, 0, IN_R }, { 73.58, 0, 0, 0 } })
+	-- 1:17 양손 무릎 짚고 상체 숙였다가 머리 돌리며 일어서기
+	poseS(76.80, 78.05, 0.2, { { t = 77.05, set = merge(KNEES, { UpperTorso = { -50, 0, 0 } }) },
+		{ t = 77.45, set = merge(KNEES, { UpperTorso = { -50, 0, 0 } }) }, { t = 77.85, set = merge(KNEES, { UpperTorso = { -25, 0, 0 } }) } })
+	bendS("Head", { { 77.45, 0, 0, 0 }, { 77.65, 0, 0, 22 }, { 77.85, -18, 0, 0 }, { 78.05, 0, 0, -22 }, { 78.25, 12, 0, 0 }, { 78.45, 0, 0, 0 } })
+	-- 1:20 엉덩이만 좌우로 (the hips sway, the chest held: the waist turns back the same amount)
+	do
+		local H, U = { { 79.85, 0, 0, 0 } }, { { 79.85, 0, 0, 0 } }
+		local s = 1
+		for k = 166, 167 do
+			table.insert(H, { beat(k) - 0.09, 0, 0, 11 * s }) table.insert(U, { beat(k) - 0.09, 0, 0, -11 * s })
+			s = -s
+		end
+		table.insert(H, { 80.62, 0, 0, 0 }) table.insert(U, { 80.62, 0, 0, 0 })
+		bendS("LowerTorso", H) bendS("UpperTorso", U)
+		local H2, U2 = { { 80.70, 0, 0, 0 } }, { { 80.70, 0, 0, 0 } }
+		table.insert(H2, { beat(168) - 0.09, 0, 0, 11 }) table.insert(U2, { beat(168) - 0.09, 0, 0, -11 })
+		table.insert(H2, { 81.10, 0, 0, 0 }) table.insert(U2, { 81.10, 0, 0, 0 })
+		bendS("LowerTorso", H2) bendS("UpperTorso", U2)
+	end
+	-- 1:21 왼팔 위로 쭉 뻗었다가 손목 한 바퀴 돌리며 내리기
+	poseS(81.00, 82.10, 0.15, { { t = 81.20, set = UPSTR_L }, { t = 81.45, set = UPSTR_L }, { t = 81.95, set = SIDE_L } })
+	circle("LeftHand", 81.45, 81.95)
+	-- 1:24 왼손목 한 바퀴 (piece 12 from 1:24.4)
+	circle("LeftHand", 84.45, 84.95)
+	-- 1:27 왼팔 쭉 뻗고 손목 한 바퀴 돌리며 팔꿈치 접기
+	poseS(86.85, 87.75, 0.15, { { t = 87.00, set = { LeftLowerArm = { 0, 0, 0 } } }, { t = 87.55, set = { LeftLowerArm = { 120, 0, 0 } } } })
+	circle("LeftHand", 87.00, 87.50)
+	-- 1:28-1:30 좌우 반전
+	addList(77087314935776, "mirror", { from = 88.00 - 84.38, to = 99, ease = 0.2 })
+	addList(81797984882504, "mirror", { from = -1, to = 90.00 - 88.14, ease = 0.2 })
+	-- (D-2080's two spins of 1:29 lie inside it: they turn the mirrored way)
+	for _, sp in ipairs(fx(81797984882504).spin or {}) do sp.mirror = true end
+	-- 1:30 / 1:38 오른손 골반, 왼팔 옆으로 접었다 펴기, 손목 두 바퀴; 1:31 / 1:39 왼팔 앞으로 쭉, 손목 두 바퀴
+	for _, t0 in ipairs({ 90.00, 98.00 }) do
+		poseS(t0 - 0.3, t0 + 2.25, 0.3, {
+			{ t = t0, set = merge(HIP_R, SIDE_L) }, { t = t0 + 0.35, set = merge(HIP_R, FOLDSIDE_L) },
+			{ t = t0 + 0.70, set = merge(HIP_R, SIDE_L) }, { t = t0 + 1.00, set = merge(HIP_R, FWD_L) },
+			{ t = t0 + 1.95, set = merge(HIP_R, FWD_L) } })
+		circle("LeftHand", t0, t0 + 1.0, 2)
+		circle("LeftHand", t0 + 1.0, t0 + 1.95, 2)
+	end
+	-- 1:35-1:36 허리 숙일 때 부드럽게
+	winS("steady", 94.80, 97.20, { parts = { "LowerTorso", "UpperTorso", "Head" }, passes = 16 })
+	-- 1:54 / 1:57 / 2:44 왼손목 한 바퀴
+	circle("LeftHand", 114.05, 114.55)
+	circle("LeftHand", 117.05, 117.55)
+	circle("LeftHand", 164.05, 164.55)
+	-- 2:00 오른팔 앞으로 쭉 뻗었다가 접기, 2:01 바로 양팔 머리 위로; 2:01-2:04 발 고정, 엉덩이 좌우로 돌리며 웨이브
+	-- (the feet: the hips and legs set to the capture's own stance there, measured in Play over 2:01.2-2:04.8, and the
+	-- thighs turned back by the hips' sway, so the feet stay where they are)
+	local STANCE = { LowerTorso = { 3, 26, -3 }, LeftUpperLeg = { 10, 5, -6 }, LeftLowerLeg = { -25, 0, 1 }, LeftFoot = { 0, -1, 9 },
+		RightUpperLeg = { -5, -5, 3 }, RightLowerLeg = { -19, -3, 1 }, RightFoot = { 6, 3, -10 } }
+	local DOWN = { LowerTorso = { 0, -0.15, 0 } }
+	poseS(119.95, 125.05, 0.2, { { t = 120.15, set = FWD_R }, { t = 120.60, set = FOLDFWD_R }, { t = 120.95, set = OVER },
+		{ t = 121.10, set = merge(OVER, STANCE), move = DOWN }, { t = 124.85, set = merge(OVER, STANCE), move = DOWN } })
+	winS("still", 121.00, 121.89)
+	winS("still", 121.90, 125.10)
+	do
+		local function wave(t0: number, t1: number)
+			local H, U, L = { { t0, 0, 0, 0 } }, { { t0, 0, 0, 0 } }, { { t0, 0, 0, 0 } }
+			local k0 = math.ceil((t0 - 1.90) / 0.46875)
+			local s = 1
+			for k = k0, 400 do
+				local tk = beat(k) - 0.09
+				if tk > t1 - 0.1 then break end
+				table.insert(H, { tk, 0, 18 * s, 8 * s })
+				table.insert(U, { tk + 0.1, 0, -10 * s, -10 * s })
+				table.insert(L, { tk, 0, -18 * s, -8 * s })
+				s = -s
+			end
+			table.insert(H, { t1, 0, 0, 0 }) table.insert(U, { t1, 0, 0, 0 }) table.insert(L, { t1, 0, 0, 0 })
+			bendS("LowerTorso", H) bendS("UpperTorso", U)
+			bendS("LeftUpperLeg", L) bendS("RightUpperLeg", L)
+		end
+		wave(121.05, 121.85)
+		wave(121.95, 124.90)
+	end
+	-- 2:07 엉덩이 돌려 털기
+	bendS("LowerTorso", { { 126.95, 0, 0, 0 }, { 127.10, 0, 22, 0 }, { 127.25, 0, -22, 0 }, { 127.40, 0, 18, 0 }, { 127.55, 0, -12, 0 }, { 127.75, 0, 0, 0 } })
+	bendS("UpperTorso", { { 126.95, 0, 0, 0 }, { 127.10, 0, -12, 0 }, { 127.25, 0, 12, 0 }, { 127.40, 0, -10, 0 }, { 127.55, 0, 6, 0 }, { 127.75, 0, 0, 0 } })
+	-- 3:00 몸 튕기는 안무 한 번 더 (piece 24 plays its 2:56.8-2:58.4 again at 2:59.8-3:01.4, then its end pose)
+	addList(75956008247672, "warp", { from = 179.80 - 175.55, to = 181.40 - 175.55, play = { 176.80 - 175.55, 178.40 - 175.55 }, ease = 0.25 })
+end
+
 return M

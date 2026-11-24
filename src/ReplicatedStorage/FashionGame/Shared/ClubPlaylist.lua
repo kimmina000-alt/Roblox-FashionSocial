@@ -701,8 +701,9 @@ M.Playlist = {
 		lab = { speed = 1, tempo = 0.952, volume = 10, boost = 10, boost2 = 5, boost3 = 4, octave = 1, low = 0, mid = -5, high = -25, engine = "sound" },
 		-- (D-2080, user 2026-11-24: "Abracadabra_" + 24 ids = centercut clips 1..24 of BEG_Abracadabra_GIBT89OrXrk.mp4, not mirrored)
 		-- video = song - 1.50 s (the original mp3 against the video's sound, 22 clear 20 s windows, no drift), `at` = clip start + 1.50
+		-- (D-2081, user 2026-11-24 "뒷짐 지고 서서 시작") piece 1 slowIn { 1.5, 1.5 }: song 0-3 plays its first 1.5 s (the stand), no default dance first
 		choreo = {
-			{ id = 84948460478681, at = 1.50 }, { id = 72165996918532, at = 13.13, blend = 1.00 }, { id = 83771706051102, at = 24.40, blend = 0.86 }, { id = 83548904337256, at = 31.91, blend = 1.00 }, { id = 107558817738930, at = 40.29, blend = 0.96 },
+			{ id = 84948460478681, at = 1.50, slowIn = { 1.5, 1.5 } }, { id = 72165996918532, at = 13.13, blend = 1.00 }, { id = 83771706051102, at = 24.40, blend = 0.86 }, { id = 83548904337256, at = 31.91, blend = 1.00 }, { id = 107558817738930, at = 40.29, blend = 0.96 },
 			{ id = 124285508228695, at = 43.14, blend = 0.78 }, { id = 127350473391000, at = 46.90, blend = 0.88 }, { id = 95176358593151, at = 56.79 }, { id = 75507263939428, at = 61.89, blend = 1.00 }, { id = 124742189184260, at = 69.40, blend = 1.00 },
 			{ id = 71153555401783, at = 80.66, blend = 1.00 }, { id = 77087314935776, at = 84.38, blend = 1.00 }, { id = 81797984882504, at = 88.14, blend = 0.51 }, { id = 87766782876540, at = 97.29 }, { id = 121801747843762, at = 106.91, blend = 0.86 },
 			{ id = 119374607813624, at = 113.86 }, { id = 94834101789323, at = 121.90, blend = 1.00 }, { id = 84986038812006, at = 132.06 }, { id = 137196704822292, at = 136.89, blend = 1.00 }, { id = 72143183459414, at = 142.32 },
