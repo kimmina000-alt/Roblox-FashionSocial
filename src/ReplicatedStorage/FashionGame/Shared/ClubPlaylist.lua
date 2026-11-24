@@ -723,7 +723,7 @@ M.Playlist = {
 			{ id = 114536010136920, at = 0.00, from = 1.95 }, { id = 84810215427749, at = 5.48, blend = 0.50 }, { id = 137400923288167, at = 11.65 }, { id = 92512766209766, at = 20.05, blend = 0.55, slowIn = { 0.4, 0.4 } }, { id = 137374435124337, at = 27.13, blend = 0.44 },
 			{ id = 97821283727781, at = 32.43, blend = 0.79 }, { id = 104624038900168, at = 39.33, blend = 0.60 }, { id = 84767858976240, at = 47.55 }, { id = 117993086220024, at = 54.07, blend = 0.82 }, { id = 81568891729334, at = 63.35, blend = 0.92 },
 			{ id = 115153572280504, at = 73.23, blend = 0.85 }, { id = 134070700021165, at = 78.15, blend = 0.40 }, { id = 74249351083442, at = 83.87, blend = 0.40 }, { id = 95973678135715, at = 93.25, blend = 0.28 }, { id = 91164599224585, at = 98.50, blend = 0.58 },
-			{ id = 127876941649874, at = 105.35 }, { id = 85806895345522, at = 114.45, blend = 1.00 }, { id = 73159033431986, at = 122.23, blend = 1.00 }, { id = 92379882661394, at = 131.25, stop = 135.0 } }, autoChoreo = true },
+			{ id = 127876941649874, at = 105.35 }, { id = 85806895345522, at = 114.45, blend = 1.00 }, { id = 73159033431986, at = 122.23, blend = 1.00, slowIn = { 0.4, 0.4 } }, { id = 92379882661394, at = 131.25, stop = 135.0 } }, autoChoreo = true },
 	{ channel = "K-POP", title = "Famous-Allday Project", soundId = 130972741918400, length = 168.747, fileSpeed = 1.0489,
 		lab = { speed = 1, tempo = 0.953, volume = 10, boost = 10, boost2 = 5, boost3 = 4, octave = 1, low = 0, mid = 0, high = -10, engine = "sound" } },
 	{ channel = "K-POP", title = "Rich Man-aespa", soundId = 103948769129661, length = 187.081, fileSpeed = 1.0477,
