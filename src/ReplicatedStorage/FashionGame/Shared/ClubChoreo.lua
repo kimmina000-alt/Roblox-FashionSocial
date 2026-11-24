@@ -4468,8 +4468,10 @@ do
 		poseS(I1, 0.00, 5.40, 0.2, { { t = 0.05, set = merge(CHEEK_L, HEADTOP_R) }, { t = 1.45, set = merge(CHEEK_L, HEADTOP_R) },
 			{ t = 1.95, set = PRAY }, { t = 2.40, set = PRAY }, { t = 2.70, set = merge(PRAY, TOGETHER, UT0) },
 			{ t = 2.95, set = merge(TOUCH, TOGETHER, UT0) }, { t = 3.15, set = merge(TOUCH, TOGETHER, UT15) },
-			{ t = 3.60, set = merge(TOUCH, TOGETHER, UT0) }, { t = 3.70, set = merge(TOUCH, TOGETHER) },
-			{ t = 3.90, set = TOGETHER }, { t = 5.15, set = TOGETHER } })
+			{ t = 3.60, set = merge(TOUCH, TOGETHER, UT0) }, { t = 3.70, set = merge(TOUCH, TOGETHER, UT0) },
+			-- (6th list: 0:03 / 0:04 허리 두 번 숙이는 거 하나로) the chest kept straight after the one bow (the capture's own bend
+			-- came back at 3.7-4.0)
+			{ t = 3.90, set = merge(TOGETHER, UT0) }, { t = 5.15, set = merge(TOGETHER, UT0) } })
 		winS(I1, "still", 2.40, 5.40)
 	end
 	-- (the hips are set straight above; `upright` there took the chest bend out too: 5 degrees)
