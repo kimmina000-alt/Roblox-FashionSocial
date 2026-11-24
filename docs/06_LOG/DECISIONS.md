@@ -7095,3 +7095,10 @@ Studio only (no script yet).
 - 속성: FashionGame DanceChamp = JSON { id, n, k }, 플레이어 DanceStreak / DanceStreakBest. Studio: 메모리 저장, FashionGame 속성 DanceChampTest = "연승,최고"(Studio만)로 첫 플레이어를 챔피언으로.
 - 번역 5개: tools/i18n/tr/p28_streak1124.tsv.
 - Studio Play: DanceChampTest "3,5" → 이름표 "👑 3연속 1위"(금색), 순위표 1위 칸 아래 "🔥 VANDI님 3연속 1위 중"; "0,4" → "최고 4연속 1위", DanceChamp 없음; 스크립트 오류 없음. nextStreak 규칙(연승 +1 / 다른 사람 1 / 하루 건너뛰면 1 / 같은 날 두 번 안 셈 / 아무도 없으면 0) 확인. 칭호 칸 폭은 글자 수(한글 · 이모지는 넓게)에 맞춤.
+
+## D-1867 만찬가 · Magic · Abracadabra 설정값 (2026-11-24)
+- 사용자: 만찬가-TAEYEON 부스트4 1→2, 저음 -4→-1, 중음 -17→-9.5, 고음 -26→-32.5 / Magic-Secret 부스트2 2→4(부스트4 2 그대로) / Abracadabra EQ 0 -5 -25.
+- 만찬가-TAEYEON: { speed = 1, tempo = 0.953, volume = 10, boost = 10, boost2 = 5, boost3 = 5, octave = 1, low = -4, mid = -17, high = -26, engine = "sound" } → { speed = 1, tempo = 0.953, volume = 10, boost = 10, boost2 = 5, boost3 = 5, boost4 = 2, octave = 1, low = -1, mid = -9.5, high = -32.5, engine = "sound"  }
+- Magic-Secret: { speed = 1, tempo = 0.952, volume = 10, boost = 10, boost2 = 2, boost3 = 2, boost4 = 2, octave = 1, low = 0, mid = 0, high = -10, engine = "sound" } → { speed = 1, tempo = 0.952, volume = 10, boost = 10, boost2 = 4, boost3 = 2, boost4 = 2, octave = 1, low = 0, mid = 0, high = -10, engine = "sound"  }
+- Abracadabra-Brown Eyed Girls: { speed = 1, tempo = 0.952, volume = 10, boost = 10, boost2 = 5, boost3 = 4, octave = 1, low = 0, mid = 0, high = -9, engine = "sound" } → { speed = 1, tempo = 0.952, volume = 10, boost = 10, boost2 = 5, boost3 = 4, octave = 1, low = 0, mid = -5, high = -25, engine = "sound"  }
+- Play로 들어 보지는 않음.

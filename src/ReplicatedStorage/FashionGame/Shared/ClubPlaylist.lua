@@ -525,8 +525,9 @@ M.Playlist = {
 	{ channel = "K-POP", title = "노스탈지아-BIG Naughty", soundId = 138668506442693, length = 185.738, fileSpeed = 1.0499,
 		lab = { speed = 1, tempo = 0.953, volume = 10, boost = 10, boost2 = 5, boost3 = 5, octave = 1, low = -34, mid = -20, high = -34, engine = "sound" } },
 	-- (D-1100, user 2026-11-09: low / mid / high from the user's new list)
+	-- (D-1867, user 2026-11-24: boost4 2, EQ -1 / -9.5 / -32.5)
 	{ channel = "K-POP", title = "만찬가-TAEYEON", soundId = 124367047209689, length = 208.614, fileSpeed = 1.0498,
-		lab = { speed = 1, tempo = 0.953, volume = 10, boost = 10, boost2 = 5, boost3 = 5, octave = 1, low = -4, mid = -17, high = -26, engine = "sound" } },
+		lab = { speed = 1, tempo = 0.953, volume = 10, boost = 10, boost2 = 5, boost3 = 5, boost4 = 2, octave = 1, low = -1, mid = -9.5, high = -32.5, engine = "sound" } },
 	-- (D-1100, user 2026-11-09: the user's new low / mid / high; D-1127: the old "1" entry removed, kept as one)
 	{ channel = "K-POP", title = "Birthday Wish-NMIXX", soundId = 127918504252740, length = 190.515, fileSpeed = 1.0498,
 		lab = { speed = 1, tempo = 0.953, volume = 10, boost = 10, boost2 = 5, boost3 = 5, octave = 1, low = -6.5, mid = -10.5, high = -30, engine = "sound" } },
@@ -676,8 +677,9 @@ M.Playlist = {
 		lab = { speed = 1, tempo = 0.951, volume = 10, boost = 10, boost2 = 5, boost3 = 4, octave = 1, low = 0, mid = 0, high = -12, engine = "sound" } },
 	-- (D-1864, user 2026-11-19 via 음원 테스트: lab values, boost2 / boost3 2, EQ; fileSpeed 1.0502 = the 음원 테스트 value, was 1.0504 from 11-13)
 	-- (D-1866, user 2026-11-24 via 음원 테스트: re-tuned lab values)
+	-- (D-1867, user 2026-11-24: boost2 4 (boost4 2 kept))
 	{ channel = "K-POP", title = "Magic-Secret", soundId = 124810692241835, length = 194.251, fileSpeed = 1.0502,
-		lab = { speed = 1, tempo = 0.952, volume = 10, boost = 10, boost2 = 2, boost3 = 2, boost4 = 2, octave = 1, low = 0, mid = 0, high = -10, engine = "sound" } },
+		lab = { speed = 1, tempo = 0.952, volume = 10, boost = 10, boost2 = 4, boost3 = 2, boost4 = 2, octave = 1, low = 0, mid = 0, high = -10, engine = "sound" } },
 	-- (D-1906, user 2026-11-19: "뱅 안무 음원이랑 박자 맞추기") the upload's loudness in Play against the practice video's sound, 20 s
 	-- windows every 10 s: video = song - 0.90 at 0:10 drifting to - 1.15 at 3:00 (35 clear windows, -0.142 % of song time): the
 	-- song clock ran 0.14 % fast, the dance late by up to 0.25 s at the end. fileSpeed 1.0515 -> 1.0500
@@ -694,8 +696,9 @@ M.Playlist = {
 			{ id = 73991603786553, at = 174.97 }, { id = 73314859778019, at = 186.85, blend = 0.64 } }, autoChoreo = true },
 	{ channel = "K-POP", title = "Hot Issue-4MINUTE", soundId = 124715970373244, length = 205.296, fileSpeed = 1.0521,
 		lab = { speed = 1, tempo = 0.95, volume = 10, boost = 10, boost2 = 5, boost3 = 4, octave = 1, low = 0, mid = 0, high = -14, engine = "sound" } },
+	-- (D-1867, user 2026-11-24: EQ 0 / -5 / -25)
 	{ channel = "K-POP", title = "Abracadabra-Brown Eyed Girls", soundId = 84753987256309, length = 175.124, fileSpeed = 1.0507,
-		lab = { speed = 1, tempo = 0.952, volume = 10, boost = 10, boost2 = 5, boost3 = 4, octave = 1, low = 0, mid = 0, high = -9, engine = "sound" } },
+		lab = { speed = 1, tempo = 0.952, volume = 10, boost = 10, boost2 = 5, boost3 = 4, octave = 1, low = 0, mid = -5, high = -25, engine = "sound" } },
 	-- (D-1382, user 2026-11-13: 17 uploads as sent, entries with the lab values and fileSpeed; the title "Famous-Allday Project" had a line break inside, removed)
 	{ channel = "K-POP", title = "Focus-Hearts2Hearts", soundId = 100664272955386, length = 165.474, fileSpeed = 1.0515,
 		lab = { speed = 1, tempo = 0.951, volume = 10, boost = 10, boost2 = 5, boost3 = 4, octave = 1, low = 0, mid = 0, high = -7, engine = "sound" } },
