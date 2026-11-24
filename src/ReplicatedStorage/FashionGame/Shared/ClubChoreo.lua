@@ -4497,6 +4497,8 @@ do
 		bendS(I3, "LeftUpperArm", L) bendS(I3, "RightUpperArm", R)
 	end
 	-- (3rd list: 0:13-0:19 as the capture had it, before the 1st list)
+	-- (4th list: 0:13-0:15 팔 뒷짐 진 자세 유지) only the arms
+	poseS(I3, 12.95, 15.35, 0.2, { { t = 13.15, set = BACKX }, { t = 15.10, set = BACKX } })
 	-- 0:20 연결 매끄럽게 (slowIn on piece 4 in ClubPlaylist) + 고개 오른쪽으로 까딱
 	bendS(I4, "Head", { { 20.30, 0, 0, 0 }, { 20.45, 0, 0, -16 }, { 20.65, 0, 0, 0 } })
 	-- 0:21 왼팔 더 쭉 뻗고 앞으로 제대로 걸어가기, 손목 좌우로 까딱까딱
@@ -4584,28 +4586,35 @@ do
 	local LEFT_STAND = { LeftUpperLeg = { 0, 0, -4 }, LeftLowerLeg = { -6, 0, 0 }, LeftFoot = { 6, 0, 4 } }
 	-- (3rd list: the wrist bends sideways in the screen, photos: 0:49 fingers toward the face = hand x +50, 0:50 away =
 	-- x -50 (FK: x +45 turns the fingers 0.37 toward the head); 0:51-0:52 as the capture had it; 0:53 = 0:49-0:50 again)
-	local W_IN, W_OUT = { 50, 0, -20 }, { -50, 0, 20 }
+	-- (4th list: 0:49 손등이 하늘로 · 0:50 손바닥이 하늘로, 정면에서 손날) the forearm twists and the wrist bends sideways
+	-- (FK search: 0:49 forearm y -30 + hand { 30, 0, -70 }: fingers toward the head, palm down; 0:50 forearm y -60 + hand
+	-- { 20, 0, 70 }: fingers out, palm up; wrist 72-75 degrees, under the D-1958 limit)
+	local W_IN, W_OUT = { 30, 0, -70 }, { 20, 0, 70 }
+	local T_IN, T_OUT = -30, -60
 	local function legSet(id: number, kStart: number, kShift: number, withIntro: boolean)
 		local function bk(k: number): number return beat(k + kShift) end
 		local DOWN = merge(LEFT_STAND, { RightUpperLeg = { 0, 0, 25 }, RightLowerLeg = { 0, 0, 0 }, RightFoot = { 0, 0, -25 } })
 		local UP = merge(LEFT_STAND, { RightUpperLeg = { 0, 0, 80 }, RightLowerLeg = { 0, 0, 0 }, RightFoot = { 0, 0, -20 } })
-		local ARMS = merge(BACK_L, LSHAPE2_R)
+		-- (the capture's own wrist set straight first, or it added to the bend: 0:49 fingers stayed up)
+		local ARMS = merge(BACK_L, LSHAPE2_R, { RightHand = { 0, 0, 0 } })
 		local t0 = bk(kStart) - 0.4
 		local keys = {}
 		if withIntro then table.insert(keys, { t = t0, set = merge(DOWN, { RightUpperArm = { 0, 0, 80 }, RightLowerArm = { 0, 0, 0 } }) }) end
 		table.insert(keys, { t = t0 + 0.25, set = merge(DOWN, ARMS) })
-		local W = { { t0 + 0.2, 0, 0, 0 } }
+		local W, T = { { t0 + 0.2, 0, 0, 0 } }, { { t0 + 0.2, 0, 0, 0 } }
 		for i = 0, 3 do
 			local b = bk(kStart + i) - 0.09
 			table.insert(keys, { t = b, set = merge(UP, ARMS) })
 			table.insert(keys, { t = b + 0.22, set = merge(DOWN, ARMS) })
 			local w = if i < 2 then W_IN else W_OUT
 			table.insert(W, { b, w[1], w[2], w[3] }) table.insert(W, { b + 0.35, w[1], w[2], w[3] })
+			local tw = if i < 2 then T_IN else T_OUT
+			table.insert(T, { b, 0, tw, 0 }) table.insert(T, { b + 0.35, 0, tw, 0 })
 		end
 		local t1 = bk(kStart + 3) + 0.45
-		table.insert(W, { t1 - 0.05, 0, 0, 0 })
+		table.insert(W, { t1 - 0.05, 0, 0, 0 }) table.insert(T, { t1 - 0.05, 0, 0, 0 })
 		poseS(id, t0 - 0.2, t1, 0.2, keys)
-		bendS(id, "RightHand", W)
+		bendS(id, "RightHand", W) bendS(id, "RightLowerArm", T)
 		bendS(id, "UpperTorso", { { t0 - 0.15, 0, 0, 0 }, { t0 + 0.1, 0, 0, -14 }, { t0 + 0.3, 0, 0, -6 }, { t1 - 0.15, 0, 0, -6 }, { t1 + 0.05, 0, 0, 0 } })
 		winS(id, "still", t0 - 0.2, t1)
 	end
@@ -4615,6 +4624,15 @@ do
 	end
 	legSeq(I8, 0, 0)
 	-- (3rd list: 0:54-0:59 as the capture had it)
+	-- (4th list: 0:58-1:00 양팔 앞으로 아래로 쭉 뻗은 상태에서 흔들기) arms straight 45 degrees down in front, shaken side to side
+	do
+		local DOWNFWD = { LeftUpperArm = { 45, 0, 8 }, LeftLowerArm = { 0, 0, 0 }, RightUpperArm = { 45, 0, -8 }, RightLowerArm = { 0, 0, 0 } }
+		poseS(I9, 57.80, 60.15, 0.2, { { t = 58.00, set = DOWNFWD }, { t = 59.95, set = DOWNFWD } })
+		local L, R, a = { { 58.00, 0, 0, 0 } }, { { 58.00, 0, 0, 0 } }, 1
+		for t = 58.15, 59.80, 0.15 do table.insert(L, { t, 0, 15 * a, 0 }) table.insert(R, { t, 0, 15 * a, 0 }) a = -a end
+		table.insert(L, { 59.95, 0, 0, 0 }) table.insert(R, { 59.95, 0, 0, 0 })
+		bendS(I9, "LeftUpperArm", L) bendS(I9, "RightUpperArm", R)
+	end
 	-- 1:00-1:03 (2nd list: 1:01 한 바퀴 돌다가 마는데 한 바퀴 돌기) the capture turns 193 degrees and back to 109: one even
 	-- whole turn from 60.1 to the front at 63.2; elbows on the waist; legs set (a freeze would stop the turn), then
 	-- 1:02 상체 뒤로 숙였다가 부드럽게 올라와 일자로
@@ -4750,38 +4768,10 @@ do
 	bendS(I13, "Head", { { 87.00, 0, 0, 0 }, { 87.25, -15, 0, 0 }, { 87.55, 0, 0, 18 }, { 87.85, 15, 0, 0 }, { 88.15, 0, 0, -18 }, { 88.45, 0, 0, 0 } })
 	lowerHold(I13, 86.80, 90.00) -- (3rd list: 1:28-1:30 제자리 고정 too)
 	-- (3rd list: 1:30-1:36 as the capture had it)
+	lowerHold(I14, 94.80, 96.00) -- (4th list: 1:35 다리 고정)
 	-- 1:37 오른손 위로 들썩들썩
 	bendS(I14, "RightUpperArm", { { 96.75, 0, 0, 0 }, { beat(242) - 0.09, 0, 0, 20 }, { beat(242) + 0.12, 0, 0, 0 }, { beat(243) - 0.09, 0, 0, 20 }, { beat(243) + 0.12, 0, 0, 0 } })
-	-- 1:38 (사진 3) 오른팔 ㄴ, 팔꿈치 허리에 붙이고 손을 옆 → 정면으로 회전, 오른다리 ㄱ 모양으로 들기, 왼발 · 다리 고정, 어깨 들썩
-	-- > 왼쪽으로 같은 것 (piece 15 from 98.50)
-	do
-		local RLEG = { RightUpperLeg = { 45, 0, 40 }, RightLowerLeg = { -100, 0, 0 }, RightFoot = { 20, 0, -20 }, LeftUpperLeg = { 0, 0, -4 }, LeftLowerLeg = { -4, 0, 0 }, LeftFoot = { 4, 0, 4 } }
-		local LLEG = { LeftUpperLeg = { 45, 0, -40 }, LeftLowerLeg = { -100, 0, 0 }, LeftFoot = { 20, 0, 20 }, RightUpperLeg = { 0, 0, 4 }, RightLowerLeg = { -4, 0, 0 }, RightFoot = { 4, 0, -4 } }
-		local keys, UT = {}, { { 98.55, 0, 0, 0 } }
-		for i, k in ipairs({ 246, 247, 248, 249 }) do
-			local b = beat(k) - 0.09
-			table.insert(keys, { t = b, set = merge(HIP_L, if i % 2 == 1 then ESIDE_R else EFRONT_R, RLEG) })
-			table.insert(UT, { b, 0, 0, 0 }) table.insert(UT, { b + 0.12, 0, 0, 0 })
-		end
-		-- (3rd list: 1:38 / 1:40 들고 있는 다리 정면으로 회전하면서 내리기)
-		table.insert(keys, { t = beat(250) - 0.25, set = merge(HIP_L, EFRONT_R, RLEG, { RightUpperLeg = { 45, 0, 0 } }) })
-		table.insert(keys, { t = beat(250) - 0.05, set = merge(HIP_L, EFRONT_R, { RightUpperLeg = { 0, 0, 4 }, RightLowerLeg = { -4, 0, 0 }, RightFoot = { 4, 0, -4 } }) })
-		for i, k in ipairs({ 251, 252, 253, 254 }) do
-			local b = beat(k) - 0.09
-			table.insert(keys, { t = b, set = merge(HIP_R, if i % 2 == 1 then ESIDE_L else EFRONT_L, LLEG) })
-		end
-		table.insert(keys, { t = beat(255) - 0.25, set = merge(HIP_R, EFRONT_L, LLEG, { LeftUpperLeg = { 45, 0, 0 } }) })
-		table.insert(keys, { t = beat(255) - 0.05, set = merge(HIP_R, EFRONT_L, { LeftUpperLeg = { 0, 0, -4 }, LeftLowerLeg = { -4, 0, 0 }, LeftFoot = { 4, 0, 4 } }) })
-		poseS(I15, 98.55, beat(255) + 0.1, 0.2, keys)
-		-- the shoulders bounce on each beat
-		local L, R = { { 98.60, 0, 0, 0 } }, { { 98.60, 0, 0, 0 } }
-		for k = 246, 254 do
-			table.insert(L, { beat(k) - 0.09, 0, 0, -8 }) table.insert(R, { beat(k) - 0.09, 0, 0, 8 })
-			table.insert(L, { beat(k) + 0.1, 0, 0, 0 }) table.insert(R, { beat(k) + 0.1, 0, 0, 0 })
-		end
-		bendS(I15, "LeftUpperArm", L) bendS(I15, "RightUpperArm", R)
-		winS(I15, "still", 98.55, beat(255) + 0.1)
-	end
+	-- (4th list: 1:38-1:42 as the capture had it)
 	-- 1:44 발과 다리 고정
 	lowerHold(I15, 103.60, 104.70)
 	-- 1:47-1:48 / 1:51-1:52 = 0:49-0:53 (the video: kicks at 107.6-109.0 and 110.8-112.2)
