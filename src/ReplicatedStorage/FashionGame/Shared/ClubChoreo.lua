@@ -4179,54 +4179,72 @@ do
 	bendS(P5, "LeftHand", shiftKeys(wristFlip(33.85, 34.45, 0.3, 150), 0))
 	bendS(P5, "RightHand", shiftKeys(wristFlip(33.85, 34.45, 0.3, -150), 0))
 
-	-- 0:39-0:42 / 1:33-1:36: face held, shoulders up in turn, chest held and the hips side to side, heels up and down
-	-- on the beat, a head nod, left hand on the left hip (0:41: elbow on the waist, the hand forward, wrist flicked up)
-	-- 0:43-0:45 / 1:37-1:39: the same without the heels, right hand on the right hip
+	-- 0:39-0:42 / 1:33-1:37 (2nd list): the feet stay put (a plain stance, no travel), only the heels go up and down on the
+	-- beat, the hips rock forward and back (the pelvis tilts, the chest and the thighs turned back the same amount), the
+	-- shoulders up in turn with the face held, a head nod, left hand on the left hip (0:41: elbow on the waist, the hand
+	-- forward, wrist flicked up), the right arm soft (smoothed hard). 0:44-0:46 / 1:37-1:39: the same, right hand on the hip.
 	local HIP_L = { LeftUpperArm = { -90, -40, -60 }, LeftLowerArm = { 90, 0, 0 } }
 	local HIP_R = { RightUpperArm = { -90, 40, 60 }, RightLowerArm = { 90, 0, 0 } }
 	local FWD_L = { LeftUpperArm = { 5, 0, -8 }, LeftLowerArm = { 90, 0, 0 } }
-	local function groove(id: number, k0: number, k1: number, heels: boolean)
+	-- the legs set to a plain stance and the hips held at the capture's mean facing for that stretch (KeyframeSequence
+	-- LowerTorso means: P6 0.9-3.9 {5,-3,-3}, 5.3-7.8 {9,-46,8}; P13 0.4-3.9 {5,1,0}, 4.8-6.3 {11,-26,7}; height -0.13 to
+	-- -0.19): with the hips turning 20-30 degrees the feet had moved 0.6-1.1 studs (2nd-list recording)
+	local STAND = { LeftUpperLeg = { 0, 0, -4 }, LeftLowerLeg = { -12, 0, 0 }, LeftFoot = { 12, 0, 4 },
+		RightUpperLeg = { 0, 0, 4 }, RightLowerLeg = { -12, 0, 0 }, RightFoot = { 12, 0, -4 } }
+	local DOWN = { LowerTorso = { 0, -0.12, 0 } }
+	local function with(a: any, b: any): any
+		local c = table.clone(a)
+		for k, v in pairs(b) do c[k] = v end
+		return c
+	end
+	local function groove(id: number, k0: number, k1: number)
 		local LT, UT, HD, LL, RL, LF, RF = {}, {}, {}, {}, {}, {}, {}
 		local t0, t1 = beat(k0) - 0.25, beat(k1) + 0.25
 		for _, k in ipairs({ LT, UT, HD, LL, RL, LF, RF }) do table.insert(k, { t0, 0, 0, 0 }) end
 		local s = 1
 		for k = k0, k1 do
 			local b = beat(k) - 0.09
-			-- hips tilt one way, the chest tilts back the other way plus the shoulder lift, the head undoes the chest
-			table.insert(LT, { b, 0, 0, 7 * s })
-			table.insert(LL, { b, 0, 0, -7 * s })
-			table.insert(RL, { b, 0, 0, -7 * s })
-			table.insert(UT, { b, 0, 0, -7 * s - 6 * s })
-			table.insert(HD, { b, 0, 0, 6 * s })
-			if heels then
-				table.insert(LF, { b, -14, 0, 0 }) table.insert(RF, { b, -14, 0, 0 })
-				table.insert(LF, { b + BEAT * 0.5, 0, 0, 0 }) table.insert(RF, { b + BEAT * 0.5, 0, 0, 0 })
-			end
+			table.insert(LT, { b, 10 * s, 0, 0 })
+			table.insert(LL, { b, -10 * s, 0, 0 })
+			table.insert(RL, { b, -10 * s, 0, 0 })
+			table.insert(UT, { b, -10 * s, 0, 6 * s })
+			table.insert(HD, { b, 0, 0, -6 * s })
+			table.insert(LF, { b, -16, 0, 0 }) table.insert(RF, { b, -16, 0, 0 })
+			table.insert(LF, { b + BEAT * 0.5, 0, 0, 0 }) table.insert(RF, { b + BEAT * 0.5, 0, 0, 0 })
 			s = -s
 		end
 		for _, k in ipairs({ LT, UT, HD, LL, RL, LF, RF }) do table.insert(k, { t1, 0, 0, 0 }) end
 		bendS(id, "LowerTorso", LT) bendS(id, "UpperTorso", UT) bendS(id, "Head", HD)
-		bendS(id, "LeftUpperLeg", LL) bendS(id, "RightUpperLeg", RL)
-		if heels then bendS(id, "LeftFoot", LF) bendS(id, "RightFoot", RF) end
+		bendS(id, "LeftUpperLeg", LL) bendS(id, "RightUpperLeg", RL) bendS(id, "LeftFoot", LF) bendS(id, "RightFoot", RF)
+		winS(id, "still", t0, t1)
+	end
+	local function stance(id: number, t0: number, t1: number, hips: any, keys: any)
+		local base = with(STAND, { LowerTorso = hips })
+		local out = {}
+		for _, k in ipairs(keys) do table.insert(out, { t = k.t, set = with(base, k.set), move = DOWN }) end
+		table.insert(out, 1, { t = t0 + 0.25, set = with(base, keys[1].set), move = DOWN })
+		poseS(id, t0, t1, 0.25, out)
 	end
 	-- 0:39-0:42 (P6 at 38.24): beats 80..86 = 39.21..42.11
-	groove(P6, 80, 86, true)
+	groove(P6, 80, 86)
 	bendS(P6, "Head", { { 39.95, 0, 0, 0 }, { 40.15, -22, 0, 0 }, { 40.40, -22, 0, 0 }, { 40.65, 0, 0, 0 } })
-	poseS(P6, 38.95, 42.40, 0.25, { { t = 39.20, set = HIP_L }, { t = 40.70, set = HIP_L }, { t = 40.95, set = FWD_L },
+	stance(P6, 38.95, 42.45, { 5, -3, 0 }, { { t = 39.20, set = HIP_L }, { t = 40.70, set = HIP_L }, { t = 40.95, set = FWD_L },
 		{ t = 41.40, set = FWD_L }, { t = 41.70, set = HIP_L }, { t = 42.20, set = HIP_L } })
 	flickW(P6, "LeftHand", 41.15 - 0.09, -40, 0, 0)
-	-- 0:43-0:45: beats 88..92 = 43.08..45.02
-	groove(P6, 88, 92, false)
-	poseS(P6, 42.80, 45.35, 0.25, { { t = 43.05, set = HIP_R }, { t = 45.05, set = HIP_R } })
-	-- 1:33-1:36 (P13 at 92.93): beats 192..198 = 93.40..96.30
-	groove(P13, 192, 198, true)
+	winS(P6, "steady", 38.95, 42.45, { parts = { "RightUpperArm", "RightLowerArm", "RightHand" }, passes = 8 })
+	-- 0:44-0:46: beats 89..94 = 43.56..45.98 (P7 starts at 46.48)
+	groove(P6, 89, 94)
+	stance(P6, 43.30, 46.25, { 6, -46, 4 }, { { t = 43.55, set = HIP_R }, { t = 46.00, set = HIP_R } })
+	-- 1:33-1:37 (P13 at 92.93): beats 192..199 = 93.40..96.79
+	groove(P13, 192, 199)
 	bendS(P13, "Head", { { 94.15, 0, 0, 0 }, { 94.35, -22, 0, 0 }, { 94.60, -22, 0, 0 }, { 94.85, 0, 0, 0 } })
-	poseS(P13, 93.10, 96.55, 0.25, { { t = 93.35, set = HIP_L }, { t = 94.85, set = HIP_L }, { t = 95.10, set = FWD_L },
-		{ t = 95.55, set = FWD_L }, { t = 95.85, set = HIP_L }, { t = 96.35, set = HIP_L } })
+	stance(P13, 93.10, 97.00, { 5, 1, 0 }, { { t = 93.35, set = HIP_L }, { t = 94.85, set = HIP_L }, { t = 95.10, set = FWD_L },
+		{ t = 95.55, set = FWD_L }, { t = 95.85, set = HIP_L }, { t = 96.80, set = HIP_L } })
 	flickW(P13, "LeftHand", 95.33 - 0.09, -40, 0, 0)
-	-- 1:37-1:39: beats 200..204 = 97.27..99.21
-	groove(P13, 200, 204, false)
-	poseS(P13, 97.00, 99.50, 0.25, { { t = 97.25, set = HIP_R }, { t = 99.25, set = HIP_R } })
+	winS(P13, "steady", 93.10, 97.00, { parts = { "RightUpperArm", "RightLowerArm", "RightHand" }, passes = 8 })
+	-- 1:37-1:39: beats 201..204 = 97.76..99.21
+	groove(P13, 201, 204)
+	stance(P13, 97.25, 99.50, { 8, -26, 4 }, { { t = 97.50, set = HIP_R }, { t = 99.25, set = HIP_R } })
 
 	-- 0:50 / 1:45 양쪽 손목 안으로 (자기 멱살 잡듯)
 	holdW(P7, "LeftHand", 49.95, 50.55, 0, 0, IN_L) holdW(P7, "RightHand", 49.95, 50.55, 0, 0, IN_R)
@@ -4263,7 +4281,7 @@ do
 	-- 1:40 손바닥으로 입 가리기: the left hand (by the face in the game, 0.2 from the mouth) turned palm to the face and held
 	holdW(P13, "LeftHand", 99.85, 100.55, 0, 0, IN_L)
 	-- 1:43 왼팔 팔꿈치까지 쭉
-	poseS(P14, 102.55, 103.55, 0.2, { { t = 102.80, set = { LeftLowerArm = { 0, 0, 0 } } }, { t = 103.30, set = { LeftLowerArm = { 0, 0, 0 } } } })
+	poseS(P14, 102.40, 103.75, 0.35, { { t = 102.80, set = { LeftLowerArm = { 0, 0, 0 } } }, { t = 103.30, set = { LeftLowerArm = { 0, 0, 0 } } } })
 	-- 1:50-1:51 팔 들고 양쪽 손목 빠르게 두 바퀴
 	bendS(P14, "LeftHand", wristCircles(110.05, 111.05, 0.48, 40))
 	bendS(P14, "RightHand", wristCircles(110.05, 111.05, 0.48, 40))
@@ -4297,6 +4315,32 @@ do
 	-- (2:44 jab above) then the turn with the right hand flicking, the head down late in the turn and slowly up to the end
 	bendS(P21, "RightHand", wristTwinkle(164.30, 165.50, 0.24, 40))
 	bendS(P21, "Head", { { 165.10, 0, 0, 0 }, { 165.50, -25, 0, 0 }, { 166.20, -25, 0, 0 }, { 168.20, 0, 0, 0 } })
+
+	-- (D-2072, the user's 2nd list the same day)
+	-- 0:00-0:02 처음 시작 자세로 서 있다가 고개만 숙였다 들기: the start pose kept (all but the head), one nod
+	addList(P1, "freeze", { from = 0, to = 1.85, ease = 0.05, easeOut = 0.3, except = { "Head" } })
+	bendS(P1, "Head", { { 0.60, 0, 0, 0 }, { 0.95, -28, 0, 0 }, { 1.25, -28, 0, 0 }, { 1.70, 0, 0, 0 } })
+	addList(P1, "still", { from = 0, to = 1.9 })
+	-- 0:32-0:34 자리 고정: the hips and legs kept as at 0:32 (as 2:05 below), no travel
+	addList(P5, "freeze", { from = 32.00 - AT[P5], to = 34.00 - AT[P5], ease = 0.25, easeOut = 0.3,
+		except = { "UpperTorso", "Head", "LeftUpperArm", "LeftLowerArm", "LeftHand", "RightUpperArm", "RightLowerArm", "RightHand" } })
+	winS(P5, "still", 32.00, 34.00)
+	-- 0:55 점프 (video: feet together, then out wide in the air 54.62-54.88)
+	addList(P7, "jump", { from = 54.62 - AT[P7], to = 54.88 - AT[P7], height = 1.2 })
+	M.ChoreoJumps[P7] = M.ChoreoJumps[P7] or {}
+	table.insert(M.ChoreoJumps[P7], { 54.62 - AT[P7], 54.88 - AT[P7], 1.2 })
+	-- 1:03 버벅: the arms whip 30 studs/s at 62.4-62.6 and stop dead: smoothed there
+	winS(P9, "steady", 62.20, 62.95, { parts = { "LeftUpperArm", "LeftLowerArm", "RightUpperArm", "RightLowerArm" }, passes = 8 })
+	-- 1:19 오른손 골반에 대고 고정 (video 79.4-80.6)
+	local P11 = 109105261149494
+	AT[P11] = 78.71
+	poseS(P11, 79.20, 80.85, 0.2, { { t = 79.45, set = HIP_R }, { t = 80.60, set = HIP_R } })
+	-- 1:54 회전 매끄럽게: one even turn over the capture's turn 113.4-115.2
+	addList(P15, "spin", { from = 113.40 - AT[P15], to = 115.20 - AT[P15], ease = "both" })
+	-- 2:05-2:10 하체 고정: the hips and legs kept as at 2:05 (the 2:08 wave stays in the chest), no travel
+	addList(P17, "freeze", { from = 125.00 - AT[P17], to = 130.00 - AT[P17], ease = 0.25, easeOut = 0.3,
+		except = { "UpperTorso", "Head", "LeftUpperArm", "LeftLowerArm", "LeftHand", "RightUpperArm", "RightLowerArm", "RightHand" } })
+	winS(P17, "still", 125.00, 130.00)
 end
 
 return M
