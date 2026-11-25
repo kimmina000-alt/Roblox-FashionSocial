@@ -7151,3 +7151,4 @@ Studio only (no script yet).
 - 맞힘 소리 끔: DanceScoreSounds.Off = true (곡별 키트 · id는 그대로 둠, false면 다시 남).
 - 틀린 음: MISS 판정과 노트 없는 곳을 누를 때 게임 UI 오류음(SoundConfig.Ui.error)을 1.6배 높이로, 크기 0.4, 0.35초에 한 번까지(DanceScoreConfig.MissVolume / MissPitch / MissGap). D-1818 처음 방식과 같음(그때 크기 0.18).
 - 새 곡: tools/choreo/dance_beats.py에 Potion-AND2BLE(124.0 bpm), It's Me-ILLIT(147.0), Abracadabra-Brown Eyed Girls(128.0), Magic-Secret(107.0), GiiiRIP-BIGBANG(135.0) 추가 → DanceScoreSongs 30곡. 네온 무대는 안무 있는 곡만 트니까 지금은 안무가 있는 Potion / It's Me / Abracadabra 3곡이 오늘의 곡 후보에 들어감(28곡); Magic / GiiiRIP은 안무가 catalog-ui-redesign에 들어오면 자동으로 후보가 됨. 기존 25곡 박자 값은 그대로.
+- Studio Play(DanceSongOverride = Potion): 후보 29곡(Studio에는 Magic 안무가 이미 있음), 버튼 소리 Sound 없음(카운트 삐 + 틀린 음만), 마구 눌러서 틀린 음 8번 · 맞힘도 있음, 스크립트 오류 없음.
