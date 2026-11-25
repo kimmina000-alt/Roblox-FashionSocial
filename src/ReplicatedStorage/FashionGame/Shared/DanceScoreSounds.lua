@@ -65,7 +65,14 @@ DanceScoreSounds.Songs = {
 } :: { [number]: { kit: string, key: number } }
 
 -- the four button sounds of a song: { id, speed, volume } per lane (id 0 = silent)
+-- (D-2082, user 2026-11-25: "키 타이밍 맞춰서 누르면 나오는 현재 효과음 지우고, 틀릴 때 틀린 음 다시 넣어") no button sound on a hit any more
+-- (the kits and their ids stay here: set Off = false to bring them back)
+DanceScoreSounds.Off = true
+
 function DanceScoreSounds.lanes(soundId: number?, baseVolume: number, fallback: { number }): { Play }
+	if DanceScoreSounds.Off then
+		return { { id = 0, speed = 1, volume = 0 }, { id = 0, speed = 1, volume = 0 }, { id = 0, speed = 1, volume = 0 }, { id = 0, speed = 1, volume = 0 } }
+	end
 	local song = soundId and DanceScoreSounds.Songs[soundId]
 	local kit = song and DanceScoreSounds.Kits[song.kit]
 	local out: { Play } = {}

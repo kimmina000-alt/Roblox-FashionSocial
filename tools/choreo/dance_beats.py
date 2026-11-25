@@ -52,6 +52,13 @@ SONGS = {
     81736514719301: ("Unbelievable", "H1 KEY", "aj_2goO-n8A"),
     102947379971628: ("Boogie Woogie", "NCT DREAM", "2Qhc7UPX_5Y"),
     129638210426239: ("내 이름을 불러줘(Call My Name)", "TWS", "V8aLu69DTms"),
+    # (D-2082, user 2026-11-25: "새로 추가된 곡들 추가하고") the newer choreographed songs (Magic / GiiiRIP wait for
+    # their choreography: the game only picks songs the neon stage can dance)
+    88799517182805: ("Potion", "AND2BLE", "XqP5O4rzCvo"),
+    80492816031335: ("It's Me", "ILLIT", "RwUKqYWyzNc"),
+    84753987256309: ("Abracadabra", "Brown Eyed Girls", "dWsWbd7xauA"),
+    124810692241835: ("Magic", "Secret", "Q5HKuivlwEo"),
+    84573541048803: ("GiiiRIP", "BIGBANG", "M6kZttNNRkM"),
 }
 
 

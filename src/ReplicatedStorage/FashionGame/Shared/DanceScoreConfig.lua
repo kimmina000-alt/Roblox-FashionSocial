@@ -120,6 +120,11 @@ DanceScoreConfig.HitSwellTime = 0.5
 -- (D-1818u, user 2026-11-21: "5번으로 하고 소리 반으로 더 줄여 봐") back to edm_5_stab, volume 0.15 → 0.075
 DanceScoreConfig.LaneSounds = { 76294360258700, 76294360258700, 76294360258700, 76294360258700 }
 -- (D-1818v, user 2026-11-21: "줄인 거에서 반만 더 키우고") 0.075 x 1.5
+-- (D-2082, user 2026-11-25: "키 타이밍 맞춰서 누르면 나오는 현재 효과음 지우고, 틀릴 때 틀린 음 다시 넣어") the miss buzz is back
+-- (a MISS and a tap with no note near: the game's UI error sound, higher, at most one in MissGap seconds)
+DanceScoreConfig.MissVolume = 0.4
+DanceScoreConfig.MissPitch = 1.6
+DanceScoreConfig.MissGap = 0.35
 DanceScoreConfig.LaneSoundVolume = 0.1125 -- (D-1818r: half of 0.6; D-1818s, user 2026-11-21: "지금 상태에서 절반으로 더")
 function DanceScoreConfig.auroraCombo(total: number): number
 	-- 15 % of the song's notes, in tens, at least 30 (NEON: 409 notes → 60)

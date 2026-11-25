@@ -352,7 +352,17 @@ end
 local ContentProvider = game:GetService("ContentProvider")
 local SOUND = {
 	BEEP = hitSound(DanceScoreConfig.CountBeep, 0.6, 1),
+	-- (D-2082, user 2026-11-25: "키 타이밍 맞춰서 누르면 나오는 현재 효과음 지우고, 틀릴 때 틀린 음 다시 넣어")
+	MISS = hitSound(SoundConfig.Ui.error, DanceScoreConfig.MissVolume, DanceScoreConfig.MissPitch),
 }
+local lastMissSound = 0
+local function missSound()
+	-- (a run of missed notes would buzz on every beat: at most one buzz in MissGap)
+	if os.clock() - lastMissSound < DanceScoreConfig.MissGap then return end
+	lastMissSound = os.clock()
+	SOUND.MISS.TimePosition = 0
+	SOUND.MISS:Play()
+end
 -- (D-1818i, user 2026-11-21: "틀렸을 때 나는 소리는 없애자") a miss (and a tap with no note near) makes no sound;
 -- MISS still shows on screen
 -- (D-1818m, user 2026-11-21: "6 빼고 3 5 7 8 차례대로 버튼 네 개에 하나씩") each button its own 0.5 s EDM sound on a
@@ -409,7 +419,7 @@ local function haptic(kind: string)
 	if h then pcall(function() h:Play() end) end
 end
 task.spawn(function()
-	pcall(function() ContentProvider:PreloadAsync({ SOUND.BEEP }) end)
+	pcall(function() ContentProvider:PreloadAsync({ SOUND.BEEP, SOUND.MISS }) end)
 	-- build the run's song sounds as soon as a run starts (before its first note)
 	while true do
 		local soundId = run and run.track.soundId
@@ -522,6 +532,7 @@ end)
 
 local function judge(r: Run, note: any, kind: string)
 	note.done = true
+	if kind == "MISS" then missSound() end -- (D-2082)
 	-- (D-1818g) a held note pressed in time stays on screen until its end (the holds loop judges its end)
 	local holding = note.hold ~= nil and kind ~= "MISS"
 	if note.frame and not holding then note.frame:Destroy() note.frame = nil end
@@ -593,6 +604,8 @@ local function press(laneIndex: number)
 		-- only when the press meets a falling note, at once, before the judging work (6 copies per button)
 		laneSound(laneIndex)
 		judge(r, best, if bestGap <= DanceScoreConfig.Perfect then "PERFECT" elseif bestGap <= DanceScoreConfig.Great then "GREAT" else "MISS")
+	else
+		missSound() -- (D-2082) a tap with no note near
 	end
 end
 

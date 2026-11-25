@@ -7145,3 +7145,9 @@ Studio only (no script yet).
 - 사용자가 무대 영상을 보냄(MBC 음악중심 2014 컴백 무대, youtube gKZ2BsYK3VM). 안무 D-2080(feat/abracadabra-choreo-1124)과 같은 노래 시간(fileSpeed 1.0507, 노래 끝 184.0초).
 - 영상 = 노래 - 0.20초: 원곡 mp3(dWsWbd7xauA) 소리를 무대 소리에 맞춤, 10초 창 모두 -0.20.
 - 컷 142개 → shots_to_lua.py 1 -0.2 184.0, 103샷. ClubCamera.Songs[84753987256309]. 작업 파일 D:\Roblox\영상\_work\Abracadabra_cam.
+
+## D-2082 네온 무대 리듬 게임: 맞힘 효과음 끄기, 틀린 음 다시, 새 곡 추가 (2026-11-25)
+- 사용자(메인 세션 전달): "네온 무대 미니 게임 키 타이밍 맞춰서 누르면 나오는 현재 효과음 지우고, 틀릴 때 틀린 음 다시 넣어. 새로 추가된 곡들 추가하고."
+- 맞힘 소리 끔: DanceScoreSounds.Off = true (곡별 키트 · id는 그대로 둠, false면 다시 남).
+- 틀린 음: MISS 판정과 노트 없는 곳을 누를 때 게임 UI 오류음(SoundConfig.Ui.error)을 1.6배 높이로, 크기 0.4, 0.35초에 한 번까지(DanceScoreConfig.MissVolume / MissPitch / MissGap). D-1818 처음 방식과 같음(그때 크기 0.18).
+- 새 곡: tools/choreo/dance_beats.py에 Potion-AND2BLE(124.0 bpm), It's Me-ILLIT(147.0), Abracadabra-Brown Eyed Girls(128.0), Magic-Secret(107.0), GiiiRIP-BIGBANG(135.0) 추가 → DanceScoreSongs 30곡. 네온 무대는 안무 있는 곡만 트니까 지금은 안무가 있는 Potion / It's Me / Abracadabra 3곡이 오늘의 곡 후보에 들어감(28곡); Magic / GiiiRIP은 안무가 catalog-ui-redesign에 들어오면 자동으로 후보가 됨. 기존 25곡 박자 값은 그대로.
